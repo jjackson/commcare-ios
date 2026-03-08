@@ -1,0 +1,82 @@
+behaviors:
+  - id: xpath_evaluation
+    description: XPath expressions evaluate identically across platforms
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: form_validation
+    description: Constraint validation produces identical results
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: skip_logic
+    description: Relevancy conditions evaluate identically
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: calculations
+    description: Calculated values produce identical results
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: case_transactions
+    description: Case create/update/close/index operations produce identical XML
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: form_submission_xml
+    description: Submitted form instance XML is identical
+    oracle: formplayer
+    category: engine
+    test_mode: output_match
+    known_differences: []
+
+  - id: auto_advance_single_select
+    description: Mobile auto-advances to next question after single select
+    oracle: android
+    category: mobile_specific
+    test_mode: android_parity
+    known_differences:
+      - "FormPlayer shows Next button; mobile auto-advances on selection"
+
+  - id: offline_form_save
+    description: Forms can be saved incomplete and resumed offline
+    oracle: android
+    category: mobile_specific
+    test_mode: android_parity
+    known_differences:
+      - "FormPlayer relies on server-side session; mobile saves to local SQLite"
+
+  - id: background_sync
+    description: Data syncs in the background periodically
+    oracle: android
+    category: mobile_specific
+    test_mode: android_parity
+    known_differences:
+      - "FormPlayer syncs on-demand via REST; mobile uses background task scheduler"
+
+  - id: multimedia_capture
+    description: Camera, audio, video capture from device hardware
+    oracle: android
+    category: mobile_specific
+    test_mode: android_parity
+    known_differences:
+      - "FormPlayer uses file upload; mobile captures via native camera/mic APIs"
+
+  - id: sync_state_hash
+    description: Device computes state hash for sync verification
+    oracle: android
+    category: mobile_specific
+    test_mode: android_parity
+    known_differences:
+      - "Same algorithm but mobile must compute locally; FormPlayer delegates to server"
