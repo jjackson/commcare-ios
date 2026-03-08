@@ -8,11 +8,16 @@ def generate_phase1_tasks(
     source_root: Path,
     repo: str,
     dry_run: bool = True,
+    grouped: bool = False,
 ) -> list[dict]:
     analyzer = PackageAnalyzer(source_root=source_root)
     packages = analyzer.discover_packages()
     graph = analyzer.build_dependency_graph(packages)
-    tasks = analyzer.generate_task_specs(packages, graph)
+
+    if grouped:
+        tasks = analyzer.generate_grouped_task_specs(packages, graph)
+    else:
+        tasks = analyzer.generate_task_specs(packages, graph)
 
     client = GitHubClient(repo=repo, dry_run=dry_run)
     results = []
@@ -37,12 +42,14 @@ def main():
     parser.add_argument("--repo", required=True, help="GitHub repo (owner/name)")
     parser.add_argument("--dry-run", action="store_true", default=True, help="Print tasks without creating issues")
     parser.add_argument("--create", action="store_true", help="Actually create GitHub Issues")
+    parser.add_argument("--grouped", action="store_true", help="Group packages by functional area (handles circular deps)")
     args = parser.parse_args()
 
     generate_phase1_tasks(
         source_root=args.source_root,
         repo=args.repo,
         dry_run=not args.create,
+        grouped=args.grouped,
     )
 
 
