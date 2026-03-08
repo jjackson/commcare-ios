@@ -1,0 +1,4 @@
+pipeline/src/pipeline/__pycache__/
+pipeline/tests/__pycache__/
+__pycache__/
+*.pyc
