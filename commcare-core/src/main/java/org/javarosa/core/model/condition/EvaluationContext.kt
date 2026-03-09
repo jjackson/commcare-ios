@@ -402,7 +402,7 @@ class EvaluationContext {
         // into the returned body as the original context, which is ugly, but opens up
         // intense optimizations
         if (this.getOriginalContextForPropogation() == null && subContext !== queryContext) {
-            subContext.setHackyOriginalContextBody(CurrentModelQuerySet(childSet))
+            subContext.setHackyOriginalContextBody(CurrentModelQuerySet(childSet!!))
         }
 
         // Create a place to store the current position markers

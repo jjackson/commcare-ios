@@ -42,27 +42,25 @@ class CaseIndexQuerySetTransform(private val table: CaseIndexTable?) : QuerySetT
             val ret = table!!.bulkReadIndexToCaseIdMatch(indexName, querySetBody)
             cacheCaseModelQuerySet(queryContext, ret)
 
-            trace.setOutcome("Loaded: " + ret.setBody.size)
+            trace.setOutcome("Loaded: " + ret.getSetBody().size)
 
             queryContext.reportTrace(trace)
             return ret
         }
 
         private fun cacheCaseModelQuerySet(queryContext: QueryContext, ret: DualTableSingleMatchModelQuerySet) {
-            val modelQueryMagnitude = ret.setBody.size
+            val modelQueryMagnitude = ret.getSetBody().size
             if (modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
                 queryContext.getQueryCache(RecordSetResultCache::class.java)
                     .reportBulkRecordSet(this.currentQuerySetId,
-                        CaseInstanceTreeElement.MODEL_NAME, ret.setBody)
+                        CaseInstanceTreeElement.MODEL_NAME, ret.getSetBody())
             }
         }
 
-        override fun getQueryModelId(): String {
-            return rootLookup.queryModelId
-        }
+        override val queryModelId: String
+            get() = rootLookup.queryModelId
 
-        override fun getCurrentQuerySetId(): String {
-            return rootLookup.currentQuerySetId + "|index|" + indexName
-        }
+        override val currentQuerySetId: String
+            get() = rootLookup.currentQuerySetId + "|index|" + indexName
     }
 }
