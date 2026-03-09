@@ -14,9 +14,9 @@
  * the License.
  */
 
-package org.javarosa.xform.parse;
+package org.javarosa.xform.parse
 
-import org.kxml2.kdom.Element;
+import org.kxml2.kdom.Element
 
 /**
  * Exception thrown when an XForms Parsing error occurs.
@@ -26,27 +26,25 @@ import org.kxml2.kdom.Element;
 // Clayton Sims - Aug 18, 2008 : This doesn't actually seem
 // to be a RuntimeException to me. Is there justification
 // as to why it is?
-public class XFormParseException extends RuntimeException {
-    Element element;
+class XFormParseException : RuntimeException {
 
-    public XFormParseException() {
+    @JvmField
+    internal var element: Element? = null
+
+    constructor()
+
+    constructor(msg: String?) : super(msg) {
+        element = null
     }
 
-    public XFormParseException(String msg) {
-        super(msg);
-        element = null;
+    constructor(msg: String?, e: Element?) : super(msg) {
+        element = e
     }
 
-    public XFormParseException(String msg, Element e) {
-        super(msg);
-        element = e;
-    }
-
-    @Override
-    public String getMessage() {
-        if (element == null) {
-            return super.getMessage();
+    override val message: String?
+        get() = if (element == null) {
+            super.message
+        } else {
+            super.message + XFormParser.getVagueLocation(element)
         }
-        return super.getMessage() + XFormParser.getVagueLocation(element);
-    }
 }
