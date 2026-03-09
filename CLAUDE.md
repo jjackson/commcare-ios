@@ -39,7 +39,7 @@ commcare-ios/
 | 0 | Build setup | — | Done (commcare-core PR #2) |
 | 1 | javarosa-utilities | 115 | Done (commcare-core PR #3) |
 | 2 | javarosa-model | 82 | Done (commcare-core PR #4) |
-| 3 | xpath-engine | 134 | Done (Issue #5 closed, commcare-ios PR #13 open) |
+| 3 | xpath-engine | 134 | Done (PR #13 merged) |
 | 4 | xform-parser | 27 | Open (Issue #6) |
 | 5 | case-management | 66 | Open (Issue #7) |
 | 6 | suite-and-session | 93 | Open (Issue #8) |
@@ -63,6 +63,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **CLAUDE.md importance**: `docs/learnings/2026-03-08-claude-md-importance.md` — why CLAUDE.md must exist early and integrate learnings
 - **Degenerify**: `docs/learnings/2026-03-08-abstract-tree-element-degenerify.md` — removing type parameter from AbstractTreeElement, with rationale
 - **Monorepo for agents**: `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` — why all context must be in one directory tree for AI agents
+- **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
 
 ## Kotlin Conversion Checklist
 
@@ -74,6 +75,10 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 4. **`open` keyword**: Kotlin classes are `final` by default. Check if the class is subclassed anywhere (including commcare-android, FormPlayer) and mark `open`.
 5. **`@JvmField` / `@JvmStatic`**: Java subclasses accessing `super.field` need `@JvmField`. Java callers of companion methods need `@JvmStatic`.
 6. **Local build first**: Run `./gradlew compileKotlin compileJava` locally before pushing. Run `./gradlew test` for final verification.
+7. **KDoc `*/` hazard**: Grep for `*/` inside `/** ... */` block comments — XPath wildcards like `/data/*/to` prematurely close the comment. Escape as `` `*` ``.
+8. **Preserve `abstract`**: If the Java class is `abstract`, the Kotlin class must be `abstract` too (not `open`). Reflection-based tests depend on this.
+9. **Nullable parameter threading**: Don't add `!!` on nullable params just to call a child method — make the child accept nullable too. Java silently passes null through call chains.
+10. **`protected` → `internal`**: Java `protected` = package + subclass access. Kotlin `protected` = subclass only. Use `internal` for same-package non-subclass callers.
 
 ## PR Rules
 
