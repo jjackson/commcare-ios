@@ -189,6 +189,15 @@ git commit -m "port: convert <group-name> to Kotlin (<N> files)"
 
 Create a branch named `kotlin-port/wave-N-<group-name>`, push, and open a PR targeting the previous wave's branch. See **PR Strategy** above for naming, targets, and description template.
 
+**Step 7: Create doc PR for learnings**
+
+After the code PR is merged, create a separate PR for any documentation updates:
+- New learnings discovered during the wave → `docs/learnings/`
+- CLAUDE.md status table updates
+- Phase plan corrections or clarifications
+
+Branch: `docs/wave-N-learnings`, target: `main`. See CLAUDE.md "Doc PR Rules".
+
 ### PR Strategy
 
 Each wave must produce a reviewable PR before the next wave begins.

@@ -36,10 +36,10 @@ commcare-ios/
 
 | Wave | Group | Files | Status |
 |------|-------|-------|--------|
-| 0 | Build setup | — | Done (PR #2) |
-| 1 | javarosa-utilities | 115 | Done (PR #3) |
-| 2 | javarosa-model | 82 | Done (PR #4) |
-| 3 | xpath-engine | 134 | Open (Issue #5) |
+| 0 | Build setup | — | Done (commcare-core PR #2) |
+| 1 | javarosa-utilities | 115 | Done (commcare-core PR #3) |
+| 2 | javarosa-model | 82 | Done (commcare-core PR #4) |
+| 3 | xpath-engine | 134 | Done (Issue #5 closed, commcare-ios PR #13 open) |
 | 4 | xform-parser | 27 | Open (Issue #6) |
 | 5 | case-management | 66 | Open (Issue #7) |
 | 6 | suite-and-session | 93 | Open (Issue #8) |
@@ -50,9 +50,19 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 
 ## Key Docs
 
+**Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
 - **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — wave details, PR strategy, issue closure template
-- **Conversion pitfalls**: `docs/learnings/2026-03-08-kotlin-conversion-pitfalls.md` — 6 recurring issues with fixes
+- **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — completed infrastructure setup (pipeline, CI, task generator). **Skip unless debugging pipeline issues.**
+- **Degenerify design**: `docs/plans/2026-03-08-abstract-tree-element-degenerify-design.md` — removing AbstractTreeElement type parameter (completed in Wave 2)
+
+**Learnings:**
+- **Conversion pitfalls**: `docs/learnings/2026-03-08-kotlin-conversion-pitfalls.md` — 6 recurring issues with fixes (source for Kotlin Conversion Checklist below)
+- **PR discipline**: `docs/learnings/2026-03-08-pr-discipline.md` — why every deliverable step must be explicit in the plan (source for PR Rules below)
+- **Issue closure discipline**: `docs/learnings/2026-03-08-issue-closure-discipline.md` — why evidence is as important as code (source for Issue Closure Rules below)
+- **CLAUDE.md importance**: `docs/learnings/2026-03-08-claude-md-importance.md` — why CLAUDE.md must exist early and integrate learnings
+- **Degenerify**: `docs/learnings/2026-03-08-abstract-tree-element-degenerify.md` — removing type parameter from AbstractTreeElement, with rationale
+- **Monorepo for agents**: `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` — why all context must be in one directory tree for AI agents
 
 ## Kotlin Conversion Checklist
 
@@ -74,6 +84,13 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 - **Squash fix commits**: All compilation/interop fixes squashed into one commit per wave
 - **Size**: ~100-150 files max per PR
 - **CI gate**: PR must pass before next wave starts
+
+## Doc PR Rules
+
+- **Doc changes get their own PRs** — changes to CLAUDE.md, `docs/plans/`, and `docs/learnings/` must not be mixed into code PRs
+- **Branch naming**: `docs/<short-description>`
+- **Self-merge after CI**: Doc PRs can be merged by the agent without human review, unless they change architectural decisions
+- **During a wave**: Note learnings in the code PR description, then create a separate doc PR after the code PR merges
 
 ## Issue Closure Rules
 
@@ -124,3 +141,4 @@ git subtree split --prefix=commcare-core -b upstream-ready
 - Follow the Kotlin Conversion Checklist above for every file
 - Follow PR Rules and Issue Closure Rules exactly — AI agents must not skip deliverable steps
 - When in doubt about a technical decision, document it in the PR description
+- Never mix documentation changes into code branches — use separate doc PRs (see Doc PR Rules)
