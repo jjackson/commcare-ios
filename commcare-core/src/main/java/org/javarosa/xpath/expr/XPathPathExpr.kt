@@ -325,7 +325,7 @@ class XPathPathExpr : XPathExpression {
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, initContext.toLong())
         if (initContext == INIT_CONTEXT_EXPR) {
-            ExtUtil.write(out, filtExpr)
+            ExtUtil.write(out, filtExpr!!)
         }
 
         val v = Vector<XPathStep>()

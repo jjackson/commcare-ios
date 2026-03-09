@@ -143,7 +143,7 @@ class XPathStep : Externalizable {
      *
      * Matching is reflexive, consistent, and symmetric, but _not_ transitive.
      */
-    protected fun matches(o: XPathStep?): Boolean {
+    internal fun matches(o: XPathStep?): Boolean {
         if (o != null) {
             //shortcuts for faster evaluation
             if (axis != o.axis
