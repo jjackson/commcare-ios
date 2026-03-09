@@ -96,7 +96,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
             if (ec != null) {
                 val context = ec.getCurrentQueryContext()
                 QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, context)
-                node = QuerySensitiveTreeElementWrapper.WrapWithContext(node, context)
+                node = QuerySensitiveTreeElementWrapper.WrapWithContext(node!!, context)
             }
             val name = ref.getName(i)
             var mult = ref.getMultiplicity(i)
