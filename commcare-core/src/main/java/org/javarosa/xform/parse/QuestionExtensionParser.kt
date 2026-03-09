@@ -1,7 +1,7 @@
-package org.javarosa.xform.parse;
+package org.javarosa.xform.parse
 
-import org.javarosa.core.model.QuestionDataExtension;
-import org.kxml2.kdom.Element;
+import org.javarosa.core.model.QuestionDataExtension
+import org.kxml2.kdom.Element
 
 /**
  * A parser for some additional piece of information included with a question in an xform that
@@ -13,22 +13,24 @@ import org.kxml2.kdom.Element;
  *
  * @author amstone
  */
-public abstract class QuestionExtensionParser {
+abstract class QuestionExtensionParser {
 
     // The name of the question type that this parser is for ("input", "upload", etc.)
-    private String elementName;
+    private var _elementName: String? = null
 
-    public void setElementName(String elementName) {
-        this.elementName = elementName;
+    fun getElementName(): String? = _elementName
+
+    fun setElementName(elementName: String?) {
+        this._elementName = elementName
     }
 
-    public boolean canParse(Element e) {
-        return e.getName().equals(elementName);
+    fun canParse(e: Element): Boolean {
+        return e.name == _elementName
     }
 
     // May return null if the specific extension data being sought is not present for the given
     // element
-    public abstract QuestionDataExtension parse(Element e);
+    abstract fun parse(e: Element): QuestionDataExtension?
 
-    public abstract String[] getUsedAttributes();
+    abstract fun getUsedAttributes(): Array<String>
 }
