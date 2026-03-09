@@ -22,7 +22,7 @@ open class XPathChecklistFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return if (args.size == 3 && evaluatedArgs[2] is XPathNodeset) {
             checklist(evaluatedArgs[0], evaluatedArgs[1], (evaluatedArgs[2] as XPathNodeset).toArgList())
         } else {

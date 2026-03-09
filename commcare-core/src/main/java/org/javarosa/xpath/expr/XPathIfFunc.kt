@@ -23,7 +23,7 @@ open class XPathIfFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return if (FunctionUtils.toBoolean(args[0].eval(model, evalContext))) {
             args[1].eval(model, evalContext)
         } else {

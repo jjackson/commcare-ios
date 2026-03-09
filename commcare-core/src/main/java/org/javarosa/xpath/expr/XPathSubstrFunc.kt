@@ -21,7 +21,7 @@ open class XPathSubstrFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return substring(evaluatedArgs[0], evaluatedArgs[1], if (args.size == 3) evaluatedArgs[2] else null)
     }
 

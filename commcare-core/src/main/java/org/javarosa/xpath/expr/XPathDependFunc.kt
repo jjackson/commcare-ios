@@ -22,7 +22,7 @@ open class XPathDependFunc : XPathFuncExpr, VolatileXPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return evaluatedArgs[0]!!
     }
 

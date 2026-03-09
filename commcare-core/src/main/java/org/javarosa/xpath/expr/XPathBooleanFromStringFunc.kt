@@ -13,7 +13,7 @@ open class XPathBooleanFromStringFunc : XPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val s = FunctionUtils.toString(evaluatedArgs[0])
         return if (s.equals("true", ignoreCase = true) || s == "1") {
             java.lang.Boolean.TRUE

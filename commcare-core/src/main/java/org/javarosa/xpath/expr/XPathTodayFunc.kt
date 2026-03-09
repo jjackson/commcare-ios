@@ -15,7 +15,7 @@ open class XPathTodayFunc : XPathFuncExpr, VolatileXPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, false)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return DateUtils.roundDate(Date())
     }
 

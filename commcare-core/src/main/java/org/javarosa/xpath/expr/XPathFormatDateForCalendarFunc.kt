@@ -24,7 +24,7 @@ open class XPathFormatDateForCalendarFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         var formatString: String? = null
         if (evaluatedArgs.size > 2) {
             formatString = FunctionUtils.toString(evaluatedArgs[2])

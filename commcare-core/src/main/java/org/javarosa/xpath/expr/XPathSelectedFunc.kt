@@ -20,7 +20,7 @@ open class XPathSelectedFunc : XPathFuncExpr {
         this.name = name
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return multiSelected(evaluatedArgs[0], evaluatedArgs[1])
     }
 

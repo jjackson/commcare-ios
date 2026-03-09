@@ -21,7 +21,7 @@ open class XpathCoalesceFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         // Not sure if unpacking here is quiiite right, but it seems right
         for (i in 0 until args.size - 1) {
             val evaluatedArg = FunctionUtils.unpack(args[i].eval(model, evalContext))

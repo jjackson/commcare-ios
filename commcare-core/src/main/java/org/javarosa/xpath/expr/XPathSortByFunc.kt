@@ -29,7 +29,7 @@ open class XPathSortByFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val sortedList: List<String>
         if (evaluatedArgs.size == 2) {
             sortedList = sortListByOtherList(

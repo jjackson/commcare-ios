@@ -16,7 +16,7 @@ open class XPathIdCompressFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(
-        model: DataInstance<*>, evalContext: EvaluationContext,
+        model: DataInstance<*>?, evalContext: EvaluationContext,
         evaluatedArgs: Array<Any?>
     ): Any {
         val input = FunctionUtils.toInt(evaluatedArgs[0]).toLong()

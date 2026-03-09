@@ -15,7 +15,7 @@ open class XPathCountFunc : XPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         if (evaluatedArgs[0] is XPathNodeset) {
             return java.lang.Double.valueOf((evaluatedArgs[0] as XPathNodeset).size().toDouble())
         } else {

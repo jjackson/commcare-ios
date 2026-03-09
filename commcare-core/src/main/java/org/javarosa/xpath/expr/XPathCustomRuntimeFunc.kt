@@ -30,7 +30,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
         // no validation for custom runtime functions
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         throw XPathUnhandledException("function '$name'")
     }
 

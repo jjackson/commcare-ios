@@ -22,7 +22,7 @@ open class XPathUuidFunc : XPathFuncExpr, VolatileXPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         if (args.size == 0) {
             return PropertyUtils.genUUID()

@@ -23,7 +23,7 @@ open class XPathWeightedChecklistFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         if (args.size == 4 && evaluatedArgs[2] is XPathNodeset && evaluatedArgs[3] is XPathNodeset) {
             val factors = (evaluatedArgs[2] as XPathNodeset).toArgList()
             val weights = (evaluatedArgs[3] as XPathNodeset).toArgList()

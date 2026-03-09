@@ -18,7 +18,7 @@ open class XPathConcatFunc : XPathFuncExpr {
     override fun validateArgCount() {
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return if (args.size == 1 && evaluatedArgs[0] is XPathNodeset) {
             XPathJoinFunc.join("", (evaluatedArgs[0] as XPathNodeset).toArgList())
         } else {

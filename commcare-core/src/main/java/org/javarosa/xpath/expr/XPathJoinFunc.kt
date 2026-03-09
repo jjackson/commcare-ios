@@ -22,7 +22,7 @@ open class XPathJoinFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val argList: Array<Any?>
         if (args.size == 2 && evaluatedArgs[1] is XPathNodeset) {
             argList = (evaluatedArgs[1] as XPathNodeset).toArgList()

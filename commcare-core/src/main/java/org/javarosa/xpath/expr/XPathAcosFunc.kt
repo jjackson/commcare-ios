@@ -13,7 +13,7 @@ open class XPathAcosFunc : XPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return Math.acos(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 

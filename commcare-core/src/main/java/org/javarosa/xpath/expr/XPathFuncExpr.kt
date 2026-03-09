@@ -22,7 +22,7 @@ import java.util.Vector
  * Base class for xpath function expressions.
  * Dispatches to runtime function overrides when they exist.
  */
-open class XPathFuncExpr : XPathExpression {
+abstract class XPathFuncExpr : XPathExpression {
     @JvmField
     var name: String = ""
     @JvmField
@@ -54,7 +54,7 @@ open class XPathFuncExpr : XPathExpression {
         return if (handler != null) {
             XPathCustomRuntimeFunc.evalCustomFunction(handler, evaluatedArgs, evalContext)
         } else {
-            evalBody(model!!, evalContext, evaluatedArgs)
+            evalBody(model, evalContext, evaluatedArgs)
         }
     }
 
@@ -68,9 +68,7 @@ open class XPathFuncExpr : XPathExpression {
         return evaluatedArgs
     }
 
-    protected open fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        throw UnsupportedOperationException("evalBody not implemented")
-    }
+    protected abstract fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any
 
     override fun toString(): String {
         val sb = StringBuffer()

@@ -27,7 +27,7 @@ open class XPathCondFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         var i = 0
         while (i < args.size - 2) {
             if (FunctionUtils.toBoolean(args[i].eval(model, evalContext))) {

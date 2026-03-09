@@ -22,7 +22,7 @@ open class XPathMaxFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return if (evaluatedArgs.size == 1 && evaluatedArgs[0] is XPathNodeset) {
             max((evaluatedArgs[0] as XPathNodeset).toArgList())
         } else {

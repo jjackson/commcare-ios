@@ -26,7 +26,7 @@ open class XPathSleepFunc : XPathFuncExpr, VolatileXPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val millis = FunctionUtils.toInt(evaluatedArgs[0]).toInt()
 
         try {

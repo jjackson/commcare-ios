@@ -27,7 +27,7 @@ open class XPathSortFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val sortedList: List<String>
         if (evaluatedArgs.size == 1) {
             sortedList = sortSingleList(FunctionUtils.toString(evaluatedArgs[0]), true)

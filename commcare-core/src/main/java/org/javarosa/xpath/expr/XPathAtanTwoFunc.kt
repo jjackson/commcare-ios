@@ -13,7 +13,7 @@ open class XPathAtanTwoFunc : XPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val value1 = FunctionUtils.toDouble(evaluatedArgs[0])
         val value2 = FunctionUtils.toDouble(evaluatedArgs[1])
         return Math.atan2(value1, value2)

@@ -31,7 +31,7 @@ open class XPathClosestPointOnPolygonFunc : XPathFuncExpr {
      * Note that the arguments can be strings.
      * Returns "" if one of the arguments is null or the empty string.
      */
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         return closestPointToPolygon(evaluatedArgs[0], evaluatedArgs[1])
     }
 

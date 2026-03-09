@@ -25,7 +25,7 @@ open class XPathPositionFunc : XPathFuncExpr {
         }
     }
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         if (args.size == 1) {
             val expr = evaluatedArgs[0] as XPathNodeset
             try {

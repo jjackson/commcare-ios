@@ -23,7 +23,7 @@ open class XPathJoinChunkFunc : XPathFuncExpr {
     }
 
     override fun evalBody(
-        model: DataInstance<*>, evalContext: EvaluationContext,
+        model: DataInstance<*>?, evalContext: EvaluationContext,
         evaluatedArgs: Array<Any?>
     ): Any {
         return if (args.size == 3 && evaluatedArgs[2] is XPathNodeset) {

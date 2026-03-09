@@ -15,7 +15,7 @@ open class XPathRandomFunc : XPathFuncExpr, VolatileXPathFuncExpr {
     @Throws(XPathSyntaxException::class)
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, false)
 
-    override fun evalBody(model: DataInstance<*>, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
+    override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         //calculated expressions may be recomputed w/o warning! use with caution!!
         return java.lang.Double.valueOf(MathUtils.getRand().nextDouble())
     }
