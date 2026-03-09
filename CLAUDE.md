@@ -4,14 +4,22 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 
 ## Repo Architecture
 
-- **commcare-ios** (this repo): iOS app code, pipeline tooling, plans, docs, CI workflows
-- **commcare-core** ([jjackson/commcare-core](https://github.com/jjackson/commcare-core)): Fork of the CommCare core engine, being ported from Java to Kotlin. Separate repo, same relationship as commcare-android has to commcare-core.
-- **Issues** for both repos are tracked here in commcare-ios (commcare-core fork has issues disabled)
+**Monorepo.** commcare-core lives inside this repo as a `git subtree` at `commcare-core/`. This keeps all context (CLAUDE.md, learnings, plans, source code) in one worktree for AI agents. See `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` for rationale.
+
+- **commcare-core/** — Fork of `dimagi/commcare-core`, being ported from Java to Kotlin. Managed via `git subtree`.
+- **docs/**, **pipeline/** — Plans, learnings, and autonomous pipeline tooling
+- **Issues** are tracked here in commcare-ios (commcare-core fork has issues disabled)
+- **Upstream extraction**: When ready to PR against `dimagi/commcare-core`, use `git subtree split --prefix=commcare-core -b upstream-ready`
 
 ## Project Structure
 
 ```
 commcare-ios/
+├── commcare-core/      # CommCare engine (git subtree from jjackson/commcare-core)
+│   ├── src/main/java/  # Kotlin + Java source (being converted wave by wave)
+│   ├── src/test/java/  # JUnit 4 tests (remain in Java)
+│   ├── build.gradle    # Gradle build with Kotlin JVM plugin
+│   └── gradlew         # Gradle wrapper
 ├── docs/
 │   ├── plans/          # Design docs and phase implementation plans
 │   └── learnings/      # Post-hoc learnings from mistakes and discoveries
@@ -80,14 +88,32 @@ Terse closures like "Completed. PR: link" are not acceptable. Evidence is as imp
 ## Build Commands
 
 ```bash
-# In commcare-core repo:
+# From repo root — commcare-core is a subdirectory:
+cd commcare-core
 ./gradlew compileKotlin compileJava    # Quick compilation check
 ./gradlew test                          # Full test suite
+
+# Future KMP:
 ./gradlew :commcare-core:jvmTest       # KMP JVM tests (once KMP targets added)
 
 # CI workflows:
 # - kotlin-tests.yml: runs on PRs touching commcare-core/, gradle files
 # - ios-build.yml: runs on PRs touching app/, commcare-core/, gradle files (macOS runner)
+```
+
+## Subtree Management
+
+commcare-core is managed via `git subtree`. Key commands:
+
+```bash
+# Pull latest changes from jjackson/commcare-core:
+git subtree pull --prefix=commcare-core https://github.com/jjackson/commcare-core.git master --squash
+
+# Push changes back to jjackson/commcare-core:
+git subtree push --prefix=commcare-core https://github.com/jjackson/commcare-core.git <branch-name>
+
+# Extract clean history for upstream PR to dimagi/commcare-core:
+git subtree split --prefix=commcare-core -b upstream-ready
 ```
 
 ## AI Agent Guidelines
