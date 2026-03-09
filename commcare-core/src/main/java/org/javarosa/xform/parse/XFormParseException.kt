@@ -42,9 +42,12 @@ class XFormParseException : RuntimeException {
     }
 
     override val message: String?
-        get() = if (element == null) {
-            super.message
-        } else {
-            super.message + XFormParser.getVagueLocation(element)
+        get() {
+            val el = element
+            return if (el == null) {
+                super.message
+            } else {
+                super.message + XFormParser.getVagueLocation(el)
+            }
         }
 }

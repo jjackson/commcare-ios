@@ -160,7 +160,7 @@ class SetValueAction : Action {
             return IElementHandler { p, e, parent ->
                 // the generic parseAction() method in XFormParser already checks to make sure
                 // that parent is an IFormElement, and throws an exception if it is not
-                p.parseSetValueAction((parent as IFormElement).getActionController(), e)
+                p.parseSetValueAction((parent as IFormElement).getActionController()!!, e)
             }
         }
     }
