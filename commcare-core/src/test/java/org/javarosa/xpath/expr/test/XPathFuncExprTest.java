@@ -199,7 +199,7 @@ public class XPathFuncExprTest {
         // exclude functions defined at runtime
         funcClasses.remove(XPathCustomRuntimeFunc.class);
 
-        HashMap<String, Class> funcList = FunctionUtils.getXPathFuncListMap();
+        HashMap<String, Class<?>> funcList = FunctionUtils.getXPathFuncListMap();
         for (Class c : funcClasses) {
             assertTrue(c + " is not in list of functions, please update it",
                     funcList.containsValue(c));

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Kotlin 2.0+, Gradle with kotlin("jvm") then kotlin("multiplatform"), JUnit 4 (existing tests), Kotlin/Native for iOS target.
 
-**Repo:** Fork of `dimagi/commcare-core` at `jjackson/commcare-core` (or branch on existing repo)
+**Repo:** Monorepo at `jjackson/commcare-ios` with commcare-core as a `git subtree` at `commcare-core/`. All PRs and issues live in commcare-ios. See `CLAUDE.md` for subtree management commands.
 
 ---
 
@@ -206,11 +206,7 @@ Each wave must produce a reviewable PR before the next wave begins.
 
 **Branch naming:** `kotlin-port/wave-N-<group-name>` (e.g., `kotlin-port/wave-1-utilities`).
 
-**Stacked PR targets:** Each PR targets the previous wave's branch:
-- Wave 0 (build setup) → `master`
-- Wave 1 → `kotlin-port/wave-0-build-setup`
-- Wave 2 → `kotlin-port/wave-1-utilities`
-- Wave N → `kotlin-port/wave-(N-1)-<name>`
+**PR targets:** All PRs target `main` in `jjackson/commcare-ios`. (Stacked PRs targeting previous wave branches are no longer used since the monorepo merge.)
 
 **Squash fix commits.** All compilation/interop fix commits must be squashed into the wave's port commit before creating the PR. Each wave branch should have exactly one commit on top of its parent.
 
