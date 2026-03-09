@@ -33,7 +33,7 @@ class DataModelSerializer {
     }
 
     @Throws(IOException::class)
-    fun serialize(instance: ExternalDataInstance, base: TreeReference) {
+    fun serialize(instance: ExternalDataInstance, base: TreeReference?) {
         val specializedInstance = instance.initialize(factory, instance.getInstanceId())
         serialize(specializedInstance, base)
     }
