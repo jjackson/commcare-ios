@@ -1,0 +1,127 @@
+package org.javarosa.core.util.externalizable
+
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.util.Vector
+
+// List of objects of single (non-polymorphic) type
+class ExtWrapList : ExternalizableWrapper {
+
+    @JvmField
+    var type: ExternalizableWrapper? = null
+
+    private var sealed: Boolean = false
+    private var listImplementation: Class<out List<*>>? = null
+
+    /* Constructors for serialization */
+
+    constructor(list: List<*>) : this(list, null)
+
+    constructor(list: List<*>, type: ExternalizableWrapper?) {
+        requireNotNull(list)
+        this.`val` = list
+        this.type = type
+        @Suppress("UNCHECKED_CAST")
+        this.listImplementation = list.javaClass as Class<out List<*>>
+    }
+
+    /* Constructors for deserialization */
+
+    constructor()
+
+    // Assumes that the list implementation is a Vector, since that is most common
+    constructor(listElementType: Class<*>) : this(listElementType, Vector::class.java)
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(listElementType: Class<*>, listImplementation: Class<*>) {
+        this.type = ExtWrapBase(listElementType)
+        this.listImplementation = listImplementation as Class<out List<*>>
+        this.sealed = false
+    }
+
+    // Assumes that the list implementation is a Vector, since that is most common
+    constructor(type: ExternalizableWrapper) : this(type, Vector::class.java)
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(type: ExternalizableWrapper, listImplementation: Class<*>) {
+        requireNotNull(type)
+        this.listImplementation = listImplementation as Class<out List<*>>
+        this.type = type
+    }
+
+    override fun clone(`val`: Any?): ExternalizableWrapper {
+        @Suppress("UNCHECKED_CAST")
+        return ExtWrapList(`val` as List<*>, type)
+    }
+
+    @Throws(IOException::class, DeserializationException::class)
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+        if (!sealed) {
+            val size = ExtUtil.readNumeric(`in`).toInt()
+            try {
+                val l: MutableList<Any?> = if (listImplementation == Vector::class.java) {
+                    // to preserve performance gains of instantiating a Vector with its size
+                    Vector(size)
+                } else {
+                    @Suppress("DEPRECATION")
+                    listImplementation!!.newInstance() as MutableList<Any?>
+                }
+                for (i in 0 until size) {
+                    l.add(ExtUtil.read(`in`, type!!, pf))
+                }
+                `val` = l
+            } catch (e: InstantiationException) {
+                throw DeserializationException(e.message!!)
+            } catch (e: IllegalAccessException) {
+                throw DeserializationException(e.message!!)
+            }
+        } else {
+            val size = ExtUtil.readNumeric(`in`).toInt()
+            val theval = arrayOfNulls<Any>(size)
+            for (i in 0 until size) {
+                theval[i] = ExtUtil.read(`in`, type!!, pf)
+            }
+            `val` = theval
+        }
+    }
+
+    @Throws(IOException::class)
+    override fun writeExternal(out: DataOutputStream) {
+        @Suppress("UNCHECKED_CAST")
+        val l = `val` as List<Any?>
+        ExtUtil.writeNumeric(out, l.size.toLong())
+        for (i in l.indices) {
+            ExtUtil.write(out, if (type == null) l[i]!! else type!!.clone(l[i]))
+        }
+    }
+
+    @Throws(IOException::class, DeserializationException::class)
+    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+        type = ExtWrapTagged.readTag(`in`, pf)
+        try {
+            @Suppress("UNCHECKED_CAST")
+            listImplementation = Class.forName(ExtUtil.readString(`in`)) as Class<out List<*>>
+        } catch (e: ClassNotFoundException) {
+            throw DeserializationException(e.message!!)
+        }
+    }
+
+    @Throws(IOException::class)
+    override fun metaWriteExternal(out: DataOutputStream) {
+        val tagObj: Any? = if (type == null) {
+            @Suppress("UNCHECKED_CAST")
+            val l = `val` as List<Any?>
+            if (l.isEmpty()) {
+                Any()
+            } else {
+                l[0]
+            }
+        } else {
+            type
+        }
+
+        ExtWrapTagged.writeTag(out, tagObj!!)
+        ExtUtil.writeString(out, listImplementation!!.name)
+    }
+}

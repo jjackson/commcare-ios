@@ -1,0 +1,26 @@
+package org.javarosa.core.model.trace
+
+import java.util.Vector
+
+/**
+ * A trace reporter provides a callback interface to allow for an
+ * evaluation context to callback expression trace results directly in debug
+ * mode, rather than requiring them to be requested.
+ *
+ * Created by ctsims on 10/19/2016.
+ */
+interface EvaluationTraceReporter {
+
+    fun wereTracesReported(): Boolean
+
+    fun reportTrace(trace: EvaluationTrace?)
+
+    fun reset()
+
+    fun getCollectedTraces(): Vector<EvaluationTrace>
+
+    /**
+     * If true, all traces are collected at a single flat level, rather than creating subtraces
+     */
+    fun reportAsFlat(): Boolean
+}
