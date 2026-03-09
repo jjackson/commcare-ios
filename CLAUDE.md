@@ -67,9 +67,10 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 
 ## PR Rules
 
+- **All PRs in commcare-ios** — no PRs on the separate commcare-core repo during development
 - **One PR per wave** — each wave gets its own PR
 - **Branch naming**: `kotlin-port/wave-N-<group-name>`
-- **Stacked targets**: Each PR targets the previous wave's branch (not master)
+- **Target**: `main` branch of commcare-ios
 - **Squash fix commits**: All compilation/interop fixes squashed into one commit per wave
 - **Size**: ~100-150 files max per PR
 - **CI gate**: PR must pass before next wave starts
