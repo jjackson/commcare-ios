@@ -35,9 +35,6 @@ The converter is tightly coupled to IntelliJ's IDE internals (PSI, type resoluti
 - Open-sourced AST utilities: https://github.com/fbsamples/kotlin_ast_tools
 - Did NOT open-source the full Kotlinator (too coupled to Buck/internal frameworks)
 
-**Google:**
-- Has a converter tool: https://github.com/google/kotlin_convert
-
 **Pandora:**
 - Built an IntelliJ plugin for bulk conversion with git history preservation
 - https://github.com/PandoraMedia/multi-file-kotlin-converter-plugin
