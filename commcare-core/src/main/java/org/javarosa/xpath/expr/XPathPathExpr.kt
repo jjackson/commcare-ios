@@ -249,7 +249,8 @@ class XPathPathExpr : XPathExpression {
                 return false
             }
 
-            return ExtUtil.arrayEquals(steps, o.steps, false) && (initContext != INIT_CONTEXT_EXPR || filtExpr == o.filtExpr)
+            @Suppress("UNCHECKED_CAST")
+            return ExtUtil.arrayEquals(steps as Array<Any?>, o.steps as Array<Any?>, false) && (initContext != INIT_CONTEXT_EXPR || filtExpr == o.filtExpr)
         } else {
             return false
         }
@@ -309,7 +310,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         initContext = ExtUtil.readInt(`in`)
         if (initContext == INIT_CONTEXT_EXPR) {
             filtExpr = ExtUtil.read(`in`, XPathFilterExpr::class.java, pf) as XPathFilterExpr
@@ -322,7 +323,7 @@ class XPathPathExpr : XPathExpression {
 
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        ExtUtil.writeNumeric(out, initContext)
+        ExtUtil.writeNumeric(out, initContext.toLong())
         if (initContext == INIT_CONTEXT_EXPR) {
             ExtUtil.write(out, filtExpr)
         }
@@ -345,7 +346,8 @@ class XPathPathExpr : XPathExpression {
         } else {
             //It's very, very hard to figure out how to pivot predicates. For now, just skip it
             for (i in 0 until ref.size()) {
-                if (ref.getPredicate(i) != null && ref.getPredicate(i).size > 0) {
+                val pred = ref.getPredicate(i)
+                if (pred != null && pred.size > 0) {
                     throw UnpivotableExpressionException("Can't pivot filtered treereferences. Ref: ${ref.toString(true)} has predicates.")
                 }
             }

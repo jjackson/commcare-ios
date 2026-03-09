@@ -19,7 +19,7 @@ class InstanceNameAccumulatingAnalyzer : XPathAccumulatingAnalyzer<String> {
     @Throws(AnalysisInvalidException::class)
     override fun doNormalTreeRefAnalysis(treeRef: TreeReference) {
         if (treeRef.contextType == TreeReference.CONTEXT_INSTANCE) {
-            addToResult(treeRef.instanceName)
+            addToResult(treeRef.instanceName!!)
         }
     }
 

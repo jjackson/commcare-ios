@@ -33,7 +33,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         isEqOp = ExtUtil.readBool(`in`)
         readExpressions(`in`, pf)
 

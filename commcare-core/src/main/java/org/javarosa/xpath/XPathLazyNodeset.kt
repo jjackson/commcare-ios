@@ -43,7 +43,7 @@ class XPathLazyNodeset(
 
             //to fix conditions based on non-relevant data, filter the nodeset by relevancy
             var i = 0
-            while (i < nodes.size()) {
+            while (i < nodes.size) {
                 if (!instance!!.resolveReference(nodes.elementAt(i), ec)!!.isRelevant) {
                     nodes.removeElementAt(i)
                     i--
@@ -93,7 +93,7 @@ class XPathLazyNodeset(
             try {
                 //TODO: This doesn't handle templated nodes (repeats which may exist in the future)
                 //figure out if we can roll that in easily. For now the catch handles it
-                return XPathPathExpr.getRefValue(instance, ec, unExpandedRef)
+                return XPathPathExpr.getRefValue(instance!!, ec!!, unExpandedRef)
             } catch (xpe: XPathException) {
                 //This isn't really a best effort attempt, so if we can, see if evaluating cleanly works.
                 performEvaluation()

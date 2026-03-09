@@ -35,7 +35,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         name = ExtUtil.readString(`in`)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
@@ -77,10 +77,10 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
 
             try {
                 if (typedArgs != null) {
-                    return handler.eval(typedArgs, ec)
+                    return handler.eval(typedArgs, ec)!!
                 } else if (handler.rawArgs()) {
                     // should we have support for expanding nodesets here?
-                    return handler.eval(args, ec)
+                    return handler.eval(args, ec)!!
                 } else if (!argPrototypeArityMatch) {
                     // When the argument count doesn't match any of the prototype
                     // sizes, we have an arity error.

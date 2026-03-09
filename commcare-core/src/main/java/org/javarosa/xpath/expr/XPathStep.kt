@@ -121,7 +121,8 @@ class XPathStep : Externalizable {
                 }
             }
 
-            return ExtUtil.arrayEquals(predicates, o.predicates, false)
+            @Suppress("UNCHECKED_CAST")
+            return ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -165,7 +166,8 @@ class XPathStep : Externalizable {
                 }
             }
 
-            return ExtUtil.arrayEquals(predicates, o.predicates, false)
+            @Suppress("UNCHECKED_CAST")
+            return ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -184,7 +186,7 @@ class XPathStep : Externalizable {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         axis = ExtUtil.readInt(`in`)
         test = ExtUtil.readInt(`in`)
 
@@ -200,8 +202,8 @@ class XPathStep : Externalizable {
 
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        ExtUtil.writeNumeric(out, axis)
-        ExtUtil.writeNumeric(out, test)
+        ExtUtil.writeNumeric(out, axis.toLong())
+        ExtUtil.writeNumeric(out, test.toLong())
 
         when (test) {
             TEST_NAME -> ExtUtil.write(out, name)

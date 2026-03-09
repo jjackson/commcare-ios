@@ -24,7 +24,7 @@ class XPathVariableReference : XPathExpression {
     }
 
     override fun evalRaw(model: DataInstance<*>?, evalContext: EvaluationContext): Any {
-        return evalContext.getVariable(id.toString())
+        return evalContext.getVariable(id.toString())!!
     }
 
     override fun toString(): String {
@@ -44,14 +44,14 @@ class XPathVariableReference : XPathExpression {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.read(`in`, XPathQName::class.java, pf) as XPathQName
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        ExtUtil.write(out, id)
+        ExtUtil.write(out, id!!)
         ExtUtil.write(out, cacheState)
     }
 

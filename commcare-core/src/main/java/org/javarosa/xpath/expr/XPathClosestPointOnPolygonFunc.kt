@@ -51,8 +51,8 @@ open class XPathClosestPointOnPolygonFunc : XPathFuncExpr {
                 val coordinates = inputPolygon.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 val polygon: List<GlobalCoordinates> = PolygonUtils.createPolygon(Arrays.asList(*coordinates))
                 val pointData = GeoPointData().cast(UncastData(inputPoint))
-                GeoPointUtils.validateCoordinates(pointData.latitude, pointData.longitude)
-                val pointCoordinates = GlobalCoordinates(pointData.latitude, pointData.longitude)
+                GeoPointUtils.validateCoordinates(pointData.getLatitude(), pointData.getLongitude())
+                val pointCoordinates = GlobalCoordinates(pointData.getLatitude(), pointData.getLongitude())
                 return PolygonUtils.findClosestPoint(pointCoordinates, polygon).toString()
             } catch (e: NumberFormatException) {
                 throw XPathTypeMismatchException(

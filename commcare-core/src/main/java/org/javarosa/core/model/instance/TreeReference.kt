@@ -21,13 +21,15 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private var refLevel: Int = 0
-    private var contextType: Int = 0
+    @JvmField
+    internal var contextType: Int = 0
 
     /**
      * Name of the reference's root, if it is a non-main instance, otherwise
      * null.
      */
-    private var instanceName: String? = null
+    @JvmField
+    internal var instanceName: String? = null
 
     private var data: Vector<TreeReferenceLevel>? = null
 

@@ -38,7 +38,7 @@ open class XPathReplaceFunc : XPathFuncExpr {
             val regexString = FunctionUtils.toString(o2)
             val replacement = FunctionUtils.toString(o3)
             try {
-                return source.replaceAll(regexString, Matcher.quoteReplacement(replacement))
+                return source.replace(Regex(regexString), Matcher.quoteReplacement(replacement))
             } catch (e: PatternSyntaxException) {
                 throw XPathException("The regular expression '$regexString' is invalid.")
             }

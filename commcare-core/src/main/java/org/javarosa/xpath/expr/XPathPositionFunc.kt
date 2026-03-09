@@ -32,15 +32,15 @@ open class XPathPositionFunc : XPathFuncExpr {
                 return position(expr.getRefAt(0))
             } catch (e: ArrayIndexOutOfBoundsException) {
                 if (expr is XPathLazyNodeset) {
-                    throw XPathTypeMismatchException("Unable to evaluate `position` on " + expr.unexpandedRefString + ", which is empty.")
+                    throw XPathTypeMismatchException("Unable to evaluate `position` on " + expr.getUnexpandedRefString() + ", which is empty.")
                 } else {
                     throw XPathTypeMismatchException("Unable to evaluate `position` on empty reference in the context of " + evalContext.contextRef)
                 }
             }
-        } else if (evalContext.contextPosition != -1) {
-            return java.lang.Double.valueOf(evalContext.contextPosition.toDouble())
+        } else if (evalContext.getContextPosition() != -1) {
+            return java.lang.Double.valueOf(evalContext.getContextPosition().toDouble())
         } else {
-            return position(evalContext.contextRef)
+            return position(evalContext.contextRef!!)
         }
     }
 
@@ -50,7 +50,7 @@ open class XPathPositionFunc : XPathFuncExpr {
         private const val EXPECTED_ARG_COUNT: Int = -1
 
         private fun position(refAt: TreeReference): Double {
-            return java.lang.Double.valueOf(refAt.multLast.toDouble())
+            return java.lang.Double.valueOf(refAt.getMultLast().toDouble())
         }
     }
 }

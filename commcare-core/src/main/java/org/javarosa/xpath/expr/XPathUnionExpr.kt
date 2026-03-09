@@ -26,7 +26,7 @@ class XPathUnionExpr : XPathBinaryOpExpr {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         readExpressions(`in`, pf)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
         op = -1

@@ -98,7 +98,7 @@ open class XPathNodeset {
     }
 
     open fun size(): Int {
-        return nodes?.size() ?: 0
+        return nodes?.size ?: 0
     }
 
     open fun getRefAt(i: Int): TreeReference {
@@ -160,9 +160,9 @@ open class XPathNodeset {
         @JvmStatic
         fun printNodeContents(nodes: Vector<TreeReference>): String {
             val sb = StringBuffer()
-            for (i in 0 until nodes.size()) {
+            for (i in 0 until nodes.size) {
                 sb.append(nodes.elementAt(i).toString())
-                if (i < nodes.size() - 1) {
+                if (i < nodes.size - 1) {
                     sb.append(";")
                 }
             }

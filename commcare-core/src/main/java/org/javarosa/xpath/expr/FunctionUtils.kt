@@ -245,7 +245,7 @@ class FunctionUtils {
          * string to a number
          */
         @JvmStatic
-        protected fun checkForInvalidNumericOrDatestringCharacters(s: String): Boolean {
+        internal fun checkForInvalidNumericOrDatestringCharacters(s: String): Boolean {
             for (i in 0 until s.length) {
                 val c = s[i]
                 if (c != '-' && c != '.' && (c < '0' || c > '9')) {
@@ -378,7 +378,7 @@ class FunctionUtils {
         }
 
         @JvmStatic
-        protected fun expandDateSafe(dateObject: Any?): Date? {
+        internal fun expandDateSafe(dateObject: Any?): Date? {
             var dateObject = dateObject
             if (dateObject !is Date) {
                 // try to expand this out of a nodeset
@@ -392,7 +392,7 @@ class FunctionUtils {
         }
 
         @JvmStatic
-        protected fun subsetArgList(args: Array<Any?>, start: Int): Array<Any?> {
+        internal fun subsetArgList(args: Array<Any?>, start: Int): Array<Any?> {
             return subsetArgList(args, start, 1)
         }
 
@@ -403,7 +403,7 @@ class FunctionUtils {
          * @param skip  sub-list will contain every nth argument, where n == skip (default: 1)
          */
         @JvmStatic
-        protected fun subsetArgList(args: Array<Any?>, start: Int, skip: Int): Array<Any?> {
+        internal fun subsetArgList(args: Array<Any?>, start: Int, skip: Int): Array<Any?> {
             if (start > args.size || skip < 1) {
                 throw RuntimeException("error in subsetting arglist")
             }
@@ -433,7 +433,7 @@ class FunctionUtils {
          * Perform toUpperCase or toLowerCase on given object.
          */
         @JvmStatic
-        protected fun normalizeCase(o: Any?, toUpper: Boolean): String {
+        internal fun normalizeCase(o: Any?, toUpper: Boolean): String {
             val s = toString(o)
             return if (toUpper) {
                 s.uppercase()

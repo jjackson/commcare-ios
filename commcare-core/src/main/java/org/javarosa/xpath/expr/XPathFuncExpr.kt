@@ -112,7 +112,8 @@ open class XPathFuncExpr : XPathExpression {
                 return false
             }
 
-            return ExtUtil.arrayEquals(args, o.args, false)
+            @Suppress("UNCHECKED_CAST")
+            return ExtUtil.arrayEquals(args as Array<Any?>, o.args as Array<Any?>, false)
         } else {
             return false
         }
@@ -127,7 +128,7 @@ open class XPathFuncExpr : XPathExpression {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         expectedArgCount = ExtUtil.readInt(`in`)
         evaluateArgsFirst = ExtUtil.readBool(`in`)
 

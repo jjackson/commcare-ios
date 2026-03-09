@@ -47,7 +47,7 @@ class XPathConditional : IConditionExpr {
 
     override fun evalRaw(model: DataInstance<*>?, evalContext: EvaluationContext?): Any? {
         try {
-            return FunctionUtils.unpack(expr!!.eval(model, evalContext))
+            return FunctionUtils.unpack(expr!!.eval(model, evalContext!!))
         } catch (e: XPathUnsupportedException) {
             if (xpath != null) {
                 throw XPathUnsupportedException(xpath)
@@ -71,7 +71,7 @@ class XPathConditional : IConditionExpr {
 
     override fun evalNodeset(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<TreeReference> {
         if (expr is XPathPathExpr) {
-            val evaluated = expr!!.eval(model, evalContext) as XPathNodeset
+            val evaluated = expr!!.eval(model, evalContext!!) as XPathNodeset
             return evaluated.getReferences()!!
         } else {
             throw FatalException("evalNodeset: must be path expression")
@@ -113,7 +113,7 @@ class XPathConditional : IConditionExpr {
 
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(expr))
+        ExtUtil.write(out, ExtWrapTagged(expr!!))
         ExtUtil.writeBool(out, hasNow)
     }
 
@@ -123,7 +123,7 @@ class XPathConditional : IConditionExpr {
 
     @Throws(UnpivotableExpressionException::class)
     override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<Any> {
-        return expr!!.pivot(model, evalContext)
+        return expr!!.pivot(model, evalContext!!)
     }
 
     companion object {
@@ -154,7 +154,7 @@ class XPathConditional : IConditionExpr {
                 ) {
                     // Expr's ref begins with 'current()' or is relative and the
                     // context ref is missing.
-                    contextualized = ref.contextualize(originalContextRef)
+                    contextualized = ref.contextualize(originalContextRef!!)
                 } else if (contextRef != null) {
                     contextualized = ref.contextualize(contextRef)
                 }

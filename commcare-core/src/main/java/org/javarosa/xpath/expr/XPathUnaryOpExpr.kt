@@ -34,14 +34,14 @@ abstract class XPathUnaryOpExpr : XPathOpExpr {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(a))
+        ExtUtil.write(out, ExtWrapTagged(a!!))
         ExtUtil.write(out, cacheState)
     }
 

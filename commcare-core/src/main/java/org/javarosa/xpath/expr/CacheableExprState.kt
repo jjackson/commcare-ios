@@ -26,7 +26,7 @@ open class CacheableExprState : Externalizable {
     var originalContextRefIsRelevant: Boolean = false
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         computedCacheability = ExtUtil.readBool(`in`)
         exprIsCacheable = ExtUtil.readBool(`in`)
         computedContextTypes = ExtUtil.readBool(`in`)

@@ -51,7 +51,7 @@ open class XPathSortFunc : XPathFuncExpr {
 
         @JvmStatic
         fun sortSingleList(spaceSeparatedString: String, ascending: Boolean): List<String> {
-            val items = DataUtil.stringToList(spaceSeparatedString)
+            val items = DataUtil.stringToList(spaceSeparatedString).toMutableList()
             sortSingleList(items, ascending)
             return items
         }

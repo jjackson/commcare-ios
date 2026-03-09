@@ -29,7 +29,7 @@ abstract class InFormCacheableExpr : XPathAnalyzable {
     }
 
     private fun queueUpCachedValue(ec: EvaluationContext) {
-        justRetrieved = ec.expressionCacher().getCachedValue(cacheKey(ec))
+        justRetrieved = ec.expressionCacher()!!.getCachedValue(cacheKey(ec))
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class InFormCacheableExpr : XPathAnalyzable {
             relevantContextNodesAreCacheable(ec)
         ) {
             if (value != null) {
-                ec.expressionCacher().cache(cacheKey(ec), value)
+                ec.expressionCacher()!!.cache(cacheKey(ec), value)
             }
         }
     }
@@ -54,7 +54,7 @@ abstract class InFormCacheableExpr : XPathAnalyzable {
         return ExpressionCacheKey(
             this,
             if (cacheState.contextRefIsRelevant) ec.contextRef else null,
-            if (cacheState.originalContextRefIsRelevant) ec.originalContext else null
+            if (cacheState.originalContextRefIsRelevant) ec.getOriginalContext() else null
         )
     }
 
@@ -92,7 +92,7 @@ abstract class InFormCacheableExpr : XPathAnalyzable {
         return !(cacheState.contextRefIsRelevant &&
                 contextRefIsUncacheableInForm(ec.contextRef)) &&
                 !(cacheState.originalContextRefIsRelevant &&
-                        contextRefIsUncacheableInForm(ec.originalContext))
+                        contextRefIsUncacheableInForm(ec.getOriginalContext()))
     }
 
     companion object {

@@ -97,7 +97,7 @@ class XPathCmpExpr : XPathBinaryOpExpr {
                         if (b is String) {
                             try {
                                 //TODO: Too expensive?
-                                `val` = DecimalData().cast(UncastData(b)).value as Double
+                                `val` = DecimalData().cast(UncastData(b)).getValue() as Double
                             } catch (e: Exception) {
                                 throw UnpivotableExpressionException("Unrecognized numeric data in cmp expression: $b")
                             }

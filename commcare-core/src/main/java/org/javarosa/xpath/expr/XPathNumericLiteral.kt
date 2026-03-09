@@ -44,7 +44,7 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (`in`.readByte() == 0x00.toByte()) {
             d = ExtUtil.readNumeric(`in`).toDouble()
         } else {
@@ -57,7 +57,7 @@ class XPathNumericLiteral : XPathExpression {
     override fun writeExternal(out: DataOutputStream) {
         if (d == d.toInt().toDouble()) {
             out.writeByte(0x00)
-            ExtUtil.writeNumeric(out, d.toInt())
+            ExtUtil.writeNumeric(out, d.toLong())
         } else {
             out.writeByte(0x01)
             ExtUtil.writeDecimal(out, d)

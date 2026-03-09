@@ -13,8 +13,10 @@ import org.javarosa.xpath.expr.XPathFuncExpr
  */
 abstract class XPathAnalyzer {
 
-    private var originalContextRef: TreeReference? = null
-    private var contextRef: TreeReference? = null
+    @JvmField
+    internal var originalContextRef: TreeReference? = null
+    @JvmField
+    internal var contextRef: TreeReference? = null
     @JvmField
     protected var subAnalyzers: MutableList<XPathAnalyzer> = ArrayList()
     @JvmField
@@ -23,7 +25,7 @@ abstract class XPathAnalyzer {
     protected var shortCircuit: Boolean = false
 
     protected fun setContext(context: EvaluationContext) {
-        setContext(context.contextRef, context.originalContext)
+        setContext(context.contextRef, context.getOriginalContext())
     }
 
     protected fun setContext(contextRef: TreeReference?) {
@@ -88,7 +90,7 @@ abstract class XPathAnalyzer {
     @Throws(AnalysisInvalidException::class)
     open fun doAnalysisForTreeRefWithCurrent(expressionWithContextTypeCurrent: TreeReference) {
         requireOriginalContext(expressionWithContextTypeCurrent)
-        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()))
+        doNormalTreeRefAnalysis(expressionWithContextTypeCurrent.contextualize(getOriginalContextRef()!!)!!)
     }
 
     // This implementation should work for most analyzers, but some subclasses may want to override
@@ -96,7 +98,7 @@ abstract class XPathAnalyzer {
     @Throws(AnalysisInvalidException::class)
     open fun doAnalysisForRelativeTreeRef(expressionWithContextTypeRelative: TreeReference) {
         requireContext(expressionWithContextTypeRelative)
-        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(getContextRef()))
+        doNormalTreeRefAnalysis(expressionWithContextTypeRelative.contextualize(getContextRef()!!)!!)
     }
 
     open fun doAnalysis(expr: XPathFuncExpr?) {

@@ -128,7 +128,7 @@ object TreeUtilities {
                         if (!hasPredicates) {
                             try {
                                 // Otherwise, go pull out the right hand value
-                                val o = FunctionUtils.unpack(right.eval(evalContext))
+                                val o = FunctionUtils.unpack(right.eval(evalContext!!))
                                 literalMatch = FunctionUtils.toString(o)
                             } catch (e: XPathException) {
                                 // We may have some weird lack of context that makes this not work, so don't choke on

@@ -19,7 +19,7 @@ open class XPathIdCompressFunc : XPathFuncExpr {
         model: DataInstance<*>, evalContext: EvaluationContext,
         evaluatedArgs: Array<Any?>
     ): Any {
-        val input = FunctionUtils.toInt(evaluatedArgs[0]).toInt()
+        val input = FunctionUtils.toInt(evaluatedArgs[0]).toLong()
         val growthDigits = FunctionUtils.toString(evaluatedArgs[1])
         val leadDigits = FunctionUtils.toString(evaluatedArgs[2])
         val bodyDigits = FunctionUtils.toString(evaluatedArgs[3])

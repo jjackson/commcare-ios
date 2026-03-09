@@ -38,7 +38,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
         val value: Any
         val fromCache: Boolean
         if (isCached(evalContext)) {
-            value = getCachedValue()
+            value = getCachedValue()!!
             fromCache = true
         } else {
             value = evalRaw(model, evalContext)
@@ -282,8 +282,8 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
                 return false
             }
 
-            val instance = value.getInstance()
-            val treeElement = instance.resolveReference(refs[0])
+            val instance = value.getInstance() ?: return false
+            val treeElement = instance.resolveReference(refs[0]) ?: return false
             return treeElement.getNumChildren() == 0
         }
 
@@ -299,11 +299,11 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
             val s = DataModelSerializer(serializer)
 
-            val instance = nodeset.getInstance()
+            val instance = nodeset.getInstance() ?: return
             val refs = nodeset.getReferences() ?: return
 
             for (ref in refs) {
-                val treeElement = instance.resolveReference(ref)
+                val treeElement = instance.resolveReference(ref) ?: continue
                 s.serializeNode(treeElement)
             }
             serializer.flush()

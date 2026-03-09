@@ -56,7 +56,8 @@ class XPathFilterExpr : XPathExpression {
 
     override fun equals(o: Any?): Boolean {
         if (o is XPathFilterExpr) {
-            return x == o.x && ExtUtil.arrayEquals(predicates, o.predicates, false)
+            @Suppress("UNCHECKED_CAST")
+            return x == o.x && ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -71,7 +72,7 @@ class XPathFilterExpr : XPathExpression {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         x = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
 
@@ -86,7 +87,7 @@ class XPathFilterExpr : XPathExpression {
             v.addElement(predicate)
         }
 
-        ExtUtil.write(out, ExtWrapTagged(x))
+        ExtUtil.write(out, ExtWrapTagged(x!!))
         ExtUtil.write(out, ExtWrapListPoly(v))
         ExtUtil.write(out, cacheState)
     }

@@ -27,7 +27,7 @@ class XPathQName : Externalizable {
         if (sep == -1) {
             init(null, qname)
         } else {
-            init(qname.substring(0, sep), qname.substring(sep + 1))
+            init(qname!!.substring(0, sep), qname.substring(sep + 1))
         }
     }
 
@@ -52,7 +52,7 @@ class XPathQName : Externalizable {
     }
 
     private fun cacheCode() {
-        cachedHashCode = name.hashCode() xor (if (namespace == null) 0 else namespace.hashCode())
+        cachedHashCode = name!!.hashCode() xor (if (namespace == null) 0 else namespace.hashCode())
     }
 
     override fun toString(): String {
@@ -71,7 +71,7 @@ class XPathQName : Externalizable {
     }
 
     @Throws(IOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory?) {
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         namespace = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         name = ExtUtil.readString(`in`)
         cacheCode()
@@ -80,6 +80,6 @@ class XPathQName : Externalizable {
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(namespace))
-        ExtUtil.writeString(out, name)
+        ExtUtil.writeString(out, name!!)
     }
 }
