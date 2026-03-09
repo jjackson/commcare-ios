@@ -69,9 +69,9 @@ class XPathStep : Externalizable {
 
     fun toPrettyString(): String {
         val sb = StringBuffer()
-        var axisPrint = axisStr(axis)
+        var axisPrint = axisStr(axis) ?: ""
         var intermediate = "::"
-        var test = testStr()
+        var testPrint = testStr() ?: ""
         if (axis == AXIS_CHILD) {
             intermediate = ""
             axisPrint = ""
@@ -81,16 +81,16 @@ class XPathStep : Externalizable {
         } else if (this == ABBR_PARENT()) {
             intermediate = ""
             axisPrint = ""
-            test = ".."
+            testPrint = ".."
         } else if (axis == AXIS_DESCENDANT_OR_SELF) {
             intermediate = ""
             axisPrint = ""
-            test = ""
+            testPrint = ""
         }
 
         sb.append(axisPrint)
         sb.append(intermediate)
-        sb.append(test)
+        sb.append(testPrint)
 
         if (predicates.isNotEmpty()) {
             for (predicate in predicates) {
@@ -102,27 +102,27 @@ class XPathStep : Externalizable {
         return sb.toString()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (o is XPathStep) {
+    override fun equals(other: Any?): Boolean {
+        if (other is XPathStep) {
             //shortcuts for faster evaluation
-            if (axis != o.axis || test != o.test || predicates.size != o.predicates.size) {
+            if (axis != other.axis || test != other.test || predicates.size != other.predicates.size) {
                 return false
             }
 
             when (test) {
-                TEST_NAME -> if (name != o.name) {
+                TEST_NAME -> if (name != other.name) {
                     return false
                 }
-                TEST_NAMESPACE_WILDCARD -> if (namespace != o.namespace) {
+                TEST_NAMESPACE_WILDCARD -> if (namespace != other.namespace) {
                     return false
                 }
-                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!ExtUtil.equals(literal, o.literal, false)) {
+                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!ExtUtil.equals(literal, other.literal, false)) {
                     return false
                 }
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
+            return ExtUtil.arrayEquals(predicates as Array<Any?>, other.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -137,7 +137,7 @@ class XPathStep : Externalizable {
      * So
      * /path/
      * will "match"
-     * /*/
+     * /asterisk/
      *
      * even though they are not equal.
      *
@@ -196,6 +196,7 @@ class XPathStep : Externalizable {
             TEST_TYPE_PROCESSING_INSTRUCTION -> literal = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         }
 
+        @Suppress("UNCHECKED_CAST")
         val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
         predicates = Array(v.size) { i -> v.elementAt(i) as XPathExpression }
     }
@@ -206,8 +207,8 @@ class XPathStep : Externalizable {
         ExtUtil.writeNumeric(out, test.toLong())
 
         when (test) {
-            TEST_NAME -> ExtUtil.write(out, name)
-            TEST_NAMESPACE_WILDCARD -> ExtUtil.writeString(out, namespace)
+            TEST_NAME -> ExtUtil.write(out, name!!)
+            TEST_NAMESPACE_WILDCARD -> ExtUtil.writeString(out, namespace!!)
             TEST_TYPE_PROCESSING_INSTRUCTION -> ExtUtil.write(out, ExtWrapNullable(literal))
         }
 

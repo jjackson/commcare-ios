@@ -159,7 +159,7 @@ open class XPathFuncExpr : XPathExpression {
         val identities = arrayOf("string-length")
         var id = false
         for (identity in identities) {
-            if (identity == id) {
+            if (identity == name) {
                 id = true
             }
         }

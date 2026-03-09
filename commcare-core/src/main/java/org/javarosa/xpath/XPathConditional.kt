@@ -147,16 +147,16 @@ class XPathConditional : IConditionExpr {
         ) {
             if (expr is XPathPathExpr) {
                 val ref = expr.getReference()
-                var contextualized = ref
+                var contextualized: TreeReference = ref
 
                 if (ref.getContextType() == TreeReference.CONTEXT_ORIGINAL ||
                     (contextRef == null && !ref.isAbsolute)
                 ) {
                     // Expr's ref begins with 'current()' or is relative and the
                     // context ref is missing.
-                    contextualized = ref.contextualize(originalContextRef!!)
+                    contextualized = ref.contextualize(originalContextRef!!)!!
                 } else if (contextRef != null) {
-                    contextualized = ref.contextualize(contextRef)
+                    contextualized = ref.contextualize(contextRef)!!
                 }
 
                 // find the references this reference depends on inside of predicates

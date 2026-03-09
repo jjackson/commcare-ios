@@ -749,15 +749,17 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
             var contextForPredicates: TreeReference = this
             if (this.contextType == CONTEXT_ORIGINAL) {
-                if (analyzer.originalContextRef == null) {
+                val origRef = analyzer.originalContextRef
+                if (origRef == null) {
                     throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF
                 }
-                contextForPredicates = this.contextualize(analyzer.originalContextRef)!!
+                contextForPredicates = this.contextualize(origRef)!!
             } else if (!this.isAbsolute) {
-                if (analyzer.contextRef == null) {
+                val ctxRef = analyzer.contextRef
+                if (ctxRef == null) {
                     throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF
                 }
-                contextForPredicates = this.contextualize(analyzer.contextRef)!!
+                contextForPredicates = this.contextualize(ctxRef)!!
             }
 
             for (i in 0 until data!!.size) {
