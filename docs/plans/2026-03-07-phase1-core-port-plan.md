@@ -221,6 +221,38 @@ Each wave must produce a reviewable PR before the next wave begins.
 - [ ] Java code in unconverted groups correctly calls Kotlin code
 ```
 
+### Issue Closure
+
+When a wave's PR is merged, close the corresponding GitHub issue on `jjackson/commcare-ios`.
+
+The closure comment **MUST** include:
+
+- **Summary of what was done** — files converted, packages affected, notable changes
+- **Verification of each item** in the issue's "Tests That Must Pass" checklist, with evidence (test output, CI link, compilation proof)
+- **Technical decisions** made during the wave — interop fixes, design choices, deviations from plan
+- **Link to the merged PR**
+
+**Closure comment template:**
+
+```
+## Completion Summary
+
+### What was done
+- <summary of changes>
+
+### Acceptance criteria verification
+- [x] <criteria from issue> — <evidence>
+- [x] <criteria from issue> — <evidence>
+
+### Notable technical decisions
+- <any non-obvious decisions>
+
+### PR
+Merged: <PR URL>
+```
+
+Do not close an issue with a one-line comment. The closure comment is part of the project's evidence trail and must demonstrate that acceptance criteria were verified.
+
 ### Group-Specific Notes
 
 **Wave 1 — javarosa-utilities (115 files):**

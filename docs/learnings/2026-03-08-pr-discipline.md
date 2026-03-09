@@ -53,3 +53,9 @@ Retroactively split the single `kotlin-port` branch into 3 stacked PRs:
 - PR creation with specific targets
 - Squash/cleanup before PR
 - Review/CI gates before proceeding
+
+## Related: Issue Closure Discipline
+
+The same pattern — lack of explicit instructions leading the AI agent to skip a step — applied to issue closure comments. We closed issues #2, #3, and #4 with terse one-line comments ("Completed. PR: link") that provided no evidence of completion, despite each issue having a "Tests That Must Pass" section with explicit acceptance criteria.
+
+See [2026-03-08-issue-closure-discipline.md](./2026-03-08-issue-closure-discipline.md) for the full learning and the closure comment template now added to the Phase 1 plan.
