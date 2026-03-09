@@ -175,9 +175,9 @@ class XPathPathExpr : XPathExpression {
 
         if (genericRef.getContextType() == TreeReference.CONTEXT_ORIGINAL) {
             // reference begins with "current()" so contextualize in the original context
-            ref = genericRef.contextualize(evalContext.getOriginalContext())!!
+            ref = genericRef.contextualize(evalContext.getOriginalContext()!!)!!
         } else {
-            ref = genericRef.contextualize(evalContext.contextRef)!!
+            ref = genericRef.contextualize(evalContext.contextRef!!)!!
         }
 
         //We don't necessarily know the model we want to be working with until we've contextualized the
