@@ -187,7 +187,7 @@ git add -A
 git commit -m "port: convert <group-name> to Kotlin (<N> files)"
 ```
 
-Create a branch named `kotlin-port/wave-N-<group-name>`, push, and open a PR targeting the previous wave's branch. See **PR Strategy** above for naming, targets, and description template.
+Create a branch named `kotlin-port/wave-N-<group-name>`, push, and open a PR targeting `main`. See **PR Strategy** above for naming, targets, and description template.
 
 **Step 7: Create doc PR for learnings**
 

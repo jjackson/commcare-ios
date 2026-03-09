@@ -46,6 +46,8 @@ commcare-ios/
 | 7 | resources | 28 | Open (Issue #9) |
 | 8 | commcare-core-services | 71 | Open (Issue #10) |
 
+**Next wave**: Wave 4 — xform-parser (Issue #6, 27 files)
+
 After Phase 1: KMP multiplatform targets (Issue #11), then final verification (Issue #12).
 
 ## Key Docs
@@ -115,13 +117,14 @@ Terse closures like "Completed. PR: link" are not acceptable. Evidence is as imp
 # JDK is bundled with Android Studio — set JAVA_HOME before Gradle commands:
 export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 
-# From repo root — commcare-core is a subdirectory:
+# Build from commcare-core/ (return to repo root for git commands):
 cd commcare-core
 ./gradlew compileKotlin compileJava    # Quick compilation check
 ./gradlew test                          # Full test suite
+cd ..                                   # Back to repo root for git
 
 # Future KMP:
-./gradlew :commcare-core:jvmTest       # KMP JVM tests (once KMP targets added)
+cd commcare-core && ./gradlew :commcare-core:jvmTest  # KMP JVM tests (once KMP targets added)
 
 # CI workflows:
 # - kotlin-tests.yml: runs on PRs touching commcare-core/, gradle files
