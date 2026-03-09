@@ -177,7 +177,7 @@ object ItemSetUtils {
         val newReferences = analyzer.accumulate(newRef)
             ?: throw AnalysisInvalidException.INSTANCE_ITEMSET_ACCUM_FAILURE
 
-        return newReferences
+        return newReferences.toMutableSet()
     }
 
     // Builds select choices for a ItemsetBinding @param{itemset} by evaulating it against the given EvaluationContext @param{ec}

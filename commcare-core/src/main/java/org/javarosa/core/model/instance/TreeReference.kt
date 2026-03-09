@@ -21,13 +21,15 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private var refLevel: Int = 0
-    private var contextType: Int = 0
+    @JvmField
+    internal var contextType: Int = 0
 
     /**
      * Name of the reference's root, if it is a non-main instance, otherwise
      * null.
      */
-    private var instanceName: String? = null
+    @JvmField
+    internal var instanceName: String? = null
 
     private var data: Vector<TreeReferenceLevel>? = null
 
@@ -747,15 +749,17 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
             var contextForPredicates: TreeReference = this
             if (this.contextType == CONTEXT_ORIGINAL) {
-                if (analyzer.originalContextRef == null) {
+                val origRef = analyzer.originalContextRef
+                if (origRef == null) {
                     throw AnalysisInvalidException.INSTANCE_NO_ORIGINAL_CONTEXT_REF
                 }
-                contextForPredicates = this.contextualize(analyzer.originalContextRef)!!
+                contextForPredicates = this.contextualize(origRef)!!
             } else if (!this.isAbsolute) {
-                if (analyzer.contextRef == null) {
+                val ctxRef = analyzer.contextRef
+                if (ctxRef == null) {
                     throw AnalysisInvalidException.INSTANCE_NO_CONTEXT_REF
                 }
-                contextForPredicates = this.contextualize(analyzer.contextRef)!!
+                contextForPredicates = this.contextualize(ctxRef)!!
             }
 
             for (i in 0 until data!!.size) {
