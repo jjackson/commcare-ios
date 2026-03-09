@@ -64,6 +64,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **Degenerify**: `docs/learnings/2026-03-08-abstract-tree-element-degenerify.md` — removing type parameter from AbstractTreeElement, with rationale
 - **Monorepo for agents**: `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` — why all context must be in one directory tree for AI agents
 - **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
+- **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
 
 ## Kotlin Conversion Checklist
 
@@ -111,6 +112,9 @@ Terse closures like "Completed. PR: link" are not acceptable. Evidence is as imp
 ## Build Commands
 
 ```bash
+# JDK is bundled with Android Studio — set JAVA_HOME before Gradle commands:
+export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+
 # From repo root — commcare-core is a subdirectory:
 cd commcare-core
 ./gradlew compileKotlin compileJava    # Quick compilation check
