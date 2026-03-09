@@ -178,11 +178,47 @@ All existing tests must pass. Tests remain in Java for now — Kotlin/Java inter
 
 The JAR should contain compiled `.class` files from both Java (remaining groups) and Kotlin (ported groups). The binary API must be compatible with existing consumers.
 
-**Step 6: Commit**
+**Step 6: Commit and Create PR**
+
+Squash all fix commits into a single clean commit, then create a PR per the PR Strategy section:
 
 ```bash
 git add -A
 git commit -m "port: convert <group-name> to Kotlin (<N> files)"
+```
+
+Create a branch named `kotlin-port/wave-N-<group-name>`, push, and open a PR targeting the previous wave's branch. See **PR Strategy** above for naming, targets, and description template.
+
+### PR Strategy
+
+Each wave must produce a reviewable PR before the next wave begins.
+
+**One PR per wave.** Each wave's conversion gets its own PR for human review. Do not batch multiple waves into a single PR.
+
+**Branch naming:** `kotlin-port/wave-N-<group-name>` (e.g., `kotlin-port/wave-1-utilities`).
+
+**Stacked PR targets:** Each PR targets the previous wave's branch:
+- Wave 0 (build setup) → `master`
+- Wave 1 → `kotlin-port/wave-0-build-setup`
+- Wave 2 → `kotlin-port/wave-1-utilities`
+- Wave N → `kotlin-port/wave-(N-1)-<name>`
+
+**Squash fix commits.** All compilation/interop fix commits must be squashed into the wave's port commit before creating the PR. Each wave branch should have exactly one commit on top of its parent.
+
+**PR size guidelines.** Each PR should be reviewable in one sitting (~100-150 files changed max). If a wave exceeds this, split it into sub-PRs within the wave.
+
+**CI gate.** Each PR must pass `./gradlew test` before the next wave starts. Do not begin Wave N+1 until Wave N's PR is green.
+
+**PR description template:**
+```
+## Summary
+- Convert <group-name> to Kotlin (<N> files)
+- Key changes: <notable conversions, interop fixes, etc.>
+
+## Test plan
+- [ ] `./gradlew compileKotlin compileJava` passes
+- [ ] `./gradlew test` passes (all existing tests)
+- [ ] Java code in unconverted groups correctly calls Kotlin code
 ```
 
 ### Group-Specific Notes

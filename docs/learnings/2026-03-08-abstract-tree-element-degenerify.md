@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-08
 **Context**: Wave 2 of commcare-core Java-to-Kotlin conversion
-**Status**: Design approved, pending implementation
+**Status**: Implemented (31 files changed, all tests pass)
 
 ## Problem
 
@@ -50,3 +50,7 @@ When converting Java generics to Kotlin, watch for:
 4. **`checkcast` overhead** — Kotlin generates runtime type checks that Java's erasure avoided. This is both a correctness issue (ClassCastException) and a performance issue.
 
 The pipeline's AI converter should be configured to detect and flag these patterns during conversion rather than fixing them post-hoc.
+
+## Implementation Outcome
+
+Implemented in Wave 2 as commit `c514b84bb` on the `kotlin-port` branch. The degenerification touched 31 files (interface, implementations, and call sites) and resolved all 96 `ClassCastException` test failures. The approach of removing the type parameter entirely proved cleaner than any alternative — no cascading changes to callers, no star-projection issues, and eliminated unnecessary `checkcast` overhead.
