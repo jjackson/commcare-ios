@@ -280,7 +280,7 @@ class XPathPathExpr : XPathExpression {
      * So
      * /data/path/to
      * will "match"
-     * /data/*/to
+     * /data/`*`/to
      *
      * even though they are not equal.
      *
