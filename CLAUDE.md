@@ -41,7 +41,7 @@ commcare-ios/
 | 2 | javarosa-model | 82 | Done (commcare-core PR #4) |
 | 3 | xpath-engine | 134 | Done (PR #13 merged) |
 | 4 | xform-parser | 27 | Done (PR #21) |
-| 5 | case-management | 66 | Open (Issue #7) |
+| 5 | case-management | 60 | Done (PR #24) |
 | 6 | suite-and-session | 93 | Open (Issue #8) |
 | 7 | resources | 28 | Open (Issue #9) |
 | 8 | commcare-core-services | 71 | Open (Issue #10) |
@@ -66,6 +66,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
 - **Wave 4 XForm parser learnings**: `docs/learnings/2026-03-09-wave4-xform-parser-learnings.md` — companion method inheritance, `@JvmField` vs `open`, companion `protected` limitation, smart cast on `var`, `const val` auto-inline
 - **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
+- **Wave 5 case-management learnings**: `docs/learnings/2026-03-09-wave5-case-management-learnings.md` — JVM signature clashes (constructor `val` vs interface method, field vs getter), Java boxed types in generics, Kotlin-to-Kotlin method calls
 
 ## Kotlin Conversion Checklist
 
@@ -86,6 +87,10 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 13. **Companion `protected`**: Companion object members cannot be `protected`. Use `internal const val` for constants that subclasses need within the same module.
 14. **Smart cast on `var`**: Kotlin won't smart-cast mutable properties after null checks. Capture to a local `val` first: `val el = element; if (el != null) ...`
 15. **`const val` auto-inlines**: `const val` in companion objects compiles to `public static final` in Java bytecode automatically. No `@JvmField` needed for String/Int/Long/Boolean constants.
+16. **JVM signature clash: `val` vs `fun`**: A constructor `val foo` generates `getFoo()`, which clashes with `override fun getFoo()` from an interface. Fix: rename the constructor param (e.g., `_foo`) and delegate from the override.
+17. **JVM signature clash: field vs getter**: A `var foo` field generates `getFoo()`, which clashes with an explicit `fun getFoo()`. Fix: rename the backing field to `_foo`.
+18. **Java boxed types in generics**: `Pair<Integer, Integer>` must be `Pair<Int, Int>` in Kotlin. Never use Java boxed types in Kotlin generic type arguments.
+19. **Kotlin-to-Kotlin `fun` calls**: When calling Kotlin code that defines `fun getFoo()`, use `getFoo()` not `foo`. Kotlin only synthesizes property access for *Java* getters, not Kotlin `fun` declarations.
 
 ## PR Rules
 
