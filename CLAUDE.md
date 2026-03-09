@@ -40,7 +40,7 @@ commcare-ios/
 | 1 | javarosa-utilities | 115 | Done (commcare-core PR #3) |
 | 2 | javarosa-model | 82 | Done (commcare-core PR #4) |
 | 3 | xpath-engine | 134 | Done (PR #13 merged) |
-| 4 | xform-parser | 27 | Open (Issue #6) |
+| 4 | xform-parser | 27 | Done (PR #21) |
 | 5 | case-management | 66 | Open (Issue #7) |
 | 6 | suite-and-session | 93 | Open (Issue #8) |
 | 7 | resources | 28 | Open (Issue #9) |
@@ -64,6 +64,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **Degenerify**: `docs/learnings/2026-03-08-abstract-tree-element-degenerify.md` — removing type parameter from AbstractTreeElement, with rationale
 - **Monorepo for agents**: `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` — why all context must be in one directory tree for AI agents
 - **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
+- **Wave 4 XForm parser learnings**: `docs/learnings/2026-03-09-wave4-xform-parser-learnings.md` — companion method inheritance, `@JvmField` vs `open`, companion `protected` limitation, smart cast on `var`, `const val` auto-inline
 
 ## Kotlin Conversion Checklist
 
@@ -79,6 +80,11 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 8. **Preserve `abstract`**: If the Java class is `abstract`, the Kotlin class must be `abstract` too (not `open`). Reflection-based tests depend on this.
 9. **Nullable parameter threading**: Don't add `!!` on nullable params just to call a child method — make the child accept nullable too. Java silently passes null through call chains.
 10. **`protected` → `internal`**: Java `protected` = package + subclass access. Kotlin `protected` = subclass only. Use `internal` for same-package non-subclass callers.
+11. **Companion method inheritance**: Kotlin companion methods are NOT inherited by subclasses. Call them on the defining class (`DataInstance.unpackReference`), not a subclass (`FormInstance.unpackReference`).
+12. **`@JvmField` vs `open`**: `@JvmField` cannot be used on `open` properties. Drop `open` — subclasses access the inherited field directly.
+13. **Companion `protected`**: Companion object members cannot be `protected`. Use `internal const val` for constants that subclasses need within the same module.
+14. **Smart cast on `var`**: Kotlin won't smart-cast mutable properties after null checks. Capture to a local `val` first: `val el = element; if (el != null) ...`
+15. **`const val` auto-inlines**: `const val` in companion objects compiles to `public static final` in Java bytecode automatically. No `@JvmField` needed for String/Int/Long/Boolean constants.
 
 ## PR Rules
 
