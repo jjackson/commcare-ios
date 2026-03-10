@@ -25,7 +25,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Enumeration
 import java.util.Hashtable
 import java.util.Vector
@@ -67,7 +67,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
 
     override fun getConfigurationKeys(): Enumeration<*> = mConfiguration.keys()
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         mType = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
@@ -78,7 +78,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
         mAnnotations = ExtUtil.read(`in`, ExtWrapList(Annotation::class.java), pf) as Vector<Annotation>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, mType)
         ExtUtil.write(out, ExtWrapMap(mConfiguration))

@@ -10,7 +10,7 @@ import org.javarosa.core.services.transport.payload.ByteArrayPayload
 import org.javarosa.model.xform.XFormSerializingVisitor
 import org.javarosa.model.xform.XPathReference
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -397,7 +397,7 @@ open class FormController(
     /**
      * Extract the portion of the form that should be uploaded to the server.
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getSubmissionXml(): ByteArrayPayload {
         val instance = getInstance()
         val serializer = XFormSerializingVisitor()

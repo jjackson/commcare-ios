@@ -4,7 +4,7 @@ import org.commcare.cases.model.Case
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.kxml2.io.KXmlParser
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
 
 /**
@@ -35,14 +35,14 @@ open class LinearBulkProcessingCaseXmlParser(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun performBulkWrite(writeLog: LinkedHashMap<String, Case>) {
         for (c in writeLog.values) {
             commit(c)
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun commit(parsed: Case) {
         storage.write(parsed)
     }

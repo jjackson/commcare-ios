@@ -11,7 +11,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and
@@ -68,7 +68,7 @@ open class FixtureXmlParser(
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): FormInstance? {
@@ -95,7 +95,7 @@ open class FixtureXmlParser(
         return instanceAndCommitStatus.first
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun commit(parsed: FormInstance) {
         storage().write(parsed)
     }

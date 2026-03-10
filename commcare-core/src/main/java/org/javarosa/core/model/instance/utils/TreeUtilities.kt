@@ -21,7 +21,7 @@ import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathStringLiteral
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Hashtable
 import java.util.LinkedHashSet
@@ -284,7 +284,7 @@ object TreeUtilities {
      * @return TreeElement for the given xml
      */
     @JvmStatic
-    @Throws(InvalidStructureException::class, IOException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
     fun xmlToTreeElement(xmlFilepath: String?): TreeElement {
         var inputStream: InputStream? = null
         try {
@@ -292,9 +292,9 @@ object TreeUtilities {
             try {
                 return xmlStreamToTreeElement(inputStream, "instance")
             } catch (e: UnfullfilledRequirementsException) {
-                throw IOException(e.message)
+                throw PlatformIOException(e.message)
             } catch (e: XmlPullParserException) {
-                throw IOException(e.message)
+                throw PlatformIOException(e.message)
             }
         } finally {
             StreamsUtil.closeStream(inputStream)
@@ -310,7 +310,7 @@ object TreeUtilities {
      */
     @JvmStatic
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         UnfullfilledRequirementsException::class,
         XmlPullParserException::class,
         InvalidStructureException::class

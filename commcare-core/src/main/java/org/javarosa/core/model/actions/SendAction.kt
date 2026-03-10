@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xform.parse.IElementHandler
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing
@@ -75,12 +75,12 @@ class SendAction : Action {
         return map
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         submissionId = ExtUtil.readString(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(submissionId))
     }

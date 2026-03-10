@@ -2,7 +2,7 @@ package org.commcare.util
 
 import org.commcare.core.network.CommCareNetworkServiceGenerator
 import org.javarosa.core.services.Logger
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author $|-|!˅@M
@@ -17,7 +17,7 @@ object NetworkStatus {
             val response =
                 commCareNetworkService.makeGetRequest(captivePortalURL, HashMap()).execute()
             response.code() == 200 && "success" != response.body()?.string()
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Detecting captive portal failed with exception" + e.message)
             false
         }

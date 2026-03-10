@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 // List of objects of single (non-polymorphic) type
@@ -55,7 +55,7 @@ class ExtWrapList : ExternalizableWrapper {
         return ExtWrapList(`val` as List<*>, type)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (!sealed) {
             val size = ExtUtil.readNumeric(`in`).toInt()
@@ -86,7 +86,7 @@ class ExtWrapList : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val l = `val` as List<Any?>
@@ -96,7 +96,7 @@ class ExtWrapList : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtWrapTagged.readTag(`in`, pf)
         try {
@@ -107,7 +107,7 @@ class ExtWrapList : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         val tagObj: Any? = if (type == null) {
             @Suppress("UNCHECKED_CAST")

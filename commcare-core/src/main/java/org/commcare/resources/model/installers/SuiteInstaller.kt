@@ -19,7 +19,7 @@ import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -28,7 +28,7 @@ import java.util.Vector
 class SuiteInstaller : CacheInstaller<Suite>() {
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,
@@ -79,7 +79,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
                 return true
             } catch (e: InvalidStructureException) {
                 throw UnresolvedResourceException(r, e.message, true)
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 val exception = UnreliableSourceException(r, e.message)
                 exception.initCause(e)
                 throw exception
@@ -89,7 +89,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
             } finally {
                 try {
                     incoming?.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                 }
             }
         }

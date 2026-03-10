@@ -11,7 +11,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Collections
 
 /**
@@ -49,14 +49,14 @@ class ValueQueryData : QueryData {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.write(out, ExtWrapTagged(ref!!))

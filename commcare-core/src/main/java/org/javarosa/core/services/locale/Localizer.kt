@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashSet
 import java.util.Hashtable
 import java.util.Vector
@@ -371,7 +371,7 @@ class Localizer @JvmOverloads constructor(
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
         fallbackDefaultLocale = ExtUtil.readBool(dis)
         fallbackDefaultForm = ExtUtil.readBool(dis)
@@ -386,7 +386,7 @@ class Localizer @JvmOverloads constructor(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(dos: DataOutputStream) {
         ExtUtil.writeBool(dos, fallbackDefaultLocale)
         ExtUtil.writeBool(dos, fallbackDefaultForm)

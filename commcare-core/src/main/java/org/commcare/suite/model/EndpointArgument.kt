@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Model class to represent an argument to Endpoint
@@ -26,14 +26,14 @@ class EndpointArgument : Externalizable {
         this.instanceSrc = instanceSrc
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.readString(`in`)
         instanceId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         instanceSrc = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, id)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceId))

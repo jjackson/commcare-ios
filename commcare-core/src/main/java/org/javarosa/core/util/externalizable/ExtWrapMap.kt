@@ -3,7 +3,7 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.util.OrderedHashtable
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 // map of objects where key and data are all of single (non-polymorphic) type
@@ -51,7 +51,7 @@ class ExtWrapMap : ExternalizableWrapper {
         return ExtWrapMap(`val` as Hashtable<*, *>, keyType, dataType)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: Hashtable<Any, Any> = when (type) {
@@ -67,7 +67,7 @@ class ExtWrapMap : ExternalizableWrapper {
         `val` = h
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as Hashtable<Any, Any>
@@ -83,14 +83,14 @@ class ExtWrapMap : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtUtil.readInt(`in`)
         keyType = ExtWrapTagged.readTag(`in`, pf)
         dataType = ExtWrapTagged.readTag(`in`, pf)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as Hashtable<Any, Any>

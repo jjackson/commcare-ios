@@ -7,7 +7,7 @@ import org.javarosa.xform.parse.XFormParseException
 import org.javarosa.xform.parse.XFormParserFactory
 import org.kxml2.kdom.Element
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.UnsupportedEncodingException
@@ -35,7 +35,7 @@ class XFormUtils {
         }
 
         @JvmStatic
-        @Throws(XFormParseException::class, IOException::class)
+        @Throws(XFormParseException::class, PlatformIOException::class)
         fun getFormRaw(isr: InputStreamReader): FormDef {
             return _factory.getXFormParser(isr).parse()
         }
@@ -67,13 +67,13 @@ class XFormUtils {
                     }
                     return parser.parse()
                     //TODO: Keep removing these, shouldn't be swallowing them
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw XFormParseException("IO Exception during parse! " + e.message)
                 }
             } finally {
                 try {
                     isr.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     System.err.println("IO Exception while closing stream.")
                     e.printStackTrace()
                 }
@@ -100,13 +100,13 @@ class XFormUtils {
                 try {
                     return _factory.getXFormParser(isr).parse()
                     //TODO: Keep removing these, shouldn't be swallowing them
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw XFormParseException("IO Exception during parse! " + e.message)
                 }
             } finally {
                 try {
                     isr.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     System.err.println("IO Exception while closing stream.")
                     e.printStackTrace()
                 }

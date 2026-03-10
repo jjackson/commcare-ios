@@ -9,7 +9,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,7 +39,7 @@ object CommCareNetworkServiceGenerator {
             val newUrl = response.header("Location")
             if (!isValidRedirect(request.url, newUrl?.toHttpUrlOrNull())) {
                 Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from ${request.url} to $newUrl")
-                throw IOException("Invalid redirect from secure server to insecure server")
+                throw PlatformIOException("Invalid redirect from secure server to insecure server")
             }
         }
         response

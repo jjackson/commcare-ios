@@ -23,7 +23,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashMap
 import java.util.Hashtable
 import java.util.NoSuchElementException
@@ -233,7 +233,7 @@ class StackFrameStep : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.elementType = ExtUtil.readString(`in`)
         this._id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -243,7 +243,7 @@ class StackFrameStep : Externalizable {
         this.dataInstanceSources = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExternalDataInstanceSource::class.java), pf) as Hashtable<String, ExternalDataInstanceSource>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, elementType)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(_id))

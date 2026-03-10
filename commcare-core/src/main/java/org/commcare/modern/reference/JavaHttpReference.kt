@@ -4,7 +4,7 @@ import org.commcare.core.network.CaptivePortalRedirectException
 import org.commcare.util.NetworkStatus
 import org.javarosa.core.reference.Reference
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.HttpURLConnection
@@ -17,18 +17,18 @@ import javax.net.ssl.SSLException
  */
 class JavaHttpReference(private val uri: String) : Reference {
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun doesBinaryExist(): Boolean {
         //For now....
         return true
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getOutputStream(): OutputStream {
-        throw IOException("Http references are read only!")
+        throw PlatformIOException("Http references are read only!")
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getStream(): InputStream {
         try {
             val url = URL(uri)
@@ -53,9 +53,9 @@ class JavaHttpReference(private val uri: String) : Reference {
         return true
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun remove() {
-        throw IOException("Http references are read only!")
+        throw PlatformIOException("Http references are read only!")
     }
 
     override fun getLocalURI(): String {

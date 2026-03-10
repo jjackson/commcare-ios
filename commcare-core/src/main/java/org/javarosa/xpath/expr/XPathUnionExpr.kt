@@ -9,7 +9,7 @@ import org.javarosa.xpath.XPathUnsupportedException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathUnionExpr : XPathBinaryOpExpr {
     @Suppress("unused")
@@ -25,14 +25,14 @@ class XPathUnionExpr : XPathBinaryOpExpr {
         return super.toString("union")
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         readExpressions(`in`, pf)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
         op = -1
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         writeExpressions(out)
         ExtUtil.write(out, cacheState)

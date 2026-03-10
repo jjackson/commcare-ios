@@ -10,7 +10,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -62,7 +62,7 @@ class ActionController : Externalizable {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(inStream: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         eventListeners = ExtUtil.read(
@@ -71,7 +71,7 @@ class ActionController : Externalizable {
         ) as Hashtable<String, Vector<Action>>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(outStream: DataOutputStream) {
         ExtUtil.write(outStream, ExtWrapMap(eventListeners, ExtWrapListPoly()))
     }

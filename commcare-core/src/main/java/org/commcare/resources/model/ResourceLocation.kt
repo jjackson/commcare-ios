@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * A resource location is a simple model containing a possible
@@ -63,14 +63,14 @@ class ResourceLocation : Externalizable {
         return relative
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.authority = ExtUtil.readInt(`in`)
         this.location = ExtUtil.readString(`in`)
         this.relative = ReferenceManager.isRelative(location)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, authority.toLong())
         ExtUtil.writeString(out, location)

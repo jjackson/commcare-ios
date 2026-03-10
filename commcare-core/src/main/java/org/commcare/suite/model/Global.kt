@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -30,14 +30,14 @@ class Global : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val theGeoOverlays = ExtUtil.read(`in`, ExtWrapList(GeoOverlay::class.java), pf) as Vector<GeoOverlay>
         geoOverlays = arrayOfNulls<GeoOverlay>(theGeoOverlays.size) as Array<GeoOverlay>
         ArrayUtilities.copyIntoArray(theGeoOverlays, geoOverlays)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapList(ArrayUtilities.toVector(geoOverlays)))
     }

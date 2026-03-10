@@ -5,7 +5,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.instance.utils.TreeUtilities
 import org.javarosa.xml.util.InvalidStructureException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * An external data instance that respects CaseDB template specifications.
@@ -51,7 +51,7 @@ class CaseDataInstance : ExternalDataInstance {
                         TreeUtilities.xmlToTreeElement("/casedb_instance_structure.xml")
                 } catch (e: InvalidStructureException) {
                     throw RuntimeException(errorMsg)
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw RuntimeException(errorMsg)
                 }
             }

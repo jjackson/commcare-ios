@@ -6,7 +6,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parses the defintion for a [GeoOverlay] element
@@ -20,7 +20,7 @@ internal class GeoOverlayParser(parser: KXmlParser) : ElementParser<GeoOverlay>(
         private const val NAME_LABEL = "label"
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): GeoOverlay {
         var title: DisplayUnit? = null
         var coordinates: DisplayUnit? = null

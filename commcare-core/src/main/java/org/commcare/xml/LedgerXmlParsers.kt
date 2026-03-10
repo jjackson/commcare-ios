@@ -8,7 +8,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
 import java.util.Vector
 
@@ -37,7 +37,7 @@ class LedgerXmlParsers(
         private const val FINAL_NAME = "entry"
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): Array<Ledger> {
         this.checkNode(arrayOf(TAG_BALANCE, TRANSFER))
 
@@ -66,7 +66,7 @@ class LedgerXmlParsers(
                 while (this.nextTagInBlock(TAG_BALANCE)) {
                     object : ElementParser<Array<Ledger>?>(this.parser) {
                         @Throws(
-                            InvalidStructureException::class, IOException::class,
+                            InvalidStructureException::class, PlatformIOException::class,
                             XmlPullParserException::class
                         )
                         override fun parse(): Array<Ledger>? {
@@ -127,7 +127,7 @@ class LedgerXmlParsers(
                 while (this.nextTagInBlock(TRANSFER)) {
                     object : ElementParser<Array<Ledger>?>(this.parser) {
                         @Throws(
-                            InvalidStructureException::class, IOException::class,
+                            InvalidStructureException::class, PlatformIOException::class,
                             XmlPullParserException::class
                         )
                         override fun parse(): Array<Ledger>? {
@@ -214,7 +214,7 @@ class LedgerXmlParsers(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun commit(parsed: Array<Ledger>) {
         for (s in parsed) {
             storage().write(s)

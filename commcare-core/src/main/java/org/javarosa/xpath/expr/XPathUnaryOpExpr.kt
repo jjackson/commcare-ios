@@ -9,7 +9,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 abstract class XPathUnaryOpExpr : XPathOpExpr {
     @JvmField
@@ -33,13 +33,13 @@ abstract class XPathUnaryOpExpr : XPathOpExpr {
         return a.hashCode()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(a!!))
         ExtUtil.write(out, cacheState)

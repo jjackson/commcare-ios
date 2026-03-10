@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -164,7 +164,7 @@ class GroupDef : IFormElement {
     /**
      * Reads a group definition object from the supplied stream.
      */
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
@@ -192,7 +192,7 @@ class GroupDef : IFormElement {
     /**
      * Write the group definition object to the supplied stream.
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(dos: DataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         ExtUtil.write(dos, ExtWrapNullable(getAppearanceAttr()))

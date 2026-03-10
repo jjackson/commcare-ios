@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -234,7 +234,7 @@ abstract class Triggerable : Externalizable {
         return hash
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
         expr = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
         contextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
@@ -244,7 +244,7 @@ abstract class Triggerable : Externalizable {
         stopContextualizingAt = ExtUtil.readInt(input)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(expr!!))
         ExtUtil.write(out, contextRef!!)

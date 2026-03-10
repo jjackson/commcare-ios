@@ -32,7 +32,7 @@ import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Stack
 import java.util.Vector
@@ -1060,7 +1060,7 @@ open class CommCareSession {
          * Doesn't support restoring the frame stack
          */
         @JvmStatic
-        @Throws(DeserializationException::class, IOException::class)
+        @Throws(DeserializationException::class, PlatformIOException::class)
         fun restoreSessionFromStream(
             ccPlatform: CommCarePlatform,
             inputStream: DataInputStream

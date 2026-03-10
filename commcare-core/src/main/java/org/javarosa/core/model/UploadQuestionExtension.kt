@@ -5,7 +5,7 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Represents any additional information included in an "upload" question type via extra
@@ -27,12 +27,12 @@ class UploadQuestionExtension : QuestionDataExtension {
         this.maxDimen = maxDimen
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
         this.maxDimen = ExtUtil.readInt(dis)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(dos: DataOutputStream) {
         ExtUtil.writeNumeric(dos, maxDimen.toLong())
     }

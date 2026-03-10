@@ -16,7 +16,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Hashtable
@@ -31,7 +31,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): SessionDatum {
@@ -107,7 +107,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     private fun parseRemoteQueryDatum(): RemoteQueryDatum {

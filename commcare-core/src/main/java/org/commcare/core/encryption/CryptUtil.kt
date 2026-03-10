@@ -3,7 +3,7 @@ package org.commcare.core.encryption
 import org.javarosa.core.io.StreamsUtil
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.nio.charset.StandardCharsets
 import java.security.InvalidKeyException
 import java.security.KeyFactory
@@ -77,7 +77,7 @@ object CryptUtil {
 
         try {
             StreamsUtil.writeFromInputToOutputNew(cis, bos)
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             throw RuntimeException(e)
         }
 

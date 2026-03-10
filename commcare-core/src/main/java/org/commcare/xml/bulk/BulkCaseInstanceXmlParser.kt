@@ -25,7 +25,7 @@ import org.javarosa.core.util.externalizable.SerializationLimitationException
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
 
 /**
@@ -145,7 +145,7 @@ open class BulkCaseInstanceXmlParser(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun performBulkWrite(writeLog: LinkedHashMap<String, Case>) {
         val recordIdsToWipe = ArrayList<Int>()
         for (caseId in writeLog.keys) {

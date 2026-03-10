@@ -14,7 +14,7 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xform.parse.XFormParser
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -187,7 +187,7 @@ class QuestionDef : IFormElement {
         return null
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         binding = ExtUtil.read(dis, ExtWrapNullable(ExtWrapTagged()), pf) as XPathReference?
@@ -206,7 +206,7 @@ class QuestionDef : IFormElement {
         actionController = ExtUtil.read(dis, ExtWrapNullable(ActionController::class.java), pf) as ActionController? ?: ActionController()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(dos: DataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         val currentBinding = binding

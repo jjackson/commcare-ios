@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class EndpointAction : Externalizable {
     private var endpointId: String? = null
@@ -20,13 +20,13 @@ class EndpointAction : Externalizable {
         this.isBackground = isBackground
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         endpointId = ExtUtil.readString(`in`)
         isBackground = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, endpointId)
         ExtUtil.writeBool(out, isBackground)

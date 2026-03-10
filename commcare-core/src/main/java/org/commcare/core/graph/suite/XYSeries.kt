@@ -13,7 +13,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Enumeration
 import java.util.Hashtable
 import java.util.Vector
@@ -89,7 +89,7 @@ open class XYSeries : Externalizable, Configurable {
         return mConfiguration!!.keys()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         mX = ExtUtil.readString(`in`)
         mY = ExtUtil.readString(`in`)
@@ -100,7 +100,7 @@ open class XYSeries : Externalizable, Configurable {
         mPointConfiguration = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, mX)
         ExtUtil.writeString(out, mY)

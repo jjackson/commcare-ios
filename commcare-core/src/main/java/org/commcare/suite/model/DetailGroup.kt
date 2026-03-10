@@ -9,7 +9,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class DetailGroup : Externalizable {
     internal var function: XPathExpression? = null
@@ -25,13 +25,13 @@ class DetailGroup : Externalizable {
         this.headerRows = headerRows
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         function = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         headerRows = ExtUtil.readInt(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(function!!))
         ExtUtil.write(out, headerRows)

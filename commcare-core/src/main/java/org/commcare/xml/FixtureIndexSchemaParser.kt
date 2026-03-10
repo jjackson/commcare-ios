@@ -7,7 +7,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parses fixture index schemas into an object representation:
@@ -31,13 +31,13 @@ class FixtureIndexSchemaParser(
         const val INDICE_SCHEMA: String = "schema"
     }
 
-    @Throws(IOException::class, InvalidStructureException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     override fun commit(parsed: FixtureIndexSchema) {
         fixtureSchemas[parsed.fixtureName] = parsed
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): FixtureIndexSchema {

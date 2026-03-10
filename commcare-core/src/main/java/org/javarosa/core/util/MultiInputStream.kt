@@ -1,6 +1,6 @@
 package org.javarosa.core.util
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Vector
 
@@ -43,10 +43,10 @@ class MultiInputStream : InputStream() {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun read(): Int {
         if (currentStream == -1) {
-            throw IOException("Cannot read from unprepared MultiInputStream!")
+            throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
         var cur = streams.elementAt(currentStream)
         var next = cur.read()
@@ -69,18 +69,18 @@ class MultiInputStream : InputStream() {
         return next
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun available(): Int {
         if (currentStream == -1) {
-            throw IOException("Cannot read from unprepared MultiInputStream!")
+            throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
         return streams.elementAt(currentStream).available()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun close() {
         if (currentStream == -1) {
-            throw IOException("Cannot read from unprepared MultiInputStream!")
+            throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
         val en = streams.elements()
         while (en.hasMoreElements()) {

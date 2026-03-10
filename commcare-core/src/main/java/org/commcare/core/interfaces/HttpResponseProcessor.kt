@@ -1,6 +1,6 @@
 package org.commcare.core.interfaces
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -35,5 +35,5 @@ interface HttpResponseProcessor {
     /**
      * A issue occurred while processing the http request or response
      */
-    fun handleIOException(exception: IOException)
+    fun handleIOException(exception: PlatformIOException)
 }

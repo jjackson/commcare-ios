@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.commcare.util.CommCarePlatform
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -299,7 +299,7 @@ open class Resource : Persistable, IMetaData {
         return descriptor ?: id
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.version = ExtUtil.readInt(`in`)
@@ -315,7 +315,7 @@ open class Resource : Persistable, IMetaData {
         this.lazy = ExtUtil.readString(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeNumeric(out, version.toLong())

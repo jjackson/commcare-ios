@@ -6,7 +6,7 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.InvalidKeyException
@@ -28,7 +28,7 @@ internal class FileBitCache(
     private var key: SecretKey? = null
     private var temp: File? = null
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun initializeCache() {
         val cacheLocation = cacheDirSetup!!.getCacheDir()
 
@@ -37,7 +37,7 @@ internal class FileBitCache(
         key = CryptUtil.generateSemiRandomKey()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getCacheStream(): OutputStream {
         // generate write key/cipher
         try {
@@ -61,7 +61,7 @@ internal class FileBitCache(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun retrieveCache(): InputStream {
         try {
             // generate read key/cipher

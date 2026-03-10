@@ -5,7 +5,7 @@ import org.commcare.resources.model.Resource
 import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.SizeBoundUniqueVector
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 object InstallerUtil {
 
@@ -37,7 +37,7 @@ object InstallerUtil {
                         }
                     }
                 }
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 problems.addElement(
                     MissingMediaException(
                         r, "Problem reading external media: $localName", filePath,

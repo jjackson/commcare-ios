@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Defines a polygon region to be displayed on a map
@@ -27,13 +27,13 @@ class GeoOverlay : Externalizable {
         this.coordinates = coordinates
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         coordinates = ExtUtil.read(`in`, ExtWrapNullable(DisplayUnit::class.java), pf) as DisplayUnit?
         label = ExtUtil.read(`in`, ExtWrapNullable(DisplayUnit::class.java), pf) as DisplayUnit?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(coordinates))
         ExtUtil.write(out, ExtWrapNullable(label))

@@ -15,7 +15,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.URL
 
 /**
@@ -75,14 +75,14 @@ class PostRequest : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         params = ExtUtil.read(`in`, ExtWrapList(ExtWrapTagged()), pf) as List<QueryData>
         url = URL(ExtUtil.readString(`in`))
         relevantExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapList(params!!, ExtWrapTagged()))
         ExtUtil.writeString(out, url.toString())

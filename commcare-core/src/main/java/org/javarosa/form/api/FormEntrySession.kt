@@ -10,7 +10,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -124,14 +124,14 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
         return sessionStringBuilder.toString().trim()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         actions = ExtUtil.read(`in`, ExtWrapList(FormEntryAction::class.java), pf) as Vector<FormEntryAction>
         sessionStopRef = computeStopRef(actions)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapList(actions))
     }

@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Created by wpride1 on 5/7/15.
@@ -38,7 +38,7 @@ class QuestionString : Externalizable {
         return "Name: $name ID: $textId Inner: $textInner Fallback: $textFallback"
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         textId = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -46,7 +46,7 @@ class QuestionString : Externalizable {
         textFallback = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(name))
         ExtUtil.write(out, ExtWrapNullable(textId))

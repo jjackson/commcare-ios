@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathEqExpr : XPathBinaryOpExpr {
     private var isEqOp: Boolean = false
@@ -32,7 +32,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
         return super.toString(if (isEqOp) "==" else "!=")
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         isEqOp = ExtUtil.readBool(`in`)
         readExpressions(`in`, pf)
@@ -45,7 +45,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeBool(out, isEqOp)
         writeExpressions(out)

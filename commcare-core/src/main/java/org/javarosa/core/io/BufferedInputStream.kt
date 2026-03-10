@@ -1,6 +1,6 @@
 package org.javarosa.core.io
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -35,7 +35,7 @@ class BufferedInputStream : InputStream {
         count = 0
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun available(): Int {
         if (count == -1) {
             return 0
@@ -44,7 +44,7 @@ class BufferedInputStream : InputStream {
         return `in`.available() + (count - position)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun close() {
         `in`.close()
         // clear up buffer
@@ -59,7 +59,7 @@ class BufferedInputStream : InputStream {
         return false
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         // If we've reached EOF, signal that.
         if (count == -1) {
@@ -123,7 +123,7 @@ class BufferedInputStream : InputStream {
         return counter
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun fillBuffer(): Boolean {
         if (count == -1) {
             // do nothing
@@ -134,17 +134,17 @@ class BufferedInputStream : InputStream {
         return count == buffer!!.size
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun read(b: ByteArray): Int {
         return this.read(b, 0, b.size)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun reset() {
         // mark is unsupported
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun skip(len: Long): Long {
         // TODO: Something smarter here?
         val skipped = `in`.skip(len)
@@ -164,7 +164,7 @@ class BufferedInputStream : InputStream {
         return skipped
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun read(): Int {
         // If we've read all of the available buffer, fill
         // 'er up.

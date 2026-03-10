@@ -14,7 +14,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -76,13 +76,13 @@ class AssertionSet : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.xpathExpressions = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
         this.messages = ExtUtil.read(`in`, ExtWrapList(Text::class.java), pf) as Vector<Text>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapList(xpathExpressions))
         ExtUtil.write(out, ExtWrapList(messages))

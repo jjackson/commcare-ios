@@ -12,7 +12,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
@@ -50,14 +50,14 @@ open class ModernHttpRequester(
                 /**
                  * Only gets called if response processor is supplied
                  * @return Input Stream from cache
-                 * @throws IOException if an io error happens while reading or writing to cache
+                 * @throws PlatformIOException if an io error happens while reading or writing to cache
                  */
-                @Throws(IOException::class)
+                @Throws(PlatformIOException::class)
                 override fun getResponseStream(): InputStream {
                     return requester.getResponseStream(response!!)
                 }
 
-                @Throws(IOException::class)
+                @Throws(PlatformIOException::class)
                 override fun getErrorResponseStream(): InputStream? {
                     return requester.getErrorResponseStream(response!!)
                 }
@@ -66,7 +66,7 @@ open class ModernHttpRequester(
                     return requester.getApiVersion()
                 }
             })
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             e.printStackTrace()
             responseProcessor.handleIOException(e)
         }
@@ -76,9 +76,9 @@ open class ModernHttpRequester(
      * Executes the HTTP Request. Can be called directly to bypass response processor.
      *
      * @return Response from the HTTP call
-     * @throws IOException if a problem occurred talking to the server.
+     * @throws PlatformIOException if a problem occurred talking to the server.
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun makeRequest(): Response<ResponseBody> {
         currentCall = when (method) {
             HTTPMethod.POST -> commCareNetworkService.makePostRequest(url, headers, requestBody!!)
@@ -88,7 +88,7 @@ open class ModernHttpRequester(
         return executeAndCheckCaptivePortals(currentCall!!)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun executeAndCheckCaptivePortals(currentCall: Call<ResponseBody>): Response<ResponseBody> {
         try {
             return currentCall.execute()
@@ -115,15 +115,15 @@ open class ModernHttpRequester(
     /**
      * Writes responseStream to cache and returns it
      * @return Input Stream from cache
-     * @throws IOException if an io error happens while reading or writing to cache
+     * @throws PlatformIOException if an io error happens while reading or writing to cache
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getResponseStream(response: Response<ResponseBody>): InputStream {
         val inputStream = response.body()!!.byteStream()
         return cacheResponse(inputStream, response)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun cacheResponse(inputStream: InputStream, response: Response<ResponseBody>): InputStream {
         val cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response))
         cache.initializeCache()
@@ -132,7 +132,7 @@ open class ModernHttpRequester(
         return cache.retrieveCache()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getErrorResponseStream(response: Response<ResponseBody>): InputStream? {
         if (response.errorBody() != null) {
             return cacheResponse(response.errorBody()!!.byteStream(), response)
@@ -172,7 +172,7 @@ open class ModernHttpRequester(
                 try {
                     try {
                         responseStream = streamAccessor.getResponseStream()
-                    } catch (e: IOException) {
+                    } catch (e: PlatformIOException) {
                         responseProcessor.handleIOException(e)
                         return
                     }

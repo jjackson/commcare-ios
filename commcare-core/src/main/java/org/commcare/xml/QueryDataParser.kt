@@ -10,7 +10,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parser for parsing `<data>` elements
@@ -50,7 +50,7 @@ class QueryDataParser(parser: KXmlParser) : CommCareElementParser<QueryData>(par
         }
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, IOException::class)
+    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
     override fun parse(): QueryData {
         checkNode("data")
 

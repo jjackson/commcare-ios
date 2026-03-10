@@ -21,7 +21,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 /**
@@ -52,7 +52,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
     }
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,
@@ -119,7 +119,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
                         parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE)
                     }
                     p = parser.parse()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     if (e.message != null) {
                         Logger.log(LogTypes.TYPE_RESOURCES, "IO Exception fetching profile: " + e.message)
                     }
@@ -155,7 +155,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
         } finally {
             try {
                 incoming?.close()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
             }
         }
     }
@@ -197,13 +197,13 @@ class ProfileInstaller : CacheInstaller<Profile> {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         forceVersion = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeBool(out, forceVersion)

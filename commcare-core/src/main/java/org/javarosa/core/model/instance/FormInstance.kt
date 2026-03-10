@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
 import java.util.Hashtable
 
@@ -160,7 +160,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         return cloned
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -171,7 +171,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         setRoot(ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.write(out, ExtWrapNullable(schema))
@@ -241,7 +241,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
      *
      * This can be removed once no devices running 2.24 remain
      */
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     fun migrateSerialization(`in`: DataInputStream, pf: PrototypeFactory?) {
         super.readExternal(`in`, pf!!)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?

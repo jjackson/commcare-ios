@@ -10,7 +10,7 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parser for <field> elements of a suite's detail definitions.
@@ -22,7 +22,7 @@ class DetailFieldParser(
     private val id: String?
 ) : CommCareElementParser<DetailField>(parser) {
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): DetailField {
         checkNode("field")
         val builder = DetailField.Builder()
@@ -106,7 +106,7 @@ class DetailFieldParser(
         builder.setEndpointAction(EndpointAction(id, isBackground))
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseStyle(builder: DetailField.Builder) {
         //style
         if (parser.name.lowercase() == "style") {
@@ -122,7 +122,7 @@ class DetailFieldParser(
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseTemplate(builder: DetailField.Builder) {
         //Template
         checkNode("template")
@@ -154,7 +154,7 @@ class DetailFieldParser(
         builder.setTemplate(template)
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseSort(builder: DetailField.Builder) {
         val order = parser.getAttributeValue(null, "order")
         if (order != null && "" != order) {

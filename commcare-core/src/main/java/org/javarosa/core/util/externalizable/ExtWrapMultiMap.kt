@@ -3,7 +3,7 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.util.ListMultimap
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapMultiMap : ExternalizableWrapper {
 
@@ -35,7 +35,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
         return ExtWrapMultiMap(`val` as ListMultimap<*, *>, keyType)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val multimap = ListMultimap<Any, Any>()
@@ -49,7 +49,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
         `val` = multimap
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val multimap = `val` as ListMultimap<Any, Any>
@@ -65,12 +65,12 @@ class ExtWrapMultiMap : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         keyType = ExtWrapTagged.readTag(`in`, pf)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val multimap = `val` as ListMultimap<Any, Any>

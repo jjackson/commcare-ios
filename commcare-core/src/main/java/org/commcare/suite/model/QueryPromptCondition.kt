@@ -10,7 +10,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Model for `<validation>` node in [QueryPrompt]
@@ -26,13 +26,13 @@ class QueryPromptCondition : Externalizable {
         this.message = message
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         test = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         message = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(test!!))
         ExtUtil.write(out, ExtWrapNullable(message))

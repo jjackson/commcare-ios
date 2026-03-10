@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * A display unit element contains text and a set of potential image/audio
@@ -71,7 +71,7 @@ class DisplayUnit : Externalizable, DetailTemplate {
 
     fun getHintText(): Text? = hintText
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.read(`in`, Text::class.java, pf) as Text
         imageReference = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
@@ -80,7 +80,7 @@ class DisplayUnit : Externalizable, DetailTemplate {
         hintText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, name)
         ExtUtil.write(out, ExtWrapNullable(imageReference))

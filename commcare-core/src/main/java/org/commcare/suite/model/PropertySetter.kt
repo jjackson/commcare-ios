@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * This is just a tiny little struct to make it reasonable to maintain
@@ -39,14 +39,14 @@ class PropertySetter : Externalizable {
 
     fun isForce(): Boolean = force
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         _value = ExtUtil.readString(`in`)
         force = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.writeString(out, _value)

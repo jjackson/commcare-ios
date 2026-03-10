@@ -2,7 +2,7 @@ package org.javarosa.core.io
 
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -10,10 +10,10 @@ class StreamsUtil {
 
     // Unify the functional aspects here
     abstract inner class DirectionalIOException(
-        @JvmField val internal: IOException
-    ) : IOException(internal.message) {
+        @JvmField val internal: PlatformIOException
+    ) : PlatformIOException(internal.message) {
 
-        fun getWrapped(): IOException {
+        fun getWrapped(): PlatformIOException {
             return internal
         }
 
@@ -24,9 +24,9 @@ class StreamsUtil {
         // TODO: Override all common methods
     }
 
-    inner class InputIOException(internal: IOException) : DirectionalIOException(internal)
+    inner class InputIOException(internal: PlatformIOException) : DirectionalIOException(internal)
 
-    inner class OutputIOException(internal: IOException) : DirectionalIOException(internal)
+    inner class OutputIOException(internal: PlatformIOException) : DirectionalIOException(internal)
 
     interface StreamReadObserver {
         fun notifyCurrentCount(bytesRead: Long)
@@ -44,18 +44,18 @@ class StreamsUtil {
             var value: Int
             try {
                 value = `in`.read()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw StreamsUtil().InputIOException(e)
             }
             while (value != -1) {
                 try {
                     out.write(value)
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw StreamsUtil().OutputIOException(e)
                 }
                 try {
                     value = `in`.read()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw StreamsUtil().InputIOException(e)
                 }
             }
@@ -68,7 +68,7 @@ class StreamsUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeFromInputToOutput(`in`: InputStream, out: OutputStream) {
             try {
                 writeFromInputToOutputInner(`in`, out)
@@ -80,7 +80,7 @@ class StreamsUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun inputStreamToByteArray(input: InputStream): ByteArray {
             val buffer = ByteArray(8192)
             var bytesRead: Int
@@ -102,18 +102,18 @@ class StreamsUtil {
             val buffer = ByteArray(8192)
             try {
                 count = `is`.read(buffer)
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw StreamsUtil().InputIOException(e)
             }
             while (count != -1) {
                 try {
                     os.write(buffer, 0, count)
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw StreamsUtil().OutputIOException(e)
                 }
                 try {
                     count = `is`.read(buffer)
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw StreamsUtil().InputIOException(e)
                 }
             }
@@ -168,7 +168,7 @@ class StreamsUtil {
         private fun writeFromBuffer(os: OutputStream, buffer: ByteArray, count: Int) {
             try {
                 os.write(buffer, 0, count)
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw StreamsUtil().OutputIOException(e)
             }
         }
@@ -177,7 +177,7 @@ class StreamsUtil {
         private fun readIntoBuffer(`is`: InputStream, buffer: ByteArray): Int {
             try {
                 return `is`.read(buffer)
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw StreamsUtil().InputIOException(e)
             }
         }
@@ -186,7 +186,7 @@ class StreamsUtil {
         fun closeStream(stream: Closeable?) {
             try {
                 stream?.close()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 e.printStackTrace()
             }
         }

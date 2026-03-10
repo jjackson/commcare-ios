@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 // Model for <group> node
 class QueryGroup : Externalizable {
@@ -21,13 +21,13 @@ class QueryGroup : Externalizable {
         this.display = display
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         key = ExtUtil.read(`in`, String::class.java, pf) as String
         display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, key)
         ExtUtil.write(out, display)

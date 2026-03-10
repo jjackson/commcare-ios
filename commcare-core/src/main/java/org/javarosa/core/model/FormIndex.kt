@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -361,7 +361,7 @@ class FormIndex : Externalizable {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         beginningOfForm = ExtUtil.readBool(`in`)
         endOfForm = ExtUtil.readBool(`in`)
@@ -371,7 +371,7 @@ class FormIndex : Externalizable {
         nextLevel = ExtUtil.read(`in`, ExtWrapNullable(FormIndex::class.java), pf) as FormIndex?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeBool(out, beginningOfForm)
         ExtUtil.writeBool(out, endOfForm)

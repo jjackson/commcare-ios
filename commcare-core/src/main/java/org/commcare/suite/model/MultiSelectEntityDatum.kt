@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Special kind of EntityDatum that allows for selection of multiple entities in the session
@@ -25,7 +25,7 @@ class MultiSelectEntityDatum : EntityDatum {
         this.maxSelectValue = maxSelectValue
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         maxSelectValue = ExtUtil.readInt(`in`)
@@ -38,7 +38,7 @@ class MultiSelectEntityDatum : EntityDatum {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeNumeric(out, maxSelectValue.toLong())

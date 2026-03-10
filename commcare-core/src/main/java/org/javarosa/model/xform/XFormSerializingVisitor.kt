@@ -16,7 +16,7 @@ import org.javarosa.xform.util.XFormSerializer
 import org.kxml2.kdom.Document
 import org.kxml2.kdom.Element
 import org.kxml2.kdom.Node
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -60,12 +60,12 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         dataPointers = Vector()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun serializeInstance(model: FormInstance): ByteArray {
         return serializeInstance(model, XPathReference("/"))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun serializeInstance(model: FormInstance, ref: XPathReference): ByteArray {
         init()
         rootRef = DataInstance.unpackReference(ref)
@@ -77,12 +77,12 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         return XFormSerializer.getUtfBytesFromDocument(theXmlDoc!!)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun createSerializedPayload(model: FormInstance): IDataPayload {
         return createSerializedPayload(model, XPathReference("/"))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun createSerializedPayload(model: FormInstance, ref: XPathReference): IDataPayload {
         init()
         rootRef = DataInstance.unpackReference(ref)
