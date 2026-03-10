@@ -4,11 +4,6 @@ import org.commcare.util.ArrayDataSource
 import org.commcare.util.DefaultArrayDataSource
 import org.commcare.util.LocaleArrayDataSource
 import org.javarosa.core.model.utils.DateUtils
-import org.joda.time.Chronology
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.chrono.EthiopicChronology
-import org.joda.time.chrono.GregorianChronology
 
 import java.util.Calendar
 import java.util.Date
@@ -164,21 +159,49 @@ class CalendarUtils {
 
         @JvmStatic
         private fun ConvertToEthiopian(gregorianYear: Int, gregorianMonth: Int, gregorianDay: Int, format: String): String {
-            val chron_eth: Chronology = EthiopicChronology.getInstance()
-            val chron_greg: Chronology = GregorianChronology.getInstance()
-
-            val jodaDateTime = DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg)
-            val dtEthiopic = jodaDateTime.withChronology(chron_eth)
+            val ethiopian = gregorianToEthiopian(gregorianYear, gregorianMonth, gregorianDay)
 
             val strings = getStringsWithMonth(getMonthsArray("ethiopian_months"))
 
             val df = DateUtils.getFieldsForNonGregorianCalendar(
-                dtEthiopic.year,
-                dtEthiopic.monthOfYear,
-                dtEthiopic.dayOfMonth
+                ethiopian[0],
+                ethiopian[1],
+                ethiopian[2]
             )
 
             return DateUtils.format(df, format, strings)
+        }
+
+        /**
+         * Convert Gregorian date to Ethiopian date using the fixed offset algorithm.
+         * Ethiopian calendar: 13 months (12 × 30 days + 1 × 5 or 6 days).
+         * Ethiopian New Year is September 11 (or 12 in Gregorian leap years).
+         * Ethiopian year = Gregorian year - 8 (after Sep 11) or - 7 (before Sep 11).
+         *
+         * @return IntArray of [year, month, day] in Ethiopian calendar
+         */
+        @JvmStatic
+        private fun gregorianToEthiopian(year: Int, month: Int, day: Int): IntArray {
+            val jdn = gregorianToJdn(year, month, day)
+            // Ethiopian epoch: Meskerem 1, Year 1 = August 27, 8 CE (proleptic Gregorian) = JDN 1724221
+            val ethiopianEpoch = 1724221
+
+            val ethYear = (4 * (jdn - ethiopianEpoch) + 1463) / 1461
+            val startOfYear = ethiopianEpoch + 365 * (ethYear - 1) + (ethYear - 1) / 4
+            val dayOfYear = jdn - startOfYear
+
+            val ethMonth = dayOfYear / 30 + 1
+            val ethDay = dayOfYear % 30 + 1
+
+            return intArrayOf(ethYear, ethMonth, ethDay)
+        }
+
+        @JvmStatic
+        private fun gregorianToJdn(year: Int, month: Int, day: Int): Int {
+            val a = (14 - month) / 12
+            val y = year + 4800 - a
+            val m = month + 12 * a - 3
+            return day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045
         }
 
         @JvmStatic
@@ -321,7 +344,7 @@ class CalendarUtils {
          *                            timezone issues when casting to a calendar date
          */
         @JvmStatic
-        fun fromMillis(millisFromJavaEpoch: Long, currentTimeZone: DateTimeZone): UniversalDate {
+        fun fromMillis(millisFromJavaEpoch: Long, currentTimeZone: TimeZone): UniversalDate {
             // Since epoch calculations are relative to UTC, take current timezone
             // into account. This prevents two time values that lie on the same day
             // in the given timezone from falling on different GMT days.
@@ -369,8 +392,7 @@ class CalendarUtils {
                 cd.timeZone = DateUtils.timezone()
             }
             val dateInMillis = cd.time.time
-            val timezoneObject = DateTimeZone.forTimeZone(cd.timeZone)
-            return fromMillis(dateInMillis, timezoneObject)
+            return fromMillis(dateInMillis, cd.timeZone)
         }
 
         @JvmStatic
@@ -432,11 +454,11 @@ class CalendarUtils {
 
         @JvmStatic
         fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int): Long {
-            return toMillisFromJavaEpoch(year, month, day, DateTimeZone.getDefault())
+            return toMillisFromJavaEpoch(year, month, day, TimeZone.getDefault())
         }
 
         @JvmStatic
-        fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int, currentTimeZone: DateTimeZone): Long {
+        fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int, currentTimeZone: TimeZone): Long {
             val daysFromMinDay = countDaysFromMinDay(year, month, day)
             val millisFromMinDay = daysFromMinDay.toLong() * UniversalDate.MILLIS_IN_DAY
             val timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay)

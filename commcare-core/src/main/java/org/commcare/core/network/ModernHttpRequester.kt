@@ -1,6 +1,6 @@
 package org.commcare.core.network
 
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.core.interfaces.HttpResponseProcessor
 import org.commcare.core.interfaces.ResponseStreamAccessor
 import org.commcare.core.network.bitcache.BitCacheFactory
@@ -199,7 +199,7 @@ open class ModernHttpRequester(
         }
 
         @JvmStatic
-        fun getPostBody(inputs: Multimap<String, String>): RequestBody {
+        fun getPostBody(inputs: ListMultimap<String, String>): RequestBody {
             val formBodyBuilder = FormBody.Builder()
             for (param in inputs.entries()) {
                 formBodyBuilder.add(param.key, param.value)

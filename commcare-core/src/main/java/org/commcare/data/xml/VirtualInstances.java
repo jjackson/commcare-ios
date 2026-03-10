@@ -4,8 +4,6 @@ import static org.javarosa.core.model.instance.ExternalDataInstance.JR_REMOTE_RE
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SEARCH_INPUT_REFERENCE;
 import static org.javarosa.core.model.instance.ExternalDataInstance.JR_SELECTED_ENTITIES_REFERENCE;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.commcare.core.interfaces.VirtualDataInstanceStorage;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -13,6 +11,7 @@ import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +32,7 @@ public class VirtualInstances {
             String refId, Map<String, String> userInputValues) {
         List<SimpleNode> nodes = new ArrayList<>();
         userInputValues.forEach((key, value) -> {
-            Map<String, String> attributes = ImmutableMap.of(SEARCH_INPUT_NODE_NAME_ATTR, key);
+            Map<String, String> attributes = Collections.singletonMap(SEARCH_INPUT_NODE_NAME_ATTR, key);
             nodes.add(SimpleNode.textNode(SEARCH_INSTANCE_NODE_NAME, attributes, value));
         });
         String instanceId = makeSearchInputInstanceID(refId);

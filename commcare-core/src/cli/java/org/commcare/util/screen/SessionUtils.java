@@ -1,6 +1,8 @@
 package org.commcare.util.screen;
 
-import com.google.common.collect.Multimap;
+import org.javarosa.core.util.ListMultimap;
+
+import java.util.Map;
 
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.interfaces.UserSandbox;
@@ -133,7 +135,7 @@ public class SessionUtils {
     }
 
     public InputStream makeQueryRequest(
-            URL url, Multimap<String, String> requestData,
+            URL url, ListMultimap<String, String> requestData,
             String username, final String password) {
         String credential = Credentials.basic(username, password);
 
@@ -152,9 +154,11 @@ public class SessionUtils {
         }
     }
 
-    private RequestBody makeRequestBody(Multimap<String, String> requestData) {
+    private RequestBody makeRequestBody(ListMultimap<String, String> requestData) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        requestData.forEach(formBodyBuilder::add);
+        for (Map.Entry<String, String> entry : requestData.entries()) {
+            formBodyBuilder.add(entry.getKey(), entry.getValue());
+        }
         return formBodyBuilder.build();
     }
 
@@ -166,7 +170,7 @@ public class SessionUtils {
             PrintStream printStream
     ) throws IOException {
         String url = buildUrl(syncPost.getUrl().toString());
-        Multimap<String, String> params = syncPost.getEvaluatedParams(
+        ListMultimap<String, String> params = syncPost.getEvaluatedParams(
                 session.getEvaluationContext(), false);
         printStream.println(String.format("Syncing with url %s and parameters %s", url, params));
         MultipartBody postBody = buildPostBody(params);
@@ -194,12 +198,14 @@ public class SessionUtils {
         return urlBuilder.build().toString();
     }
 
-    private static MultipartBody buildPostBody(Multimap<String, String> params) {
+    private static MultipartBody buildPostBody(ListMultimap<String, String> params) {
         MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM);
         // Add buffer param since this is necessary for some reason
         requestBodyBuilder.addFormDataPart("buffer", "buffer");
-        params.forEach(requestBodyBuilder::addFormDataPart);
+        for (Map.Entry<String, String> entry : params.entries()) {
+            requestBodyBuilder.addFormDataPart(entry.getKey(), entry.getValue());
+        }
         return requestBodyBuilder.build();
     }
 }

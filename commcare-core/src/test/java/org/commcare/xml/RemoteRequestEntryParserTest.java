@@ -5,7 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
+
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.QueryData;
@@ -55,7 +56,7 @@ public class RemoteRequestEntryParserTest {
         instances.put(TestInstances.CASEDB, TestInstances.buildCaseDb(ImmutableList.of("123", "456", "789")));
         EvaluationContext evalContext = new EvaluationContext(null, instances);
 
-        Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext, false);
+        ListMultimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext, false);
         assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
         assertFalse(evaluatedParams.containsKey("case_id_list"));
 

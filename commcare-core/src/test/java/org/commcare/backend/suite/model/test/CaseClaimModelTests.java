@@ -4,7 +4,8 @@ import static org.commcare.suite.model.QueryPrompt.DEFAULT_VALIDATION_ERROR;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
+
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.data.xml.SimpleNode;
 import org.commcare.data.xml.TreeBuilder;
@@ -221,7 +222,7 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
-        Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
+        ListMultimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(true);
 
         Assert.assertEquals(expected, params.get(key));
         return remoteQuerySessionManager;
@@ -233,7 +234,7 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
 
-        Multimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(false);
+        ListMultimap<String, String> params = remoteQuerySessionManager.getRawQueryParams(false);
 
         Assert.assertFalse(params.containsKey("exclude_patient_id"));
     }

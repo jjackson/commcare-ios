@@ -1,6 +1,5 @@
 package org.commcare.xml
 
-import com.google.common.collect.ImmutableList
 import org.commcare.suite.model.Endpoint
 import org.commcare.suite.model.EndpointArgument
 import org.commcare.suite.model.StackOperation
@@ -59,7 +58,7 @@ class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
                     )
                 }
 
-                val validInstanceSrc = ImmutableList.of(JR_SELECTED_ENTITIES_REFERENCE)
+                val validInstanceSrc = listOf(JR_SELECTED_ENTITIES_REFERENCE)
                 if (argInstanceSrc != null && !validInstanceSrc.contains(argInstanceSrc)) {
                     throw InvalidStructureException(
                         "instance-src for an endpoint argument must be one of $validInstanceSrc", parser

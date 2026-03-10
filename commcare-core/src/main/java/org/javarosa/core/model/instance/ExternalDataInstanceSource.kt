@@ -1,7 +1,6 @@
 package org.javarosa.core.model.instance
 
-import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.core.interfaces.RemoteInstanceFetcher
 import org.javarosa.core.model.instance.ExternalDataInstance.Companion.JR_REMOTE_REFERENCE
 import org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot
@@ -26,7 +25,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
     private var mUseCaseTemplate: Boolean = false
     private var reference: String? = null
     private var sourceUri: String? = null
-    private var requestData: Multimap<String, String>? = null
+    private var requestData: ListMultimap<String, String>? = null
     private var storageReferenceId: String? = null
 
     constructor()
@@ -37,7 +36,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
         reference: String?,
         useCaseTemplate: Boolean,
         sourceUri: String?,
-        requestData: Multimap<String, String>?,
+        requestData: ListMultimap<String, String>?,
         storageReferenceId: String?
     ) {
         if (sourceUri == null && storageReferenceId == null) {
@@ -109,7 +108,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
         mUseCaseTemplate = ExtUtil.readBool(`in`)
         sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         @Suppress("UNCHECKED_CAST")
-        requestData = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as Multimap<String, String>
+        requestData = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, String>
         storageReferenceId = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         reference = ExtUtil.readString(`in`)
     }
@@ -132,7 +131,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
 
     fun getSourceUri(): String? = sourceUri
 
-    fun getRequestData(): Multimap<String, String>? = requestData
+    fun getRequestData(): ListMultimap<String, String>? = requestData
 
     fun getStorageReferenceId(): String? = storageReferenceId
 
@@ -143,7 +142,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
             root: TreeElement?,
             useCaseTemplate: Boolean,
             sourceUri: String?,
-            requestData: Multimap<String, String>?
+            requestData: ListMultimap<String, String>?
         ): ExternalDataInstanceSource {
             return ExternalDataInstanceSource(
                 instanceId, root, getRemoteReference(instanceId),
@@ -180,7 +179,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
         ): ExternalDataInstanceSource {
             return ExternalDataInstanceSource(
                 instanceId, root, reference,
-                useCaseTemplate, null, ImmutableMultimap.of(), storageReferenceId
+                useCaseTemplate, null, ListMultimap(), storageReferenceId
             )
         }
     }

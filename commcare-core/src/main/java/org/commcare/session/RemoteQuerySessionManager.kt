@@ -1,8 +1,6 @@
 package org.commcare.session
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.ImmutableMap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.cases.util.StringUtils
 import org.commcare.data.xml.VirtualInstances
 import org.commcare.modern.util.Pair
@@ -120,10 +118,10 @@ class RemoteQuerySessionManager private constructor(
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    fun getRawQueryParams(skipDefaultPromptValues: Boolean): Multimap<String, String> {
+    fun getRawQueryParams(skipDefaultPromptValues: Boolean): ListMultimap<String, String> {
         val evalContextWithAnswers = getEvaluationContextWithUserInputInstance()
 
-        val params: Multimap<String, String> = ArrayListMultimap.create()
+        val params: ListMultimap<String, String> = ListMultimap()
         val hiddenQueryValues = queryDatum.getHiddenQueryValues() ?: emptyList()
         for (queryData in hiddenQueryValues) {
             params.putAll(queryData.getKey(), queryData.getValues(evalContextWithAnswers))
@@ -156,12 +154,12 @@ class RemoteQuerySessionManager private constructor(
             refId, userQueryValues
         )
         return evaluationContext.spawnWithCleanLifecycle(
-            ImmutableMap.of(
-                userInputInstance.getInstanceId(), userInputInstance,
+            mapOf(
+                userInputInstance.getInstanceId()!! to userInputInstance,
                 // Temporary method to make the 'search-input' instance available using the legacy ID
                 // Technically this instance elements should get renamed to match the instance ID, but
                 // it's OK here since the other instance is always going to be in the eval context.
-                "search-input", userInputInstance
+                "search-input" to userInputInstance
             )
         )
     }
@@ -306,7 +304,7 @@ class RemoteQuerySessionManager private constructor(
 
     fun buildExternalDataInstance(
         responseData: InputStream, url: String?,
-        requestData: Multimap<String, String>?
+        requestData: ListMultimap<String, String>?
     ): Pair<ExternalDataInstance?, String?> {
         try {
             val instanceID = getQueryDatum().getDataId()

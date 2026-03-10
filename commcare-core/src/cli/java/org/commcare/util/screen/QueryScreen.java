@@ -7,7 +7,7 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
-import com.google.common.collect.Multimap;
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.cases.model.Case;
 import org.commcare.core.encryption.CryptUtil;
@@ -145,7 +145,7 @@ public class QueryScreen extends Screen {
     }
 
     public Pair<ExternalDataInstance, String> processResponse(InputStream responseData, URL url,
-            Multimap<String, String> requestData) {
+            ListMultimap<String, String> requestData) {
         if (responseData == null) {
             currentMessage = "Query result null.";
             return new Pair<>(null, currentMessage);
@@ -211,7 +211,7 @@ public class QueryScreen extends Screen {
      * @param skipDefaultPromptValues don't apply the default value expressions for query prompts
      * @return filters to be applied to case search uri as query params
      */
-    public Multimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
+    public ListMultimap<String, String> getQueryParams(boolean skipDefaultPromptValues) {
         return remoteQuerySessionManager.getRawQueryParams(skipDefaultPromptValues);
     }
 
@@ -261,7 +261,7 @@ public class QueryScreen extends Screen {
         }
         answerPrompts(userAnswers);
         URL url = getBaseUrl();
-        Multimap<String, String> requestData = getQueryParams(false);
+        ListMultimap<String, String> requestData = getQueryParams(false);
         InputStream response = sessionUtils.makeQueryRequest(url, requestData, domainedUsername, password);
         Pair<ExternalDataInstance, String> instanceOrError = processResponse(response, url, requestData);
         updateSession(instanceOrError.first);

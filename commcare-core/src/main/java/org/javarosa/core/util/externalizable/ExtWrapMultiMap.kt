@@ -1,7 +1,6 @@
 package org.javarosa.core.util.externalizable
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -12,9 +11,9 @@ class ExtWrapMultiMap : ExternalizableWrapper {
 
     /* Constructors for serialization */
 
-    constructor(`val`: Multimap<*, *>) : this(`val`, null)
+    constructor(`val`: ListMultimap<*, *>) : this(`val`, null)
 
-    constructor(`val`: Multimap<*, *>, keyType: ExternalizableWrapper?) {
+    constructor(`val`: ListMultimap<*, *>, keyType: ExternalizableWrapper?) {
         requireNotNull(`val`)
         this.`val` = `val`
         this.keyType = keyType
@@ -33,15 +32,15 @@ class ExtWrapMultiMap : ExternalizableWrapper {
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
-        return ExtWrapMultiMap(`val` as Multimap<*, *>, keyType)
+        return ExtWrapMultiMap(`val` as ListMultimap<*, *>, keyType)
     }
 
     @Throws(IOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
-        val multimap = ArrayListMultimap.create<Any, Any>()
+        val multimap = ListMultimap<Any, Any>()
         for (i in 0 until size) {
-            val key = ExtUtil.read(`in`, keyType!!, pf)
+            val key = ExtUtil.read(`in`, keyType!!, pf)!!
             val numberOfValues = ExtUtil.readNumeric(`in`)
             for (l in 0 until numberOfValues) {
                 multimap.put(key, ExtUtil.read(`in`, ExtWrapTagged(), pf)!!)
@@ -53,7 +52,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     @Throws(IOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val multimap = `val` as Multimap<Any, Any>
+        val multimap = `val` as ListMultimap<Any, Any>
         ExtUtil.writeNumeric(out, multimap.keySet().size.toLong())
         for (key in multimap.keySet()) {
             ExtUtil.write(out, if (keyType == null) key else keyType!!.clone(key))
@@ -74,7 +73,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     @Throws(IOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val multimap = `val` as Multimap<Any, Any>
+        val multimap = `val` as ListMultimap<Any, Any>
         val keyTagObj: Any = if (keyType == null) {
             if (multimap.isEmpty) Any() else multimap.keys().iterator().next()
         } else {

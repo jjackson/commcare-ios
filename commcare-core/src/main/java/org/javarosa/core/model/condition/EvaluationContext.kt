@@ -1,7 +1,6 @@
 package org.javarosa.core.model.condition
 
-import com.google.common.collect.ImmutableListMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper
 import org.commcare.cases.query.queryset.CurrentModelQuerySet
@@ -806,7 +805,7 @@ class EvaluationContext {
     private fun updateInstances(instances: Map<String, ExternalDataInstance>) {
         val byRef = getInstancesByRef()
         instances.forEach { (name, newInstance) ->
-            val ref = newInstance.getReference()
+            val ref = newInstance.getReference() ?: return@forEach
             if (!byRef.containsKey(ref)) {
                 if (formInstances.containsKey(name)) {
                     throw RuntimeException(
@@ -838,13 +837,16 @@ class EvaluationContext {
         }
     }
 
-    private fun getInstancesByRef(): Multimap<String, ExternalDataInstance> {
-        val builder = ImmutableListMultimap.builder<String, ExternalDataInstance>()
+    private fun getInstancesByRef(): ListMultimap<String, ExternalDataInstance> {
+        val result = ListMultimap<String, ExternalDataInstance>()
         formInstances.values.forEach { inst ->
             if (inst is ExternalDataInstance) {
-                builder.put(inst.getReference(), inst)
+                val ref = inst.getReference()
+                if (ref != null) {
+                    result.put(ref, inst)
+                }
             }
         }
-        return builder.build()
+        return result
     }
 }
