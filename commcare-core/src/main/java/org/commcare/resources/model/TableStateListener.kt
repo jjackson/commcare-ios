@@ -1,13 +1,13 @@
-package org.commcare.resources.model;
+package org.commcare.resources.model
 
 /**
  * @author ctsims
  */
-public interface TableStateListener {
+interface TableStateListener {
     /**
      * A basic resource was added to the table
      */
-    void simpleResourceAdded();
+    fun simpleResourceAdded()
 
     /**
      * A compound resource (i.e. profile or suite) was added to the table.
@@ -15,7 +15,7 @@ public interface TableStateListener {
      *
      * @param table For calculating updated completed and total resource counts
      */
-    void compoundResourceAdded(ResourceTable table);
+    fun compoundResourceAdded(table: ResourceTable)
 
-    void incrementProgress(int complete, int total);
+    fun incrementProgress(complete: Int, total: Int)
 }
