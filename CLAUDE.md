@@ -48,10 +48,27 @@ commcare-ios/
 
 **Phase 1 Complete.** KMP multiplatform targets added (PR #31). Final verification passed (Issue #12): 710 tests, 611 .kt + 32 .java, 5 JARs verified. See `docs/plans/2026-03-10-phase1-completion-report.md`.
 
+**Phase 2: KMP Multiplatform & App Shell** — Move code to commonMain with expect/actual abstractions, build iOS app shell.
+
+| Wave | Group | Files | Issue | Status |
+|------|-------|-------|-------|--------|
+| 1 | Replace Guava/joda-time | ~15 | #34 | Open |
+| 2 | Serialization abstraction | ~10 new | #35 | Open |
+| 3 | XML parsing abstraction | ~10 new | #36 | Open |
+| 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Open |
+| 5 | Move pure Kotlin to commonMain | ~270 moved | #38 | Open |
+| 6 | Migrate serialization consumers | ~215 mod+moved | #39 | Open |
+| 7 | Migrate XML consumers | ~60 mod+moved | #40 | Open |
+| 8 | iOS app shell | ~15 new | #41 | Open |
+| 9 | E2E validation | ~5 new | #42 | Open |
+
+**Dependency graph:** Waves 1-4 create abstractions (can partially overlap). Waves 5-7 move files (depend on respective abstraction waves). Wave 8 needs macOS. Wave 9 is final validation.
+
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
 - **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — wave details, PR strategy, issue closure template
 - **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — completed infrastructure setup (pipeline, CI, task generator). **Skip unless debugging pipeline issues.**
 - **Degenerify design**: `docs/plans/2026-03-08-abstract-tree-element-degenerify-design.md` — removing AbstractTreeElement type parameter (completed in Wave 2)
