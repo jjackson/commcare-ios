@@ -68,7 +68,7 @@ commcare-ios/
 
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
-| 1 | Replace JVM collections | ~181 | #64 | Open |
+| 1 | Replace JVM collections | 265 | #64 | Done (PR #74) |
 | 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Open |
 | 3 | Replace Date and regex | ~32 | #66 | Open |
 | 4 | Abstract serialization framework | ~10 new | #67 | Open |
@@ -106,6 +106,7 @@ commcare-ios/
 - **Wave 8 core-services learnings**: `docs/learnings/2026-03-10-wave8-core-services-learnings.md` — `@JvmField protected` for cross-source-set Java subclasses, OkHttp 4/Okio 2 API migration, `const val` requires compile-time constants
 - **Phase 2 KMP migration learnings**: `docs/learnings/2026-03-10-wave6-7-kmp-migration-learnings.md` — compileCommonMainKotlinMetadata strictness, transitive dependency bottleneck, PlatformIOException typealias
 - **iOS CI learnings**: `docs/learnings/2026-03-10-ios-ci-learnings.md` — iOS-specific API differences, commonMain visibility from app module, CI strategy
+- **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
 
 ## Kotlin Conversion Checklist
 
