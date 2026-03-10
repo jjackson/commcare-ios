@@ -15,8 +15,6 @@ import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream

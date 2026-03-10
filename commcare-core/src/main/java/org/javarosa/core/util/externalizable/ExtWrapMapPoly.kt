@@ -1,8 +1,6 @@
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.util.OrderedHashtable
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -80,19 +78,17 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
-        ordered = ExtUtil.readBool(pdis)
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
+        ordered = ExtUtil.readBool(`in`)
         keyType = ExtWrapTagged.readTag(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as HashMap<Any, Any>
 
-        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
-        ExtUtil.writeBool(pdos, ordered)
+        ExtUtil.writeBool(out, ordered)
 
         val keyTagObj: Any = if (keyType == null) {
             if (h.isEmpty()) Any() else h.keys.iterator().next()

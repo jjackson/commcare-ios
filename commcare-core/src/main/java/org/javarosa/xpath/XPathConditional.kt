@@ -17,8 +17,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathUnaryOpExpr
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream

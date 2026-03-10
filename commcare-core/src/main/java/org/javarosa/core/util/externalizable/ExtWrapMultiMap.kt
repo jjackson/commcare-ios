@@ -1,8 +1,6 @@
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.util.ListMultimap
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -68,12 +66,12 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         keyType = ExtWrapTagged.readTag(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val multimap = `val` as ListMultimap<Any, Any>
         val keyTagObj: Any = if (keyType == null) {

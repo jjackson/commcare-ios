@@ -1,8 +1,6 @@
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.util.OrderedHashtable
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -85,15 +83,14 @@ class ExtWrapMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
-        type = ExtUtil.readInt(pdis)
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
+        type = ExtUtil.readInt(`in`)
         keyType = ExtWrapTagged.readTag(`in`, pf)
         dataType = ExtWrapTagged.readTag(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as HashMap<Any, Any>
 
@@ -108,8 +105,7 @@ class ExtWrapMap : ExternalizableWrapper {
             dataType!!
         }
 
-        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
-        ExtUtil.writeNumeric(pdos, type.toLong())
+        ExtUtil.writeNumeric(out, type.toLong())
         ExtWrapTagged.writeTag(out, keyTagObj)
         ExtWrapTagged.writeTag(out, elemTagObj)
     }

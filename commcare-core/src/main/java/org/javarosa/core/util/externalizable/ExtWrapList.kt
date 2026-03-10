@@ -1,7 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -98,19 +96,18 @@ class ExtWrapList : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         type = ExtWrapTagged.readTag(`in`, pf)
-        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
         try {
             @Suppress("UNCHECKED_CAST")
-            listImplementation = Class.forName(ExtUtil.readString(pdis)) as Class<out List<*>>
+            listImplementation = Class.forName(ExtUtil.readString(`in`)) as Class<out List<*>>
         } catch (e: ClassNotFoundException) {
             throw DeserializationException(e.message!!)
         }
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         val tagObj: Any? = if (type == null) {
             @Suppress("UNCHECKED_CAST")
             val l = `val` as List<Any?>
@@ -124,7 +121,6 @@ class ExtWrapList : ExternalizableWrapper {
         }
 
         ExtWrapTagged.writeTag(out, tagObj!!)
-        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
-        ExtUtil.writeString(pdos, listImplementation!!.name)
+        ExtUtil.writeString(out, listImplementation!!.name)
     }
 }

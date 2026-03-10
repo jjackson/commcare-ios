@@ -1,7 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -32,11 +30,11 @@ abstract class ExternalizableWrapper : Externalizable {
 
     /* deserialize the state of the externalizable wrapper */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    abstract fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory)
+    abstract fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory)
 
     /* serialize the state of the externalizable wrapper (type information only, not value) */
     @Throws(PlatformIOException::class)
-    abstract fun metaWriteExternal(out: DataOutputStream)
+    abstract fun metaWriteExternal(out: PlatformDataOutputStream)
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     abstract override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory)

@@ -1,7 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -70,12 +68,12 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        bias = `in`.readUnsignedByte()
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
+        bias = `in`.readByte().toInt() and 0xFF
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         out.writeByte(bias)
     }
 

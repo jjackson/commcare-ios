@@ -1,7 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -25,22 +23,22 @@ class ExtWrapTagged : ExternalizableWrapper {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        val type = readTag(`in`.dis, pf)
+        val type = readTag(`in`, pf)
         `val` = ExtUtil.read(`in`, type, pf)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         val localVal = `val`!!
-        writeTag(out.dos, localVal)
+        writeTag(out, localVal)
         ExtUtil.write(out, localVal)
     }
 
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         throw RuntimeException("Tagged wrapper should never be tagged")
     }
 
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         throw RuntimeException("Tagged wrapper should never be tagged")
     }
 
@@ -58,13 +56,12 @@ class ExtWrapTagged : ExternalizableWrapper {
 
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
-        fun readTag(`in`: DataInputStream, pf: PrototypeFactory): ExternalizableWrapper {
+        fun readTag(`in`: PlatformDataInputStream, pf: PrototypeFactory): ExternalizableWrapper {
             val tag = ByteArray(PrototypeFactory.getClassHashSize())
             `in`.read(tag, 0, tag.size)
 
             if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
-                val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
-                val wrapperCode = ExtUtil.readInt(pdis)
+                val wrapperCode = ExtUtil.readInt(`in`)
 
                 // find wrapper indicated by code
                 var type: ExternalizableWrapper? = null
@@ -101,12 +98,11 @@ class ExtWrapTagged : ExternalizableWrapper {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeTag(out: DataOutputStream, o: Any) {
+        fun writeTag(out: PlatformDataOutputStream, o: Any) {
             var obj = o
             if (obj is ExternalizableWrapper && obj !is ExtWrapBase) {
                 out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize())
-                val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
-                ExtUtil.writeNumeric(pdos, WRAPPER_CODES[obj.javaClass]!!.toLong())
+                ExtUtil.writeNumeric(out, WRAPPER_CODES[obj.javaClass]!!.toLong())
                 obj.metaWriteExternal(out)
             } else {
                 var type: Class<*>? = null

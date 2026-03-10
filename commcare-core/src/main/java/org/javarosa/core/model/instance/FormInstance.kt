@@ -11,7 +11,6 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 import org.javarosa.core.util.externalizable.PlatformDataInputStream

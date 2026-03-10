@@ -20,8 +20,6 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.ByteArrayInputStream
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.UnsupportedEncodingException
