@@ -6,7 +6,7 @@ import org.javarosa.xform.util.CalendarUtils
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 open class XPathFormatDateForCalendarFunc : XPathFuncExpr {
     constructor() {
@@ -40,12 +40,12 @@ open class XPathFormatDateForCalendarFunc : XPathFuncExpr {
          * Given a date and format, return that date as a string formatted for that calendar
          * Accepted calendars are Ethiopian and Nepali
          *
-         * @param dateObject The Object (String, Date, or XPath) to be evaluated into a date
+         * @param dateObject The Object (String, PlatformDate, or XPath) to be evaluated into a date
          * @param calendar     The calendar system to use (nepali or ethiopian)
          * @param format     An optional format string as used in format-date()
          */
         private fun formatDateForCalendar(dateObject: Any?, calendar: Any?, format: String?): String {
-            val date: Date? = FunctionUtils.expandDateSafe(dateObject)
+            val date: PlatformDate? = FunctionUtils.expandDateSafe(dateObject)
             if (date == null) {
                 return ""
             }

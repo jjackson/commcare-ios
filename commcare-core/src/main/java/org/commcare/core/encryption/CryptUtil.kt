@@ -13,7 +13,7 @@ import java.security.SecureRandom
 import java.security.interfaces.RSAPrivateKey
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.PKCS8EncodedKeySpec
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -127,7 +127,7 @@ object CryptUtil {
 
     @JvmStatic
     fun uniqueSeedFromSecureStatic(secureStatic: ByteArray): ByteArray? {
-        val uniqueBase = Date().time
+        val uniqueBase = PlatformDate().time
         val baseString = java.lang.Long.toHexString(uniqueBase)
         try {
             return append(

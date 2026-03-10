@@ -5,7 +5,7 @@ import org.commcare.core.graph.util.GraphException
 import org.commcare.core.graph.util.GraphUtil
 import org.json.JSONObject
 import java.text.SimpleDateFormat
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.SortedMap
 import java.util.TreeMap
 
@@ -50,7 +50,7 @@ open class Configuration(data: GraphData) {
             }
         } else {
             val daysSinceEpoch = parseDouble(v, description)
-            val d = Date((daysSinceEpoch * 86400000L).toLong())
+            val d = PlatformDate((daysSinceEpoch * 86400000L).toLong())
             v = mDateFormat.format(d)
         }
         return v

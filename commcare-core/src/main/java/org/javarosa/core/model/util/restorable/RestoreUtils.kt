@@ -10,7 +10,7 @@ import org.javarosa.core.services.storage.Persistable
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathConditional
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 object RestoreUtils {
     @JvmField
@@ -42,7 +42,7 @@ object RestoreUtils {
             java.lang.Long::class.java, Long::class.java -> Constants.DATATYPE_LONG
             java.lang.Float::class.java, Float::class.java,
             java.lang.Double::class.java, Double::class.java -> Constants.DATATYPE_DECIMAL
-            Date::class.java -> Constants.DATATYPE_DATE
+            PlatformDate::class.java -> Constants.DATATYPE_DATE
             java.lang.Boolean::class.java, Boolean::class.java -> Constants.DATATYPE_TEXT
             else -> throw RuntimeException("Can't handle data type ${c.name}")
         }
@@ -81,7 +81,7 @@ object RestoreUtils {
         var resolvedParent = parent
         if (resolvedParent == null) {
             resolvedParent = topRef(dm)
-            applyDataType(dm, "timestamp", resolvedParent, Date::class.java)
+            applyDataType(dm, "timestamp", resolvedParent, PlatformDate::class.java)
         }
 
         if (r is Persistable) {

@@ -4,7 +4,7 @@ import org.commcare.util.LogTypes
 import org.javarosa.core.api.ILogger
 import org.javarosa.core.log.FatalException
 import org.javarosa.core.log.WrappedException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 object Logger {
     private const val MAX_MSG_LENGTH = 2048
@@ -47,7 +47,7 @@ object Logger {
         msg = msg.substring(0, Math.min(msg.length, MAX_MSG_LENGTH))
         if (logger != null) {
             try {
-                logger!!.log(type, msg, Date())
+                logger!!.log(type, msg, PlatformDate())
             } catch (e: RuntimeException) {
                 //do not catch exceptions here; if this fails, we want the exception to propogate
                 System.err.println("exception when trying to write log message! " + WrappedException.printException(e))

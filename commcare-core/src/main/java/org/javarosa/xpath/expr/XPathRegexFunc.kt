@@ -4,8 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.regex.Pattern
-import java.util.regex.PatternSyntaxException
 
 open class XPathRegexFunc : XPathFuncExpr {
     constructor() {
@@ -35,8 +33,8 @@ open class XPathRegexFunc : XPathFuncExpr {
             val re = FunctionUtils.toString(o2)
 
             try {
-                return Pattern.compile(re).matcher(str).find()
-            } catch (e: PatternSyntaxException) {
+                return Regex(re).containsMatchIn(str)
+            } catch (e: IllegalArgumentException) {
                 throw XPathException("The regular expression '$re' is invalid.")
             }
         }

@@ -35,7 +35,7 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.model.utils.DateUtils
 
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * The XFormAnswerDataSerializer takes in AnswerData objects, and provides
@@ -81,7 +81,7 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
      * formatting
      */
     fun serializeAnswerData(data: DateData): Any {
-        return DateUtils.formatDate(data.getValue() as Date, DateUtils.FORMAT_ISO8601)
+        return DateUtils.formatDate(data.getValue() as PlatformDate, DateUtils.FORMAT_ISO8601)
     }
 
     /**
@@ -90,7 +90,7 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
      * formatting
      */
     fun serializeAnswerData(data: DateTimeData): Any {
-        return DateUtils.formatDateTime(data.getValue() as Date, DateUtils.FORMAT_ISO8601)
+        return DateUtils.formatDateTime(data.getValue() as PlatformDate, DateUtils.FORMAT_ISO8601)
     }
 
     /**
@@ -99,7 +99,7 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
      * formatting
      */
     fun serializeAnswerData(data: TimeData): Any {
-        return DateUtils.formatTime(data.getValue() as Date, DateUtils.FORMAT_ISO8601_WALL_TIME)
+        return DateUtils.formatTime(data.getValue() as PlatformDate, DateUtils.FORMAT_ISO8601_WALL_TIME)
     }
 
     /**

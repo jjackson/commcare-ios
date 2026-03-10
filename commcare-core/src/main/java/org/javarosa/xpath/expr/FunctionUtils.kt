@@ -9,7 +9,7 @@ import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 
 import java.util.ArrayList
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashMap
 
 class FunctionUtils {
@@ -178,7 +178,7 @@ class FunctionUtils {
                 `val` = Math.abs(d) > 1.0e-12 && !java.lang.Double.isNaN(d)
             } else if (o is String) {
                 `val` = o.length > 0
-            } else if (o is Date) {
+            } else if (o is PlatformDate) {
                 `val` = true
             } else if (o is IExprDataType) {
                 `val` = o.toBoolean()
@@ -193,7 +193,7 @@ class FunctionUtils {
 
         @JvmStatic
         fun toDouble(o: Any?): Double {
-            return if (o is Date) {
+            return if (o is PlatformDate) {
                 DateUtils.fractionalDaysSinceEpoch(o)
             } else {
                 toNumeric(o)
@@ -227,7 +227,7 @@ class FunctionUtils {
                         `val` = java.lang.Double.valueOf(Double.NaN)
                     }
                 }
-            } else if (o is Date) {
+            } else if (o is PlatformDate) {
                 `val` = java.lang.Double.valueOf(DateUtils.daysSinceEpoch(o).toDouble())
             } else if (o is IExprDataType) {
                 `val` = o.toNumeric()
@@ -257,7 +257,7 @@ class FunctionUtils {
 
         private fun attemptDateConversion(s: String): Double {
             val o = toDate(s)
-            if (o is Date) {
+            if (o is PlatformDate) {
                 return toNumeric(o)
             } else {
                 throw XPathTypeMismatchException()
@@ -312,7 +312,7 @@ class FunctionUtils {
                 }
             } else if (o is String) {
                 `val` = o
-            } else if (o is Date) {
+            } else if (o is PlatformDate) {
                 `val` = DateUtils.formatDate(o, DateUtils.FORMAT_ISO8601)
             } else if (o is IExprDataType) {
                 `val` = o.toString()
@@ -337,7 +337,7 @@ class FunctionUtils {
          * string and int conversions are reversable, however:
          * * cannot convert bool to date
          * * empty string and NaN (xpath's 'null values') go unchanged, instead of being converted
-         * into a date (which would cause an error, since Date has no null value (other than java
+         * into a date (which would cause an error, since PlatformDate has no null value (other than java
          * null, which the xpath engine can't handle))
          * * note, however, than non-empty strings that aren't valid dates _will_ cause an error
          * during conversion
@@ -369,7 +369,7 @@ class FunctionUtils {
                 } else {
                     return d
                 }
-            } else if (o is Date) {
+            } else if (o is PlatformDate) {
                 return DateUtils.roundDate(o)
             } else {
                 val type = if (o == null) "null" else o.javaClass.name
@@ -378,13 +378,13 @@ class FunctionUtils {
         }
 
         @JvmStatic
-        internal fun expandDateSafe(dateObject: Any?): Date? {
+        internal fun expandDateSafe(dateObject: Any?): PlatformDate? {
             var dateObject = dateObject
-            if (dateObject !is Date) {
+            if (dateObject !is PlatformDate) {
                 // try to expand this out of a nodeset
                 dateObject = toDate(dateObject)
             }
-            return if (dateObject is Date) {
+            return if (dateObject is PlatformDate) {
                 dateObject
             } else {
                 null

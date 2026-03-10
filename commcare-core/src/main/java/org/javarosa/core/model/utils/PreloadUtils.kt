@@ -8,7 +8,7 @@ import org.javarosa.core.model.data.LongData
 import org.javarosa.core.model.data.SelectMultiData
 import org.javarosa.core.model.data.StringData
 import org.javarosa.core.model.data.helper.Selection
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * @author Clayton Sims
@@ -30,7 +30,7 @@ object PreloadUtils {
         //TODO: Replace this all with an uncast data
         return when (o) {
             is String -> StringData(o)
-            is Date -> DateData(o)
+            is PlatformDate -> DateData(o)
             is Int -> IntegerData(o)
             is Long -> LongData(o)
             is Double -> DecimalData(o)
