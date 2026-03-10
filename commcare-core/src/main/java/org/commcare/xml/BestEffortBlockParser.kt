@@ -4,7 +4,7 @@ import org.commcare.data.xml.TransactionParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
@@ -26,7 +26,7 @@ abstract class BestEffortBlockParser(
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Hashtable<String, String> {
         val name = parser.name

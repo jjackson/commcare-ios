@@ -5,7 +5,7 @@ import org.commcare.data.xml.DataModelPullParser
 import org.commcare.data.xml.TransactionParserFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
@@ -18,7 +18,7 @@ object ParseUtils {
     @Throws(
         InvalidStructureException::class,
         UnfullfilledRequirementsException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         PlatformIOException::class
     )
     fun parseIntoSandbox(stream: InputStream, sandbox: UserSandbox) {
@@ -29,7 +29,7 @@ object ParseUtils {
     @Throws(
         InvalidStructureException::class,
         UnfullfilledRequirementsException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         PlatformIOException::class
     )
     fun parseIntoSandbox(stream: InputStream, sandbox: UserSandbox, failfast: Boolean) {
@@ -41,7 +41,7 @@ object ParseUtils {
         InvalidStructureException::class,
         PlatformIOException::class,
         UnfullfilledRequirementsException::class,
-        XmlPullParserException::class
+        PlatformXmlParserException::class
     )
     fun parseIntoSandbox(
         stream: InputStream,
@@ -58,7 +58,7 @@ object ParseUtils {
         PlatformIOException::class,
         InvalidStructureException::class,
         UnfullfilledRequirementsException::class,
-        XmlPullParserException::class
+        PlatformXmlParserException::class
     )
     fun parseIntoSandbox(
         stream: InputStream,

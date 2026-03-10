@@ -4,7 +4,7 @@ import org.commcare.util.CommCarePlatform
 import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -19,7 +19,7 @@ class LoginImageInstaller : BasicInstaller() {
         PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     override fun initialize(platform: CommCarePlatform, isUpgrade: Boolean): Boolean {

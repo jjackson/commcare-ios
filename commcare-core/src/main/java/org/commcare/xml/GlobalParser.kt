@@ -5,7 +5,7 @@ import org.commcare.suite.model.Global
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
@@ -19,7 +19,7 @@ internal class GlobalParser(parser: KXmlParser) : ElementParser<Global>(parser) 
         val NAME_GLOBAL: String = "global"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Global {
         val geoOverlays = Vector<GeoOverlay>()
         while (nextTagInBlock(NAME_GLOBAL)) {

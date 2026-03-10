@@ -13,7 +13,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Vector
@@ -44,7 +44,7 @@ class ProfileParser(
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Profile {
         checkNode("profile")
@@ -72,7 +72,7 @@ class ProfileParser(
             } while (eventType != KXmlParser.END_DOCUMENT)
 
             return profile
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
             throw InvalidStructureException("Pull Parse Exception, malformed XML.", parser)
@@ -187,7 +187,7 @@ class ProfileParser(
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseLogin() {
         // Get the resource block or fail out
         getNextTagInBlock("login")
@@ -195,7 +195,7 @@ class ProfileParser(
         table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId, initialResourceStatus)
     }
 
-    @Throws(XmlPullParserException::class, PlatformIOException::class, InvalidStructureException::class)
+    @Throws(PlatformXmlParserException::class, PlatformIOException::class, InvalidStructureException::class)
     private fun parseFeatures(profile: Profile) {
         while (nextTagInBlock("features")) {
             val tag = parser.name.lowercase()
@@ -238,7 +238,7 @@ class ProfileParser(
         }
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
     private fun parseCredentials(): Vector<Credential> {
         val appCredentials = Vector<Credential>()
         while (nextTagInBlock(NAME_CREDENTIALS)) {
@@ -258,7 +258,7 @@ class ProfileParser(
         return appCredentials
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
     private fun parseDependencies(): Vector<AndroidPackageDependency> {
         val appDependencies = Vector<AndroidPackageDependency>()
         while (nextTagInBlock(NAME_DEPENDENCIES)) {
@@ -272,7 +272,7 @@ class ProfileParser(
         return appDependencies
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
     private fun parseSuite() {
         // Get the resource block or fail out
         getNextTagInBlock("suite")

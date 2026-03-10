@@ -15,7 +15,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -41,7 +41,7 @@ class OfflineUserRestore : Persistable {
 
     @Throws(
         UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
-        XmlPullParserException::class, InvalidReferenceException::class
+        PlatformXmlParserException::class, InvalidReferenceException::class
     )
     constructor(reference: String?) {
         this.reference = reference
@@ -101,7 +101,7 @@ class OfflineUserRestore : Persistable {
 
     @Throws(
         UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
-        XmlPullParserException::class, InvalidReferenceException::class
+        PlatformXmlParserException::class, InvalidReferenceException::class
     )
     private fun checkThatRestoreIsValidAndSetUsername() {
         val factory = TransactionParserFactory { parser ->
@@ -145,7 +145,7 @@ class OfflineUserRestore : Persistable {
         @JvmStatic
         @Throws(
             UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
-            XmlPullParserException::class, InvalidReferenceException::class
+            PlatformXmlParserException::class, InvalidReferenceException::class
         )
         fun buildInMemoryUserRestore(restoreStream: InputStream): OfflineUserRestore {
             val offlineUserRestore = OfflineUserRestore()

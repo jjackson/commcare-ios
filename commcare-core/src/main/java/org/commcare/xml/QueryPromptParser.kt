@@ -13,7 +13,7 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>(parser) {
@@ -45,7 +45,7 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): QueryPrompt {
         val appearance = parser.getAttributeValue(null, ATTR_APPEARANCE)
@@ -93,7 +93,7 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         )
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
     private fun parseRequiredBlock(key: String?): QueryPromptCondition {
         val testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST)
             ?: throw InvalidStructureException("No test condition defined in <required> for prompt $key")
@@ -111,7 +111,7 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         return QueryPromptCondition(test, message)
     }
 
-    @Throws(InvalidStructureException::class, XmlPullParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
     private fun parseValidationBlock(key: String?): QueryPromptCondition {
         val testStr = parser.getAttributeValue(null, ATTR_VALIDATION_TEST)
             ?: throw InvalidStructureException("No test condition defined in validation for prompt $key")
@@ -129,7 +129,7 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         return QueryPromptCondition(test, message)
     }
 
-    @Throws(PlatformIOException::class, XmlPullParserException::class, InvalidStructureException::class)
+    @Throws(PlatformIOException::class, PlatformXmlParserException::class, InvalidStructureException::class)
     private fun parseItemset(): ItemsetBinding {
         val itemset = ItemsetBinding()
         itemset.contextRef = TreeReference.rootRef()

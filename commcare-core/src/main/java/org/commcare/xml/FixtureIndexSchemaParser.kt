@@ -6,7 +6,7 @@ import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -38,7 +38,7 @@ class FixtureIndexSchemaParser(
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): FixtureIndexSchema {
         checkNode(INDICE_SCHEMA)

@@ -5,7 +5,7 @@ import org.commcare.suite.model.DetailField
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
@@ -18,7 +18,7 @@ import java.util.Vector
  */
 class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Callout {
         val actionName = parser.getAttributeValue(null, "action")
         val image = parser.getAttributeValue(null, "image")

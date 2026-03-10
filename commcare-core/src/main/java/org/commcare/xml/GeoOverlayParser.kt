@@ -5,7 +5,7 @@ import org.commcare.suite.model.GeoOverlay
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -20,7 +20,7 @@ internal class GeoOverlayParser(parser: KXmlParser) : ElementParser<GeoOverlay>(
         private const val NAME_LABEL = "label"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): GeoOverlay {
         var title: DisplayUnit? = null
         var coordinates: DisplayUnit? = null

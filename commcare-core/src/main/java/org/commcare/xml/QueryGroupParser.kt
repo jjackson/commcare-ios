@@ -5,7 +5,7 @@ import org.commcare.suite.model.QueryGroup
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class QueryGroupParser(parser: KXmlParser) : CommCareElementParser<QueryGroup>(parser) {
@@ -18,7 +18,7 @@ class QueryGroupParser(parser: KXmlParser) : CommCareElementParser<QueryGroup>(p
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): QueryGroup {
         checkNode(NAME_GROUP)

@@ -13,7 +13,7 @@ import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -110,7 +110,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
                 @Throws(
                     InvalidStructureException::class,
                     PlatformIOException::class,
-                    XmlPullParserException::class,
+                    PlatformXmlParserException::class,
                     UnfullfilledRequirementsException::class
                 )
                 override fun parse(): String {

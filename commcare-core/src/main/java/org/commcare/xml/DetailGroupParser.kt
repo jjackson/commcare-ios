@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class DetailGroupParser(parser: KXmlParser) : CommCareElementParser<DetailGroup>(parser) {
@@ -17,7 +17,7 @@ class DetailGroupParser(parser: KXmlParser) : CommCareElementParser<DetailGroup>
         const val ATTRIBUTE_NAME_HEADER_ROWS: String = "header-rows"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): DetailGroup {
         checkNode(NAME_GROUP)
         val functionStr = parser.getAttributeValue(null, ATTRIBUTE_NAME_FUNCTION)

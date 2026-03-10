@@ -13,7 +13,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import java.io.FileNotFoundException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
@@ -949,7 +949,7 @@ open class ResourceTable {
             throw ResourceInitializationException(r, e)
         } catch (e: InvalidReferenceException) {
             throw ResourceInitializationException(r, e)
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             throw ResourceInitializationException(r, e)
         } catch (e: UnfullfilledRequirementsException) {
             throw ResourceInitializationException(r, e)

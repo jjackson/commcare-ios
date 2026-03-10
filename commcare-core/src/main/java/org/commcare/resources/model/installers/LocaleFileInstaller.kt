@@ -23,7 +23,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -60,7 +60,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
         PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     override fun initialize(platform: CommCarePlatform, isUpgrade: Boolean): Boolean {
