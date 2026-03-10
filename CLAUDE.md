@@ -53,9 +53,9 @@ commcare-ios/
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
 | 1 | Replace Guava/joda-time | ~15 | #34 | Done (PR #45) |
-| 2 | Serialization abstraction | ~10 new | #35 | Open |
-| 3 | XML parsing abstraction | ~10 new | #36 | Open |
-| 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Open |
+| 2 | Serialization abstraction | ~10 new | #35 | Done (PR #47) |
+| 3 | XML parsing abstraction | ~10 new | #36 | Done (PR #48) |
+| 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Done (PR #49) |
 | 5 | Move pure Kotlin to commonMain | ~270 moved | #38 | Open |
 | 6 | Migrate serialization consumers | ~215 mod+moved | #39 | Open |
 | 7 | Migrate XML consumers | ~60 mod+moved | #40 | Open |
