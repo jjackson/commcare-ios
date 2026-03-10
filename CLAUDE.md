@@ -176,8 +176,24 @@ git subtree push --prefix=commcare-core https://github.com/jjackson/commcare-cor
 git subtree split --prefix=commcare-core -b upstream-ready
 ```
 
+## Phase Transition Checklist
+
+When all issues for a phase are closed, follow these steps **before writing any code for the next phase**:
+
+1. **Write a completion report** for the finished phase → `docs/plans/<date>-phase<N>-completion-report.md`
+2. **Write a detailed plan** for the next phase → `docs/plans/<date>-phase<N+1>-<name>-plan.md`
+   - Include: dependency analysis, task breakdown with file counts, ordering/dependency graph, acceptance criteria per task, risk mitigations
+   - Reference: Phase 1 plan (`docs/plans/2026-03-07-phase1-core-port-plan.md`) and Phase 2 plan (`docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md`) as examples of the expected detail level
+3. **Create GitHub issues** from the plan — one issue per wave/task, following the issue template in the plan
+4. **Update CLAUDE.md** — add the new phase's status table and link the plan doc in Key Docs
+5. **PR and merge** the plan doc and CLAUDE.md updates (doc PRs, per Doc PR Rules)
+6. **Then start Wave 1** of the new phase
+
+Do not skip straight to code. The plan is the first deliverable of every phase.
+
 ## AI Agent Guidelines
 
+- **Check the Phase Transition Checklist** when a phase completes — plan before code
 - Read the relevant issue's full description before starting work — it contains "Files to Read", "What to Do", and "Tests That Must Pass"
 - Read `docs/learnings/` files before starting a conversion wave — they document real failures
 - Follow the Kotlin Conversion Checklist above for every file
