@@ -7,7 +7,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
@@ -16,7 +16,7 @@ import java.util.Vector
  */
 class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): AssertionSet {
         this.checkNode("assertions")
 

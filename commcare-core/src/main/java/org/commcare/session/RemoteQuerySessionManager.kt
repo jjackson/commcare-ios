@@ -26,7 +26,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.net.URL
@@ -318,7 +318,7 @@ class RemoteQuerySessionManager private constructor(
             return Pair(null, e.message)
         } catch (e: PlatformIOException) {
             return Pair(null, e.message)
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             return Pair(null, e.message)
         } catch (e: UnfullfilledRequirementsException) {
             return Pair(null, e.message)

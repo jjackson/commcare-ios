@@ -18,7 +18,7 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -55,7 +55,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
         PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     override fun initialize(platform: CommCarePlatform, isUpgrade: Boolean): Boolean {
@@ -147,7 +147,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
             }
             e.printStackTrace()
             return false
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             if (e.message != null) {
                 Logger.log(LogTypes.TYPE_RESOURCES, "XML Parse exception fetching profile: " + e.message)
             }

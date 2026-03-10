@@ -20,7 +20,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathStringLiteral
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Hashtable
@@ -293,7 +293,7 @@ object TreeUtilities {
                 return xmlStreamToTreeElement(inputStream, "instance")
             } catch (e: UnfullfilledRequirementsException) {
                 throw PlatformIOException(e.message)
-            } catch (e: XmlPullParserException) {
+            } catch (e: PlatformXmlParserException) {
                 throw PlatformIOException(e.message)
             }
         } finally {
@@ -312,7 +312,7 @@ object TreeUtilities {
     @Throws(
         PlatformIOException::class,
         UnfullfilledRequirementsException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         InvalidStructureException::class
     )
     fun xmlStreamToTreeElement(stream: InputStream?, instanceId: String?): TreeElement {

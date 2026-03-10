@@ -14,7 +14,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Hashtable
@@ -78,7 +78,7 @@ open class SuiteParser : ElementParser<Suite> {
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Suite {
         checkNode("suite")
@@ -183,7 +183,7 @@ open class SuiteParser : ElementParser<Suite> {
             } while (eventType != KXmlParser.END_DOCUMENT)
 
             return Suite(version, details, entries, menus, endpoints)
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             e.printStackTrace()
             throw InvalidStructureException("Pull Parse Exception, malformed XML.", parser)
         }

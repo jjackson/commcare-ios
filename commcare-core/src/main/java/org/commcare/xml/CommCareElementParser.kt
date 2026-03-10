@@ -5,7 +5,7 @@ import org.commcare.suite.model.Text
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -19,7 +19,7 @@ abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(p
     /**
      * Build a DisplayUnit object by parsing the contents of a display tag.
      */
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     fun parseDisplayBlock(): DisplayUnit {
         var imageValue: Text? = null
         var audioValue: Text? = null

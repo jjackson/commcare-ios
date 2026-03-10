@@ -6,7 +6,7 @@ import org.commcare.resources.model.ResourceLocation
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
@@ -15,7 +15,7 @@ class ResourceParser(
     val maximumAuthority: Int
 ) : ElementParser<Resource>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Resource {
         checkNode("resource")
 

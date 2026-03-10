@@ -18,7 +18,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
@@ -31,7 +31,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
         PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     override fun initialize(platform: CommCarePlatform, isUpgrade: Boolean): Boolean {
@@ -83,7 +83,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
                 val exception = UnreliableSourceException(r, e.message)
                 exception.initCause(e)
                 throw exception
-            } catch (e: XmlPullParserException) {
+            } catch (e: PlatformXmlParserException) {
                 e.printStackTrace()
                 return false
             } finally {

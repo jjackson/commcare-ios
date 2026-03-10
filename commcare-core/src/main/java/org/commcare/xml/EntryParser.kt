@@ -19,7 +19,7 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -57,7 +57,7 @@ class EntryParser private constructor(
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Entry {
         this.checkNode(parserBlockTag)
@@ -126,7 +126,7 @@ class EntryParser private constructor(
         throw RuntimeException("Misconfigured entry parser with unsupported '$parserBlockTag' tag.")
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseCommandDisplay(): DisplayUnit? {
         parser.nextTag()
         var display: DisplayUnit? = null
@@ -145,7 +145,7 @@ class EntryParser private constructor(
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
-        XmlPullParserException::class, UnfullfilledRequirementsException::class
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     private fun parseSessionData(data: Vector<SessionDatum>) {
         while (nextTagInBlock("session")) {
@@ -154,7 +154,7 @@ class EntryParser private constructor(
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseStack(stackOps: Vector<StackOperation>) {
         val sop = StackOpParser(parser)
         while (this.nextTagInBlock(StackOpParser.NAME_STACK)) {
@@ -162,7 +162,7 @@ class EntryParser private constructor(
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parsePost(): PostRequest {
         val urlString = parser.getAttributeValue(null, "url")
             ?: throw InvalidStructureException(

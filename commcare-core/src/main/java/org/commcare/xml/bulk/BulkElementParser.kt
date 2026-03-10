@@ -6,7 +6,7 @@ import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
@@ -55,7 +55,7 @@ abstract class BulkElementParser<T>(parser: KXmlParser) : TransactionParser<Tree
     @Throws(
         InvalidStructureException::class,
         PlatformIOException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     override fun parse(): TreeElement {
@@ -71,7 +71,7 @@ abstract class BulkElementParser<T>(parser: KXmlParser) : TransactionParser<Tree
         return subElement
     }
 
-    @Throws(PlatformIOException::class, XmlPullParserException::class, InvalidStructureException::class)
+    @Throws(PlatformIOException::class, PlatformXmlParserException::class, InvalidStructureException::class)
     fun processCurrentBuffer() {
         currentOperatingSet = HashMap()
         performBulkRead(currentBulkReadSet, currentOperatingSet)
@@ -90,7 +90,7 @@ abstract class BulkElementParser<T>(parser: KXmlParser) : TransactionParser<Tree
         currentBulkReadCount = 0
     }
 
-    @Throws(PlatformIOException::class, XmlPullParserException::class, InvalidStructureException::class)
+    @Throws(PlatformIOException::class, PlatformXmlParserException::class, InvalidStructureException::class)
     override fun flush() {
         processCurrentBuffer()
     }
@@ -134,7 +134,7 @@ abstract class BulkElementParser<T>(parser: KXmlParser) : TransactionParser<Tree
      * @param currentOperatingSet the destination mapping from each ID to a matching model
      *                            (if one exists)
      */
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     protected abstract fun performBulkRead(
         currentBulkReadSet: Set<String>,
         currentOperatingSet: MutableMap<String, T>

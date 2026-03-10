@@ -13,7 +13,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
@@ -26,7 +26,7 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
         private const val NAME_NO_ITEMS_TEXT = "no_items_text"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Detail {
         checkNode("detail")
 

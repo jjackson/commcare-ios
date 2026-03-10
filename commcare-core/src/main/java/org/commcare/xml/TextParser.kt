@@ -5,14 +5,14 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
 class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Text {
         val texts = Vector<Text>()
 
@@ -20,7 +20,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         val entryLevel = parser.depth
         try {
             parser.next()
-        } catch (e: XmlPullParserException) {
+        } catch (e: PlatformXmlParserException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
         } catch (e: PlatformIOException) {
@@ -41,7 +41,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     internal fun parseBody(): Text? {
         //TODO: Should prevent compositing text and xpath/locales
         val texts = Vector<Text>()
@@ -89,7 +89,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseLocale(): Text {
         checkNode("locale")
         val id = parser.getAttributeValue(null, "id")
@@ -120,7 +120,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseXPath(): Text {
         checkNode("xpath")
         val function = parser.getAttributeValue(null, "function")

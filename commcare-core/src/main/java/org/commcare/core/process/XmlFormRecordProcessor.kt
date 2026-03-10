@@ -7,7 +7,7 @@ import org.commcare.xml.CaseXmlParser
 import org.commcare.xml.LedgerXmlParsers
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
@@ -26,7 +26,7 @@ object XmlFormRecordProcessor {
     @Throws(
         InvalidStructureException::class,
         PlatformIOException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     fun process(sandbox: UserSandbox, stream: InputStream) {
@@ -45,7 +45,7 @@ object XmlFormRecordProcessor {
     @Throws(
         InvalidStructureException::class,
         PlatformIOException::class,
-        XmlPullParserException::class,
+        PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     fun process(stream: InputStream, factory: TransactionParserFactory) {

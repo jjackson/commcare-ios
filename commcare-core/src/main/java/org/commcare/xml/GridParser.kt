@@ -4,7 +4,7 @@ import org.commcare.suite.model.DetailField.Builder
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -17,7 +17,7 @@ class GridParser(
     parser: KXmlParser
 ) : ElementParser<Int>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Int {
         checkNode("grid")
         val gridx = parser.getAttributeValue(null, "grid-x")

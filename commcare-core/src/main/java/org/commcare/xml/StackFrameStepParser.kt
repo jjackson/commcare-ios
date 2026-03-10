@@ -7,7 +7,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -17,7 +17,7 @@ import java.net.URL
  */
 internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFrameStep>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): StackFrameStep {
         val operation = parser.name
         val value = parser.getAttributeValue(null, "value")
@@ -37,7 +37,7 @@ internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFra
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseQuery(): StackFrameStep {
         val queryId = parser.getAttributeValue(null, "id")
         val url = parser.getAttributeValue(null, "value")
@@ -59,7 +59,7 @@ internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFra
         return step
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseJump(): StackFrameStep {
         val id = parser.getAttributeValue(null, "id")
         val step = StackFrameStep(SessionFrame.STATE_SMART_LINK, id, null)
@@ -70,7 +70,7 @@ internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFra
         return step
     }
 
-    @Throws(XmlPullParserException::class, PlatformIOException::class, InvalidStructureException::class)
+    @Throws(PlatformXmlParserException::class, PlatformIOException::class, InvalidStructureException::class)
     private fun parseValue(type: String, datumId: String?): StackFrameStep {
         //TODO: ... require this to have a value!!!! It's not processing this properly
         var value = parser.getAttributeValue(null, "value")

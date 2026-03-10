@@ -7,7 +7,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParserException
+import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
 import java.util.Vector
@@ -37,7 +37,7 @@ class LedgerXmlParsers(
         private const val FINAL_NAME = "entry"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Array<Ledger> {
         this.checkNode(arrayOf(TAG_BALANCE, TRANSFER))
 
@@ -67,7 +67,7 @@ class LedgerXmlParsers(
                     object : ElementParser<Array<Ledger>?>(this.parser) {
                         @Throws(
                             InvalidStructureException::class, PlatformIOException::class,
-                            XmlPullParserException::class
+                            PlatformXmlParserException::class
                         )
                         override fun parse(): Array<Ledger>? {
                             val productId = parser.getAttributeValue(null, ENTRY_ID)
@@ -128,7 +128,7 @@ class LedgerXmlParsers(
                     object : ElementParser<Array<Ledger>?>(this.parser) {
                         @Throws(
                             InvalidStructureException::class, PlatformIOException::class,
-                            XmlPullParserException::class
+                            PlatformXmlParserException::class
                         )
                         override fun parse(): Array<Ledger>? {
                             val productId = parser.getAttributeValue(null, ENTRY_ID)
