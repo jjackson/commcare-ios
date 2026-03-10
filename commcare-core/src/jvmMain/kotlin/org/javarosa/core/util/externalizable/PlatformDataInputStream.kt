@@ -2,9 +2,15 @@ package org.javarosa.core.util.externalizable
 
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
+import java.io.InputStream
 
-actual class PlatformDataInputStream actual constructor(data: ByteArray) {
-    private val dis = DataInputStream(ByteArrayInputStream(data))
+actual class PlatformDataInputStream private constructor(internal val dis: DataInputStream) {
+
+    /** CommonMain constructor: wrap a byte array. */
+    actual constructor(data: ByteArray) : this(DataInputStream(ByteArrayInputStream(data)))
+
+    /** JVM-only: wrap an existing DataInputStream (e.g., from InputStream-based sources). */
+    constructor(inputStream: InputStream) : this(DataInputStream(inputStream))
 
     actual fun readByte(): Byte = dis.readByte()
     actual fun readInt(): Int = dis.readInt()

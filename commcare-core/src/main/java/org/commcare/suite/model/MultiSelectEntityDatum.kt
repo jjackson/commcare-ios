@@ -4,6 +4,8 @@ import org.commcare.xml.SessionDatumParser.Companion.DEFAULT_MAX_SELECT_VAL
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -26,7 +28,7 @@ class MultiSelectEntityDatum : EntityDatum {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         maxSelectValue = ExtUtil.readInt(`in`)
 
@@ -39,7 +41,7 @@ class MultiSelectEntityDatum : EntityDatum {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeNumeric(out, maxSelectValue.toLong())
     }

@@ -4,6 +4,8 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -40,14 +42,14 @@ class PropertySetter : Externalizable {
     fun isForce(): Boolean = force
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         _value = ExtUtil.readString(`in`)
         force = ExtUtil.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.writeString(out, _value)
         ExtUtil.writeBool(out, force)

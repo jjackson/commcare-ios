@@ -12,6 +12,8 @@ import org.commcare.util.CommCarePlatform
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Resources are records which resolve the location of data
@@ -299,7 +301,7 @@ open class Resource : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.version = ExtUtil.readInt(`in`)
         this.id = ExtUtil.readString(`in`)
@@ -315,7 +317,7 @@ open class Resource : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeNumeric(out, version.toLong())
         ExtUtil.writeString(out, id)

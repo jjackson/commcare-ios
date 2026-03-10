@@ -5,8 +5,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -43,7 +43,7 @@ public class LogEntry implements Externalizable {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf)
+    public void readExternal(PlatformDataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         time = ExtUtil.readDate(in);
         type = ExtUtil.readString(in);
@@ -51,7 +51,7 @@ public class LogEntry implements Externalizable {
     }
 
     @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
+    public void writeExternal(PlatformDataOutputStream out) throws IOException {
         ExtUtil.writeDate(out, time);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(type));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(message));

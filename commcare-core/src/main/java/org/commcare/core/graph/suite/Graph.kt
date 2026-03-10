@@ -26,6 +26,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Defines a graph: type, set of series, set of text annotations, and key-value-based configuration.
@@ -65,7 +67,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
     override fun getConfigurationKeys(): Iterator<*> = mConfiguration.keys.iterator()
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         mType = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
         mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
@@ -76,7 +78,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, mType)
         ExtUtil.write(out, ExtWrapMap(mConfiguration))
         ExtUtil.write(out, ExtWrapListPoly(mSeries))

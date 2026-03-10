@@ -10,6 +10,8 @@ import org.javarosa.xform.parse.XFormParseException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 class SelectChoice : Externalizable {
 
@@ -78,7 +80,7 @@ class SelectChoice : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         isLocalizable = ExtUtil.readBool(`in`)
         labelInnerText = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         textID = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -87,7 +89,7 @@ class SelectChoice : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeBool(out, isLocalizable)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(labelInnerText))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(textID))

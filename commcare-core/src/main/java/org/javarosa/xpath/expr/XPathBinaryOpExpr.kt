@@ -9,9 +9,9 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 abstract class XPathBinaryOpExpr : XPathOpExpr {
@@ -45,27 +45,27 @@ abstract class XPathBinaryOpExpr : XPathOpExpr {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         op = ExtUtil.readInt(`in`)
         readExpressions(`in`, pf)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    protected open fun readExpressions(`in`: DataInputStream, pf: PrototypeFactory) {
+    protected open fun readExpressions(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         b = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, op.toLong())
         writeExpressions(out)
         ExtUtil.write(out, cacheState)
     }
 
     @Throws(PlatformIOException::class)
-    protected open fun writeExpressions(out: DataOutputStream) {
+    protected open fun writeExpressions(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(a!!))
         ExtUtil.write(out, ExtWrapTagged(b!!))
     }

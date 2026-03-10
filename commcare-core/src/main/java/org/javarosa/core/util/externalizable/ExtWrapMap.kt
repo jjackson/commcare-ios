@@ -4,6 +4,8 @@ import org.javarosa.core.util.OrderedHashtable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 // map of objects where key and data are all of single (non-polymorphic) type
 // (key and value can be of separate types)
@@ -51,7 +53,7 @@ class ExtWrapMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: HashMap<Any, Any> = when (type) {
             TYPE_ORDERED -> OrderedHashtable(size.toInt())
@@ -67,7 +69,7 @@ class ExtWrapMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as HashMap<Any, Any>
 
@@ -84,7 +86,8 @@ class ExtWrapMap : ExternalizableWrapper {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        type = ExtUtil.readInt(`in`)
+        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
+        type = ExtUtil.readInt(pdis)
         keyType = ExtWrapTagged.readTag(`in`, pf)
         dataType = ExtWrapTagged.readTag(`in`, pf)
     }
@@ -105,7 +108,8 @@ class ExtWrapMap : ExternalizableWrapper {
             dataType!!
         }
 
-        ExtUtil.writeNumeric(out, type.toLong())
+        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
+        ExtUtil.writeNumeric(pdos, type.toLong())
         ExtWrapTagged.writeTag(out, keyTagObj)
         ExtWrapTagged.writeTag(out, elemTagObj)
     }

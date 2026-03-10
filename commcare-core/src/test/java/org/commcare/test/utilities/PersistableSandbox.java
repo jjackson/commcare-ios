@@ -6,8 +6,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -26,7 +26,7 @@ public class PersistableSandbox {
     public static <T extends Externalizable> byte[] serialize(T t) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            t.writeExternal(new DataOutputStream(baos));
+            t.writeExternal(new PlatformDataOutputStream(baos));
             return baos.toByteArray();
         } catch(IOException e) {
             throw wrap("Error serializing: " + t.getClass().getName(), e);

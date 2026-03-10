@@ -14,10 +14,10 @@ import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
@@ -62,7 +62,7 @@ public class FormInstanceTest {
             fail(e.getMessage());
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(baos);
+        PlatformDataOutputStream out = new PlatformDataOutputStream(baos);
 
         try {
             originalInstance.writeExternal(out);
@@ -71,19 +71,15 @@ public class FormInstanceTest {
         } catch (IOException e) {
             fail(e.getMessage());
         }
-        DataInputStream instanceStream = null;
+        PlatformDataInputStream instanceStream = null;
         try {
-            instanceStream = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
+            instanceStream = new PlatformDataInputStream(new ByteArrayInputStream(baos.toByteArray()));
             reSerializedInstance.readExternal(instanceStream, pf);
         } catch (IOException | DeserializationException e) {
             fail(e.getMessage());
         } finally {
             if (instanceStream != null) {
-                try {
-                    instanceStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                instanceStream.close();
             }
         }
         return reSerializedInstance;

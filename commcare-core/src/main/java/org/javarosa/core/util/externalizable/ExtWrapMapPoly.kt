@@ -4,6 +4,8 @@ import org.javarosa.core.util.OrderedHashtable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 // map of objects where elements are multiple types, keys are still assumed to be of a single
 // (non-polymorphic) type
@@ -49,7 +51,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: HashMap<Any, Any> =
             if (ordered) OrderedHashtable(size.toInt()) else HashMap(size.toInt())
@@ -62,7 +64,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as HashMap<Any, Any>
 
@@ -79,7 +81,8 @@ class ExtWrapMapPoly : ExternalizableWrapper {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        ordered = ExtUtil.readBool(`in`)
+        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
+        ordered = ExtUtil.readBool(pdis)
         keyType = ExtWrapTagged.readTag(`in`, pf)
     }
 
@@ -88,7 +91,8 @@ class ExtWrapMapPoly : ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as HashMap<Any, Any>
 
-        ExtUtil.writeBool(out, ordered)
+        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
+        ExtUtil.writeBool(pdos, ordered)
 
         val keyTagObj: Any = if (keyType == null) {
             if (h.isEmpty()) Any() else h.keys.iterator().next()

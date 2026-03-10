@@ -9,6 +9,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Single series ("line") on a bubble chart.
@@ -53,13 +55,13 @@ class BubbleSeries : XYSeries {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         mRadius = ExtUtil.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeString(out, mRadius)
     }

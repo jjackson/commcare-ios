@@ -15,6 +15,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -137,7 +139,7 @@ class Menu : Externalizable, MenuDisplayable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         root = ExtUtil.readString(`in`)
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -155,7 +157,7 @@ class Menu : Externalizable, MenuDisplayable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(_id))
         ExtUtil.writeString(out, root)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(rawRelevance))

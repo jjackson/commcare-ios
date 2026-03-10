@@ -3,6 +3,8 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 // list of objects of multiple types
 // if elements are compound types (i.e., need wrappers), they must be pre-wrapped before invoking
@@ -26,7 +28,7 @@ class ExtWrapListPoly : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val v = ArrayList<Any?>(size.toInt())
         for (i in 0 until size) {
@@ -36,7 +38,7 @@ class ExtWrapListPoly : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val v = `val` as ArrayList<Any?>
         ExtUtil.writeNumeric(out, v.size.toLong())

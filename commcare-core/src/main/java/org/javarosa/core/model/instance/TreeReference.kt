@@ -12,6 +12,8 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 // TODO: This class needs to be immutable so that we can perform caching optimizations.
 class TreeReference : Externalizable, XPathAnalyzable {
@@ -581,7 +583,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         refLevel = ExtUtil.readInt(`in`)
         instanceName = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         contextType = ExtUtil.readInt(`in`)
@@ -593,7 +595,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, refLevel.toLong())
         ExtUtil.write(out, ExtWrapNullable(instanceName))
         ExtUtil.writeNumeric(out, contextType.toLong())

@@ -16,6 +16,8 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -78,7 +80,7 @@ class OfflineUserRestore : Persistable {
     fun getUsername(): String? = username
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this.restore = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -86,7 +88,7 @@ class OfflineUserRestore : Persistable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(restore))

@@ -9,6 +9,8 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * @author Clayton Sims
@@ -57,13 +59,13 @@ class MultiMessagePayload : IDataPayload {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         payloads = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<Any?>
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapListPoly(payloads))
     }
 

@@ -3,6 +3,8 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 class ExtWrapTagged : ExternalizableWrapper {
 
@@ -22,15 +24,15 @@ class ExtWrapTagged : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        val type = readTag(`in`, pf)
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
+        val type = readTag(`in`.dis, pf)
         `val` = ExtUtil.read(`in`, type, pf)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val localVal = `val`!!
-        writeTag(out, localVal)
+        writeTag(out.dos, localVal)
         ExtUtil.write(out, localVal)
     }
 
@@ -61,7 +63,8 @@ class ExtWrapTagged : ExternalizableWrapper {
             `in`.read(tag, 0, tag.size)
 
             if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
-                val wrapperCode = ExtUtil.readInt(`in`)
+                val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
+                val wrapperCode = ExtUtil.readInt(pdis)
 
                 // find wrapper indicated by code
                 var type: ExternalizableWrapper? = null
@@ -102,7 +105,8 @@ class ExtWrapTagged : ExternalizableWrapper {
             var obj = o
             if (obj is ExternalizableWrapper && obj !is ExtWrapBase) {
                 out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize())
-                ExtUtil.writeNumeric(out, WRAPPER_CODES[obj.javaClass]!!.toLong())
+                val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
+                ExtUtil.writeNumeric(pdos, WRAPPER_CODES[obj.javaClass]!!.toLong())
                 obj.metaWriteExternal(out)
             } else {
                 var type: Class<*>? = null

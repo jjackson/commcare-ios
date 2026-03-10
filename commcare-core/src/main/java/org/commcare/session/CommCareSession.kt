@@ -33,6 +33,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -1046,8 +1048,9 @@ open class CommCareSession {
     }
 
     fun serializeSessionState(outputStream: DataOutputStream) {
-        frame.writeExternal(outputStream)
-        ExtUtil.write(outputStream, ExtWrapList(frameStack))
+        val pdos = PlatformDataOutputStream(outputStream as java.io.OutputStream)
+        frame.writeExternal(pdos)
+        ExtUtil.write(pdos, ExtWrapList(frameStack))
     }
 
 
@@ -1063,12 +1066,13 @@ open class CommCareSession {
             inputStream: DataInputStream
         ): CommCareSession {
             val restoredFrame = SessionFrame()
-            restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes())
+            val pdis = PlatformDataInputStream(inputStream as java.io.InputStream)
+            restoredFrame.readExternal(pdis, ExtUtil.defaultPrototypes())
 
             val restoredSession = CommCareSession(ccPlatform)
             restoredSession.frame = restoredFrame
             @Suppress("UNCHECKED_CAST")
-            val frames = ExtUtil.read(inputStream, ExtWrapList(SessionFrame::class.java), null) as ArrayList<SessionFrame>
+            val frames = ExtUtil.read(pdis, ExtWrapList(SessionFrame::class.java), null) as ArrayList<SessionFrame>
             val stackFrames = ArrayDeque<SessionFrame>()
             while (frames.isNotEmpty()) {
                 val lastElement = frames.last()

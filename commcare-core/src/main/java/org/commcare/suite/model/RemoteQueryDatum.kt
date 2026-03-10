@@ -8,6 +8,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -87,7 +89,7 @@ class RemoteQueryDatum : SessionDatum {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         hiddenQueryValues =
             ExtUtil.read(`in`, ExtWrapList(ExtWrapTagged()), pf) as List<QueryData>
@@ -110,7 +112,7 @@ class RemoteQueryDatum : SessionDatum {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.write(out, ExtWrapList(hiddenQueryValues!!, ExtWrapTagged()))
         ExtUtil.write(out, ExtWrapMap(userQueryPrompts!!))

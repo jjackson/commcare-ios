@@ -5,8 +5,8 @@ import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -64,13 +64,13 @@ public class ReferenceDataSource implements LocaleDataSource {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf)
+    public void readExternal(PlatformDataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         referenceURI = in.readUTF();
     }
 
     @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
+    public void writeExternal(PlatformDataOutputStream out) throws IOException {
         out.writeUTF(referenceURI);
     }
 }

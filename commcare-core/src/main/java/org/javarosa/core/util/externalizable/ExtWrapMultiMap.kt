@@ -4,6 +4,8 @@ import org.javarosa.core.util.ListMultimap
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 class ExtWrapMultiMap : ExternalizableWrapper {
 
@@ -36,7 +38,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val multimap = ListMultimap<Any, Any>()
         for (i in 0 until size) {
@@ -50,7 +52,7 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val multimap = `val` as ListMultimap<Any, Any>
         ExtUtil.writeNumeric(out, multimap.keySet().size.toLong())

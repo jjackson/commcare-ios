@@ -8,6 +8,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Definition of an annotation, which is text drawn at a specified x, y coordinate on a graph.
@@ -32,14 +34,14 @@ class Annotation : Externalizable {
     fun getAnnotation(): Text? = mAnnotation
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         mX = ExtUtil.read(`in`, Text::class.java, pf) as Text
         mY = ExtUtil.read(`in`, Text::class.java, pf) as Text
         mAnnotation = ExtUtil.read(`in`, Text::class.java, pf) as Text
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, mX)
         ExtUtil.write(out, mY)
         ExtUtil.write(out, mAnnotation)

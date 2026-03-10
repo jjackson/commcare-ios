@@ -9,6 +9,8 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathStringLiteral
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -75,7 +77,7 @@ open class EntityDatum : SessionDatum {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
 
         if (ExtUtil.readBool(`in`)) {
@@ -91,7 +93,7 @@ open class EntityDatum : SessionDatum {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
 
         ExtUtil.writeBool(out, nodeset != null)

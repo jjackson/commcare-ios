@@ -7,8 +7,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.IOException;
 
 /**
@@ -79,7 +79,7 @@ public class Shoe implements Persistable, IMetaData {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(PlatformDataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         brand = ExtUtil.readString(in);
         style = ExtUtil.readString(in);
         size = ExtUtil.readString(in);
@@ -87,7 +87,7 @@ public class Shoe implements Persistable, IMetaData {
     }
 
     @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
+    public void writeExternal(PlatformDataOutputStream out) throws IOException {
         ExtUtil.writeString(out, brand);
         ExtUtil.writeString(out, style);
         ExtUtil.writeString(out, size);

@@ -20,8 +20,8 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream;
 import java.io.IOException;
 
 public class SampleExtz implements Externalizable {
@@ -37,13 +37,13 @@ public class SampleExtz implements Externalizable {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException {
+    public void readExternal(PlatformDataInputStream in, PrototypeFactory pf) throws IOException {
         a = ExtUtil.readString(in);
         b = ExtUtil.readString(in);
     }
 
     @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
+    public void writeExternal(PlatformDataOutputStream out) throws IOException {
         ExtUtil.writeString(out, a);
         ExtUtil.writeString(out, b);
     }

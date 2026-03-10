@@ -3,6 +3,8 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
 
@@ -21,7 +23,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
     }
 
     @Throws(PlatformIOException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         var l: Long = 0
         var b: Byte
         var firstByte = true
@@ -47,7 +49,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
      * there are more bytes to follow, or 0 to indicate the last byte
      */
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val l = `val` as Long
 
         var sig = -1

@@ -12,6 +12,8 @@ import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.xpath.parser.XPathSyntaxException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -125,7 +127,7 @@ abstract class XPathFuncExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         expectedArgCount = ExtUtil.readInt(`in`)
         evaluateArgsFirst = ExtUtil.readBool(`in`)
 
@@ -135,7 +137,7 @@ abstract class XPathFuncExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, expectedArgCount)
         ExtUtil.write(out, evaluateArgsFirst)
 

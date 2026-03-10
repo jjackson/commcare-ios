@@ -1,3 +1,5 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.api.ClassNameHasher
@@ -6,11 +8,10 @@ import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashSet
 
 /**
- * ProtoType factory for serializing and deserializing persisted classes using
- * their hash codes. To use a non-default hasher, use one of the overriding constructors
- * or call setStaticHasher().
+ * JVM implementation of PrototypeFactory.
+ * Uses Class.forName() + newInstance() for reflection-based instantiation.
  */
-open class PrototypeFactory {
+actual open class PrototypeFactory {
 
     private var classes: ArrayList<Class<*>>? = null
     private var hashes: ArrayList<ByteArray>? = null
@@ -21,7 +22,7 @@ open class PrototypeFactory {
     @JvmField
     protected var initialized: Boolean
 
-    constructor() : this(null, null)
+    actual constructor() : this(null, null)
 
     constructor(classNames: HashSet<String>?) {
         this.classNames = classNames
@@ -126,7 +127,7 @@ open class PrototypeFactory {
         return null
     }
 
-    open fun getInstance(hash: ByteArray): Any {
+    actual open fun getInstance(hash: ByteArray): Any {
         return getInstance(getClass(hash)!!)
     }
 
@@ -135,7 +136,7 @@ open class PrototypeFactory {
         hashes!!.add(hash)
     }
 
-    companion object {
+    actual companion object {
         private var mStaticHasher: Hasher? = null
 
         @JvmStatic
@@ -155,7 +156,7 @@ open class PrototypeFactory {
         }
 
         @JvmStatic
-        fun compareHash(a: ByteArray, b: ByteArray): Boolean {
+        actual fun compareHash(a: ByteArray, b: ByteArray): Boolean {
             if (a.size != b.size) {
                 return false
             }
@@ -175,12 +176,12 @@ open class PrototypeFactory {
         }
 
         @JvmStatic
-        fun getClassHashSize(): Int {
+        actual fun getClassHashSize(): Int {
             return mStaticHasher!!.getHashSize()
         }
 
         @JvmStatic
-        fun getWrapperTag(): ByteArray {
+        actual fun getWrapperTag(): ByteArray {
             val bytes = ByteArray(getClassHashSize())
             for (i in bytes.indices) {
                 bytes[i] = 0xff.toByte()

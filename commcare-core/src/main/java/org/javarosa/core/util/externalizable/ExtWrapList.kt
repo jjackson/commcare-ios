@@ -3,6 +3,8 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 // List of objects of single (non-polymorphic) type
 class ExtWrapList : ExternalizableWrapper {
@@ -55,7 +57,7 @@ class ExtWrapList : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!sealed) {
             val size = ExtUtil.readNumeric(`in`).toInt()
             try {
@@ -86,7 +88,7 @@ class ExtWrapList : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val l = `val` as List<Any?>
         ExtUtil.writeNumeric(out, l.size.toLong())
@@ -98,9 +100,10 @@ class ExtWrapList : ExternalizableWrapper {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtWrapTagged.readTag(`in`, pf)
+        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
         try {
             @Suppress("UNCHECKED_CAST")
-            listImplementation = Class.forName(ExtUtil.readString(`in`)) as Class<out List<*>>
+            listImplementation = Class.forName(ExtUtil.readString(pdis)) as Class<out List<*>>
         } catch (e: ClassNotFoundException) {
             throw DeserializationException(e.message!!)
         }
@@ -121,6 +124,7 @@ class ExtWrapList : ExternalizableWrapper {
         }
 
         ExtWrapTagged.writeTag(out, tagObj!!)
-        ExtUtil.writeString(out, listImplementation!!.name)
+        val pdos = PlatformDataOutputStream(out as java.io.OutputStream)
+        ExtUtil.writeString(pdos, listImplementation!!.name)
     }
 }

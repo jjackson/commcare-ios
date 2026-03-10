@@ -8,6 +8,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -50,14 +52,14 @@ class ValueQueryData : QueryData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.write(out, ExtWrapTagged(ref!!))
         val excl = excludeExpr

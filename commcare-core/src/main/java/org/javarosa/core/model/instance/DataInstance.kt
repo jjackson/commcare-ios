@@ -14,6 +14,8 @@ import org.javarosa.model.xform.XPathReference
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * A data instance represents a tree structure of abstract tree
@@ -259,7 +261,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         recordid = ExtUtil.readInt(`in`)
         formId = ExtUtil.readInt(`in`)
         name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -267,7 +269,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, recordid.toLong())
         ExtUtil.writeNumeric(out, formId.toLong())
         ExtUtil.write(out, ExtWrapNullable(name))

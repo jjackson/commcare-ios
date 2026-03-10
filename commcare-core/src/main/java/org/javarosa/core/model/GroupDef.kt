@@ -11,9 +11,9 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * The definition of a group in a form or questionaire.
@@ -164,7 +164,7 @@ class GroupDef : IFormElement {
      * Reads a group definition object from the supplied stream.
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         setBind(ExtUtil.read(dis, ExtWrapTagged(), pf) as XPathReference)
@@ -192,7 +192,7 @@ class GroupDef : IFormElement {
      * Write the group definition object to the supplied stream.
      */
     @Throws(PlatformIOException::class)
-    override fun writeExternal(dos: DataOutputStream) {
+    override fun writeExternal(dos: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         ExtUtil.write(dos, ExtWrapNullable(getAppearanceAttr()))
         ExtUtil.write(dos, ExtWrapTagged(getBind()!!))

@@ -1,6 +1,8 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.ListMultimap
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import org.commcare.session.RemoteQuerySessionManager
 import org.javarosa.core.model.condition.EvaluationContext
@@ -76,14 +78,14 @@ class PostRequest : Externalizable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         params = ExtUtil.read(`in`, ExtWrapList(ExtWrapTagged()), pf) as List<QueryData>
         url = URL(ExtUtil.readString(`in`))
         relevantExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapList(params!!, ExtWrapTagged()))
         ExtUtil.writeString(out, url.toString())
         val re = relevantExpr

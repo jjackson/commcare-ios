@@ -2,10 +2,24 @@ package org.javarosa.core.util.externalizable
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
+import java.io.OutputStream
 
-actual class PlatformDataOutputStream actual constructor() {
-    private val baos = ByteArrayOutputStream()
-    private val dos = DataOutputStream(baos)
+actual class PlatformDataOutputStream {
+    internal val dos: DataOutputStream
+    private val baos: ByteArrayOutputStream?
+
+    /** CommonMain constructor: write to an in-memory buffer. */
+    actual constructor() {
+        val buffer = ByteArrayOutputStream()
+        this.baos = buffer
+        this.dos = DataOutputStream(buffer)
+    }
+
+    /** JVM-only: wrap an existing OutputStream. toByteArray() will throw. */
+    constructor(outputStream: OutputStream) {
+        this.baos = null
+        this.dos = DataOutputStream(outputStream)
+    }
 
     actual fun writeByte(v: Int) = dos.writeByte(v)
     actual fun writeInt(v: Int) = dos.writeInt(v)
@@ -22,6 +36,8 @@ actual class PlatformDataOutputStream actual constructor() {
 
     actual fun toByteArray(): ByteArray {
         dos.flush()
-        return baos.toByteArray()
+        return baos?.toByteArray() ?: throw UnsupportedOperationException(
+            "toByteArray() not supported for stream-based PlatformDataOutputStream"
+        )
     }
 }

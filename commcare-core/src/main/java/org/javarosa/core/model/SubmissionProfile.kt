@@ -9,6 +9,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * A Submission Profile is a class which is responsible for
@@ -35,14 +37,14 @@ class SubmissionProfile : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         resource = ExtUtil.readString(`in`)
         targetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         ref = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, resource!!)
         ExtUtil.write(out, targetRef!!)
         ExtUtil.write(out, ExtWrapNullable(ref))

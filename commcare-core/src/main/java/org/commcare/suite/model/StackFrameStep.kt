@@ -1,6 +1,8 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.ListMultimap
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher
 import org.commcare.session.SessionFrame
@@ -233,7 +235,7 @@ class StackFrameStep : Externalizable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.elementType = ExtUtil.readString(`in`)
         this._id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this._value = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -243,7 +245,7 @@ class StackFrameStep : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, elementType)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(_id))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(_value))

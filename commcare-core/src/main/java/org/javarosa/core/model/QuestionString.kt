@@ -8,6 +8,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * Created by wpride1 on 5/7/15.
@@ -39,7 +41,7 @@ class QuestionString : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         textId = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         textInner = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -47,7 +49,7 @@ class QuestionString : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(name))
         ExtUtil.write(out, ExtWrapNullable(textId))
         ExtUtil.write(out, ExtWrapNullable(textInner))

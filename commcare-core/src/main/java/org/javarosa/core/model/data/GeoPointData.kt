@@ -4,6 +4,8 @@ import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -80,7 +82,7 @@ class GeoPointData : IAnswerData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         len = ExtUtil.readNumeric(`in`).toInt()
         for (i in 0 until len) {
             gp[i] = ExtUtil.readDecimal(`in`)
@@ -88,7 +90,7 @@ class GeoPointData : IAnswerData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, len.toLong())
         for (i in 0 until len) {
             ExtUtil.writeDecimal(out, gp[i])

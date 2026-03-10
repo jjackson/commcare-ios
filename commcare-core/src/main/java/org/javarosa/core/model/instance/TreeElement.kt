@@ -19,8 +19,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import java.io.DataInputStream
-import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * An element of a FormInstance.
@@ -469,7 +470,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)
         flags = ExtUtil.readInt(`in`)
@@ -490,7 +491,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    private fun readChildrenFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    private fun readChildrenFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             children = null
         } else {
@@ -506,7 +507,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    private fun readAttributesFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    private fun readAttributesFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             attributes = null
         } else {
@@ -522,7 +523,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
         ExtUtil.writeNumeric(out, multiplicity.toLong())
         ExtUtil.writeNumeric(out, flags.toLong())
@@ -542,7 +543,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    private fun writeChildrenToExternal(out: DataOutputStream) {
+    private fun writeChildrenToExternal(out: PlatformDataOutputStream) {
         if (children == null) {
             ExtUtil.writeBool(out, false)
         } else {
@@ -557,7 +558,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    private fun writeAttributesToExternal(out: DataOutputStream) {
+    private fun writeAttributesToExternal(out: PlatformDataOutputStream) {
         if (attributes == null) {
             ExtUtil.writeBool(out, false)
         } else {
@@ -898,43 +899,44 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun readExternalMigration(`in`: DataInputStream, pf: PrototypeFactory?) {
-        name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        multiplicity = ExtUtil.readInt(`in`)
-        flags = ExtUtil.readInt(`in`)
-        value = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IAnswerData?
+        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
+        name = ExtUtil.nullIfEmpty(ExtUtil.readString(pdis))
+        multiplicity = ExtUtil.readInt(pdis)
+        flags = ExtUtil.readInt(pdis)
+        value = ExtUtil.read(pdis, ExtWrapNullable(ExtWrapTagged()), pf) as IAnswerData?
 
-        if (!ExtUtil.readBool(`in`)) {
+        if (!ExtUtil.readBool(pdis)) {
             children = null
         } else {
             children = ArrayList()
-            val numChildren = ExtUtil.readNumeric(`in`).toInt()
+            val numChildren = ExtUtil.readNumeric(pdis).toInt()
             for (i in 0 until numChildren) {
-                val normal = ExtUtil.readBool(`in`)
+                val normal = ExtUtil.readBool(pdis)
                 val child: TreeElement
 
                 if (normal) {
                     child = TreeElement()
                     child.readExternalMigration(`in`, pf)
                 } else {
-                    child = ExtUtil.read(`in`, ExtWrapTagged(), pf) as TreeElement
+                    child = ExtUtil.read(pdis, ExtWrapTagged(), pf) as TreeElement
                 }
                 child.setParent(this)
                 children!!.add(child)
             }
         }
 
-        dataType = ExtUtil.readInt(`in`)
-        instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        dataType = ExtUtil.readInt(pdis)
+        instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(pdis))
         constraint = ExtUtil.read(
-            `in`, ExtWrapNullable(Constraint::class.java), pf
+            pdis, ExtWrapNullable(Constraint::class.java), pf
         ) as Constraint?
-        preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(pdis))
+        preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(pdis))
+        namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(pdis))
 
         @Suppress("UNCHECKED_CAST")
         val attStrings = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<Any>
+            ExtUtil.read(pdis, ExtWrapList(String::class.java), pf) as ArrayList<Any>
         )
         setAttributesFromSingleStringVector(attStrings)
     }

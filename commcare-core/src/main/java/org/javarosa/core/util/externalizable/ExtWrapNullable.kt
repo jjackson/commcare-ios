@@ -3,6 +3,8 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 class ExtWrapNullable : ExternalizableWrapper {
 
@@ -43,7 +45,7 @@ class ExtWrapNullable : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (`in`.readBoolean()) {
             `val` = ExtUtil.read(`in`, type!!, pf)
         } else {
@@ -52,7 +54,7 @@ class ExtWrapNullable : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val localVal = `val`
         if (localVal != null) {
             out.writeBoolean(true)

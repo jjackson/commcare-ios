@@ -25,8 +25,8 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class Constraint : Externalizable {
@@ -79,14 +79,14 @@ class Constraint : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
         constraint = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
         constraintMsg = ExtUtil.nullIfEmpty(ExtUtil.readString(input))
         attemptConstraintCompile()
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(constraint!!))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(constraintMsg))
     }

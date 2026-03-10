@@ -14,6 +14,8 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
 /**
  * This class represents the xform model instance
@@ -160,7 +162,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
@@ -171,7 +173,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.write(out, ExtWrapNullable(schema))
         ExtUtil.write(out, ExtWrapNullable(dateSaved))
@@ -242,12 +244,13 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun migrateSerialization(`in`: DataInputStream, pf: PrototypeFactory?) {
-        super.readExternal(`in`, pf!!)
-        schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
+        val pdis = PlatformDataInputStream(`in` as java.io.InputStream)
+        super.readExternal(pdis, pf!!)
+        schema = ExtUtil.read(pdis, ExtWrapNullable(String::class.java), pf) as String?
+        dateSaved = ExtUtil.read(pdis, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
 
         @Suppress("UNCHECKED_CAST")
-        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
+        namespaces = ExtUtil.read(pdis, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
         val newRoot: TreeElement
         try {
             newRoot = TreeElement::class.java.newInstance()
