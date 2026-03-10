@@ -52,7 +52,9 @@ class MenuLoader {
     fun getErrorMessage(): String? {
         if (loadException != null) {
             val errorMessage = loadException!!.message
-            loggerInterface!!.logError(errorMessage, loadException)
+            if (errorMessage != null) {
+                loggerInterface!!.logError(errorMessage, loadException!!)
+            }
             return errorMessage
         }
         return null

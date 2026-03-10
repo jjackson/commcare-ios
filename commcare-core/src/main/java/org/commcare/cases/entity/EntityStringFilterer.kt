@@ -1,6 +1,7 @@
 package org.commcare.cases.entity
 
 import org.commcare.modern.util.Pair
+import org.commcare.util.EntityProvider
 import org.commcare.util.EntitySortUtil
 import org.javarosa.core.model.instance.TreeReference
 import java.util.ArrayList
@@ -39,12 +40,17 @@ open class EntityStringFilterer(
         val currentLocale = Locale.getDefault()
         EntitySortUtil.sortEntities(
             fullEntityList,
-            searchTerms,
+            searchTerms!!,
             currentLocale,
             isFuzzySearchEnabled,
             matchScores,
-            matchList
-        ) { index -> fullEntityList[index] }
+            matchList,
+            object : EntityProvider {
+                override fun getEntity(index: Int): Entity<TreeReference>? {
+                    return fullEntityList[index]
+                }
+            }
+        )
         return matchList
     }
 }

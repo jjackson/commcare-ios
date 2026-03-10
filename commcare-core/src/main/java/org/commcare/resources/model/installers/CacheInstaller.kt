@@ -43,7 +43,7 @@ abstract class CacheInstaller<T : Persistable> : ResourceInstaller<CommCarePlatf
     @Suppress("UNCHECKED_CAST")
     protected open fun storage(platform: CommCarePlatform): IStorageUtilityIndexed<T> {
         if (cacheStorage == null) {
-            cacheStorage = platform.getStorageManager().getStorage(getCacheKey()) as IStorageUtilityIndexed<T>
+            cacheStorage = platform.getStorageManager()!!.getStorage(getCacheKey()) as IStorageUtilityIndexed<T>
         }
         return cacheStorage!!
     }

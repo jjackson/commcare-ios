@@ -90,8 +90,8 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
 
     @Throws(RemoteInstanceFetcher.RemoteInstanceException::class)
     fun remoteInit(remoteInstanceFetcher: RemoteInstanceFetcher, refId: String?) {
-        val instanceId = getInstanceId()
-        init(remoteInstanceFetcher.getExternalRoot(instanceId, this, refId))
+        val instanceId = getInstanceId()!!
+        init(remoteInstanceFetcher.getExternalRoot(instanceId, this, refId!!))
         setUpInstanceRoot(root, instanceId, InstanceBase(instanceId))
     }
 

@@ -183,7 +183,7 @@ class Profile : Persistable {
      * NOTE: Moving at earliest opportunity to j2me profile installer
      */
     fun initializeProperties(platform: CommCarePlatform, enableForce: Boolean) {
-        val propertyManager = platform.getPropertyManager()
+        val propertyManager = platform.getPropertyManager()!!
         for (setter in properties) {
             val property = propertyManager.getSingularProperty(setter.getKey())
             // We only want to set properties which are undefined or are forced

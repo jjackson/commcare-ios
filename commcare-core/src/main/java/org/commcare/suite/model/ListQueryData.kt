@@ -52,7 +52,7 @@ class ListQueryData : QueryData {
         for (node in result!!) {
             val temp = EvaluationContext(ec, node)
             if (excludeExpr == null || !(excludeExpr!!.eval(temp) as Boolean)) {
-                values.add(DatumUtil.getReturnValueFromSelection(node, ref, ec))
+                values.add(DatumUtil.getReturnValueFromSelection(node, ref!!, ec))
             }
         }
         return values
