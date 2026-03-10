@@ -16,9 +16,9 @@ open class XPathBooleanFromStringFunc : XPathFuncExpr {
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val s = FunctionUtils.toString(evaluatedArgs[0])
         return if (s.equals("true", ignoreCase = true) || s == "1") {
-            java.lang.Boolean.TRUE
+            true
         } else {
-            java.lang.Boolean.FALSE
+            false
         }
     }
 

@@ -3,6 +3,7 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.RequestAbandonedException
 import org.javarosa.core.model.instance.DataInstance
+import org.javarosa.core.util.platformSleep
 import org.javarosa.xpath.parser.XPathSyntaxException
 
 /**
@@ -30,8 +31,8 @@ open class XPathSleepFunc : XPathFuncExpr, VolatileXPathFuncExpr {
         val millis = FunctionUtils.toInt(evaluatedArgs[0]).toInt()
 
         try {
-            Thread.sleep(millis.toLong())
-        } catch (e: InterruptedException) {
+            platformSleep(millis.toLong())
+        } catch (e: Exception) {
             throw RequestAbandonedException()
         }
         return evaluatedArgs[1]!!

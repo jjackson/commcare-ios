@@ -2,6 +2,7 @@ package org.javarosa.xpath.expr
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
+import kotlin.math.pow
 import org.javarosa.xpath.parser.XPathSyntaxException
 
 open class XPathPowFunc : XPathFuncExpr {
@@ -35,7 +36,7 @@ open class XPathPowFunc : XPathFuncExpr {
             val a = FunctionUtils.toDouble(o1)
             val b = FunctionUtils.toDouble(o2)
 
-            return Math.pow(a, b)
+            return a.pow(b)
         }
     }
 }

@@ -14,7 +14,7 @@ open class XPathAsinFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Math.asin(FunctionUtils.toDouble(evaluatedArgs[0]))
+        return kotlin.math.asin(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

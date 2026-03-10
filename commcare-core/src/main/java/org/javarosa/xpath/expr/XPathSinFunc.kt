@@ -14,7 +14,7 @@ open class XPathSinFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Math.sin(FunctionUtils.toDouble(evaluatedArgs[0]))
+        return kotlin.math.sin(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

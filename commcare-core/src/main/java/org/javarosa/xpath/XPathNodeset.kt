@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.text.MessageFormat
 
 /**
  * Represents a set of XPath nodes returned from a path or other operation which acts on multiple
@@ -119,20 +118,20 @@ open class XPathNodeset {
     protected open fun getInvalidNodesetException(): XPathTypeMismatchException {
         if (pathEvaluated != originalPath) {
             if (!originalPath!!.contains("/data")) {
-                throw XPathTypeMismatchException(MessageFormat.format(
-                    "Logic references {0} which is not a valid question or value." +
+                throw XPathTypeMismatchException(
+                    "Logic references $originalPath which is not a valid question or value." +
                             " You may have forgotten to include the full path to the question " +
-                            "(e.g. /data/{0}). (Expanded reference: {1})", originalPath, pathEvaluated))
+                            "(e.g. /data/$originalPath). (Expanded reference: $pathEvaluated)")
             } else {
-                throw XPathTypeMismatchException(MessageFormat.format(
-                    "There was a problem with the path {0}" +
-                            " which refers to location which was not found ({1}). " +
+                throw XPathTypeMismatchException(
+                    "There was a problem with the path $originalPath" +
+                            " which refers to location which was not found ($pathEvaluated). " +
                             "This often means you made a typo in the question reference, " +
-                            "or the question no longer exists in the form.", originalPath, pathEvaluated))
+                            "or the question no longer exists in the form.")
             }
         } else {
-            throw XPathTypeMismatchException(MessageFormat.format(
-                "Logic references {0} which is not a valid question or value.", pathEvaluated))
+            throw XPathTypeMismatchException(
+                "Logic references $pathEvaluated which is not a valid question or value.")
         }
     }
 

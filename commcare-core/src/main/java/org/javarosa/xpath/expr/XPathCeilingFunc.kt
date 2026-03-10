@@ -14,7 +14,7 @@ open class XPathCeilingFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return java.lang.Double.valueOf(Math.ceil(FunctionUtils.toDouble(evaluatedArgs[0])))
+        return kotlin.math.ceil(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

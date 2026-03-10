@@ -16,7 +16,7 @@ open class XPathAtanTwoFunc : XPathFuncExpr {
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val value1 = FunctionUtils.toDouble(evaluatedArgs[0])
         val value2 = FunctionUtils.toDouble(evaluatedArgs[1])
-        return Math.atan2(value1, value2)
+        return kotlin.math.atan2(value1, value2)
     }
 
     companion object {

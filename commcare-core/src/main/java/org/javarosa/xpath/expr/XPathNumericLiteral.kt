@@ -24,23 +24,23 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     override fun evalRaw(model: DataInstance<*>?, evalContext: EvaluationContext): Any {
-        return java.lang.Double.valueOf(d)
+        return d
     }
 
     override fun toString(): String {
-        return "{num:${java.lang.Double.toString(d)}}"
+        return "{num:${d.toString()}}"
     }
 
     override fun equals(o: Any?): Boolean {
         if (o is XPathNumericLiteral) {
-            return if (java.lang.Double.isNaN(d)) java.lang.Double.isNaN(o.d) else d == o.d
+            return if (d.isNaN()) o.d.isNaN() else d == o.d
         } else {
             return false
         }
     }
 
     override fun hashCode(): Int {
-        return java.lang.Long.valueOf(java.lang.Double.doubleToLongBits(d)).hashCode()
+        return d.toRawBits().hashCode()
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
@@ -66,7 +66,7 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     override fun toPrettyString(): String {
-        return java.lang.Double.toString(d)
+        return d.toString()
     }
 
     @Throws(AnalysisInvalidException::class)

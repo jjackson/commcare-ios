@@ -8,9 +8,7 @@ import org.javarosa.xpath.IExprDataType
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 
-import java.util.ArrayList
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.HashMap
 
 class FunctionUtils {
     companion object {
@@ -148,15 +146,15 @@ class FunctionUtils {
             try {
                 // Don't process strings with scientific notation or +/- Infinity as doubles
                 if (checkForInvalidNumericOrDatestringCharacters(attrValue)) {
-                    mDoubleParseCache.register(attrValue, java.lang.Double.valueOf(Double.NaN))
+                    mDoubleParseCache.register(attrValue, Double.NaN)
                     return attrValue
                 }
-                val ret = java.lang.Double.parseDouble(attrValue)
+                val ret = attrValue.toDouble()
                 mDoubleParseCache.register(attrValue, ret)
                 return ret
             } catch (ife: NumberFormatException) {
                 //Not a double
-                mDoubleParseCache.register(attrValue, java.lang.Double.valueOf(Double.NaN))
+                mDoubleParseCache.register(attrValue, Double.NaN)
             }
             //TODO: What about dates? That is a _super_ expensive
             //operation to be testing, though...
@@ -175,7 +173,7 @@ class FunctionUtils {
                 `val` = o
             } else if (o is Double) {
                 val d = o
-                `val` = Math.abs(d) > 1.0e-12 && !java.lang.Double.isNaN(d)
+                `val` = kotlin.math.abs(d) > 1.0e-12 && !d.isNaN()
             } else if (o is String) {
                 `val` = o.length > 0
             } else if (o is PlatformDate) {
@@ -210,25 +208,25 @@ class FunctionUtils {
             var `val`: Double? = null
 
             if (o is Boolean) {
-                `val` = java.lang.Double.valueOf(if (o) 1.0 else 0.0)
+                `val` = if (o) 1.0 else 0.0
             } else if (o is Double) {
                 `val` = o
             } else if (o is String) {
                 val s = o.trim()
                 if (checkForInvalidNumericOrDatestringCharacters(s)) {
-                    return java.lang.Double.valueOf(Double.NaN)
+                    return Double.NaN
                 }
                 try {
-                    `val` = java.lang.Double.valueOf(java.lang.Double.parseDouble(s))
+                    `val` = s.toDouble()
                 } catch (nfe: NumberFormatException) {
                     try {
                         `val` = attemptDateConversion(s)
                     } catch (e: XPathTypeMismatchException) {
-                        `val` = java.lang.Double.valueOf(Double.NaN)
+                        `val` = Double.NaN
                     }
                 }
             } else if (o is PlatformDate) {
-                `val` = java.lang.Double.valueOf(DateUtils.daysSinceEpoch(o).toDouble())
+                `val` = DateUtils.daysSinceEpoch(o).toDouble()
             } else if (o is IExprDataType) {
                 `val` = o.toNumeric()
             }
@@ -279,9 +277,9 @@ class FunctionUtils {
                 return `val`
             } else {
                 val l = `val`.toLong()
-                var dbl = java.lang.Double.valueOf(l.toDouble())
-                if (l == 0L && (`val` < 0.0 || `val` == java.lang.Double.valueOf(-0.0))) {
-                    dbl = java.lang.Double.valueOf(-0.0)
+                var dbl = l.toDouble()
+                if (l == 0L && (`val` < 0.0 || `val` == -0.0)) {
+                    dbl = -0.0
                 }
                 return dbl
             }
@@ -299,13 +297,13 @@ class FunctionUtils {
                 `val` = if (o) "true" else "false"
             } else if (o is Double) {
                 val d = o
-                if (java.lang.Double.isNaN(d)) {
+                if (d.isNaN()) {
                     `val` = "NaN"
-                } else if (Math.abs(d) < 1.0e-12) {
+                } else if (kotlin.math.abs(d) < 1.0e-12) {
                     `val` = "0"
-                } else if (java.lang.Double.isInfinite(d)) {
+                } else if (d.isInfinite()) {
                     `val` = (if (d < 0) "-" else "") + "Infinity"
-                } else if (Math.abs(d - d.toInt()) < 1.0e-12) {
+                } else if (kotlin.math.abs(d - d.toInt()) < 1.0e-12) {
                     `val` = d.toInt().toString()
                 } else {
                     `val` = d.toString()
@@ -324,7 +322,7 @@ class FunctionUtils {
                 if (o == null) {
                     throw XPathTypeMismatchException("attempt to cast null value to string")
                 } else {
-                    throw XPathTypeMismatchException("converting object of type ${o.javaClass} to string")
+                    throw XPathTypeMismatchException("converting object of type ${o::class.simpleName} to string")
                 }
             }
         }
@@ -372,7 +370,7 @@ class FunctionUtils {
             } else if (o is PlatformDate) {
                 return DateUtils.roundDate(o)
             } else {
-                val type = if (o == null) "null" else o.javaClass.name
+                val type = if (o == null) "null" else (o::class.simpleName ?: "Unknown")
                 throw XPathTypeMismatchException("converting unexpected type $type to date")
             }
         }

@@ -8,7 +8,6 @@ import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Collections
 
 /**
  * Created by amstone326 on 7/11/17.
@@ -61,15 +60,14 @@ open class XPathSortByFunc : XPathFuncExpr {
         }
 
         val pairsList = createComparisonToTargetPairings(comparisonListItems, targetListItems)
-
-        Collections.sort(pairsList) { pair1, pair2 ->
-            val comparisonStringDifferential = pair1.first.compareTo(pair2.first)
-            if (comparisonStringDifferential != 0) {
-                (if (ascending) 1 else -1) * comparisonStringDifferential
-            } else {
-                (if (ascending) 1 else -1) * pair1.second.compareTo(pair2.second)
+            .sortedWith { pair1, pair2 ->
+                val comparisonStringDifferential = pair1.first.compareTo(pair2.first)
+                if (comparisonStringDifferential != 0) {
+                    (if (ascending) 1 else -1) * comparisonStringDifferential
+                } else {
+                    (if (ascending) 1 else -1) * pair1.second.compareTo(pair2.second)
+                }
             }
-        }
 
         val sortedTargetList = ArrayList<String>()
         for (i in pairsList.indices) {

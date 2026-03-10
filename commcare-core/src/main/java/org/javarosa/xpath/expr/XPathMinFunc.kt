@@ -42,7 +42,7 @@ open class XPathMinFunc : XPathFuncExpr {
 
             var min = Double.MAX_VALUE
             for (argVal in argVals) {
-                min = Math.min(min, FunctionUtils.toNumeric(argVal))
+                min = minOf(min, FunctionUtils.toNumeric(argVal))
             }
             return min
         }

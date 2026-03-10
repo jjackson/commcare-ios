@@ -6,7 +6,6 @@ import org.javarosa.core.util.DataUtil
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Collections
 
 /**
  * Created by amstone326 on 6/28/17.
@@ -58,7 +57,7 @@ open class XPathSortFunc : XPathFuncExpr {
 
         @JvmStatic
         fun sortSingleList(items: MutableList<String>, ascending: Boolean) {
-            Collections.sort(items) { s1, s2 -> (if (ascending) 1 else -1) * s1.compareTo(s2) }
+            items.sortWith { s1, s2 -> (if (ascending) 1 else -1) * s1.compareTo(s2) }
         }
     }
 }

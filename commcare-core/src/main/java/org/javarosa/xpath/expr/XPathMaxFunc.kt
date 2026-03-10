@@ -45,7 +45,7 @@ open class XPathMaxFunc : XPathFuncExpr {
 
             var max = Double.NEGATIVE_INFINITY
             for (argVal in argVals) {
-                max = Math.max(max, FunctionUtils.toNumeric(argVal))
+                max = maxOf(max, FunctionUtils.toNumeric(argVal))
             }
             return max
         }

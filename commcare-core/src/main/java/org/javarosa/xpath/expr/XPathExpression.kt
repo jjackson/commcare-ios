@@ -8,13 +8,8 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.Externalizable
-import org.javarosa.model.xform.DataModelSerializer
+import org.javarosa.core.util.platformIsThreadInterrupted
 import org.javarosa.xpath.XPathNodeset
-import org.kxml2.io.KXmlSerializer
-
-import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.OutputStream
-import java.nio.charset.StandardCharsets
 
 abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
@@ -30,7 +25,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
      */
     open fun eval(model: DataInstance<*>?, evalContext: EvaluationContext): Any {
         evalContext.openTrace(this)
-        if (Thread.interrupted()) {
+        if (platformIsThreadInterrupted()) {
             throw RequestAbandonedException()
         }
 
@@ -263,49 +258,4 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
      * provide a human with a clear depiction of the expression.
      */
     abstract fun toPrettyString(): String
-
-    companion object {
-        @JvmStatic
-        @Throws(PlatformIOException::class)
-        fun serializeResult(value: Any?, output: OutputStream) {
-            if (value is XPathNodeset && !isLeafNode(value)) {
-                serializeElements(value, output)
-            } else {
-                output.write(FunctionUtils.toString(value).toByteArray(StandardCharsets.UTF_8))
-            }
-        }
-
-        private fun isLeafNode(value: XPathNodeset): Boolean {
-            val refs = value.getReferences()
-            if (refs == null || refs.size != 1) {
-                return false
-            }
-
-            val instance = value.getInstance() ?: return false
-            val treeElement = instance.resolveReference(refs[0]) ?: return false
-            return treeElement.getNumChildren() == 0
-        }
-
-        @Throws(PlatformIOException::class)
-        private fun serializeElements(nodeset: XPathNodeset, output: OutputStream) {
-            val serializer = KXmlSerializer()
-
-            try {
-                serializer.setOutput(output, "UTF-8")
-            } catch (e: PlatformIOException) {
-                throw RuntimeException(e)
-            }
-
-            val s = DataModelSerializer(serializer)
-
-            val instance = nodeset.getInstance() ?: return
-            val refs = nodeset.getReferences() ?: return
-
-            for (ref in refs) {
-                val treeElement = instance.resolveReference(ref) ?: continue
-                s.serializeNode(treeElement)
-            }
-            serializer.flush()
-        }
-    }
 }

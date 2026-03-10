@@ -116,13 +116,13 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
                     typed[i] = null
 
                     // how to handle type conversions of custom types?
-                    if (prototype[i].isAssignableFrom(args[i]!!.javaClass)) {
+                    if (prototype[i].isAssignableFrom(args[i]!!::class.java)) {
                         typed[i] = args[i]
                     } else {
                         try {
-                            if (prototype[i] == java.lang.Boolean::class.java) {
+                            if (prototype[i] == Boolean::class.javaObjectType) {
                                 typed[i] = FunctionUtils.toBoolean(args[i])
-                            } else if (prototype[i] == java.lang.Double::class.java) {
+                            } else if (prototype[i] == Double::class.javaObjectType) {
                                 typed[i] = FunctionUtils.toNumeric(args[i])
                             } else if (prototype[i] == String::class.java) {
                                 typed[i] = FunctionUtils.toString(args[i])

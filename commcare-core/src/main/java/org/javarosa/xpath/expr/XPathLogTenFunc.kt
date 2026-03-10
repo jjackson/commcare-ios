@@ -14,7 +14,7 @@ open class XPathLogTenFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Math.log10(FunctionUtils.toDouble(evaluatedArgs[0]))
+        return kotlin.math.log10(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

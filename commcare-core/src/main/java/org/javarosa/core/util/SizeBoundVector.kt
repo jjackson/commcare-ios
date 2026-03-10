@@ -10,6 +10,10 @@ open class SizeBoundVector<E>(
     @JvmField protected var limit: Int
 ) : ArrayList<E>() {
 
+    override fun contains(element: E): Boolean {
+        return super.contains(element)
+    }
+
     @JvmField
     protected var additional: Int = 0
 

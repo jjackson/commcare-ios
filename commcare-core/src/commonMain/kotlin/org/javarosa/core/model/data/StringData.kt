@@ -17,12 +17,11 @@
 package org.javarosa.core.model.data
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationLimitationException
 
 /**
  * A response to a question requesting a String Value
@@ -64,12 +63,22 @@ class StringData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        s = ExtUtil.readString(`in`)
+        s = `in`.readUTF()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, s!!)
+        try {
+            out.writeUTF(s!!)
+        } catch (e: PlatformIOException) {
+            val percentOversized =
+                ((s!!.encodeToByteArray().size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
+            throw SerializationLimitationException(
+                percentOversized,
+                e,
+                "Error while trying to write $s percentOversized: $percentOversized"
+            )
+        }
     }
 
     override fun uncast(): UncastData {

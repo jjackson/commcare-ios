@@ -55,8 +55,8 @@ open class XPathSubstrFunc : XPathFuncExpr {
             if (end < 0) {
                 end = len + end
             }
-            start = Math.min(Math.max(0, start), end)
-            end = Math.min(Math.max(0, end), end)
+            start = minOf(maxOf(0, start), end)
+            end = minOf(maxOf(0, end), end)
 
             return if (start <= end && end <= len) s.substring(start, end) else ""
         }

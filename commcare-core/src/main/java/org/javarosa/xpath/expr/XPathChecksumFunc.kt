@@ -5,7 +5,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Collections
 
 open class XPathChecksumFunc : XPathFuncExpr {
     constructor() {
@@ -78,20 +77,20 @@ open class XPathChecksumFunc : XPathFuncExpr {
             val inv = intArrayOf(0, 4, 3, 2, 1, 5, 6, 7, 8, 9)
 
             val inputList = StringUtils.toList(input)
-            Collections.reverse(inputList)
+            inputList.reverse()
 
             var check = 0
             for (i in inputList.indices) {
                 val charAsNum: Int
                 try {
-                    charAsNum = Integer.parseInt(inputList[i].toString())
+                    charAsNum = inputList[i].toString().toInt()
                 } catch (e: NumberFormatException) {
                     throw XPathUnsupportedException("Illegal character '${inputList[i]}' in input for Xpath function checksum()")
                 }
                 check = op[check][p[(i + 1) % 8][charAsNum]]
             }
 
-            return Integer.toString(inv[check])
+            return inv[check].toString()
         }
     }
 }

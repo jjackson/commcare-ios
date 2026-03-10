@@ -105,7 +105,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
 
                 val fa = a as Double
                 val fb = b as Double
-                eq = Math.abs(fa - fb) < 1.0e-12
+                eq = kotlin.math.abs(fa - fb) < 1.0e-12
             } else {
                 a = FunctionUtils.toString(a)
                 b = FunctionUtils.toString(b)

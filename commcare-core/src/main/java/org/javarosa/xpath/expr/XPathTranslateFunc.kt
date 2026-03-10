@@ -41,12 +41,12 @@ open class XPathTranslateFunc : XPathFuncExpr {
             val to = FunctionUtils.toString(o3)
 
             val map = HashMap<Char, Char>()
-            for (i in 0 until Math.min(from.length, to.length)) {
+            for (i in 0 until minOf(from.length, to.length)) {
                 if (!map.containsKey(from[i])) {
                     map[from[i]] = to[i]
                 }
             }
-            val toDelete = from.substring(Math.min(from.length, to.length))
+            val toDelete = from.substring(minOf(from.length, to.length))
 
             var returnValue = ""
             for (i in 0 until source.length) {
