@@ -59,8 +59,8 @@ commcare-ios/
 | 5 | Move pure Kotlin to commonMain | 82 moved | #38 | Done (PR #51) |
 | 6 | Migrate serialization consumers | 208 mod, 87 commonMain | #39 | Done (PR #53) |
 | 7 | Migrate XML consumers | 54 mod | #40 | Done (PR #55) |
-| 8 | iOS app shell | ~15 new | #41 | Open |
-| 9 | E2E validation | ~5 new | #42 | Open |
+| 8 | iOS app shell | 12 new | #41 | Done (PR #57, needs macOS verify) |
+| 9 | E2E validation | ~5 new | #42 | Open (needs macOS) |
 
 **Dependency graph:** Waves 1-4 create abstractions (can partially overlap). Waves 5-7 move files (depend on respective abstraction waves). Wave 8 needs macOS. Wave 9 is final validation.
 
