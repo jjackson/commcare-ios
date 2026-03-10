@@ -58,7 +58,7 @@ commcare-ios/
 | 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Done (PR #49) |
 | 5 | Move pure Kotlin to commonMain | 82 moved | #38 | Done (PR #51) |
 | 6 | Migrate serialization consumers | 208 mod, 87 commonMain | #39 | Done (PR #53) |
-| 7 | Migrate XML consumers | ~60 mod+moved | #40 | Open |
+| 7 | Migrate XML consumers | 54 mod | #40 | Done (PR #55) |
 | 8 | iOS app shell | ~15 new | #41 | Open |
 | 9 | E2E validation | ~5 new | #42 | Open |
 
