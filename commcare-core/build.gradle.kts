@@ -9,6 +9,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 repositories {
@@ -32,7 +33,9 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            // Future home of shared code
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+            }
         }
 
         val jvmMain by getting {
