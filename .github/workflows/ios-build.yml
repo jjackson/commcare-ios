@@ -32,6 +32,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x commcare-core/gradlew app/gradlew
 
+      - name: Run commcare-core iOS tests
+        working-directory: commcare-core
+        run: ./gradlew iosSimulatorArm64Test --no-daemon --stacktrace
+
       - name: Build commcare-core iOS framework
         working-directory: commcare-core
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
