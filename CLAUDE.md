@@ -64,10 +64,27 @@ commcare-ios/
 
 **Phase 2 Complete.** All 9 waves done. 88 files in commonMain, 21 cross-platform tests pass on both JVM and iOS. See `docs/plans/2026-03-10-phase2-completion-report.md`.
 
+**Phase 3: Engine on iOS** — Resolve JVM dependency blockers and move core engine code to commonMain so it's callable from iOS.
+
+| Wave | Group | Files | Issue | Status |
+|------|-------|-------|-------|--------|
+| 1 | Replace JVM collections | ~181 | #64 | Open |
+| 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Open |
+| 3 | Replace Date and regex | ~32 | #66 | Open |
+| 4 | Abstract serialization framework | ~10 new | #67 | Open |
+| 5 | Extend java.io abstractions | ~160 | #68 | Open |
+| 6 | Move XPath engine to commonMain | ~80 | #69 | Open |
+| 7 | Move XForm/cases/session to commonMain | ~150+ | #70 | Open |
+| 8 | Real iOS platform implementations | ~10 | #71 | Open |
+| 9 | Integration testing and validation | ~5 new | #72 | Open |
+
+**Dependency graph:** Wave 1 first (most pervasive). Waves 2-3 can parallel with Wave 4. Wave 5 after Wave 4. Waves 6-7 after 1-5. Waves 8-9 after 7.
+
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 3 plan**: `docs/plans/2026-03-10-phase3-engine-on-ios-plan.md` — wave details, dependency analysis, serialization framework strategy
 - **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
 - **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, known limitations, Phase 3 readiness
 - **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — wave details, PR strategy, issue closure template
