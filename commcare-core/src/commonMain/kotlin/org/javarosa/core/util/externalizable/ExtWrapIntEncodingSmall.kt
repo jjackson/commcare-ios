@@ -16,7 +16,6 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
     /* serialization */
 
-    @JvmOverloads
     constructor(l: Long, bias: Int = DEFAULT_BIAS) {
         `val` = l
         this.bias = bias
@@ -25,7 +24,6 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
     /* deserialization */
 
     // need the garbage param or else it conflicts with (long) constructor
-    @JvmOverloads
     constructor(bias: Int = DEFAULT_BIAS) {
         this.bias = bias
     }
