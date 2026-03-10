@@ -43,8 +43,8 @@ commcare-ios/
 | 4 | xform-parser | 27 | Done (PR #21) |
 | 5 | case-management | 60 | Done (PR #24) |
 | 6 | suite-and-session | 93 | Done (PR #26) |
-| 7 | resources | 28 | Open (Issue #9) |
-| 8 | commcare-core-services | 71 | Open (Issue #10) |
+| 7 | resources | 28 | Done (PR #28) |
+| 8 | commcare-core-services | 71 | Done (PR #29) |
 
 After Phase 1: KMP multiplatform targets (Issue #11), then final verification (Issue #12).
 
@@ -68,6 +68,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
 - **Wave 5 case-management learnings**: `docs/learnings/2026-03-09-wave5-case-management-learnings.md` — JVM signature clashes (constructor `val` vs interface method, field vs getter), Java boxed types in generics, Kotlin-to-Kotlin method calls
 - **Wave 6 suite-session learnings**: `docs/learnings/2026-03-10-wave6-suite-session-learnings.md` — `internal` hides from Java in other source sets, property getter/setter clashes, nullable return types Java silently allowed
+- **Wave 8 core-services learnings**: `docs/learnings/2026-03-10-wave8-core-services-learnings.md` — `@JvmField protected` for cross-source-set Java subclasses, OkHttp 4/Okio 2 API migration, `const val` requires compile-time constants
 
 ## Kotlin Conversion Checklist
 
