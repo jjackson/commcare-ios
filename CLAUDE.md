@@ -15,19 +15,26 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 
 ```
 commcare-ios/
-├── commcare-core/      # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/main/java/  # Kotlin + Java source (being converted wave by wave)
-│   ├── src/test/java/  # JUnit 4 tests (remain in Java)
-│   ├── build.gradle    # Gradle build with Kotlin JVM plugin
-│   └── gradlew         # Gradle wrapper
+├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
+│   ├── src/commonMain/      # KMP shared code (88 .kt files — platform-agnostic)
+│   ├── src/jvmMain/         # JVM platform implementations (10 .kt files)
+│   ├── src/iosMain/         # iOS/Native platform implementations (11 .kt files)
+│   ├── src/main/java/       # JVM-only Kotlin + Java source (being migrated to commonMain)
+│   ├── src/test/java/       # JUnit 4 tests (JVM)
+│   ├── src/commonTest/      # Cross-platform tests (run on both JVM and iOS)
+│   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
+│   └── gradlew              # Gradle wrapper
+├── app/                     # iOS Compose Multiplatform app shell
+│   ├── src/commonMain/      # Shared app UI
+│   └── src/iosMain/         # iOS entry point
 ├── docs/
-│   ├── plans/          # Design docs and phase implementation plans
-│   └── learnings/      # Post-hoc learnings from mistakes and discoveries
-├── pipeline/           # Python pipeline for autonomous AI task orchestration
-│   ├── src/pipeline/   # Models, orchestrator, task generator, GitHub client
-│   └── tests/          # Pipeline tests
-├── .github/workflows/  # CI: kotlin-tests.yml, ios-build.yml
-└── CLAUDE.md           # You are here
+│   ├── plans/               # Design docs, phase plans, completion reports
+│   └── learnings/           # Post-hoc learnings from mistakes and discoveries
+├── pipeline/                # Python pipeline for autonomous AI task orchestration
+│   ├── src/pipeline/        # Models, orchestrator, task generator, GitHub client
+│   └── tests/               # Pipeline tests
+├── .github/workflows/       # CI: kotlin-tests.yml, ios-build.yml
+└── CLAUDE.md                # You are here
 ```
 
 ## Current Status
@@ -78,6 +85,8 @@ commcare-ios/
 | 8 | Real iOS platform implementations | ~10 | #71 | Open |
 | 9 | Integration testing and validation | ~5 new | #72 | Open |
 
+**Next wave**: Wave 2 (Issue #65) — can run in parallel with Waves 3 and 4.
+
 **Dependency graph:** Wave 1 first (most pervasive). Waves 2-3 can parallel with Wave 4. Wave 5 after Wave 4. Waves 6-7 after 1-5. Waves 8-9 after 7.
 
 ## Key Docs
@@ -87,8 +96,9 @@ commcare-ios/
 - **Phase 3 plan**: `docs/plans/2026-03-10-phase3-engine-on-ios-plan.md` — wave details, dependency analysis, serialization framework strategy
 - **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
 - **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, known limitations, Phase 3 readiness
-- **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — wave details, PR strategy, issue closure template
-- **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — completed infrastructure setup (pipeline, CI, task generator). **Skip unless debugging pipeline issues.**
+- **Phase 1 completion**: `docs/plans/2026-03-10-phase1-completion-report.md` — 710 tests, 611 .kt + 32 .java, verification results
+- **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — **Completed.** Wave details, PR strategy, issue closure template
+- **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — **Completed.** Skip unless debugging pipeline issues.
 - **Degenerify design**: `docs/plans/2026-03-08-abstract-tree-element-degenerify-design.md` — removing AbstractTreeElement type parameter (completed in Wave 2)
 
 **Learnings:**
@@ -170,12 +180,11 @@ export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 
 # Build from commcare-core/ (return to repo root for git commands):
 cd commcare-core
-./gradlew compileKotlin compileJava    # Quick compilation check
-./gradlew test                          # Full test suite
-cd ..                                   # Back to repo root for git
-
-# Future KMP:
-cd commcare-core && ./gradlew :commcare-core:jvmTest  # KMP JVM tests (once KMP targets added)
+./gradlew compileKotlin compileJava                    # JVM compilation check
+./gradlew compileCommonMainKotlinMetadata               # KMP common code check (stricter than compileKotlin)
+./gradlew test                                          # JVM test suite
+./gradlew iosSimulatorArm64Test                         # iOS simulator tests (macOS only)
+cd ..                                                   # Back to repo root for git
 
 # CI workflows:
 # - kotlin-tests.yml: runs on PRs touching commcare-core/, gradle files
