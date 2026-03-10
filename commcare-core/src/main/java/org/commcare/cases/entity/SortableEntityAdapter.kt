@@ -28,7 +28,7 @@ abstract class SortableEntityAdapter(
         var fieldsForSorting = detail.orderedFieldIndicesForSorting
         if (fieldsForSorting.isEmpty()) {
             for (i in detail.fields.indices) {
-                val header = detail.fields[i].header.evaluate()
+                val header = detail.fields[i].header?.evaluate()
                 if ("" != header) {
                     fieldsForSorting = intArrayOf(i)
                     break

@@ -62,7 +62,7 @@ open class NodeEntityFactory(
         var count = 0
         for (f in detail.fields) {
             try {
-                fieldData[count] = f.template.evaluate(nodeContext)
+                fieldData[count] = f.template?.evaluate(nodeContext)
                 val sortText: Text? = f.sort
                 sortData[count] = sortText?.evaluate(nodeContext)
                 relevancyData[count] = f.isRelevant(nodeContext)
@@ -80,7 +80,7 @@ open class NodeEntityFactory(
         var groupKey: String? = null
         val detailGroup: DetailGroup? = detail.group
         if (detailGroup != null) {
-            groupKey = detailGroup.function.eval(nodeContext) as String
+            groupKey = detailGroup.function?.eval(nodeContext) as String?
         }
 
         return Entity(fieldData, sortData, relevancyData, data, extraKey,
@@ -96,7 +96,7 @@ open class NodeEntityFactory(
         if (callout != null) {
             val calloutResponseDetail: DetailField? = callout.responseDetailField
             if (calloutResponseDetail != null) {
-                val extraDataKey = calloutResponseDetail.template.evaluate(entityContext)
+                val extraDataKey = calloutResponseDetail.template?.evaluate(entityContext)
                 if (extraDataKey is String) {
                     return extraDataKey
                 }

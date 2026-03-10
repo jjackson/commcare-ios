@@ -1,0 +1,62 @@
+package org.commcare.xml
+
+import org.commcare.data.xml.TransactionParser
+import org.javarosa.xml.util.InvalidStructureException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
+import org.kxml2.io.KXmlParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
+import java.util.Hashtable
+
+/**
+ * This parser is for scanning through a block making a best-effort to identify a few
+ * nodes inside. Valuable for semi-structured data.
+ *
+ * Note: Doesn't process attributes usefully yet.
+ *
+ * @author ctsims
+ */
+abstract class BestEffortBlockParser(
+    parser: KXmlParser,
+    private val elements: Array<String>
+) : TransactionParser<Hashtable<String, String>>(parser) {
+
+    @Throws(IOException::class)
+    abstract override fun commit(parsed: Hashtable<String, String>)
+
+    @Throws(
+        InvalidStructureException::class, IOException::class,
+        XmlPullParserException::class, UnfullfilledRequirementsException::class
+    )
+    override fun parse(): Hashtable<String, String> {
+        val name = parser.name
+        val ret = Hashtable<String, String>()
+
+        var expecting = false
+        var expected: String? = null
+        while (this.nextTagInBlock(name)) {
+            if (expecting) {
+                if (parser.eventType == KXmlParser.TEXT) {
+                    ret[expected!!] = parser.text
+                }
+                expecting = false
+            }
+            if (matches()) {
+                expecting = true
+                expected = parser.name
+            }
+        }
+        commit(ret)
+        return ret
+    }
+
+    private fun matches(): Boolean {
+        val name = parser.name
+        for (elementName in elements) {
+            if (elementName == name) {
+                return true
+            }
+        }
+        return false
+    }
+}

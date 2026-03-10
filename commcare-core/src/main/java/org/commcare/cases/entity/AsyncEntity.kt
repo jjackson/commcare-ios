@@ -50,7 +50,7 @@ class AsyncEntity(
     private val mDetailGroup: DetailGroup? = detail.group
     private val cacheEnabled: Boolean = detail.isCacheEnabled
     private var mVariableContextLoaded = false
-    private val mDetailId: String = detail.id
+    private val mDetailId: String = detail.id ?: ""
 
     /*
      * the Object's lock for the integrity of this object
@@ -105,7 +105,7 @@ class AsyncEntity(
     private fun evaluateField(i: Int): Any? {
         loadVariableContext()
         try {
-            data[i] = fields[i].template.evaluate(context)
+            data[i] = fields[i].template?.evaluate(context)
         } catch (xpe: XPathException) {
             Logger.exception("Error while evaluating field for case list ", xpe)
             data[i] = "<invalid xpath: ${xpe.message}>"
@@ -262,7 +262,7 @@ class AsyncEntity(
 
     override fun getGroupKey(): String? {
         val group = mDetailGroup ?: return null
-        return group.function.eval(context) as String
+        return group.function?.eval(context) as String?
     }
 
     fun getAltTextData(i: Int): String? {
