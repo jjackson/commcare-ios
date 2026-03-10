@@ -1,24 +1,26 @@
 name: iOS Build & Test
 
-# Disabled: KMP iOS targets don't exist yet (Phase 2).
-# Re-enable once commcare-core has iosSimulatorArm64 target and app/ exists.
 on:
   pull_request:
     paths:
       - 'app/**'
+      - 'commcare-core/**'
+      - '.github/workflows/ios-build.yml'
   push:
     branches: [main]
     paths:
       - 'app/**'
+      - '.github/workflows/ios-build.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    if: false  # disabled until iOS/KMP targets exist
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - uses: actions/setup-java@v4
         with:
@@ -27,15 +29,13 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Build iOS framework
-        run: ./gradlew :commcare-core:linkDebugFrameworkIosSimulatorArm64 --no-daemon
+      - name: Make gradlew executable
+        run: chmod +x commcare-core/gradlew app/gradlew
 
-      - name: Build iOS app
-        run: ./gradlew :app:composeApp:iosSimulatorArm64Test --no-daemon
+      - name: Build commcare-core iOS framework
+        working-directory: commcare-core
+        run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-test-results
-          path: app/composeApp/build/reports/tests/
+      - name: Build iOS app framework
+        working-directory: app
+        run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
