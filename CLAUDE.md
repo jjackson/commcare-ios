@@ -42,7 +42,7 @@ commcare-ios/
 | 3 | xpath-engine | 134 | Done (PR #13 merged) |
 | 4 | xform-parser | 27 | Done (PR #21) |
 | 5 | case-management | 60 | Done (PR #24) |
-| 6 | suite-and-session | 93 | Open (Issue #8) |
+| 6 | suite-and-session | 93 | Done (PR #26) |
 | 7 | resources | 28 | Open (Issue #9) |
 | 8 | commcare-core-services | 71 | Open (Issue #10) |
 
@@ -67,6 +67,7 @@ After Phase 1: KMP multiplatform targets (Issue #11), then final verification (I
 - **Wave 4 XForm parser learnings**: `docs/learnings/2026-03-09-wave4-xform-parser-learnings.md` — companion method inheritance, `@JvmField` vs `open`, companion `protected` limitation, smart cast on `var`, `const val` auto-inline
 - **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
 - **Wave 5 case-management learnings**: `docs/learnings/2026-03-09-wave5-case-management-learnings.md` — JVM signature clashes (constructor `val` vs interface method, field vs getter), Java boxed types in generics, Kotlin-to-Kotlin method calls
+- **Wave 6 suite-session learnings**: `docs/learnings/2026-03-10-wave6-suite-session-learnings.md` — `internal` hides from Java in other source sets, property getter/setter clashes, nullable return types Java silently allowed
 
 ## Kotlin Conversion Checklist
 
@@ -91,6 +92,8 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 17. **JVM signature clash: field vs getter**: A `var foo` field generates `getFoo()`, which clashes with an explicit `fun getFoo()`. Fix: rename the backing field to `_foo`.
 18. **Java boxed types in generics**: `Pair<Integer, Integer>` must be `Pair<Int, Int>` in Kotlin. Never use Java boxed types in Kotlin generic type arguments.
 19. **Kotlin-to-Kotlin `fun` calls**: When calling Kotlin code that defines `fun getFoo()`, use `getFoo()` not `foo`. Kotlin only synthesizes property access for *Java* getters, not Kotlin `fun` declarations.
+20. **`internal` hides from other source sets**: Kotlin `internal` mangles names in bytecode. Java code in separate Gradle source sets (ccapi, cli, test) can't access `internal` properties. Add explicit public getter methods.
+21. **Property getter/setter clash**: A `var foo` auto-generates `getFoo()`/`setFoo()`. Don't also define explicit `fun setFoo()` — remove it and let callers use property syntax.
 
 ## PR Rules
 
