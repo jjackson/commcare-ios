@@ -25,7 +25,6 @@ import org.javarosa.xpath.XPathMissingInstanceException
 import org.javarosa.xpath.expr.ExpressionCacher
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.ArrayList
 
 /**
  * A collection of objects that affect the evaluation of an expression, like

@@ -1,6 +1,5 @@
 package org.commcare.cases.query.queryset
 
-import java.util.LinkedHashSet
 
 /**
  * A model query set implementation for queries which are one-to-one results.

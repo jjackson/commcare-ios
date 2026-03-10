@@ -11,7 +11,6 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Collections
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 
@@ -74,7 +73,7 @@ class ItemsetBinding : Externalizable {
         val currentChoices = choices
         if (currentSortRef != null && currentChoices != null) {
             // Perform sort
-            Collections.sort(currentChoices) { choice1, choice2 ->
+            currentChoices.sortWith { choice1, choice2 ->
                 choice1.evaluatedSortProperty!!.compareTo(choice2.evaluatedSortProperty!!)
             }
 

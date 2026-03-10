@@ -1,8 +1,6 @@
 package org.javarosa.core.model.trace
 
 import org.javarosa.core.util.OrderedHashtable
-import java.util.ConcurrentModificationException
-import java.util.HashMap
 
 /**
  * A Trace Reduction represents a "folded-in" model of an evaluation trace

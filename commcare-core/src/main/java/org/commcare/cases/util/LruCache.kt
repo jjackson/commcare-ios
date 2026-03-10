@@ -16,7 +16,6 @@ package org.commcare.cases.util
  * limitations under the License.
  */
 
-import java.util.LinkedHashMap
 
 /**
  * Static library version of Android LruCache. Used to write apps
