@@ -7,11 +7,11 @@ import org.javarosa.core.model.instance.ExternalDataInstance.Companion.JR_SELECT
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
-class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
+class EndpointParser(parser: PlatformXmlParser) : ElementParser<Endpoint>(parser) {
 
     companion object {
         @JvmField
@@ -42,7 +42,7 @@ class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
         val arguments = ArrayList<EndpointArgument>()
 
         while (nextTagInBlock(NAME_ENDPOINT)) {
-            val tagName = parser.name.lowercase()
+            val tagName = parser.name!!.lowercase()
             if (tagName.contentEquals(NAME_ARGUMENT)) {
                 val argumentID = parser.getAttributeValue(null, ATTR_ARGUMENT_ID)
                 if (argumentID == null || argumentID.isEmpty()) {

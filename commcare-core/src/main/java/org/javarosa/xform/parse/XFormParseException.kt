@@ -16,7 +16,7 @@
 
 package org.javarosa.xform.parse
 
-import org.kxml2.kdom.Element
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * Exception thrown when an XForms Parsing error occurs.
@@ -29,7 +29,7 @@ import org.kxml2.kdom.Element
 class XFormParseException : RuntimeException {
 
     @JvmField
-    internal var element: Element? = null
+    internal var element: XmlElement? = null
 
     constructor()
 
@@ -37,7 +37,7 @@ class XFormParseException : RuntimeException {
         element = null
     }
 
-    constructor(msg: String?, e: Element?) : super(msg) {
+    constructor(msg: String?, e: XmlElement?) : super(msg) {
         element = e
     }
 

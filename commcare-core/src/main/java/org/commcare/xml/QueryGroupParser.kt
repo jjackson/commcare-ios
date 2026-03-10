@@ -4,11 +4,11 @@ import org.commcare.suite.model.DisplayUnit
 import org.commcare.suite.model.QueryGroup
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
-class QueryGroupParser(parser: KXmlParser) : CommCareElementParser<QueryGroup>(parser) {
+class QueryGroupParser(parser: PlatformXmlParser) : CommCareElementParser<QueryGroup>(parser) {
 
     companion object {
         const val NAME_GROUP: String = "group"

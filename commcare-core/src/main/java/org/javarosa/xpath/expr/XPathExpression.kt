@@ -10,11 +10,12 @@ import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.model.xform.DataModelSerializer
 import org.javarosa.xpath.XPathNodeset
-import org.kxml2.io.KXmlSerializer
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
+import org.javarosa.xml.JvmXmlSerializer
+import org.javarosa.xml.PlatformXmlSerializer
 
 abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
@@ -288,13 +289,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
         @Throws(PlatformIOException::class)
         private fun serializeElements(nodeset: XPathNodeset, output: OutputStream) {
-            val serializer = KXmlSerializer()
-
-            try {
-                serializer.setOutput(output, "UTF-8")
-            } catch (e: PlatformIOException) {
-                throw RuntimeException(e)
-            }
+            val serializer = JvmXmlSerializer(output, "UTF-8")
 
             val s = DataModelSerializer(serializer)
 

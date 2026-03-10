@@ -13,10 +13,10 @@ import org.javarosa.core.services.transport.payload.IDataPayload
 import org.javarosa.core.services.transport.payload.MultiMessagePayload
 import org.javarosa.xform.util.XFormAnswerDataSerializer
 import org.javarosa.xform.util.XFormSerializer
-import org.kxml2.kdom.Document
-import org.kxml2.kdom.Element
-import org.kxml2.kdom.Node
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.dom.XmlDocument
+import org.javarosa.xml.dom.XmlElement
+import org.javarosa.xml.dom.XmlNode
 
 /**
  * A visitor-esque class which walks a FormInstance and constructs an XML document
@@ -32,7 +32,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
     /**
      * The XML document containing the instance that is to be returned
      */
-    private var theXmlDoc: Document? = null
+    private var theXmlDoc: XmlDocument? = null
 
     /**
      * The serializer to be used in constructing XML for AnswerData elements
@@ -105,7 +105,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
     }
 
     override fun visit(tree: FormInstance) {
-        theXmlDoc = Document()
+        theXmlDoc = XmlDocument()
 
         var root: TreeElement? = tree.resolveReference(rootRef!!)
 
@@ -116,7 +116,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         }
 
         if (root != null) {
-            theXmlDoc!!.addChild(Node.ELEMENT, serializeNode(root))
+            theXmlDoc!!.addChild(XmlNode.ELEMENT, serializeNode(root))
         }
 
         val top = theXmlDoc!!.getElement(0)
@@ -133,8 +133,8 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         }
     }
 
-    private fun serializeNode(instanceNode: TreeElement): Element? {
-        var e = Element() // don't set anything on this element yet, as it might get overwritten
+    private fun serializeNode(instanceNode: TreeElement): XmlElement? {
+        var e = XmlElement() // don't set anything on this element yet, as it might get overwritten
 
         // don't serialize template nodes or non-relevant nodes
         if ((respectRelevance && !instanceNode.isRelevant) || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
@@ -144,11 +144,11 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         if (instanceNode.getValue() != null) {
             val serializedAnswer = serializer!!.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType())
 
-            if (serializedAnswer is Element) {
+            if (serializedAnswer is XmlElement) {
                 e = serializedAnswer
             } else if (serializedAnswer is String) {
-                e = Element()
-                e.addChild(Node.TEXT, serializedAnswer)
+                e = XmlElement()
+                e.addChild(XmlNode.TEXT, serializedAnswer)
             } else {
                 throw RuntimeException(
                     "Can't handle serialized output for${instanceNode.getValue()}, $serializedAnswer"
@@ -179,7 +179,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
                 for (j in 0 until mult) {
                     val child = serializeNode(instanceNode.getChild(childName, j)!!)
                     if (child != null) {
-                        e.addChild(Node.ELEMENT, child)
+                        e.addChild(XmlNode.ELEMENT, child)
                     }
                 }
             }

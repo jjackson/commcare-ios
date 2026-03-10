@@ -55,7 +55,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                     element.setValue(new UncastData(parser.getText().trim()));
                     break;
                 default:
-                    throw new InvalidStructureException("Exception while trying to parse an XML Tree, got something other than tags and text", parser);
+                    throw new InvalidStructureException("Exception while trying to parse an XML Tree, got something other than tags and text", wrappedParser);
             }
         }
 

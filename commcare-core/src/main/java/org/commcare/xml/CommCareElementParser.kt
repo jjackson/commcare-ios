@@ -4,9 +4,9 @@ import org.commcare.suite.model.DisplayUnit
 import org.commcare.suite.model.Text
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Element parser extended with parsing function(s) that create CommCare
@@ -14,7 +14,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  *
  * @author Phillip Mates
  */
-abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(parser) {
+abstract class CommCareElementParser<T>(parser: PlatformXmlParser) : ElementParser<T>(parser) {
 
     /**
      * Build a DisplayUnit object by parsing the contents of a display tag.

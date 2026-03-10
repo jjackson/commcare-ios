@@ -23,10 +23,10 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.externalizable.SerializationLimitationException
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * The BulkCaseInstanceXmlParser Parser is responsible for parsing case instance xml structure
@@ -34,7 +34,7 @@ import java.util.LinkedHashMap
  */
 // todo this and other case parsers duplicates a bunch of logic today that can be unified
 open class BulkCaseInstanceXmlParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val storage: IStorageUtilityIndexed<Case>,
     private val mCaseIndexTable: CaseIndexTable?
 ) : BulkElementParser<Case>(parser), CaseIndexChangeListener {

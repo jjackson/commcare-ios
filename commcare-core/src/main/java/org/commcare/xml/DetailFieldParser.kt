@@ -8,16 +8,16 @@ import org.javarosa.core.model.Constants
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Parser for <field> elements of a suite's detail definitions.
  * Contains text templates, as well as layout and sorting options
  */
 class DetailFieldParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val graphParser: GraphParser?,
     private val id: String?
 ) : CommCareElementParser<DetailField>(parser) {
@@ -75,7 +75,7 @@ class DetailFieldParser(
             //sort details
             checkNode(arrayOf("sort", "background", "endpoint_action", "alt_text"))
 
-            val name = parser.name.lowercase()
+            val name = parser.name!!.lowercase()
 
             if (name == "sort") {
                 parseSort(builder)
@@ -109,7 +109,7 @@ class DetailFieldParser(
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseStyle(builder: DetailField.Builder) {
         //style
-        if (parser.name.lowercase() == "style") {
+        if (parser.name!!.lowercase() == "style") {
             val styleParser = StyleParser(builder, parser)
             styleParser.parse()
             //Header

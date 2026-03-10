@@ -31,10 +31,10 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.externalizable.SerializationLimitationException
 import org.javarosa.xml.util.ActionableInvalidStructureException
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * The CaseXML Parser is responsible for processing and performing
@@ -54,7 +54,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     private val storage: IStorageUtilityIndexed<*>
     private val acceptCreateOverwrites: Boolean
 
-    constructor(parser: KXmlParser, storage: IStorageUtilityIndexed<*>) : this(parser, true, storage)
+    constructor(parser: PlatformXmlParser, storage: IStorageUtilityIndexed<*>) : this(parser, true, storage)
 
     /**
      * Creates a Parser for case blocks in the XML stream provided.
@@ -64,7 +64,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
      *                               contains create actions for cases which already exist.
      */
     constructor(
-        parser: KXmlParser, acceptCreateOverwrites: Boolean,
+        parser: PlatformXmlParser, acceptCreateOverwrites: Boolean,
         storage: IStorageUtilityIndexed<*>
     ) : super(parser) {
         this.acceptCreateOverwrites = acceptCreateOverwrites
@@ -79,9 +79,9 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         validateMandatoryProperty(CASE_PROPERTY_CASE_ID, caseId, "", parser)
 
         val dateModified = parser.getAttributeValue(null, CASE_PROPERTY_DATE_MODIFIED)
-        validateMandatoryProperty(CASE_PROPERTY_DATE_MODIFIED, dateModified, caseId, parser)
+        validateMandatoryProperty(CASE_PROPERTY_DATE_MODIFIED, dateModified, caseId!!, parser)
 
-        val modified = DateUtils.parseDateTime(dateModified)
+        val modified = DateUtils.parseDateTime(dateModified!!)
 
         val userId = parser.getAttributeValue(null, CASE_PROPERTY_USER_ID)
 
@@ -89,27 +89,27 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         var isCreateOrUpdate = false
 
         while (nextTagInBlock(CASE_NODE)) {
-            val action = parser.name.lowercase()
+            val action = parser.name!!.lowercase()
             when (action) {
                 CASE_CREATE_NODE -> {
-                    caseForBlock = createCase(caseId, modified!!, userId)
+                    caseForBlock = createCase(caseId!!, modified!!, userId)
                     isCreateOrUpdate = true
                 }
                 CASE_UPDATE_NODE -> {
-                    caseForBlock = loadCase(caseForBlock, caseId, true)
-                    updateCase(caseForBlock!!, caseId)
+                    caseForBlock = loadCase(caseForBlock, caseId!!, true)
+                    updateCase(caseForBlock!!, caseId!!)
                     isCreateOrUpdate = true
                 }
                 CASE_CLOSE_NODE -> {
-                    caseForBlock = loadCase(caseForBlock, caseId, true)
-                    closeCase(caseForBlock!!, caseId)
+                    caseForBlock = loadCase(caseForBlock, caseId!!, true)
+                    closeCase(caseForBlock!!, caseId!!)
                 }
                 CASE_INDEX_NODE -> {
-                    caseForBlock = loadCase(caseForBlock, caseId, false)
-                    indexCase(caseForBlock!!, caseId)
+                    caseForBlock = loadCase(caseForBlock, caseId!!, false)
+                    indexCase(caseForBlock!!, caseId!!)
                 }
                 CASE_ATTACHMENT_NODE -> {
-                    caseForBlock = loadCase(caseForBlock, caseId, false)
+                    caseForBlock = loadCase(caseForBlock, caseId!!, false)
                     processCaseAttachment(caseForBlock!!)
                 }
             }
@@ -129,7 +129,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
             }
 
             if (isCreateOrUpdate) {
-                onCaseCreateUpdate(caseId)
+                onCaseCreateUpdate(caseId!!)
             }
         }
 
@@ -195,7 +195,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun updateCase(caseForBlock: Case, caseId: String) {
         while (nextTagInBlock(CASE_UPDATE_NODE)) {
-            val key = parser.name
+            val key = parser.name!!
             val value = parser.nextText().trim()
 
             when (key) {
@@ -282,7 +282,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun processCaseAttachment(caseForBlock: Case) {
         while (nextTagInBlock(CASE_ATTACHMENT_NODE)) {
-            val attachmentName = parser.name
+            val attachmentName = parser.name!!
             val src = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_SRC)
             val from = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_FROM)
             val fileName = parser.getAttributeValue(null, CASE_PROPERTY_ATTACHMENT_NAME)
@@ -304,7 +304,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     protected open fun removeAttachment(caseForBlock: Case, attachmentName: String) {
     }
 
-    protected open fun processAttachment(src: String?, from: String?, name: String?, parser: KXmlParser): String? {
+    protected open fun processAttachment(src: String?, from: String?, name: String?, parser: PlatformXmlParser): String? {
         return null
     }
 

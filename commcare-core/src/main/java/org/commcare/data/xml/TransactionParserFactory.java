@@ -1,7 +1,7 @@
 package org.commcare.data.xml;
 
-import org.kxml2.io.KXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 
 public interface TransactionParserFactory {
-    TransactionParser getParser(KXmlParser parser);
+    TransactionParser getParser(PlatformXmlParser parser);
 }

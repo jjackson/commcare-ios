@@ -5,9 +5,9 @@ import org.commcare.data.xml.TransactionParser
 import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Parses fixture index schemas into an object representation:
@@ -22,7 +22,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class FixtureIndexSchemaParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val fixtureSchemas: MutableMap<String, FixtureIndexSchema>,
     private val processedFixtures: Set<String>
 ) : TransactionParser<FixtureIndexSchema>(parser) {

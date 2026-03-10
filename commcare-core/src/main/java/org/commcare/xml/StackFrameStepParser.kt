@@ -6,16 +6,16 @@ import org.commcare.suite.model.StackFrameStep
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * @author ctsims
  */
-internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFrameStep>(parser) {
+internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<StackFrameStep>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): StackFrameStep {

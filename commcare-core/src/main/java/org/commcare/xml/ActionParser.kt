@@ -7,16 +7,16 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Parses case list actions, which when triggered manipulate the session stack
  *
  * @author ctsims
  */
-class ActionParser(parser: KXmlParser) : CommCareElementParser<Action>(parser) {
+class ActionParser(parser: PlatformXmlParser) : CommCareElementParser<Action>(parser) {
 
     companion object {
         const val NAME_ACTION: String = "action"

@@ -5,11 +5,11 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * A bulk element parser reads multiple types of the same transaction together into a buffer of
@@ -33,7 +33,7 @@ import java.util.LinkedHashMap
  *
  * Created by ctsims on 3/14/2017.
  */
-abstract class BulkElementParser<T>(parser: KXmlParser) : TransactionParser<TreeElement>(parser) {
+abstract class BulkElementParser<T>(parser: PlatformXmlParser) : TransactionParser<TreeElement>(parser) {
 
     @JvmField
     protected var bulkTrigger = 500

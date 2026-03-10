@@ -1,47 +1,80 @@
 package org.javarosa.xform.util
 
 import org.javarosa.core.util.Interner
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 
 /**
+ * A PlatformXmlParser decorator that interns string results to reduce memory usage.
+ * Wraps a delegate parser and passes all results through a string interner.
+ *
  * @author ctsims
  */
-class InterningKXmlParser(private val stringCache: Interner<String>) : KXmlParser() {
+class InterningKXmlParser(
+    private val delegate: PlatformXmlParser,
+    private val stringCache: Interner<String>
+) : PlatformXmlParser {
 
     fun release() {
         //Anything?
     }
 
-    override fun getAttributeName(arg0: Int): String {
-        return stringCache.intern(super.getAttributeName(arg0))
+    override fun next(): Int = delegate.next()
+    override val eventType: Int get() = delegate.eventType
+    override val isWhitespace: Boolean get() = delegate.isWhitespace
+    override val depth: Int get() = delegate.depth
+    override val attributeCount: Int get() = delegate.attributeCount
+
+    override val namespace: String? get() {
+        val ns = delegate.namespace ?: return null
+        return stringCache.intern(ns)
     }
 
-    override fun getAttributeNamespace(arg0: Int): String {
-        return stringCache.intern(super.getAttributeNamespace(arg0))
-    }
-
-    override fun getAttributePrefix(arg0: Int): String? {
-        val value = super.getAttributePrefix(arg0) ?: return null
+    override fun getAttributeValue(namespace: String?, name: String): String? {
+        val value = delegate.getAttributeValue(namespace, name) ?: return null
         return stringCache.intern(value)
     }
 
-    override fun getAttributeValue(arg0: Int): String {
-        return stringCache.intern(super.getAttributeValue(arg0))
+    override fun getAttributeName(index: Int): String {
+        return stringCache.intern(delegate.getAttributeName(index))
     }
 
-    override fun getNamespace(arg0: String?): String {
-        return stringCache.intern(super.getNamespace(arg0))
+    override fun getAttributeNamespace(index: Int): String {
+        return stringCache.intern(delegate.getAttributeNamespace(index))
     }
 
-    override fun getNamespaceUri(arg0: Int): String {
-        return stringCache.intern(super.getNamespaceUri(arg0))
+    override fun getAttributePrefix(index: Int): String? {
+        val value = delegate.getAttributePrefix(index) ?: return null
+        return stringCache.intern(value)
     }
 
-    override fun getText(): String {
-        return stringCache.intern(super.getText())
+    override fun getAttributeValue(index: Int): String {
+        return stringCache.intern(delegate.getAttributeValue(index))
     }
 
-    override fun getName(): String {
-        return stringCache.intern(super.getName())
+    override fun getNamespace(prefix: String?): String {
+        return stringCache.intern(delegate.getNamespace(prefix))
+    }
+
+    override val text: String? get() {
+        val t = delegate.text ?: return null
+        return stringCache.intern(t)
+    }
+
+    override val name: String? get() {
+        val n = delegate.name ?: return null
+        return stringCache.intern(n)
+    }
+
+    override fun nextText(): String {
+        return stringCache.intern(delegate.nextText())
+    }
+
+    override fun nextTag(): Int = delegate.nextTag()
+
+    override val positionDescription: String get() = delegate.positionDescription
+
+    override val prefix: String? get() {
+        val p = delegate.prefix ?: return null
+        return stringCache.intern(p)
     }
 }

@@ -3,9 +3,9 @@ package org.commcare.xml
 import org.commcare.data.xml.TransactionParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * This parser is for scanning through a block making a best-effort to identify a few
@@ -16,7 +16,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 abstract class BestEffortBlockParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val elements: Array<String>
 ) : TransactionParser<HashMap<String, String>>(parser) {
 
@@ -35,8 +35,8 @@ abstract class BestEffortBlockParser(
         var expected: String? = null
         while (this.nextTagInBlock(name)) {
             if (expecting) {
-                if (parser.eventType == KXmlParser.TEXT) {
-                    ret[expected!!] = parser.text
+                if (parser.eventType == PlatformXmlParser.TEXT) {
+                    ret[expected!!] = parser.text!!
                 }
                 expecting = false
             }

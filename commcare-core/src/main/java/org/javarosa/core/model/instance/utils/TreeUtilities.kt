@@ -19,7 +19,6 @@ import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathStringLiteral
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream

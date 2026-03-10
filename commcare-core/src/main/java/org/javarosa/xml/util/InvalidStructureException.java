@@ -1,6 +1,6 @@
 package org.javarosa.xml.util;
 
-import org.kxml2.io.KXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 
 /**
  * Invalid Structure Exceptions are thrown when an invalid
@@ -14,7 +14,7 @@ public class InvalidStructureException extends Exception {
      * @param message A Message associated with the error.
      * @param parser  The parser in the position at which the error was detected.
      */
-    public InvalidStructureException(String message, KXmlParser parser) {
+    public InvalidStructureException(String message, PlatformXmlParser parser) {
         super("Invalid XML Structure(" + parser.getPositionDescription() + "): " + message);
     }
 
@@ -23,7 +23,7 @@ public class InvalidStructureException extends Exception {
      * @param parser  The parser in the position at which the error was detected.
      * @param file    The file being parsed
      */
-    public InvalidStructureException(String message, String file, KXmlParser parser) {
+    public InvalidStructureException(String message, String file, PlatformXmlParser parser) {
         super("Invalid XML Structure in document " + file + "(" + parser.getPositionDescription() + "): " + message);
     }
 
@@ -31,12 +31,12 @@ public class InvalidStructureException extends Exception {
         super(message);
     }
 
-    public static InvalidStructureException readableInvalidStructureException(String message, KXmlParser parser) {
+    public static InvalidStructureException readableInvalidStructureException(String message, PlatformXmlParser parser) {
         String humanReadableMessage = message + buildParserMessage(parser);
         return new InvalidStructureException(humanReadableMessage);
     }
 
-    private static String buildParserMessage(KXmlParser parser) {
+    private static String buildParserMessage(PlatformXmlParser parser) {
         String prefix = parser.getPrefix();
         if (prefix != null) {
             return ". Source: <" + prefix + ":" + parser.getName() + "> tag in namespace: " + parser.getNamespace();

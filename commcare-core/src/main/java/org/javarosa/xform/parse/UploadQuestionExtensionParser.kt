@@ -2,7 +2,7 @@ package org.javarosa.xform.parse
 
 import org.javarosa.core.model.QuestionDataExtension
 import org.javarosa.core.model.UploadQuestionExtension
-import org.kxml2.kdom.Element
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * An additional parser for the "upload" question type, which can be used to parse any additional
@@ -16,7 +16,7 @@ class UploadQuestionExtensionParser : QuestionExtensionParser() {
         setElementName("upload")
     }
 
-    override fun parse(elt: Element): QuestionDataExtension? {
+    override fun parse(elt: XmlElement): QuestionDataExtension? {
         var s = elt.getAttributeValue(XFormParser.NAMESPACE_JAVAROSA,
                 "imageDimensionScaledMax")
         if (s != null) {

@@ -8,6 +8,8 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.model.xform.DataModelSerializer;
+import org.javarosa.xml.JvmXmlSerializer;
+import org.javarosa.xml.PlatformXmlSerializer;
 import org.kxml2.io.KXmlSerializer;
 
 import java.io.IOException;
@@ -54,7 +56,7 @@ public class MockupSerializer {
 
                 s.attribute(null, "src", key);
 
-                DataModelSerializer dms = new DataModelSerializer(s);
+                DataModelSerializer dms = new DataModelSerializer(JvmXmlSerializer.wrap(s));
                 dms.serialize(theInstance, null);
 
                 s.endTag(XMLNS, "instance");

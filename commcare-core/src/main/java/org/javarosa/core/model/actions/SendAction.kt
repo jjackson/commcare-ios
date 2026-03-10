@@ -14,6 +14,7 @@ import org.javarosa.xform.parse.IElementHandler
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing

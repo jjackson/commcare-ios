@@ -5,9 +5,10 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.ExternalDataInstance
 import org.javarosa.core.model.instance.InstanceInitializationFactory
 import org.javarosa.core.model.instance.TreeReference
-import org.kxml2.io.KXmlSerializer
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStream
+import org.javarosa.xml.JvmXmlSerializer
+import org.javarosa.xml.PlatformXmlSerializer
 
 /**
  * A quick rewrite of the basics for writing higher level xml documents straight to
@@ -17,17 +18,16 @@ import java.io.OutputStream
  */
 class DataModelSerializer {
 
-    private val serializer: KXmlSerializer
+    private val serializer: PlatformXmlSerializer
     private val factory: InstanceInitializationFactory?
 
     @Throws(PlatformIOException::class)
     constructor(stream: OutputStream, factory: InstanceInitializationFactory?) {
-        serializer = KXmlSerializer()
-        serializer.setOutput(stream, "UTF-8")
+        serializer = JvmXmlSerializer(stream, "UTF-8")
         this.factory = factory
     }
 
-    constructor(serializer: KXmlSerializer) {
+    constructor(serializer: PlatformXmlSerializer) {
         this.serializer = serializer
         this.factory = null
     }
@@ -51,7 +51,7 @@ class DataModelSerializer {
 
     @Throws(PlatformIOException::class)
     fun serialize(root: AbstractTreeElement) {
-        serializer.startTag(root.getNamespace(), root.getName())
+        serializer.startTag(root.getNamespace(), root.getName()!!)
 
         serializeAttributes(root)
         for (i in 0 until root.getNumChildren()) {
@@ -59,7 +59,7 @@ class DataModelSerializer {
             serializeNode(childAt)
         }
 
-        serializer.endTag(root.getNamespace(), root.getName())
+        serializer.endTag(root.getNamespace(), root.getName()!!)
         serializer.flush()
     }
 
@@ -70,18 +70,18 @@ class DataModelSerializer {
             return
         }
 
-        serializer.startTag(instanceNode.getNamespace(), instanceNode.getName())
+        serializer.startTag(instanceNode.getNamespace(), instanceNode.getName()!!)
         serializeAttributes(instanceNode)
 
         if (instanceNode.getValue() != null) {
-            serializer.text(instanceNode.getValue()!!.uncast().getString())
+            serializer.text(instanceNode.getValue()!!.uncast().getString()!!)
         } else {
             for (i in 0 until instanceNode.getNumChildren()) {
                 serializeNode(instanceNode.getChildAt(i) as AbstractTreeElement)
             }
         }
 
-        serializer.endTag(instanceNode.getNamespace(), instanceNode.getName())
+        serializer.endTag(instanceNode.getNamespace(), instanceNode.getName()!!)
     }
 
     @Throws(PlatformIOException::class)
@@ -89,7 +89,7 @@ class DataModelSerializer {
         for (i in 0 until instanceNode.getAttributeCount()) {
             var value = instanceNode.getAttributeValue(i)
             value = value ?: ""
-            serializer.attribute(instanceNode.getAttributeNamespace(i), instanceNode.getAttributeName(i), value)
+            serializer.attribute(instanceNode.getAttributeNamespace(i), instanceNode.getAttributeName(i)!!, value)
         }
     }
 }

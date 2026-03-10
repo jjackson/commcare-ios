@@ -6,10 +6,10 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Contains all of the logic for parsing transactions in xml that pertain to
@@ -18,7 +18,7 @@ import java.util.NoSuchElementException
  * @author ctsims
  */
 class LedgerXmlParsers(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     val storage: IStorageUtilityIndexed<Ledger>
 ) : TransactionParser<Array<Ledger>>(parser) {
 
@@ -40,7 +40,7 @@ class LedgerXmlParsers(
     override fun parse(): Array<Ledger> {
         this.checkNode(arrayOf(TAG_BALANCE, TRANSFER))
 
-        val name = parser.name.lowercase()
+        val name = parser.name!!.lowercase()
 
         val toWrite = ArrayList<Ledger>()
 
@@ -84,7 +84,7 @@ class LedgerXmlParsers(
                                 }
                                 val quantity = this.parseInt(quantityString)
 
-                                ledger.setEntry(sectionId, productId, quantity)
+                                ledger.setEntry(sectionId, productId!!, quantity)
                             }
                             return null
                         }
@@ -146,12 +146,12 @@ class LedgerXmlParsers(
                                 val quantity = this.parseInt(quantityString)
 
                                 sourceLeger?.setEntry(
-                                    sectionId, productId,
-                                    sourceLeger.getEntry(sectionId, productId) - quantity
+                                    sectionId, productId!!,
+                                    sourceLeger.getEntry(sectionId, productId!!) - quantity
                                 )
                                 destinationLedger?.setEntry(
-                                    sectionId, productId,
-                                    destinationLedger.getEntry(sectionId, productId) + quantity
+                                    sectionId, productId!!,
+                                    destinationLedger.getEntry(sectionId, productId!!) + quantity
                                 )
                             }
                             return null

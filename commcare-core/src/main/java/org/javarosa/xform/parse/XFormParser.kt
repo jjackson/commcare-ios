@@ -35,24 +35,23 @@ import org.javarosa.core.util.Interner
 import org.javarosa.core.util.ShortestCycleAlgorithm
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
-import org.javarosa.xform.util.InterningKXmlParser
 import org.javarosa.xform.util.XFormSerializer
+import org.javarosa.xml.dom.XmlDocumentHelper
 import org.javarosa.xform.util.XFormUtils
 import org.javarosa.xpath.XPathConditional
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
-import org.kxml2.kdom.Document
-import org.kxml2.kdom.Element
-import org.kxml2.kdom.Node
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Reader
+import org.javarosa.xml.dom.XmlDocument
+import org.javarosa.xml.dom.XmlElement
+import org.javarosa.xml.dom.XmlNode
 
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.
@@ -263,7 +262,7 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun buildInstanceStructure(node: Element, parent: TreeElement?): TreeElement {
+        fun buildInstanceStructure(node: XmlElement, parent: TreeElement?): TreeElement {
             return buildInstanceStructure(node, parent, null, node.namespace)
         }
 
@@ -273,7 +272,7 @@ class XFormParser {
          */
         @JvmStatic
         fun buildInstanceStructure(
-            node: Element,
+            node: XmlElement,
             parent: TreeElement?,
             instanceName: String?,
             docnamespace: String?
@@ -284,8 +283,8 @@ class XFormParser {
             var hasElements = false
             for (i in 0 until numChildren) {
                 when (node.getType(i)) {
-                    Node.ELEMENT -> hasElements = true
-                    Node.TEXT -> if (node.getText(i).trim().isNotEmpty()) hasText = true
+                    XmlNode.ELEMENT -> hasElements = true
+                    XmlNode.TEXT -> if (node.getText(i).trim().isNotEmpty()) hasText = true
                 }
             }
             if (hasElements && hasText) {
@@ -327,7 +326,7 @@ class XFormParser {
 
             if (hasElements) {
                 for (i in 0 until numChildren) {
-                    if (node.getType(i) == Node.ELEMENT) {
+                    if (node.getType(i) == XmlNode.ELEMENT) {
                         element.addChild(
                             buildInstanceStructure(node.getElement(i), element, instanceName, docnamespace)
                         )
@@ -476,11 +475,11 @@ class XFormParser {
         /**
          * Traverse the node, copying data from it into the TreeElement argument.
          */
-        private fun loadInstanceData(node: Element, cur: TreeElement) {
+        private fun loadInstanceData(node: XmlElement, cur: TreeElement) {
             val numChildren = node.childCount
             var hasElements = false
             for (i in 0 until numChildren) {
-                if (node.getType(i) == Node.ELEMENT) {
+                if (node.getType(i) == XmlNode.ELEMENT) {
                     hasElements = true
                     break
                 }
@@ -489,7 +488,7 @@ class XFormParser {
             if (hasElements) {
                 val multiplicities = HashMap<String, Int>()
                 for (i in 0 until numChildren) {
-                    if (node.getType(i) == Node.ELEMENT) {
+                    if (node.getType(i) == XmlNode.ELEMENT) {
                         val child = node.getElement(i)
                         val cName = child.name
                         val index: Int
@@ -514,7 +513,7 @@ class XFormParser {
             }
         }
 
-        private fun loadNamespaces(e: Element, tree: FormInstance): HashMap<String, String> {
+        private fun loadNamespaces(e: XmlElement, tree: FormInstance): HashMap<String, String> {
             val prefixes = HashMap<String, String>()
             for (i in 0 until e.namespaceCount) {
                 val uri = e.getNamespaceUri(i)
@@ -537,7 +536,7 @@ class XFormParser {
          * call before f.initialize()!
          */
         @JvmStatic
-        fun loadXmlInstance(f: FormDef, xmlInst: Document): FormDef {
+        fun loadXmlInstance(f: FormDef, xmlInst: XmlDocument): FormDef {
             return loadXmlInstance(f, restoreDataModel(xmlInst, null))
         }
 
@@ -593,26 +592,18 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun getXMLDocument(reader: Reader): Document {
+        fun getXMLDocument(reader: Reader): XmlDocument {
             return getXMLDocument(reader, null)
         }
 
         @JvmStatic
-        fun getXMLDocument(reader: Reader, stringCache: Interner<String>?): Document {
-            val doc = Document()
+        fun getXMLDocument(reader: Reader, stringCache: Interner<String>?): XmlDocument {
+            val doc: XmlDocument
 
             try {
-                val parser: KXmlParser = if (stringCache != null) {
-                    InterningKXmlParser(stringCache)
-                } else {
-                    KXmlParser()
-                }
-
-                parser.setInput(reader)
-                parser.setFeature(PlatformXmlParser.FEATURE_PROCESS_NAMESPACES, true)
-                doc.parse(parser)
+                doc = XmlDocumentHelper.parseDocument(reader, stringCache)
             } catch (e: PlatformXmlParserException) {
-                val errorMsg = "XML Syntax Error at Line: ${e.lineNumber}, Column: ${e.columnNumber}!"
+                val errorMsg = "XML Syntax Error!"
                 System.err.println(errorMsg)
                 e.printStackTrace()
                 throw XFormParseException(errorMsg)
@@ -637,7 +628,7 @@ class XFormParser {
             // so we really want to go through and convert the kxml parsed
             // text (which have lots of characters each as their own string)
             // into one single string
-            val q = ArrayDeque<Element>()
+            val q = ArrayDeque<XmlElement>()
 
             q.addLast(doc.rootElement)
             while (!q.isEmpty()) {
@@ -647,20 +638,20 @@ class XFormParser {
                 var i = 0
                 while (i < e.childCount) {
                     val type = e.getType(i)
-                    if (type == Element.TEXT) {
+                    if (type == XmlElement.TEXT) {
                         val text = e.getText(i)
                         accumulate += text
                         toRemove[i] = true
                     } else {
-                        if (type == Element.ELEMENT) {
+                        if (type == XmlElement.ELEMENT) {
                             q.add(e.getElement(i))
                         }
                         val accumulatedString = accumulate.trim()
                         if (accumulatedString.isNotEmpty()) {
                             if (stringCache == null) {
-                                e.addChild(i, Element.TEXT, accumulate)
+                                e.addChild(i, XmlElement.TEXT, accumulate)
                             } else {
-                                e.addChild(i, Element.TEXT, stringCache.intern(accumulate))
+                                e.addChild(i, XmlElement.TEXT, stringCache.intern(accumulate))
                             }
                             accumulate = ""
                             ++i
@@ -672,9 +663,9 @@ class XFormParser {
                 }
                 if (accumulate.trim().isNotEmpty()) {
                     if (stringCache == null) {
-                        e.addChild(Element.TEXT, accumulate)
+                        e.addChild(XmlElement.TEXT, accumulate)
                     } else {
-                        e.addChild(Element.TEXT, stringCache.intern(accumulate))
+                        e.addChild(XmlElement.TEXT, stringCache.intern(accumulate))
                     }
                 }
                 for (idx in e.childCount - 1 downTo 0) {
@@ -688,7 +679,7 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun getXMLText(n: Node, trim: Boolean): String? {
+        fun getXMLText(n: XmlNode, trim: Boolean): String? {
             return if (n.childCount == 0) null else getXMLText(n, 0, trim)
         }
 
@@ -698,13 +689,13 @@ class XFormParser {
          * e.g. "abc&amp;123" --> (abc)(&)(123)
          */
         @JvmStatic
-        fun getXMLText(node: Node, startIndex: Int, trim: Boolean): String? {
+        fun getXMLText(node: XmlNode, startIndex: Int, trim: Boolean): String? {
             var strBuff: StringBuffer? = null
 
             var text: String? = node.getText(startIndex) ?: return null
 
             var i = startIndex + 1
-            while (i < node.childCount && node.getType(i) == Node.TEXT) {
+            while (i < node.childCount && node.getType(i) == XmlNode.TEXT) {
                 if (strBuff == null) strBuff = StringBuffer(text)
                 strBuff.append(node.getText(i))
                 i++
@@ -724,7 +715,7 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun restoreDataModel(doc: Document, restorableType: Class<*>?): FormInstance {
+        fun restoreDataModel(doc: XmlDocument, restorableType: Class<*>?): FormInstance {
             val r = if (restorableType != null) PrototypeFactory.getInstance(restorableType) as? org.javarosa.core.model.util.restorable.Restorable else null
 
             val e = doc.rootElement
@@ -741,12 +732,12 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun getVagueLocation(e: Element): String {
+        fun getVagueLocation(e: XmlElement): String {
             var path = e.name
-            var walker: Element? = e
+            var walker: XmlElement? = e
             while (walker != null) {
                 val n = walker.parent
-                if (n is Element) {
+                if (n is XmlElement) {
                     walker = n
                     var step = walker.name
                     for (i in 0 until walker.attributeCount) {
@@ -768,7 +759,7 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun getVagueElementPrintout(e: Element, maxDepth: Int): String {
+        fun getVagueElementPrintout(e: XmlElement, maxDepth: Int): String {
             var elementString = "<" + e.name
             for (i in 0 until e.attributeCount) {
                 elementString += " " + e.getAttributeName(i) + "=\""
@@ -776,9 +767,9 @@ class XFormParser {
             }
             if (e.childCount > 0) {
                 elementString += ">"
-                if (e.getType(0) == Element.ELEMENT) {
+                if (e.getType(0) == XmlElement.ELEMENT) {
                     elementString += if (maxDepth > 0) {
-                        getVagueElementPrintout(e.getChild(0) as Element, maxDepth - 1)
+                        getVagueElementPrintout(e.getChild(0) as XmlElement, maxDepth - 1)
                     } else {
                         "..."
                     }
@@ -810,11 +801,11 @@ class XFormParser {
     private val extensionParsers: ArrayList<QuestionExtensionParser> = ArrayList()
 
     private var _reader: Reader? = null
-    private var _xmldoc: Document? = null
+    private var _xmldoc: XmlDocument? = null
     private var _f: FormDef? = null
 
     private var _instReader: Reader? = null
-    private var _instDoc: Document? = null
+    private var _instDoc: XmlDocument? = null
 
     private var modelFound = false
     private lateinit var bindingsByID: HashMap<String, DataBinding>
@@ -824,8 +815,8 @@ class XFormParser {
     private lateinit var itemsets: ArrayList<ItemsetBinding>
     private lateinit var selectOnes: ArrayList<TreeReference>
     private lateinit var selectMultis: ArrayList<TreeReference>
-    private var mainInstanceNode: Element? = null
-    private lateinit var instanceNodes: ArrayList<Element>
+    private var mainInstanceNode: XmlElement? = null
+    private lateinit var instanceNodes: ArrayList<XmlElement>
     private lateinit var instanceNodeIdStrs: ArrayList<String?>
     private var defaultNamespace: String? = null
     private lateinit var itextKnownForms: ArrayList<String>
@@ -845,7 +836,7 @@ class XFormParser {
         _reader = reader
     }
 
-    constructor(doc: Document) {
+    constructor(doc: XmlDocument) {
         _xmldoc = doc
     }
 
@@ -854,7 +845,7 @@ class XFormParser {
         _instReader = instance
     }
 
-    constructor(form: Document, instance: Document) {
+    constructor(form: XmlDocument, instance: XmlDocument) {
         _xmldoc = form
         _instDoc = instance
     }
@@ -920,7 +911,7 @@ class XFormParser {
     fun parseUnregisteredSpecExtension(
         namespace: String,
         name: String,
-        e: Element,
+        e: XmlElement,
         parent: Any,
         handlers: HashMap<String, IElementHandler>
     ) {
@@ -934,7 +925,7 @@ class XFormParser {
 
         if (parseSpecExtensionsInnerElements.contains(namespace)) {
             for (i in 0 until e.childCount) {
-                if (e.getType(i) == Element.ELEMENT) {
+                if (e.getType(i) == XmlElement.ELEMENT) {
                     parseElement(e.getElement(i), parent, handlers)
                 }
             }
@@ -986,14 +977,14 @@ class XFormParser {
                     if (e.childCount > 0) {
                         for (k in 0 until e.childCount) {
                             when (e.getType(k)) {
-                                Element.TEXT -> {
+                                XmlElement.TEXT -> {
                                     if ("" == e.getText(i).trim()) {
                                         continue
                                     }
                                     // fall through (no break in original Java)
                                 }
-                                Element.IGNORABLE_WHITESPACE -> continue
-                                Element.ELEMENT -> throw XFormParseException(
+                                XmlElement.IGNORABLE_WHITESPACE -> continue
+                                XmlElement.ELEMENT -> throw XFormParseException(
                                     "Instance declaration for instance $instanceid contains both a src and a body, only one is permitted",
                                     e
                                 )
@@ -1041,7 +1032,7 @@ class XFormParser {
         itextKnownForms.add("audio")
     }
 
-    private fun parseElement(e: Element, parent: Any, handlers: HashMap<String, IElementHandler>) {
+    private fun parseElement(e: XmlElement, parent: Any, handlers: HashMap<String, IElementHandler>) {
         val name = e.name
         val namespace = e.namespace
 
@@ -1073,7 +1064,7 @@ class XFormParser {
                     )
                 }
                 for (i in 0 until e.childCount) {
-                    if (e.getType(i) == Element.ELEMENT) {
+                    if (e.getType(i) == XmlElement.ELEMENT) {
                         parseElement(e.getElement(i), parent, handlers)
                     }
                 }
@@ -1081,7 +1072,7 @@ class XFormParser {
         }
     }
 
-    private fun parseTitle(e: Element) {
+    private fun parseTitle(e: XmlElement) {
         val usedAtts = ArrayList<String>()
         val title = getXMLText(e, true)
         _f!!.setTitle(title)
@@ -1094,7 +1085,7 @@ class XFormParser {
         }
     }
 
-    private fun parseMeta(e: Element) {
+    private fun parseMeta(e: XmlElement) {
         val usedAtts = ArrayList<String>()
         val attributes = e.attributeCount
         for (i in 0 until attributes) {
@@ -1111,9 +1102,9 @@ class XFormParser {
         }
     }
 
-    private fun parseModel(e: Element) {
+    private fun parseModel(e: XmlElement) {
         val usedAtts = ArrayList<String>()
-        val delayedParseElements = ArrayList<Element>()
+        val delayedParseElements = ArrayList<XmlElement>()
 
         if (modelFound) {
             reporter.warning(
@@ -1132,7 +1123,7 @@ class XFormParser {
         var i = 0
         while (i < e.childCount) {
             val type = e.getType(i)
-            val child: Element? = if (type == Node.ELEMENT) e.getElement(i) else null
+            val child: XmlElement? = if (type == XmlNode.ELEMENT) e.getElement(i) else null
             val childName: String? = child?.name
 
             if ("itext" == childName) {
@@ -1146,11 +1137,11 @@ class XFormParser {
             } else if (childName != null && actionHandlers.containsKey(childName)) {
                 delayedParseElements.add(child)
             } else {
-                if (type == Node.ELEMENT) {
+                if (type == XmlNode.ELEMENT) {
                     if (child!!.namespace == NAMESPACE_XFORMS) {
                         throw XFormParseException("Unrecognized top-level tag [$childName] found within <model>", child)
                     }
-                } else if (type == Node.TEXT && getXMLText(e, i, true)!!.isNotEmpty()) {
+                } else if (type == XmlNode.TEXT && getXMLText(e, i, true)!!.isNotEmpty()) {
                     throw XFormParseException(
                         "Unrecognized text content found within <model>: \"${getXMLText(e, i, true)}\"",
                         child ?: e
@@ -1179,7 +1170,7 @@ class XFormParser {
     /**
      * Generic parse method that all actions get passed through.
      */
-    private fun parseAction(e: Element, parent: Any, specificHandler: IElementHandler) {
+    private fun parseAction(e: XmlElement, parent: Any, specificHandler: IElementHandler) {
         val event = e.getAttributeValue(null, EVENT_ATTR)
         if (!Action.isValidEvent(event)) {
             throw XFormParseException("An action was registered for an unsupported event: $event")
@@ -1195,7 +1186,7 @@ class XFormParser {
         specificHandler.handle(this, e, parent)
     }
 
-    fun parseSetValueAction(source: ActionController, e: Element) {
+    fun parseSetValueAction(source: ActionController, e: XmlElement) {
         val ref = e.getAttributeValue(null, REF_ATTR)
         val bind = e.getAttributeValue(null, BIND_ATTR)
 
@@ -1245,7 +1236,7 @@ class XFormParser {
         source.registerEventListener(event, action)
     }
 
-    fun parseSendAction(source: ActionController, e: Element) {
+    fun parseSendAction(source: ActionController, e: XmlElement) {
         val event = getRequiredAttribute(e, "event")
         val id = getRequiredAttribute(e, "submission")
 
@@ -1253,7 +1244,7 @@ class XFormParser {
         source.registerEventListener(event, action)
     }
 
-    private fun getRequiredAttribute(e: Element, attrName: String): String {
+    private fun getRequiredAttribute(e: XmlElement, attrName: String): String {
         val value = e.getAttributeValue(null, attrName)
         if (value == null || value == "") {
             throw XFormParseException("Missing required attribute $attrName in element", e)
@@ -1261,7 +1252,7 @@ class XFormParser {
         return value
     }
 
-    private fun parseSubmission(submission: Element) {
+    private fun parseSubmission(submission: XmlElement) {
         val id = submission.getAttributeValue(null, ID_ATTR)
 
         val resource = getRequiredAttribute(submission, "resource")
@@ -1303,12 +1294,12 @@ class XFormParser {
         _f!!.addSubmissionProfile(id, profile)
     }
 
-    private fun saveInstanceNode(instance: Element) {
-        var instanceNode: Element? = null
+    private fun saveInstanceNode(instance: XmlElement) {
+        var instanceNode: XmlElement? = null
         val instanceId = instance.getAttributeValue("", "id")
 
         for (i in 0 until instance.childCount) {
-            if (instance.getType(i) == Node.ELEMENT) {
+            if (instance.getType(i) == XmlNode.ELEMENT) {
                 if (instanceNode != null) {
                     throw XFormParseException("XForm Parse: <instance> has more than one child element", instance)
                 } else {
@@ -1331,7 +1322,7 @@ class XFormParser {
         instanceNodeIdStrs.add(instanceId)
     }
 
-    protected fun parseUpload(parent: IFormElement, e: Element, controlUpload: Int): QuestionDef {
+    protected fun parseUpload(parent: IFormElement, e: XmlElement, controlUpload: Int): QuestionDef {
         val usedAtts = ArrayList<String>()
         usedAtts.add("mediatype")
 
@@ -1351,13 +1342,13 @@ class XFormParser {
         return question
     }
 
-    protected fun parseControl(parent: IFormElement, e: Element, controlType: Int): QuestionDef {
+    protected fun parseControl(parent: IFormElement, e: XmlElement, controlType: Int): QuestionDef {
         return parseControl(parent, e, controlType, ArrayList())
     }
 
     protected fun parseControl(
         parent: IFormElement,
-        e: Element,
+        e: XmlElement,
         controlType: Int,
         usedAtts: ArrayList<String>
     ): QuestionDef {
@@ -1461,14 +1452,14 @@ class XFormParser {
     }
 
     private fun parseControlChildren(
-        e: Element,
+        e: XmlElement,
         question: QuestionDef,
         parent: IFormElement,
         isSelect: Boolean
     ) {
         for (i in 0 until e.childCount) {
             val type = e.getType(i)
-            val child: Element? = if (type == Node.ELEMENT) e.getElement(i) else null
+            val child: XmlElement? = if (type == XmlNode.ELEMENT) e.getElement(i) else null
             if (child == null) continue
             val childName = child.name
 
@@ -1486,7 +1477,7 @@ class XFormParser {
         }
     }
 
-    private fun parseHelperText(q: QuestionDef, e: Element) {
+    private fun parseHelperText(q: QuestionDef, e: XmlElement) {
         val usedAtts = ArrayList<String>()
         usedAtts.add(REF_ATTR)
         val xmlText = getXMLText(e, true)
@@ -1515,7 +1506,7 @@ class XFormParser {
         }
     }
 
-    private fun parseGroupLabel(g: GroupDef, e: Element) {
+    private fun parseGroupLabel(g: GroupDef, e: XmlElement) {
         if (g.isRepeat()) return
 
         val usedAtts = ArrayList<String>()
@@ -1533,7 +1524,7 @@ class XFormParser {
         }
     }
 
-    private fun getItextReference(e: Element): String? {
+    private fun getItextReference(e: XmlElement): String? {
         val ref = e.getAttributeValue("", REF_ATTR)
         if (ref != null) {
             if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
@@ -1547,7 +1538,7 @@ class XFormParser {
         return null
     }
 
-    private fun getLabelOrTextId(element: Element): String? {
+    private fun getLabelOrTextId(element: XmlElement): String? {
         val labelItextId = getItextReference(element)
         if (!StringUtils.isEmpty(labelItextId)) {
             return labelItextId
@@ -1555,16 +1546,16 @@ class XFormParser {
         return getLabel(element)
     }
 
-    private fun getLabel(e: Element): String? {
+    private fun getLabel(e: XmlElement): String? {
         if (e.childCount == 0) return null
 
         recurseForOutput(e)
 
         val sb = StringBuffer()
         for (i in 0 until e.childCount) {
-            if (e.getType(i) != Node.TEXT && e.getChild(i) !is String) {
+            if (e.getType(i) != XmlNode.TEXT && e.getChild(i) !is String) {
                 val b = e.getChild(i)
-                val child = b as Element
+                val child = b as XmlElement
 
                 if (NAMESPACE_HTML == child.namespace) {
                     sb.append(XFormSerializer.elementToString(child))
@@ -1583,13 +1574,13 @@ class XFormParser {
         return sb.toString().trim()
     }
 
-    private fun recurseForOutput(e: Element) {
+    private fun recurseForOutput(e: XmlElement) {
         if (e.childCount == 0) return
 
         var i = 0
         while (i < e.childCount) {
             val kidType = e.getType(i)
-            if (kidType == Node.TEXT) {
+            if (kidType == XmlNode.TEXT) {
                 i++
                 continue
             }
@@ -1597,12 +1588,12 @@ class XFormParser {
                 i++
                 continue
             }
-            val kid = e.getChild(i) as Element
+            val kid = e.getChild(i) as XmlElement
 
-            if (kidType == Node.ELEMENT && XFormUtils.isOutput(kid)) {
+            if (kidType == XmlNode.ELEMENT && XFormUtils.isOutput(kid)) {
                 val s = "\${${parseOutput(kid)}}"
                 e.removeChild(i)
-                e.addChild(i, Node.TEXT, s)
+                e.addChild(i, XmlNode.TEXT, s)
             } else if (kid.childCount != 0) {
                 recurseForOutput(kid)
             } else {
@@ -1613,7 +1604,7 @@ class XFormParser {
         }
     }
 
-    private fun parseOutput(e: Element): String {
+    private fun parseOutput(e: XmlElement): String {
         var xpath = e.getAttributeValue(null, REF_ATTR)
         var attr = REF_ATTR
         if (xpath == null) {
@@ -1649,7 +1640,7 @@ class XFormParser {
         return index.toString()
     }
 
-    private fun parseItem(q: QuestionDef, e: Element) {
+    private fun parseItem(q: QuestionDef, e: XmlElement) {
         val MAX_VALUE_LEN = 256
 
         val usedAtts = ArrayList<String>()
@@ -1664,7 +1655,7 @@ class XFormParser {
 
         for (i in 0 until e.childCount) {
             val type = e.getType(i)
-            val child: Element? = if (type == Node.ELEMENT) e.getElement(i) else null
+            val child: XmlElement? = if (type == XmlNode.ELEMENT) e.getElement(i) else null
             val childName: String? = child?.name
 
             if (LABEL_ELEMENT == childName) {
@@ -1734,7 +1725,7 @@ class XFormParser {
         }
     }
 
-    private fun parseItemset(q: QuestionDef, e: Element) {
+    private fun parseItemset(q: QuestionDef, e: XmlElement) {
         val itemset = ItemsetBinding()
 
         val usedAtts = ArrayList<String>()
@@ -1753,7 +1744,7 @@ class XFormParser {
 
         for (i in 0 until e.childCount) {
             val type = e.getType(i)
-            val child: Element? = if (type == Node.ELEMENT) e.getElement(i) else null
+            val child: XmlElement? = if (type == XmlNode.ELEMENT) e.getElement(i) else null
             val childName: String? = child?.name
 
             if (LABEL_ELEMENT == childName) {
@@ -1793,7 +1784,7 @@ class XFormParser {
         }
     }
 
-    private fun parseItemsetLabelElement(child: Element, itemset: ItemsetBinding, labelUA: ArrayList<String>) {
+    private fun parseItemsetLabelElement(child: XmlElement, itemset: ItemsetBinding, labelUA: ArrayList<String>) {
         val labelXpath = child.getAttributeValue("", REF_ATTR)
 
         if (XFormUtils.showUnusedAttributeWarning(child, labelUA)) {
@@ -1803,7 +1794,7 @@ class XFormParser {
         ItemSetParsingUtils.setLabel(itemset, labelXpath)
     }
 
-    private fun parseItemsetCopyElement(child: Element, itemset: ItemsetBinding, copyUA: ArrayList<String>) {
+    private fun parseItemsetCopyElement(child: XmlElement, itemset: ItemsetBinding, copyUA: ArrayList<String>) {
         val copyRef = child.getAttributeValue("", REF_ATTR)
         if (XFormUtils.showUnusedAttributeWarning(child, copyUA)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child))
@@ -1815,7 +1806,7 @@ class XFormParser {
         itemset.copyMode = true
     }
 
-    private fun parseItemsetValueElement(child: Element, itemset: ItemsetBinding, valueUA: ArrayList<String>) {
+    private fun parseItemsetValueElement(child: XmlElement, itemset: ItemsetBinding, valueUA: ArrayList<String>) {
         val valueXpath = child.getAttributeValue("", REF_ATTR)
 
         if (XFormUtils.showUnusedAttributeWarning(child, valueUA)) {
@@ -1824,12 +1815,12 @@ class XFormParser {
         ItemSetParsingUtils.setValue(itemset, valueXpath)
     }
 
-    private fun parseItemsetSortElement(child: Element, itemset: ItemsetBinding) {
+    private fun parseItemsetSortElement(child: XmlElement, itemset: ItemsetBinding) {
         val sortXpathString = child.getAttributeValue("", REF_ATTR)
         ItemSetParsingUtils.setSort(itemset, sortXpathString)
     }
 
-    private fun parseGroup(parent: IFormElement, e: Element, groupType: Int) {
+    private fun parseGroup(parent: IFormElement, e: XmlElement, groupType: Int) {
         val group = GroupDef()
         group.setID(serialQuestionID++)
         var dataRef: XPathReference? = null
@@ -1890,7 +1881,7 @@ class XFormParser {
 
         for (i in 0 until e.childCount) {
             val type = e.getType(i)
-            val child: Element? = if (type == Node.ELEMENT) e.getElement(i) else null
+            val child: XmlElement? = if (type == XmlNode.ELEMENT) e.getElement(i) else null
             val childName: String? = child?.name
             val childNamespace: String? = child?.namespace
 
@@ -1910,7 +1901,7 @@ class XFormParser {
         }
 
         for (i in 0 until e.childCount) {
-            if (e.getType(i) == Element.ELEMENT) {
+            if (e.getType(i) == XmlElement.ELEMENT) {
                 parseElement(e.getElement(i), group, groupLevelHandlers)
             }
         }
@@ -1951,7 +1942,7 @@ class XFormParser {
         this.stringCache = stringCache
     }
 
-    private fun parseIText(itext: Element) {
+    private fun parseIText(itext: XmlElement) {
         val l = Localizer(true, true)
         _f!!.setLocalizer(l)
 
@@ -1976,7 +1967,7 @@ class XFormParser {
         }
     }
 
-    private fun parseTranslation(l: Localizer, trans: Element) {
+    private fun parseTranslation(l: Localizer, trans: XmlElement) {
         val usedAtts = ArrayList<String>()
         usedAtts.add("lang")
         usedAtts.add("default")
@@ -2021,7 +2012,7 @@ class XFormParser {
         l.registerLocaleResource(lang, source)
     }
 
-    private fun parseTextHandle(l: TableLocaleSource, text: Element) {
+    private fun parseTextHandle(l: TableLocaleSource, text: XmlElement) {
         val id = text.getAttributeValue("", ID_ATTR)
 
         val usedAtts = ArrayList<String>()
@@ -2114,7 +2105,7 @@ class XFormParser {
         return false
     }
 
-    private fun processStandardBindAttributes(usedAtts: ArrayList<String>, e: Element): DataBinding {
+    private fun processStandardBindAttributes(usedAtts: ArrayList<String>, e: XmlElement): DataBinding {
         usedAtts.add(ID_ATTR)
         usedAtts.add(NODESET_ATTR)
         usedAtts.add("type")
@@ -2227,7 +2218,7 @@ class XFormParser {
         return binding
     }
 
-    private fun parseBind(e: Element) {
+    private fun parseBind(e: XmlElement) {
         val usedAtts = ArrayList<String>()
 
         val binding = processStandardBindAttributes(usedAtts, e)
@@ -2287,7 +2278,7 @@ class XFormParser {
         }
     }
 
-    private fun addMainInstanceToFormDef(e: Element, instanceModel: FormInstance) {
+    private fun addMainInstanceToFormDef(e: XmlElement, instanceModel: FormInstance) {
         loadInstanceData(e, instanceModel.getRoot())
 
         checkDependencyCycles()
@@ -2301,7 +2292,7 @@ class XFormParser {
         }
     }
 
-    private fun parseInstance(e: Element, isMainInstance: Boolean): FormInstance {
+    private fun parseInstance(e: XmlElement, isMainInstance: Boolean): FormInstance {
         val name: String? = instanceNodeIdStrs[instanceNodes.indexOf(e)]
 
         val root = buildInstanceStructure(e, null, if (!isMainInstance) name else null, e.namespace)

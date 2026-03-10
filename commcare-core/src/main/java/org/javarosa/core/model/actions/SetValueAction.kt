@@ -18,6 +18,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * @author ctsims

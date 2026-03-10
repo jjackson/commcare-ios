@@ -1,5 +1,7 @@
 package org.javarosa.engine.xml;
 
+import org.javarosa.xml.JvmXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -26,6 +28,7 @@ import java.io.InputStream;
  */
 public abstract class ElementParser<T> {
     protected final KXmlParser parser;
+    protected final PlatformXmlParser wrappedParser;
 
     int level = 0;
 
@@ -40,6 +43,7 @@ public abstract class ElementParser<T> {
      */
     public ElementParser(InputStream suiteStream) throws IOException{
         parser = new KXmlParser();
+        wrappedParser = JvmXmlParser.wrap(parser);
         try {
             parser.setInput(suiteStream,"UTF-8");
             parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
@@ -62,6 +66,7 @@ public abstract class ElementParser<T> {
      */
     public ElementParser(KXmlParser parser) {
         this.parser = parser;
+        this.wrappedParser = JvmXmlParser.wrap(parser);
         level = parser.getDepth();
     }
 
@@ -76,7 +81,7 @@ public abstract class ElementParser<T> {
      */
     protected void checkNode(String name) throws InvalidStructureException {
         if(!parser.getName().toLowerCase().equals(name)) {
-            throw new InvalidStructureException("Expected <" + name + "> element <"+ parser.getName() + "> found instead",parser);
+            throw new InvalidStructureException("Expected <" + name + "> element <"+ parser.getName() + "> found instead",wrappedParser);
         }
     }
 
@@ -97,7 +102,7 @@ public abstract class ElementParser<T> {
      * XML.
      */
     protected void getNextTagInBlock(String terminal) throws InvalidStructureException, IOException, XmlPullParserException {
-        if(!nextTagInBlock(terminal)) {throw new InvalidStructureException("Expected another node inside of element <" + terminal + ">.",parser);}
+        if(!nextTagInBlock(terminal)) {throw new InvalidStructureException("Expected another node inside of element <" + terminal + ">.",wrappedParser);}
     }
 
     /**
@@ -162,12 +167,12 @@ public abstract class ElementParser<T> {
                 if(parser.getName().toLowerCase().equals(name.toLowerCase())) {
                     return;
                 }
-                throw new InvalidStructureException("Expected tag " + name + " but got tag: " + parser.getName(), parser);
+                throw new InvalidStructureException("Expected tag " + name + " but got tag: " + parser.getName(), wrappedParser);
             }
-            throw new InvalidStructureException("Expected tag " + name + " but reached end of block instead", parser);
+            throw new InvalidStructureException("Expected tag " + name + " but reached end of block instead", wrappedParser);
         }
 
-        throw new InvalidStructureException("Expected tag " + name + " but it wasn't found", parser);
+        throw new InvalidStructureException("Expected tag " + name + " but it wasn't found", wrappedParser);
 
     }
 
@@ -199,12 +204,12 @@ public abstract class ElementParser<T> {
      */
     protected int parseInt(String value) throws InvalidStructureException  {
         if(value == null) {
-            throw new InvalidStructureException("Expected an integer value, found null text instead",parser);
+            throw new InvalidStructureException("Expected an integer value, found null text instead",wrappedParser);
         }
         try  {
             return Integer.parseInt(value);
         } catch(NumberFormatException nfe) {
-            throw new InvalidStructureException("Expected an integer value, found " + value + " instead",parser);
+            throw new InvalidStructureException("Expected an integer value, found " + value + " instead",wrappedParser);
         }
     }
 

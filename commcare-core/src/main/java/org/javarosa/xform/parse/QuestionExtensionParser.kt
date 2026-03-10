@@ -1,7 +1,7 @@
 package org.javarosa.xform.parse
 
 import org.javarosa.core.model.QuestionDataExtension
-import org.kxml2.kdom.Element
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * A parser for some additional piece of information included with a question in an xform that
@@ -24,13 +24,13 @@ abstract class QuestionExtensionParser {
         this._elementName = elementName
     }
 
-    fun canParse(e: Element): Boolean {
+    fun canParse(e: XmlElement): Boolean {
         return e.name == _elementName
     }
 
     // May return null if the specific extension data being sought is not present for the given
     // element
-    abstract fun parse(e: Element): QuestionDataExtension?
+    abstract fun parse(e: XmlElement): QuestionDataExtension?
 
     abstract fun getUsedAttributes(): Array<String>
 }

@@ -14,7 +14,6 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 
 import java.io.ByteArrayInputStream
@@ -23,6 +22,7 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.UnsupportedEncodingException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * User restore xml file sometimes present in apps.
@@ -106,7 +106,7 @@ class OfflineUserRestore : Persistable {
     private fun checkThatRestoreIsValidAndSetUsername() {
         val factory = TransactionParserFactory { parser ->
             val name = parser.name
-            if ("registration" == name.lowercase()) {
+            if ("registration" == name?.lowercase()) {
                 return@TransactionParserFactory buildUserParser(parser)
             }
             null
@@ -116,7 +116,7 @@ class OfflineUserRestore : Persistable {
         parser.parse()
     }
 
-    private fun buildUserParser(parser: KXmlParser): TransactionParser<*> {
+    private fun buildUserParser(parser: PlatformXmlParser): TransactionParser<*> {
         return object : UserXmlParser(parser) {
             @Throws(PlatformIOException::class, InvalidStructureException::class)
             override fun commit(parsed: User) {

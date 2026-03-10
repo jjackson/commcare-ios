@@ -11,15 +11,15 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
 
     private val input: String = data.decodeToString()
     private var pos = 0
-    private var eventType = PlatformXmlParser.START_DOCUMENT
-    private var depth = 0
+    private var _eventType = PlatformXmlParser.START_DOCUMENT
+    private var _depth = 0
 
     // Current event state
     private var currentName: String? = null
     private var currentNamespace: String? = null
     private var currentText: String? = null
     private var currentPrefix: String? = null
-    private var attributes = mutableListOf<Attribute>()
+    private var _attributes = mutableListOf<Attribute>()
     private var isEmptyElement = false
     private var pendingEndTag = false
 
@@ -36,16 +36,16 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
     override fun next(): Int {
         if (pendingEndTag) {
             pendingEndTag = false
-            depth--
-            eventType = PlatformXmlParser.END_TAG
-            return eventType
+            _depth--
+            _eventType = PlatformXmlParser.END_TAG
+            return _eventType
         }
 
         skipWhitespaceAndComments()
 
         if (pos >= input.length) {
-            eventType = PlatformXmlParser.END_DOCUMENT
-            return eventType
+            _eventType = PlatformXmlParser.END_DOCUMENT
+            return _eventType
         }
 
         if (input[pos] == '<') {
@@ -72,32 +72,32 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
             parseText()
         }
 
-        return eventType
+        return _eventType
     }
 
-    override fun getEventType(): Int = eventType
-    override fun getName(): String? = currentName
-    override fun getNamespace(): String? = currentNamespace
-    override fun getText(): String? = currentText
-    override fun getDepth(): Int = depth
+    override val eventType: Int get() = _eventType
+    override val name: String? get() = currentName
+    override val namespace: String? get() = currentNamespace
+    override val text: String? get() = currentText
+    override val depth: Int get() = _depth
 
-    override fun isWhitespace(): Boolean {
-        val text = currentText ?: return true
-        return text.all { it == ' ' || it == '\t' || it == '\n' || it == '\r' }
+    override val isWhitespace: Boolean get() {
+        val t = currentText ?: return true
+        return t.all { it == ' ' || it == '\t' || it == '\n' || it == '\r' }
     }
 
     override fun getAttributeValue(namespace: String?, name: String): String? {
-        return attributes.find { attr ->
+        return _attributes.find { attr ->
             attr.name == name && (namespace == null || namespace.isEmpty() || attr.namespace == namespace)
         }?.value
     }
 
-    override fun getAttributeCount(): Int = attributes.size
+    override val attributeCount: Int get() = _attributes.size
 
-    override fun getAttributeName(index: Int): String = attributes[index].name
-    override fun getAttributeNamespace(index: Int): String = attributes[index].namespace
-    override fun getAttributePrefix(index: Int): String? = attributes[index].prefix
-    override fun getAttributeValue(index: Int): String = attributes[index].value
+    override fun getAttributeName(index: Int): String = _attributes[index].name
+    override fun getAttributeNamespace(index: Int): String = _attributes[index].namespace
+    override fun getAttributePrefix(index: Int): String? = _attributes[index].prefix
+    override fun getAttributeValue(index: Int): String = _attributes[index].value
 
     override fun getNamespace(prefix: String?): String {
         val p = prefix ?: ""
@@ -107,12 +107,46 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         return ""
     }
 
+    override fun nextText(): String {
+        if (_eventType != PlatformXmlParser.START_TAG) {
+            throw RuntimeException("nextText() called not on START_TAG")
+        }
+        val event = next()
+        if (event == PlatformXmlParser.TEXT) {
+            val result = currentText ?: ""
+            val endEvent = next()
+            if (endEvent != PlatformXmlParser.END_TAG) {
+                throw RuntimeException("nextText(): expected END_TAG after text, got $endEvent")
+            }
+            return result
+        } else if (event == PlatformXmlParser.END_TAG) {
+            return ""
+        } else {
+            throw RuntimeException("nextText(): unexpected event type $event")
+        }
+    }
+
+    override fun nextTag(): Int {
+        var event = next()
+        while (event == PlatformXmlParser.TEXT && isWhitespace) {
+            event = next()
+        }
+        if (event != PlatformXmlParser.START_TAG && event != PlatformXmlParser.END_TAG) {
+            throw RuntimeException("nextTag(): unexpected event type $event")
+        }
+        return event
+    }
+
+    override val positionDescription: String get() = "@position $pos"
+
+    override val prefix: String? get() = currentPrefix
+
     // --- Parsing Methods ---
 
     private fun parseStartTag() {
         pos++ // skip '<'
         val qname = readName()
-        attributes.clear()
+        _attributes.clear()
         val nsDeclarations = mutableMapOf<String, String>()
 
         // Parse attributes
@@ -132,7 +166,7 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
                 nsDeclarations[attrQName.substring(6)] = attrValue
             } else {
                 val (attrPrefix, attrLocal) = splitQName(attrQName)
-                attributes.add(Attribute("", attrPrefix, attrLocal, attrValue))
+                _attributes.add(Attribute("", attrPrefix, attrLocal, attrValue))
             }
         }
 
@@ -144,23 +178,23 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         }
         expect('>')
 
-        depth++
+        _depth++
 
         // Push namespace scope
-        while (namespaceStack.size < depth) {
+        while (namespaceStack.size < _depth) {
             namespaceStack.add(mutableMapOf())
         }
-        namespaceStack[depth - 1] = nsDeclarations.toMutableMap()
+        namespaceStack[_depth - 1] = nsDeclarations.toMutableMap()
 
         // Resolve element namespace
-        val (prefix, localName) = splitQName(qname)
-        currentPrefix = prefix
+        val (pfx, localName) = splitQName(qname)
+        currentPrefix = pfx
         currentName = localName
-        currentNamespace = resolveNamespace(prefix)
+        currentNamespace = resolveNamespace(pfx)
         currentText = null
 
         // Resolve attribute namespaces
-        attributes = attributes.map { attr ->
+        _attributes = _attributes.map { attr ->
             if (attr.prefix != null && attr.prefix.isNotEmpty()) {
                 attr.copy(namespace = resolveNamespace(attr.prefix))
             } else {
@@ -168,7 +202,7 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
             }
         }.toMutableList()
 
-        eventType = PlatformXmlParser.START_TAG
+        _eventType = PlatformXmlParser.START_TAG
 
         if (isEmptyElement) {
             pendingEndTag = true
@@ -181,19 +215,19 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         skipSpaces()
         expect('>')
 
-        val (prefix, localName) = splitQName(qname)
+        val (pfx, localName) = splitQName(qname)
         currentName = localName
-        currentNamespace = resolveNamespace(prefix)
+        currentNamespace = resolveNamespace(pfx)
         currentText = null
-        attributes.clear()
+        _attributes.clear()
 
         // Pop namespace scope
-        if (depth > 0 && depth <= namespaceStack.size) {
-            namespaceStack[depth - 1].clear()
+        if (_depth > 0 && _depth <= namespaceStack.size) {
+            namespaceStack[_depth - 1].clear()
         }
-        depth--
+        _depth--
 
-        eventType = PlatformXmlParser.END_TAG
+        _eventType = PlatformXmlParser.END_TAG
     }
 
     private fun parseText() {
@@ -204,8 +238,8 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         currentText = decodeEntities(input.substring(start, pos))
         currentName = null
         currentNamespace = null
-        attributes.clear()
-        eventType = PlatformXmlParser.TEXT
+        _attributes.clear()
+        _eventType = PlatformXmlParser.TEXT
     }
 
     private fun parseCData() {
@@ -216,8 +250,8 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         pos = end + 3
         currentName = null
         currentNamespace = null
-        attributes.clear()
-        eventType = PlatformXmlParser.TEXT
+        _attributes.clear()
+        _eventType = PlatformXmlParser.TEXT
     }
 
     private fun parseProcessingInstruction() {
@@ -227,13 +261,11 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
     }
 
     private fun skipDeclaration() {
-        // Handle <!-- ... --> comments and <!DOCTYPE ...>
         if (input.startsWith("<!--", pos)) {
             val end = input.indexOf("-->", pos + 4)
             if (end == -1) throw RuntimeException("Unclosed comment")
             pos = end + 3
         } else {
-            // DOCTYPE or other declaration — skip to matching >
             var nestLevel = 1
             pos += 2 // skip "<!"
             while (pos < input.length && nestLevel > 0) {
@@ -266,13 +298,13 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
     private fun readAttributeValue(): String {
         val quote = input[pos]
         if (quote != '"' && quote != '\'') throw RuntimeException("Expected quote at position $pos")
-        pos++ // skip opening quote
+        pos++
         val start = pos
         while (pos < input.length && input[pos] != quote) {
             pos++
         }
         val value = input.substring(start, pos)
-        pos++ // skip closing quote
+        pos++
         return decodeEntities(value)
     }
 
@@ -331,7 +363,7 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
                         } else if (entity.startsWith("#")) {
                             sb.append(entity.substring(1).toInt().toChar())
                         } else {
-                            sb.append("&$entity;") // unknown entity, preserve as-is
+                            sb.append("&$entity;")
                         }
                     }
                 }

@@ -4,11 +4,11 @@ import org.commcare.suite.model.Text
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
-class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
+class TextParser(parser: PlatformXmlParser) : ElementParser<Text>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Text {
@@ -26,7 +26,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
             e.printStackTrace()
         }
 
-        while (parser.depth > entryLevel || parser.eventType == KXmlParser.TEXT) {
+        while (parser.depth > entryLevel || parser.eventType == PlatformXmlParser.TEXT) {
             val t = parseBody()
             if (t != null) {
                 texts.add(t)
@@ -47,7 +47,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         var eventType = parser.eventType
         var text = ""
         do {
-            if (eventType == KXmlParser.START_TAG) {
+            if (eventType == PlatformXmlParser.START_TAG) {
                 //If we were parsing text, commit that up first.
                 if (text.trim() != "") {
                     val t = Text.PlainText(text)
@@ -56,21 +56,21 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
                 }
 
                 //now parse out the next tag.
-                if (parser.name.lowercase() == "xpath") {
+                if (parser.name!!.lowercase() == "xpath") {
                     val xpathText = parseXPath()
                     texts.add(xpathText)
-                } else if (parser.name.lowercase() == "locale") {
+                } else if (parser.name!!.lowercase() == "locale") {
                     val localeText = parseLocale()
                     texts.add(localeText)
                 }
-            } else if (eventType == KXmlParser.TEXT) {
-                text += parser.text.trim()
+            } else if (eventType == PlatformXmlParser.TEXT) {
+                text += parser.text!!.trim()
             }
 
             //We shouldn't really ever get here as far as things are currently set up
             eventType = parser.next()
             //How do we get out of here? Depth?
-        } while (eventType != KXmlParser.END_TAG)
+        } while (eventType != PlatformXmlParser.END_TAG)
 
         if (text.trim() != "") {
             val t = Text.PlainText(text)

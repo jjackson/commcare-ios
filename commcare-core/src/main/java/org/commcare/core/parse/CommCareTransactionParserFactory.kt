@@ -12,9 +12,9 @@ import org.commcare.xml.LedgerXmlParsers
 import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -64,7 +64,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
         this.initStockParser()
     }
 
-    override fun getParser(parser: KXmlParser): TransactionParser<*>? {
+    override fun getParser(parser: PlatformXmlParser): TransactionParser<*>? {
         val namespace = parser.namespace
         val name = parser.name
         if (LedgerXmlParsers.STOCK_XML_NAMESPACE == namespace) {
@@ -92,7 +92,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
             val isIndexedAttr = parser.getAttributeValue(null, "indexed")
             val isIndexed = "true" == isIndexedAttr
             req()
-            processedFixtures.add(id)
+            processedFixtures.add(id!!)
             if (isIndexed) {
                 val schema = fixtureSchemas[id]
                 return IndexedFixtureXmlParser(parser, id, schema, sandbox)
@@ -141,7 +141,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
         userParser = object : TransactionParserFactory {
             var created: UserXmlParser? = null
 
-            override fun getParser(parser: KXmlParser): TransactionParser<*> {
+            override fun getParser(parser: PlatformXmlParser): TransactionParser<*> {
                 if (created == null) {
                     created = UserXmlParser(parser, sandbox.getUserStorage())
                 }
@@ -154,7 +154,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
         fixtureParser = object : TransactionParserFactory {
             var created: FixtureXmlParser? = null
 
-            override fun getParser(parser: KXmlParser): TransactionParser<*> {
+            override fun getParser(parser: PlatformXmlParser): TransactionParser<*> {
                 if (created == null) {
                     created = FixtureXmlParser(parser, true, sandbox.getUserFixtureStorage())
                 }
@@ -185,7 +185,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
         return object : TransactionParserFactory {
             var created: CaseXmlParser? = null
 
-            override fun getParser(parser: KXmlParser): TransactionParser<*> {
+            override fun getParser(parser: PlatformXmlParser): TransactionParser<*> {
                 if (created == null) {
                     created = CaseXmlParser(parser, sandbox.getCaseStorage())
                 }
@@ -198,7 +198,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
         return object : TransactionParserFactory {
             var created: LinearBulkProcessingCaseXmlParser? = null
 
-            override fun getParser(parser: KXmlParser): TransactionParser<*> {
+            override fun getParser(parser: PlatformXmlParser): TransactionParser<*> {
                 if (created == null) {
                     created = LinearBulkProcessingCaseXmlParser(parser, sandbox.getCaseStorage())
                 }

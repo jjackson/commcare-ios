@@ -43,11 +43,11 @@ public class MockupParser extends ElementParser<Mockup> {
                             try {
                                 Date d = DateUtils.parseDate(dateText);
                                 if(d == null) {
-                                    throw new InvalidStructureException("Bad <date> in context: '" + dateText + "'", parser);
+                                    throw new InvalidStructureException("Bad <date> in context: '" + dateText + "'", wrappedParser);
                                 }
                                 editor.setDate(d);
                             } catch(Exception e){
-                                throw new InvalidStructureException("Bad <date> in context: '" + dateText + "'", parser);
+                                throw new InvalidStructureException("Bad <date> in context: '" + dateText + "'", wrappedParser);
                             }
                         }
                     }
@@ -58,7 +58,7 @@ public class MockupParser extends ElementParser<Mockup> {
                         editor.addInstance(instance);
                         //TODO: Somehow we need to make sure that there are no more siblings
                     } else {
-                        throw new InvalidStructureException("Unrecognized context element: <" + tag + ">", parser);
+                        throw new InvalidStructureException("Unrecognized context element: <" + tag + ">", wrappedParser);
                     }
                 }
 

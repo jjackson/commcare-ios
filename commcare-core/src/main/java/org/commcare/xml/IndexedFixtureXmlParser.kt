@@ -11,9 +11,9 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Creates a table for the indexed fixture and parses each element into a
@@ -28,7 +28,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class IndexedFixtureXmlParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val fixtureName: String?,
     schema: FixtureIndexSchema?,
     private val sandbox: UserSandbox

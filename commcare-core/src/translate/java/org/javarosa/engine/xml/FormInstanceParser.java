@@ -32,7 +32,7 @@ public class FormInstanceParser extends ElementParser<FormInstance> {
 
         String instanceId = parser.getAttributeValue(null, "src");
         if(instanceId == null) {
-            throw new InvalidStructureException("Instance lacking src", parser);
+            throw new InvalidStructureException("Instance lacking src", wrappedParser);
         }
 
         //Get to the data root
