@@ -108,7 +108,7 @@ class SessionNavigator(private val responder: SessionNavigationResponder) {
                 // No confirm detail defined for this entity select, so just set the case id right away
                 // and proceed
                 val autoSelectedCaseId = DatumUtil.getReturnValueFromSelection(
-                    currentAutoSelectedCase, selectDatum, ec
+                    currentAutoSelectedCase!!, selectDatum, ec!!
                 )
                 session.setEntityDatum(selectDatum, autoSelectedCaseId)
                 startNextSessionStep()

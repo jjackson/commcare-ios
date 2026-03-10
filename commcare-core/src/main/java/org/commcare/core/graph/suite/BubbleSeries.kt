@@ -1,0 +1,66 @@
+package org.commcare.core.graph.suite
+
+import org.javarosa.core.model.condition.EvaluationContext
+import org.javarosa.core.util.externalizable.DeserializationException
+import org.javarosa.core.util.externalizable.ExtUtil
+import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.xpath.expr.XPathExpression
+import org.javarosa.xpath.parser.XPathSyntaxException
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.IOException
+
+/**
+ * Single series ("line") on a bubble chart.
+ *
+ * @author jschweers
+ */
+class BubbleSeries : XYSeries {
+
+    private var mRadius: String? = null
+    private var mRadiusParse: XPathExpression? = null
+
+    /*
+     * Deserialization Only!
+     */
+    @Suppress("unused")
+    constructor()
+
+    constructor(nodeSet: String?) : super(nodeSet)
+
+    fun getRadius(): String? = mRadius
+
+    fun setRadius(radius: String?) {
+        mRadius = radius
+        mRadiusParse = null
+    }
+
+    @Throws(XPathSyntaxException::class)
+    override fun parse() {
+        super.parse()
+        if (mRadiusParse == null) {
+            mRadiusParse = parse(mRadius)
+        }
+    }
+
+    /*
+     * Get actual value for radius in a given EvaluationContext.
+     */
+    @Throws(XPathSyntaxException::class)
+    fun evaluateRadius(context: EvaluationContext): String? {
+        parse()
+        return evaluateExpression(mRadiusParse, context)
+    }
+
+    @Throws(IOException::class, DeserializationException::class)
+    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+        super.readExternal(`in`, pf)
+        mRadius = ExtUtil.readString(`in`)
+    }
+
+    @Throws(IOException::class)
+    override fun writeExternal(out: DataOutputStream) {
+        super.writeExternal(out)
+        ExtUtil.writeString(out, mRadius)
+    }
+}

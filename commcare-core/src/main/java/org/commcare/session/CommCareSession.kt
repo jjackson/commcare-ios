@@ -175,7 +175,7 @@ open class CommCareSession {
      * @return The entry identified by the command or null if there is no entry with the given command.
      */
     fun getEntryForCommand(commandID: String?): Entry? {
-        return getPlatform().getEntry(commandID)
+        return if (commandID == null) null else getPlatform().getEntry(commandID)
     }
 
     private fun getStillValidEntriesFromMenu(menu: Menu): Vector<Entry> {

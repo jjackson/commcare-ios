@@ -83,14 +83,14 @@ class IndexedFixtureXmlParser(
     @Throws(IOException::class)
     private fun processRoot(root: TreeElement) {
         if (root.hasChildren()) {
-            val entryName = root.getChildAt(0)!!.getName()!!
-            writeFixtureIndex(root, entryName)
+            val entryName = root.getChildAt(0)!!.getName()
+            writeFixtureIndex(root, entryName!!)
 
             for (entry in root.getChildrenWithName(entryName)) {
                 processEntry(entry as TreeElement, indices)
             }
         } else {
-            val storage = sandbox.getIndexedFixtureStorage(fixtureName)
+            val storage = sandbox.getIndexedFixtureStorage(fixtureName!!)
             storage?.removeAll()
         }
     }
@@ -118,15 +118,15 @@ class IndexedFixtureXmlParser(
         exampleEntry: StorageIndexedTreeElementModel
     ): IStorageUtilityIndexed<StorageIndexedTreeElementModel> {
         if (indexedFixtureStorage == null) {
-            sandbox.setupIndexedFixtureStorage(fixtureName, exampleEntry, columnIndices)
-            indexedFixtureStorage = sandbox.getIndexedFixtureStorage(fixtureName)
+            sandbox.setupIndexedFixtureStorage(fixtureName!!, exampleEntry, columnIndices)
+            indexedFixtureStorage = sandbox.getIndexedFixtureStorage(fixtureName!!)
         }
         return indexedFixtureStorage!!
     }
 
     private fun getNormalFixtureStorage(): IStorageUtilityIndexed<FormInstance> {
         if (normalFixtureStorage == null) {
-            normalFixtureStorage = sandbox.userFixtureStorage
+            normalFixtureStorage = sandbox.getUserFixtureStorage()
         }
         return normalFixtureStorage!!
     }
@@ -145,6 +145,6 @@ class IndexedFixtureXmlParser(
             )
         }
 
-        sandbox.setIndexedFixturePathBases(fixtureName, root.getName(), childName, attrholder)
+        sandbox.setIndexedFixturePathBases(fixtureName!!, root.getName()!!, childName, attrholder)
     }
 }

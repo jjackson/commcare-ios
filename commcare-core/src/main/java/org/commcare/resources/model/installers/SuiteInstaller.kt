@@ -63,7 +63,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
                 @Suppress("UNCHECKED_CAST")
                 val parser = SuiteParser(
                     incoming, table, r.getRecordGuid(),
-                    platform.getStorageManager().getStorage("fixture") as IStorageUtilityIndexed<FormInstance>
+                    platform.getStorageManager()!!.getStorage("fixture") as IStorageUtilityIndexed<FormInstance>
                 )
                 if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
                     parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE)
