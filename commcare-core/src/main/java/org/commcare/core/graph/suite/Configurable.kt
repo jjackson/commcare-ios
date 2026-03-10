@@ -1,7 +1,6 @@
 package org.commcare.core.graph.suite
 
 import org.commcare.suite.model.Text
-import java.util.Enumeration
 
 /**
  * Interface to be implemented by any classes in this package that store configuration data
@@ -10,7 +9,7 @@ import java.util.Enumeration
  * @author jschweers
  */
 interface Configurable {
-    fun getConfigurationKeys(): Enumeration<*>
+    fun getConfigurationKeys(): Iterator<*>
     fun getConfiguration(key: String): Text?
     fun setConfiguration(key: String, value: Text)
 }

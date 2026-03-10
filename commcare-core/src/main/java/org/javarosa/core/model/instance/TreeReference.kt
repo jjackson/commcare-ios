@@ -12,7 +12,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 // TODO: This class needs to be immutable so that we can perform caching optimizations.
 class TreeReference : Externalizable, XPathAnalyzable {
@@ -31,7 +30,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
     @JvmField
     internal var instanceName: String? = null
 
-    private var data: Vector<TreeReferenceLevel>? = null
+    private var data: ArrayList<TreeReferenceLevel>? = null
 
     // This value will be computed lazily during calls to size(); every time
     // 'data' changes size, set it to -1 and compute it on demand.
@@ -39,7 +38,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     constructor() {
         instanceName = null
-        data = Vector()
+        data = ArrayList()
     }
 
     constructor(instanceName: String?, refLevel: Int) : this(instanceName, refLevel, -1)
@@ -48,7 +47,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
         this.instanceName = instanceName
         this.refLevel = refLevel
         this.contextType = contextType
-        this.data = Vector()
+        this.data = ArrayList()
         setupContextTypeFromInstanceName()
     }
 
@@ -66,17 +65,17 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     fun getInstanceName(): String? = instanceName
 
-    fun getMultiplicity(index: Int): Int = data!!.elementAt(index).getMultiplicity()
+    fun getMultiplicity(index: Int): Int = data!![index].getMultiplicity()
 
-    fun getName(index: Int): String? = data!!.elementAt(index).getName()
+    fun getName(index: Int): String? = data!![index].getName()
 
-    fun getMultLast(): Int = data!!.lastElement().getMultiplicity()
+    fun getMultLast(): Int = data!!.last().getMultiplicity()
 
-    fun getNameLast(): String? = data!!.lastElement().getName()
+    fun getNameLast(): String? = data!!.last().getName()
 
     fun setMultiplicity(i: Int, mult: Int) {
         cachedHashCode = -1
-        data!!.setElementAt(data!!.elementAt(i).setMultiplicity(mult), i)
+        data!!.set(i, data!![i].setMultiplicity(mult))
     }
 
     /**
@@ -98,7 +97,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
     private fun add(level: TreeReferenceLevel) {
         cachedHashCode = -1
         size = -1
-        data!!.addElement(level)
+        data!!.add(level)
     }
 
     fun add(name: String?, mult: Int) {
@@ -112,9 +111,9 @@ class TreeReference : Externalizable, XPathAnalyzable {
      * @param xpe vector of xpath expressions representing predicates to attach
      *            to a reference level.
      */
-    fun addPredicate(key: Int, xpe: Vector<XPathExpression>) {
+    fun addPredicate(key: Int, xpe: ArrayList<XPathExpression>) {
         cachedHashCode = -1
-        data!!.setElementAt(data!!.elementAt(key).setPredicates(xpe), key)
+        data!!.set(key, data!![key].setPredicates(xpe))
     }
 
     /**
@@ -123,8 +122,8 @@ class TreeReference : Externalizable, XPathAnalyzable {
      * @param key reference level at which to grab the predicates.
      * @return the predicates for the specified reference level.
      */
-    fun getPredicate(key: Int): Vector<XPathExpression>? {
-        return data!!.elementAt(key).getPredicates()
+    fun getPredicate(key: Int): ArrayList<XPathExpression>? {
+        return data!![key].getPredicates()
     }
 
     /**
@@ -216,7 +215,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
                 true
             }
         } else {
-            data!!.removeElementAt(oldSize - 1)
+            data!!.removeAt(oldSize - 1)
             true
         }
     }
@@ -297,7 +296,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
             }
             // copy level data from this ref to the anchor ref
             for (i in 0 until size()) {
-                newRef.add(this.data!!.elementAt(i).shallowCopy())
+                newRef.add(this.data!![i].shallowCopy())
             }
             newRef
         }
@@ -349,10 +348,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
             if (NAME_WILDCARD == newRef.getName(i) &&
                 NAME_WILDCARD != contextRef.getName(i)
             ) {
-                newRef.data!!.setElementAt(
-                    newRef.data!!.elementAt(i).setName(contextRef.getName(i)),
-                    i
-                )
+                newRef.data!!.set(i, newRef.data!![i].setName(contextRef.getName(i)))
             }
 
             if (contextRef.getName(i) == newRef.getName(i)) {
@@ -486,8 +482,8 @@ class TreeReference : Externalizable, XPathAnalyzable {
             if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
                 // loop through reference segments, comparing their equality
                 for (i in 0 until this.size()) {
-                    val thisLevel = data!!.elementAt(i)
-                    val otherLevel = ref.data!!.elementAt(i)
+                    val thisLevel = data!![i]
+                    val otherLevel = ref.data!![i]
 
                     if (thisLevel != otherLevel) {
                         return false
@@ -687,7 +683,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
         val subRef = cloneWithEmptyData()
         for (i in 0..level) {
-            subRef.add(this.data!!.elementAt(i))
+            subRef.add(this.data!![i])
         }
         return subRef
     }
@@ -733,7 +729,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
             selfRef()
 
         for (i in level until this.size()) {
-            relativeStart.add(this.data!!.elementAt(i))
+            relativeStart.add(this.data!![i])
         }
         return relativeStart
     }

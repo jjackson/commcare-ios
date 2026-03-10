@@ -1,7 +1,6 @@
 package org.javarosa.core.model.condition
 
 import org.javarosa.xpath.XPathArityException
-import java.util.Vector
 
 interface IFunctionHandler {
     /**
@@ -10,11 +9,11 @@ interface IFunctionHandler {
     fun getName(): String
 
     /**
-     * @return Vector of allowed prototypes for this function. Each prototype is
+     * @return ArrayList of allowed prototypes for this function. Each prototype is
      * an array of Class, corresponding to the types of the expected
      * arguments. The first matching prototype is used.
      */
-    fun getPrototypes(): Vector<*>
+    fun getPrototypes(): ArrayList<*>
 
     /**
      * @return true if this handler should be fed the raw argument list if no

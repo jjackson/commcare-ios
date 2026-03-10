@@ -2,7 +2,6 @@ package org.javarosa.core.model.trace
 
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * A bulk evaluation trace records that instead of actually running a set of predicate expressions,
@@ -27,8 +26,8 @@ class BulkEvaluationTrace : EvaluationTrace("") {
     }
 
     fun setEvaluatedPredicates(
-        startingSet: Vector<XPathExpression>?,
-        finalSet: Vector<XPathExpression>?,
+        startingSet: ArrayList<XPathExpression>?,
+        finalSet: ArrayList<XPathExpression>?,
         childSet: Collection<TreeReference>?
     ) {
         this.triggerExprComplete()

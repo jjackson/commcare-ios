@@ -8,7 +8,6 @@ import org.commcare.cases.query.queryset.ModelQuerySetMatcher
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * Optimizes bulk queries which match model sets detected in the predicates.
@@ -21,7 +20,7 @@ class ModelQueryLookupHandler(private val matcher: ModelQuerySetMatcher) : Query
 
     override fun getExpectedRuntime(): Int = 1
 
-    override fun profileHandledQuerySet(profiles: Vector<PredicateProfile>): ModelQueryLookup? {
+    override fun profileHandledQuerySet(profiles: ArrayList<PredicateProfile>): ModelQueryLookup? {
         if (profiles[0] is ModelQueryLookup) {
             return profiles[0] as ModelQueryLookup
         }
@@ -43,16 +42,16 @@ class ModelQueryLookupHandler(private val matcher: ModelQuerySetMatcher) : Query
         return lookupData
     }
 
-    override fun updateProfiles(querySet: ModelQueryLookup, profiles: Vector<PredicateProfile>) {
+    override fun updateProfiles(querySet: ModelQueryLookup, profiles: ArrayList<PredicateProfile>) {
         profiles.remove(querySet)
     }
 
     override fun collectPredicateProfiles(
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         context: QueryContext,
         evaluationContext: EvaluationContext
     ): Collection<PredicateProfile>? {
-        val lookup = matcher.getQueryLookupFromPredicate(predicates.elementAt(0)) ?: return null
+        val lookup = matcher.getQueryLookupFromPredicate(predicates[0]) ?: return null
 
         val ref = lookup.getLookupIdKey(evaluationContext)
 
@@ -61,7 +60,7 @@ class ModelQueryLookupHandler(private val matcher: ModelQuerySetMatcher) : Query
         }
 
         val validRef = ref ?: return null
-        val newProfile = Vector<PredicateProfile>()
+        val newProfile = ArrayList<PredicateProfile>()
         newProfile.add(ModelQueryLookup(lookup.queryModelId, lookup, validRef))
         return newProfile
     }

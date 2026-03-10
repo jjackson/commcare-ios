@@ -17,7 +17,7 @@ import org.javarosa.model.xform.XPathReference;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.fail;
 
@@ -105,7 +105,7 @@ public class QuestionDefTest {
         }
 
         try {
-            q.setChildren(new Vector());
+            q.setChildren(new ArrayList());
             fail("Set a question's children without exception");
         } catch (IllegalStateException ise) {
             //expected

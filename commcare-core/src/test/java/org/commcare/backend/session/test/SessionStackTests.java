@@ -34,7 +34,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
@@ -61,13 +61,13 @@ public class SessionStackTests {
         EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
         assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(
+        ArrayList<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(
                 session.getEvaluationContext());
 
         if (actions == null || actions.isEmpty()) {
             fail("Detail screen stack action was missing from app!");
         }
-        Action dblManagement = actions.firstElement();
+        Action dblManagement = actions.get(0);
 
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
 
@@ -331,7 +331,7 @@ public class SessionStackTests {
         assertEquals("case_id", entityDatum.getDataId());
 
         EvaluationContext ec = session.getEvaluationContext();
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
+        ArrayList<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(ec);
 
         // Only 2 of the 3 actions should be returned, because 1 has a relevant condition of false()
         assertEquals(2, actions.size());

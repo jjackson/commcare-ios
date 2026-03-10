@@ -14,8 +14,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashSet
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * The Localizer object maintains mappings for locale ID's and Object
@@ -29,9 +27,9 @@ class Localizer @JvmOverloads constructor(
     private var fallbackDefaultForm: Boolean = false
 ) : Externalizable {
 
-    private var locales: Vector<String> = Vector()
-    private var localeResources: Hashtable<String, Vector<LocaleDataSource>> = Hashtable()
-    private var currentLocaleData: Hashtable<String, String>? = Hashtable()
+    private var locales: ArrayList<String> = ArrayList()
+    private var localeResources: HashMap<String, ArrayList<LocaleDataSource>> = HashMap()
+    private var currentLocaleData: HashMap<String, String>? = HashMap()
     var defaultLocale: String? = null
         private set
     var locale: String? = null
@@ -48,8 +46,8 @@ class Localizer @JvmOverloads constructor(
         return if (hasLocale(locale)) {
             false
         } else {
-            locales.addElement(locale)
-            localeResources[locale] = Vector<LocaleDataSource>()
+            locales.add(locale)
+            localeResources[locale] = ArrayList<LocaleDataSource>()
             true
         }
     }
@@ -59,11 +57,9 @@ class Localizer @JvmOverloads constructor(
      *
      * @return Array of defined locales, in order they were created.
      */
-    val availableLocales: Array<String?>
+    val availableLocales: Array<String>
         get() {
-            val data = arrayOfNulls<String>(locales.size)
-            locales.copyInto(data)
-            return data
+            return locales.toTypedArray()
         }
 
     /**
@@ -144,10 +140,10 @@ class Localizer @JvmOverloads constructor(
         }
         if (localeResources.containsKey(locale)) {
             val resources = localeResources[locale]!!
-            resources.addElement(resource)
+            resources.add(resource)
         } else {
-            val resources = Vector<LocaleDataSource>()
-            resources.addElement(resource)
+            val resources = ArrayList<LocaleDataSource>()
+            resources.add(resource)
             localeResources[locale] = resources
         }
 
@@ -160,9 +156,9 @@ class Localizer @JvmOverloads constructor(
     /**
      * Get the set of mappings for a locale.
      *
-     * @return Hashtable representing text mappings for this locale. Returns null if locale not defined or null.
+     * @return HashMap representing text mappings for this locale. Returns null if locale not defined or null.
      */
-    fun getLocaleData(locale: String?): Hashtable<String, String>? {
+    fun getLocaleData(locale: String?): HashMap<String, String>? {
         if (locale == null || !this.locales.contains(locale)) {
             return null
         }
@@ -175,7 +171,7 @@ class Localizer @JvmOverloads constructor(
 
         //This table will be loaded with the default values first (when applicable), and then with any
         //language specific translations overwriting the existing values.
-        val data = Hashtable<String, String>()
+        val data = HashMap<String, String>()
 
         // If there's a default locale, we load all of its elements into memory first, then allow
         // the current locale to overwrite any differences between the two.
@@ -196,9 +192,9 @@ class Localizer @JvmOverloads constructor(
         if (fallbackDefaultLocale && defaultLocale != null) {
             var missingKeys = ""
             var keysmissing = 0
-            val en = data.keys()
-            while (en.hasMoreElements()) {
-                val key = en.nextElement() as String
+            val en = data.keys.iterator()
+            while (en.hasNext()) {
+                val key = en.next() as String
                 if (!defaultLocaleKeys.contains(key)) {
                     missingKeys += "$key,"
                     keysmissing++
@@ -226,7 +222,7 @@ class Localizer @JvmOverloads constructor(
      * @return Text mappings for locale.
      * @throws UnregisteredLocaleException If locale is not defined or null.
      */
-    fun getLocaleMap(locale: String?): Hashtable<String, String> {
+    fun getLocaleMap(locale: String?): HashMap<String, String> {
         return getLocaleData(locale)
             ?: throw UnregisteredLocaleException("Attempted to access an undefined locale.")
     }
@@ -300,7 +296,7 @@ class Localizer @JvmOverloads constructor(
      * @throws NullPointerException        if textID is null
      * @throws NoLocalizedTextException    If there is no text for the specified id
      */
-    fun getText(textID: String, args: Hashtable<*, *>): String {
+    fun getText(textID: String, args: HashMap<*, *>): String {
         val currentLocale = locale ?: throw UnregisteredLocaleException("Current locale not set")
         var text = getText(textID, currentLocale)
         if (text != null) {
@@ -376,9 +372,9 @@ class Localizer @JvmOverloads constructor(
         fallbackDefaultLocale = ExtUtil.readBool(dis)
         fallbackDefaultForm = ExtUtil.readBool(dis)
         @Suppress("UNCHECKED_CAST")
-        localeResources = ExtUtil.read(dis, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as Hashtable<String, Vector<LocaleDataSource>>
+        localeResources = ExtUtil.read(dis, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as HashMap<String, ArrayList<LocaleDataSource>>
         @Suppress("UNCHECKED_CAST")
-        locales = ExtUtil.read(dis, ExtWrapList(String::class.java), pf) as Vector<String>
+        locales = ExtUtil.read(dis, ExtWrapList(String::class.java), pf) as ArrayList<String>
         setDefaultLocale(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         val currentLocale = ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?
         if (currentLocale != null) {
@@ -444,8 +440,8 @@ class Localizer @JvmOverloads constructor(
 
     companion object {
         @JvmStatic
-        fun getArgs(text: String): Vector<String> {
-            val args = Vector<String>()
+        fun getArgs(text: String): ArrayList<String> {
+            val args = ArrayList<String>()
             var i = text.indexOf("\${")
             while (i != -1) {
                 val j = text.indexOf("}", i)
@@ -456,7 +452,7 @@ class Localizer @JvmOverloads constructor(
 
                 val arg = text.substring(i + 2, j)
                 if (!args.contains(arg)) {
-                    args.addElement(arg)
+                    args.add(arg)
                 }
 
                 i = text.indexOf("\${", j + 1)
@@ -469,7 +465,7 @@ class Localizer @JvmOverloads constructor(
          * to in 'args'.
          */
         @JvmStatic
-        fun processArguments(text: String, args: Hashtable<*, *>): String {
+        fun processArguments(text: String, args: HashMap<*, *>): String {
             var text = text
             var i = text.indexOf("\${")
 

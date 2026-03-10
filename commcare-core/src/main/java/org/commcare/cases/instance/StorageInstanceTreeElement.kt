@@ -17,7 +17,6 @@ import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.Externalizable
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * Instance root for storage-backed instances such as the case and ledger DBs
@@ -32,7 +31,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
 ) : StorageBackedTreeRoot<T>() {
 
     @JvmField
-    internal var elements: Vector<T>? = null
+    internal var elements: ArrayList<T>? = null
 
     @JvmField
     internal val treeCache: Interner<TreeElement> = Interner()
@@ -78,7 +77,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
                 //break xpath evaluation
                 return getChildTemplate()
             }
-            return elems.elementAt(multiplicity)
+            return elems[multiplicity]
         }
         return null
     }
@@ -88,7 +87,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
         if (elements != null) {
             return
         }
-        elements = Vector()
+        elements = ArrayList()
         var mult = 0
         val i = storage.iterate(false)
         while (i.hasMore()) {
@@ -99,12 +98,12 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
         }
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         return if (name == childName) {
             loadElements()
-            Vector<AbstractTreeElement>(elements)
+            ArrayList<AbstractTreeElement>(elements)
         } else {
-            Vector()
+            ArrayList()
         }
     }
 
@@ -121,7 +120,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
 
     override fun getChildAt(i: Int): T? {
         loadElements()
-        return elements!!.elementAt(i)
+        return elements!![i]
     }
 
     override val isRepeatable: Boolean

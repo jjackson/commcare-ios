@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -35,11 +34,11 @@ class InstanceBase(private val instanceName: String?) : AbstractTreeElement {
         return null
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
-        val children = Vector<AbstractTreeElement>()
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
+        val children = ArrayList<AbstractTreeElement>()
         val currentChild = child
         if (currentChild != null && name == currentChild.getName()) {
-            children.addElement(currentChild)
+            children.add(currentChild)
         }
         return children
     }
@@ -107,7 +106,7 @@ class InstanceBase(private val instanceName: String?) : AbstractTreeElement {
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? = null
 

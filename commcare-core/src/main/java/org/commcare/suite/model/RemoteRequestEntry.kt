@@ -8,8 +8,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Suite entry for performing a synchronous query/post request to an external
@@ -25,9 +23,9 @@ class RemoteRequestEntry : Entry {
 
     constructor(
         commandId: String?, display: DisplayUnit?,
-        data: Vector<SessionDatum>?,
-        instances: Hashtable<String, DataInstance<*>>?,
-        stackOperations: Vector<StackOperation>?,
+        data: ArrayList<SessionDatum>?,
+        instances: HashMap<String, DataInstance<*>>?,
+        stackOperations: ArrayList<StackOperation>?,
         assertions: AssertionSet?,
         post: PostRequest?
     ) : super(commandId, display, data, instances, stackOperations, assertions) {

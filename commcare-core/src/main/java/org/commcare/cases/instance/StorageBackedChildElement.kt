@@ -11,7 +11,6 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * Semi-structured TreeElement for direct child of an external data instance
@@ -73,7 +72,7 @@ abstract class StorageBackedChildElement<Model : Externalizable> protected const
         return child
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         return cache().getChildrenWithName(name)
     }
 
@@ -130,7 +129,7 @@ abstract class StorageBackedChildElement<Model : Externalizable> protected const
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? {
         //TODO: We should be able to catch the index case here?

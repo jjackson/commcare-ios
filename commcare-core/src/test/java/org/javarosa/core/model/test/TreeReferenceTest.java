@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -50,7 +50,7 @@ public class TreeReferenceTest {
     private TreeReference fNoPredRef;
     private TreeReference acPredMatchRef;
     private TreeReference acPredNotRef;
-    private Vector<XPathExpression> apreds;
+    private ArrayList<XPathExpression> apreds;
 
     private TreeReference currentC;
 
@@ -108,9 +108,9 @@ public class TreeReferenceTest {
             fail("Bad tests! Rewrite xpath expressions for predicate tests");
         }
 
-        apreds = new Vector<>();
-        Vector<XPathExpression> amatchpreds = new Vector<>();
-        Vector<XPathExpression> anotpreds = new Vector<>();
+        apreds = new ArrayList<>();
+        ArrayList<XPathExpression> amatchpreds = new ArrayList<>();
+        ArrayList<XPathExpression> anotpreds = new ArrayList<>();
 
         apreds.add(testPred);
         amatchpreds.add(testPred);
@@ -126,7 +126,7 @@ public class TreeReferenceTest {
         TreeReference acPredRefClone = acPredRef.clone();
 
         //We know we have a predicate at the 0 position
-        Vector<XPathExpression> acPredRefClonePredicates = acPredRefClone.getPredicate(0);
+        ArrayList<XPathExpression> acPredRefClonePredicates = acPredRefClone.getPredicate(0);
 
         //Update it to add a new predicate
         acPredRefClonePredicates.add(passPred);

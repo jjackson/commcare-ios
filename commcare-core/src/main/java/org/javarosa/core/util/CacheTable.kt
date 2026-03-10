@@ -1,9 +1,6 @@
 package org.javarosa.core.util
 
 import java.lang.ref.WeakReference
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * A Cache Table is a self-purging weak reference store that can be used
@@ -22,10 +19,10 @@ open class CacheTable<T, K> {
     private var totalAdditions = 0
 
     @JvmField
-    var currentTable: Hashtable<T, WeakReference<K>>
+    var currentTable: HashMap<T, WeakReference<K>>
 
     init {
-        currentTable = Hashtable()
+        currentTable = HashMap()
         registerCache(this)
     }
 
@@ -51,27 +48,27 @@ open class CacheTable<T, K> {
 
     fun clear() {
         currentTable.clear()
-        caches.removeAllElements()
+        caches.clear()
     }
 
     companion object {
-        private val caches = Vector<WeakReference<CacheTable<*, *>>>()
+        private val caches = ArrayList<WeakReference<CacheTable<*, *>>>()
 
         private val cleaner = Thread {
-            val toRemove = Vector<Int>()
+            val toRemove = ArrayList<Int>()
             while (true) {
                 try {
-                    toRemove.removeAllElements()
+                    toRemove.clear()
                     for (i in 0 until caches.size) {
                         @Suppress("UNCHECKED_CAST")
-                        val cache = caches.elementAt(i).get() as CacheTable<Any?, Any?>?
+                        val cache = caches[i].get() as CacheTable<Any?, Any?>?
                         if (cache == null) {
-                            toRemove.addElement(DataUtil.integer(i))
+                            toRemove.add(DataUtil.integer(i))
                         } else {
                             val table = cache.currentTable
-                            val en: Enumeration<Any?> = table.keys()
-                            while (en.hasMoreElements()) {
-                                val key = en.nextElement()
+                            val en: MutableIterator<Any?> = table.keys.iterator()
+                            while (en.hasNext()) {
+                                val key = en.next()
                                 synchronized(cache) {
                                     // See whether or not the cached reference has been cleared by the GC
                                     if (table[key]?.get() == null) {
@@ -89,10 +86,10 @@ open class CacheTable<T, K> {
                                 if (cache.totalAdditions > 50 &&
                                     cache.totalAdditions - cache.currentTable.size > (cache.currentTable.size shr 2)
                                 ) {
-                                    val newTable = Hashtable<Any?, WeakReference<Any?>>(cache.currentTable.size)
-                                    val keys: Enumeration<Any?> = table.keys()
-                                    while (keys.hasMoreElements()) {
-                                        val key = keys.nextElement()
+                                    val newTable = HashMap<Any?, WeakReference<Any?>>(cache.currentTable.size)
+                                    val keys: MutableIterator<Any?> = table.keys.iterator()
+                                    while (keys.hasNext()) {
+                                        val key = keys.next()
                                         newTable[key] = cache.currentTable[key]!!
                                     }
                                     cache.currentTable = newTable
@@ -102,7 +99,7 @@ open class CacheTable<T, K> {
                         }
                     }
                     for (id in toRemove.size - 1 downTo 0) {
-                        caches.removeElementAt(toRemove.elementAt(id))
+                        caches.removeAt(toRemove[id])
                     }
                     try {
                         Thread.sleep(3000)
@@ -116,7 +113,7 @@ open class CacheTable<T, K> {
         }
 
         private fun registerCache(table: CacheTable<*, *>) {
-            caches.addElement(WeakReference(table))
+            caches.add(WeakReference(table))
             synchronized(cleaner) {
                 if (!cleaner.isAlive) {
                     cleaner.start()

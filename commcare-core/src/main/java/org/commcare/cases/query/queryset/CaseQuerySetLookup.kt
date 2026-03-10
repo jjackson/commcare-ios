@@ -5,7 +5,6 @@ import org.commcare.cases.query.QueryContext
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * The "Root" lookup into the case query set, matches a current index into a case model id, and
@@ -54,7 +53,7 @@ class CaseQuerySetLookup(
         val match = queryContext.getQueryCache(CaseQuerySetLookupCache::class.java)
             .lookupQuerySetMatch(queryContext, lookupIdKey, multiplicityMap)
             ?: return null
-        val returnVal = Vector<Int>()
+        val returnVal = ArrayList<Int>()
         returnVal.add(match)
         return returnVal
     }

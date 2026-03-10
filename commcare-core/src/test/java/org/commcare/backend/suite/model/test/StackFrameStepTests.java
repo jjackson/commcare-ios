@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Created by amstone326 on 8/7/15.
@@ -130,12 +130,12 @@ public class StackFrameStepTests {
         session.setCommand("m0");
         session.setComputedDatum();
         EntityDatum entityDatum = (EntityDatum) session.getNeededDatum();
-        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
+        ArrayList<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions(session.getEvaluationContext());
         if (actions == null || actions.isEmpty()) {
             Assert.fail("Detail screen stack action was missing from app!");
         }
         //We're using the second action for this screen which requires us to still need another datum
-        Action dblManagement = actions.elementAt(1);
+        Action dblManagement = actions.get(1);
         assertEquals(1, session.getFrame().getSteps().size());
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
         assertEquals(5, session.getFrame().getSteps().size());
@@ -177,7 +177,7 @@ public class StackFrameStepTests {
         session.finishExecuteAndPop(session.getEvaluationContext());
 
         // validate that the query step has all the correct entries (including 2 case_id entries)
-        Vector<StackFrameStep> steps = session.getFrame().getSteps();
+        ArrayList<StackFrameStep> steps = session.getFrame().getSteps();
         assertEquals(4, steps.size());
         StackFrameStep queryFrame = steps.get(2);
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, queryFrame.getElementType());

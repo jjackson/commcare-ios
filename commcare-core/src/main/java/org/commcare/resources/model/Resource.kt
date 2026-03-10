@@ -12,7 +12,6 @@ import org.commcare.util.CommCarePlatform
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Resources are records which resolve the location of data
@@ -121,7 +120,7 @@ open class Resource : Persistable, IMetaData {
     internal var status: Int = 0
     @JvmField
     internal var id: String = ""
-    internal var locations: Vector<ResourceLocation> = Vector()
+    internal var locations: ArrayList<ResourceLocation> = ArrayList()
     @Suppress("UNCHECKED_CAST")
     internal var initializer: ResourceInstaller<CommCarePlatform>? = null
     internal var guid: String = ""
@@ -147,7 +146,7 @@ open class Resource : Persistable, IMetaData {
      *                  can be retrieved. Note that this vector is copied and should not be changed
      *                  after being passed in here.
      */
-    constructor(version: Int, id: String, locations: Vector<ResourceLocation>, descriptor: String?, lazy: String) {
+    constructor(version: Int, id: String, locations: ArrayList<ResourceLocation>, descriptor: String?, lazy: String) {
         this.version = version
         this.id = id
         this.locations = locations
@@ -157,13 +156,13 @@ open class Resource : Persistable, IMetaData {
         this.lazy = lazy
     }
 
-    constructor(version: Int, id: String, locations: Vector<ResourceLocation>, descriptor: String?)
+    constructor(version: Int, id: String, locations: ArrayList<ResourceLocation>, descriptor: String?)
             : this(version, id, locations, descriptor, LAZY_VAL_FALSE)
 
     /**
      * @return The locations where this resource's definition can be obtained.
      */
-    fun getLocations(): Vector<ResourceLocation> {
+    fun getLocations(): ArrayList<ResourceLocation> {
         return locations
     }
 
@@ -309,7 +308,7 @@ open class Resource : Persistable, IMetaData {
         this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
 
         @Suppress("UNCHECKED_CAST")
-        locations = ExtUtil.read(`in`, ExtWrapList(ResourceLocation::class.java), pf) as Vector<ResourceLocation>
+        locations = ExtUtil.read(`in`, ExtWrapList(ResourceLocation::class.java), pf) as ArrayList<ResourceLocation>
         this.initializer = ExtUtil.read(`in`, ExtWrapTagged(), pf) as ResourceInstaller<CommCarePlatform>
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this.lazy = ExtUtil.readString(`in`)

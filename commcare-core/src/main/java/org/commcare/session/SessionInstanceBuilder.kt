@@ -4,9 +4,6 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.util.OrderedHashtable
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 object SessionInstanceBuilder {
     const val KEY_LAST_QUERY_STRING: String = "LAST_QUERY_STRING"
@@ -17,7 +14,7 @@ object SessionInstanceBuilder {
         frame: SessionFrame, deviceId: String?,
         appversion: String?, drift: Long,
         username: String?, userId: String?,
-        userFields: Hashtable<String, String>, windowWidth: String?,
+        userFields: HashMap<String, String>, windowWidth: String?,
         applanguage: String?
     ): TreeElement {
         val sessionRoot = TreeElement("session", 0)
@@ -43,10 +40,10 @@ object SessionInstanceBuilder {
             if (SessionFrame.isEntitySelectionDatum(step.getType()) ||
                 SessionFrame.STATE_DATUM_COMPUTED == step.getType()
             ) {
-                val matchingElements: Vector<AbstractTreeElement> =
+                val matchingElements: ArrayList<AbstractTreeElement> =
                     sessionData.getChildrenWithName(step.getId()!!)
                 if (matchingElements.size > 0) {
-                    (matchingElements.elementAt(0) as TreeElement).setValue(UncastData(step.getValue()))
+                    (matchingElements[0] as TreeElement).setValue(UncastData(step.getValue()))
                 } else {
                     addData(sessionData, step.getId()!!, step.getValue())
                 }
@@ -107,14 +104,14 @@ object SessionInstanceBuilder {
 
     private fun addUserProperties(
         sessionRoot: TreeElement,
-        userFields: Hashtable<String, String>
+        userFields: HashMap<String, String>
     ) {
         val user = TreeElement("user", 0)
         val userData = TreeElement("data", 0)
         user.addChild(userData)
-        val en: Enumeration<String> = userFields.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement()
+        val en: Iterator<String> = userFields.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next()
             addData(userData, key, userFields[key])
         }
 

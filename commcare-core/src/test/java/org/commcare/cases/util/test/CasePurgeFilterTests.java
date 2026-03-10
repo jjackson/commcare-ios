@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.fail;
 
@@ -25,8 +25,8 @@ public class CasePurgeFilterTests {
     private DummyIndexedStorageUtility<Case> storage;
     private String owner;
     private String groupOwner;
-    private Vector<String> groupOwned;
-    private Vector<String> userOwned;
+    private ArrayList<String> groupOwned;
+    private ArrayList<String> userOwned;
 
     @Before
     public void setUp() throws Exception {
@@ -36,12 +36,12 @@ public class CasePurgeFilterTests {
         owner ="owner";
         groupOwner = "groupowned";
 
-        userOwned = new Vector<>();
-        userOwned.addElement(owner);
+        userOwned = new ArrayList<>();
+        userOwned.add(owner);
 
-        groupOwned = new Vector<>();
-        groupOwned.addElement(owner);
-        groupOwned.addElement(groupOwner);
+        groupOwned = new ArrayList<>();
+        groupOwned.add(owner);
+        groupOwned.add(groupOwner);
 
         a = new Case("a","a");
         a.setCaseId("a");
@@ -72,7 +72,7 @@ public class CasePurgeFilterTests {
             int[] present = new int[] {a.getID(), c.getID(), d.getID(), b.getID(), e.getID()};
             int[] toRemove = new int[] {};
 
-            Vector<Integer> removed = storage.removeAll(new CasePurgeFilter(storage, groupOwned));
+            ArrayList<Integer> removed = storage.removeAll(new CasePurgeFilter(storage, groupOwned));
             testOutcome(storage, present, toRemove);
             testRemovedClaim(removed, toRemove);
 
@@ -101,7 +101,7 @@ public class CasePurgeFilterTests {
             int[] present = new int[] {a.getID(), e.getID(), b.getID(), c.getID(), d.getID()};
             int[] toRemove = new int[] {};
 
-            Vector<Integer> removed = storage.removeAll(new CasePurgeFilter(storage));
+            ArrayList<Integer> removed = storage.removeAll(new CasePurgeFilter(storage));
             testOutcome(storage, present, toRemove);
             testRemovedClaim(removed, toRemove);
 
@@ -112,39 +112,39 @@ public class CasePurgeFilterTests {
     }
 
     public void testOutcome(IStorageUtilityIndexed<Case> storage, int[] p, int[] g) {
-        Vector<Integer> present = atv(p);
-        Vector<Integer> gone = atv(g);
+        ArrayList<Integer> present = atv(p);
+        ArrayList<Integer> gone = atv(g);
 
         for(IStorageIterator<Case> iterator = storage.iterate(); iterator.hasMore(); ) {
             Integer id = iterator.peekID();
-            present.removeElement(id);
+            present.remove(id);
             if(gone.contains(id)) {
                 fail("Case: " + iterator.nextRecord().getCaseId() + " not purged");
             }
             iterator.nextID();
         }
         if(present.size() > 0) {
-            fail("No case with index " + present.firstElement() + " in testdb");
+            fail("No case with index " + present.get(0) + " in testdb");
         }
     }
 
-    private void testRemovedClaim(Vector<Integer> removed, int[] toRemove) {
+    private void testRemovedClaim(ArrayList<Integer> removed, int[] toRemove) {
         if(removed.size() != toRemove.length) {
             fail("caseStorage purge returned incorrect size of returned items");
         }
 
         for(int i = 0 ; i < toRemove.length; ++i) {
-            removed.removeElement(DataUtil.integer(toRemove[i]));
+            removed.remove(DataUtil.integer(toRemove[i]));
         }
         if(removed.size() > 0) {
             fail("caseStorage purge returned incorrect set of removed items");
         }
     }
 
-    private Vector<Integer> atv(int[] a) {
-        Vector<Integer> ret = new Vector<>(a.length);
+    private ArrayList<Integer> atv(int[] a) {
+        ArrayList<Integer> ret = new ArrayList<>(a.length);
         for(int i = 0; i < a.length ; ++i) {
-            ret.addElement(DataUtil.integer(a[i]));
+            ret.add(DataUtil.integer(a[i]));
         }
         return ret;
     }

@@ -53,9 +53,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Reader
-import java.util.Hashtable
-import java.util.Stack
-import java.util.Vector
 
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.
@@ -92,18 +89,18 @@ class XFormParser {
         private const val CONTAINER_GROUP = 1
         private const val CONTAINER_REPEAT = 2
 
-        private lateinit var topLevelHandlers: Hashtable<String, IElementHandler>
-        private lateinit var groupLevelHandlers: Hashtable<String, IElementHandler>
-        private lateinit var typeMappings: Hashtable<String, Int>
-        private lateinit var actionHandlers: Hashtable<String, IElementHandler>
+        private lateinit var topLevelHandlers: HashMap<String, IElementHandler>
+        private lateinit var groupLevelHandlers: HashMap<String, IElementHandler>
+        private lateinit var typeMappings: HashMap<String, Int>
+        private lateinit var actionHandlers: HashMap<String, IElementHandler>
 
         // Track specification extension keywords so we know what to do during
         // parsing when they are encountered.
-        private var specExtensionKeywords: Hashtable<String, Vector<String>> = Hashtable()
+        private var specExtensionKeywords: HashMap<String, ArrayList<String>> = HashMap()
         // Namespace for which inner elements should be parsed.
-        private var parseSpecExtensionsInnerElements: Vector<String> = Vector()
+        private var parseSpecExtensionsInnerElements: ArrayList<String> = ArrayList()
         // Namespace for which we suppress "unrecognized element" warnings
-        private var suppressSpecExtensionWarnings: Vector<String> = Vector()
+        private var suppressSpecExtensionWarnings: ArrayList<String> = ArrayList()
 
         init {
             try {
@@ -135,7 +132,7 @@ class XFormParser {
             val trigger = IElementHandler { p, e, parent -> p.parseControl(parent as IFormElement, e, Constants.CONTROL_TRIGGER) }
             val upload = IElementHandler { p, e, parent -> p.parseUpload(parent as IFormElement, e, Constants.CONTROL_UPLOAD) }
 
-            groupLevelHandlers = Hashtable()
+            groupLevelHandlers = HashMap()
             groupLevelHandlers["input"] = input
             groupLevelHandlers["secret"] = secret
             groupLevelHandlers[SELECT] = select
@@ -152,10 +149,10 @@ class XFormParser {
             val meta = IElementHandler { p, e, _ -> p.parseMeta(e) }
             val model = IElementHandler { p, e, _ -> p.parseModel(e) }
 
-            topLevelHandlers = Hashtable()
-            val en = groupLevelHandlers.keys()
-            while (en.hasMoreElements()) {
-                val key = en.nextElement()
+            topLevelHandlers = HashMap()
+            val en = groupLevelHandlers.keys.iterator()
+            while (en.hasNext()) {
+                val key = en.next()
                 topLevelHandlers[key] = groupLevelHandlers[key]!!
             }
             topLevelHandlers["model"] = model
@@ -164,7 +161,7 @@ class XFormParser {
         }
 
         private fun setupActionHandlers() {
-            actionHandlers = Hashtable()
+            actionHandlers = HashMap()
             registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler())
             registerActionHandler(SendAction.ELEMENT_NAME, SendAction.getHandler())
         }
@@ -173,7 +170,7 @@ class XFormParser {
          * Setup mapping from a tag's type attribute to its datatype id.
          */
         private fun initTypeMappings() {
-            typeMappings = Hashtable()
+            typeMappings = HashMap()
             typeMappings["string"] = DataUtil.integer(Constants.DATATYPE_TEXT)
             typeMappings["integer"] = DataUtil.integer(Constants.DATATYPE_INTEGER)
             typeMappings["long"] = DataUtil.integer(Constants.DATATYPE_LONG)
@@ -242,7 +239,7 @@ class XFormParser {
 
                 if (group != null) {
                     if (!group.isRepeat() && group.getChildren()!!.size == 1) {
-                        val grandchild = group.getChildren()!!.elementAt(0)
+                        val grandchild = group.getChildren()!![0]
                         var repeat: GroupDef? = null
                         if (grandchild is GroupDef) repeat = grandchild
 
@@ -254,7 +251,7 @@ class XFormParser {
                             // don't merge binding; repeat will always already have one
 
                             // replace group with repeat
-                            fe.getChildren()!!.setElementAt(repeat, i)
+                            fe.getChildren()!!.set(i, repeat)
                             @Suppress("UNUSED_VALUE")
                             group = repeat
                         }
@@ -357,11 +354,11 @@ class XFormParser {
         }
 
         // build a pseudo-data model tree that describes the repeat structure of the instance
-        private fun buildRepeatTree(repeatRefs: Vector<TreeReference>, topLevelName: String): FormInstance? {
+        private fun buildRepeatTree(repeatRefs: ArrayList<TreeReference>, topLevelName: String): FormInstance? {
             val root = TreeElement(null, 0)
 
             for (i in 0 until repeatRefs.size) {
-                val repeatRef = repeatRefs.elementAt(i)
+                val repeatRef = repeatRefs[i]
                 // check and see if this references a repeat from a non-main instance
                 if (repeatRef.instanceName != null) {
                     continue
@@ -394,7 +391,7 @@ class XFormParser {
         private fun checkRepeatsForTemplate(
             instance: FormInstance,
             repeatTree: FormInstance?,
-            missingTemplates: Vector<TreeReference>
+            missingTemplates: ArrayList<TreeReference>
         ) {
             if (repeatTree != null) {
                 checkRepeatsForTemplate(repeatTree.getRoot(), TreeReference.rootRef(), instance, missingTemplates)
@@ -406,7 +403,7 @@ class XFormParser {
             repeatTreeNode: TreeElement,
             ref: TreeReference,
             instance: FormInstance,
-            missing: Vector<TreeReference>
+            missing: ArrayList<TreeReference>
         ) {
             val name = repeatTreeNode.getName()
             val mult = if (repeatTreeNode.isRepeatable) TreeReference.INDEX_TEMPLATE else 0
@@ -415,7 +412,7 @@ class XFormParser {
             if (repeatTreeNode.isRepeatable) {
                 val template = instance.resolveReference(extRef)
                 if (template == null) {
-                    missing.addElement(extRef)
+                    missing.add(extRef)
                 }
             }
 
@@ -490,7 +487,7 @@ class XFormParser {
             }
 
             if (hasElements) {
-                val multiplicities = Hashtable<String, Int>()
+                val multiplicities = HashMap<String, Int>()
                 for (i in 0 until numChildren) {
                     if (node.getType(i) == Node.ELEMENT) {
                         val child = node.getElement(i)
@@ -517,8 +514,8 @@ class XFormParser {
             }
         }
 
-        private fun loadNamespaces(e: Element, tree: FormInstance): Hashtable<String, String> {
-            val prefixes = Hashtable<String, String>()
+        private fun loadNamespaces(e: Element, tree: FormInstance): HashMap<String, String> {
+            val prefixes = HashMap<String, String>()
             for (i in 0 until e.namespaceCount) {
                 val uri = e.getNamespaceUri(i)
                 val prefix = e.getNamespacePrefix(i)
@@ -640,11 +637,11 @@ class XFormParser {
             // so we really want to go through and convert the kxml parsed
             // text (which have lots of characters each as their own string)
             // into one single string
-            val q = Stack<Element>()
+            val q = ArrayDeque<Element>()
 
-            q.push(doc.rootElement)
+            q.addLast(doc.rootElement)
             while (!q.isEmpty()) {
-                val e = q.pop()
+                val e = q.removeLast()
                 val toRemove = BooleanArray(e.childCount * 2)
                 var accumulate = ""
                 var i = 0
@@ -656,7 +653,7 @@ class XFormParser {
                         toRemove[i] = true
                     } else {
                         if (type == Element.ELEMENT) {
-                            q.addElement(e.getElement(i))
+                            q.add(e.getElement(i))
                         }
                         val accumulatedString = accumulate.trim()
                         if (accumulatedString.isNotEmpty()) {
@@ -810,7 +807,7 @@ class XFormParser {
         }
     }
 
-    private val extensionParsers: Vector<QuestionExtensionParser> = Vector()
+    private val extensionParsers: ArrayList<QuestionExtensionParser> = ArrayList()
 
     private var _reader: Reader? = null
     private var _xmldoc: Document? = null
@@ -820,18 +817,18 @@ class XFormParser {
     private var _instDoc: Document? = null
 
     private var modelFound = false
-    private lateinit var bindingsByID: Hashtable<String, DataBinding>
-    private lateinit var bindings: Vector<DataBinding>
-    private lateinit var actionTargets: Vector<TreeReference>
-    private lateinit var repeats: Vector<TreeReference>
-    private lateinit var itemsets: Vector<ItemsetBinding>
-    private lateinit var selectOnes: Vector<TreeReference>
-    private lateinit var selectMultis: Vector<TreeReference>
+    private lateinit var bindingsByID: HashMap<String, DataBinding>
+    private lateinit var bindings: ArrayList<DataBinding>
+    private lateinit var actionTargets: ArrayList<TreeReference>
+    private lateinit var repeats: ArrayList<TreeReference>
+    private lateinit var itemsets: ArrayList<ItemsetBinding>
+    private lateinit var selectOnes: ArrayList<TreeReference>
+    private lateinit var selectMultis: ArrayList<TreeReference>
     private var mainInstanceNode: Element? = null
-    private lateinit var instanceNodes: Vector<Element>
-    private lateinit var instanceNodeIdStrs: Vector<String>
+    private lateinit var instanceNodes: ArrayList<Element>
+    private lateinit var instanceNodeIdStrs: ArrayList<String?>
     private var defaultNamespace: String? = null
-    private lateinit var itextKnownForms: Vector<String>
+    private lateinit var itextKnownForms: ArrayList<String>
 
     private var repeatTree: FormInstance? = null
 
@@ -881,15 +878,15 @@ class XFormParser {
      */
     fun addSpecExtension(
         namespace: String,
-        keywords: Vector<String>,
+        keywords: ArrayList<String>,
         suppressWarnings: Boolean,
         parseInnerElements: Boolean
     ) {
         if (suppressWarnings) {
-            suppressSpecExtensionWarnings.addElement(namespace)
+            suppressSpecExtensionWarnings.add(namespace)
         }
         if (parseInnerElements) {
-            parseSpecExtensionsInnerElements.addElement(namespace)
+            parseSpecExtensionsInnerElements.add(namespace)
         }
         specExtensionKeywords[namespace] = keywords
     }
@@ -898,9 +895,9 @@ class XFormParser {
      * Setup local state that controls specification extension parsing logic.
      */
     fun setupAllSpecExtensions(
-        namespacesToKeywords: Hashtable<String, Vector<String>>,
-        namespacesToSuppressWarnings: Vector<String>,
-        namespacesToParseInner: Vector<String>
+        namespacesToKeywords: HashMap<String, ArrayList<String>>,
+        namespacesToSuppressWarnings: ArrayList<String>,
+        namespacesToParseInner: ArrayList<String>
     ) {
         parseSpecExtensionsInnerElements = namespacesToParseInner
         suppressSpecExtensionWarnings = namespacesToSuppressWarnings
@@ -925,7 +922,7 @@ class XFormParser {
         name: String,
         e: Element,
         parent: Any,
-        handlers: Hashtable<String, IElementHandler>
+        handlers: HashMap<String, IElementHandler>
     ) {
         if (!suppressSpecExtensionWarnings.contains(namespace)) {
             reporter.warning(
@@ -980,9 +977,9 @@ class XFormParser {
         // parse the non-main instance nodes first
         if (instanceNodes.size > 1) {
             for (i in 1 until instanceNodes.size) {
-                val e = instanceNodes.elementAt(i)
+                val e = instanceNodes[i]
                 val srcLocation = e.getAttributeValue(null, "src")
-                val instanceid = instanceNodeIdStrs.elementAt(i)
+                val instanceid = instanceNodeIdStrs[i]!!
 
                 val di: DataInstance<*>
                 if (srcLocation != null) {
@@ -1024,27 +1021,27 @@ class XFormParser {
 
     private fun initState() {
         modelFound = false
-        bindingsByID = Hashtable()
-        bindings = Vector()
-        actionTargets = Vector()
-        repeats = Vector()
-        itemsets = Vector()
-        selectOnes = Vector()
-        selectMultis = Vector()
+        bindingsByID = HashMap()
+        bindings = ArrayList()
+        actionTargets = ArrayList()
+        repeats = ArrayList()
+        itemsets = ArrayList()
+        selectOnes = ArrayList()
+        selectMultis = ArrayList()
         mainInstanceNode = null
-        instanceNodes = Vector()
-        instanceNodeIdStrs = Vector()
+        instanceNodes = ArrayList()
+        instanceNodeIdStrs = ArrayList()
         repeatTree = null
         defaultNamespace = null
 
-        itextKnownForms = Vector()
-        itextKnownForms.addElement("long")
-        itextKnownForms.addElement("short")
-        itextKnownForms.addElement("image")
-        itextKnownForms.addElement("audio")
+        itextKnownForms = ArrayList()
+        itextKnownForms.add("long")
+        itextKnownForms.add("short")
+        itextKnownForms.add("image")
+        itextKnownForms.add("audio")
     }
 
-    private fun parseElement(e: Element, parent: Any, handlers: Hashtable<String, IElementHandler>) {
+    private fun parseElement(e: Element, parent: Any, handlers: HashMap<String, IElementHandler>) {
         val name = e.name
         val namespace = e.namespace
 
@@ -1055,9 +1052,9 @@ class XFormParser {
             "mainHeader", "entryHeader", "delHeader",
             "hashtags", "hashtagTransforms"
         )
-        val suppressWarning = Vector<String>()
+        val suppressWarning = ArrayList<String>()
         for (item in suppressWarningArr) {
-            suppressWarning.addElement(item)
+            suppressWarning.add(item)
         }
 
         // if there is a registered parser, invoke it
@@ -1085,7 +1082,7 @@ class XFormParser {
     }
 
     private fun parseTitle(e: Element) {
-        val usedAtts = Vector<String>()
+        val usedAtts = ArrayList<String>()
         val title = getXMLText(e, true)
         _f!!.setTitle(title)
         if (_f!!.getName() == null) {
@@ -1098,7 +1095,7 @@ class XFormParser {
     }
 
     private fun parseMeta(e: Element) {
-        val usedAtts = Vector<String>()
+        val usedAtts = ArrayList<String>()
         val attributes = e.attributeCount
         for (i in 0 until attributes) {
             val name = e.getAttributeName(i)
@@ -1108,15 +1105,15 @@ class XFormParser {
             }
         }
 
-        usedAtts.addElement("name")
+        usedAtts.add("name")
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e))
         }
     }
 
     private fun parseModel(e: Element) {
-        val usedAtts = Vector<String>()
-        val delayedParseElements = Vector<Element>()
+        val usedAtts = ArrayList<String>()
+        val delayedParseElements = ArrayList<Element>()
 
         if (modelFound) {
             reporter.warning(
@@ -1145,9 +1142,9 @@ class XFormParser {
             } else if (BIND_ATTR == childName) {
                 parseBind(child!!)
             } else if ("submission" == childName) {
-                delayedParseElements.addElement(child)
+                delayedParseElements.add(child)
             } else if (childName != null && actionHandlers.containsKey(childName)) {
-                delayedParseElements.addElement(child)
+                delayedParseElements.add(child)
             } else {
                 if (type == Node.ELEMENT) {
                     if (child!!.namespace == NAMESPACE_XFORMS) {
@@ -1330,13 +1327,13 @@ class XFormParser {
             throw XFormParseException("XForm Parse: Non-main <instance> element requires an id attribute", instance)
         }
 
-        instanceNodes.addElement(instanceNode)
-        instanceNodeIdStrs.addElement(instanceId)
+        instanceNodes.add(instanceNode)
+        instanceNodeIdStrs.add(instanceId)
     }
 
     protected fun parseUpload(parent: IFormElement, e: Element, controlUpload: Int): QuestionDef {
-        val usedAtts = Vector<String>()
-        usedAtts.addElement("mediatype")
+        val usedAtts = ArrayList<String>()
+        usedAtts.add("mediatype")
 
         val question = parseControl(parent, e, controlUpload, usedAtts)
 
@@ -1355,14 +1352,14 @@ class XFormParser {
     }
 
     protected fun parseControl(parent: IFormElement, e: Element, controlType: Int): QuestionDef {
-        return parseControl(parent, e, controlType, Vector())
+        return parseControl(parent, e, controlType, ArrayList())
     }
 
     protected fun parseControl(
         parent: IFormElement,
         e: Element,
         controlType: Int,
-        usedAtts: Vector<String>
+        usedAtts: ArrayList<String>
     ): QuestionDef {
         val question = QuestionDef()
 
@@ -1373,7 +1370,7 @@ class XFormParser {
                     question.addExtension(extension)
                     val attributesFromExtension = parser.getUsedAttributes()
                     for (attr: String in attributesFromExtension) {
-                        usedAtts.addElement(attr)
+                        usedAtts.add(attr)
                     }
                 }
             }
@@ -1381,9 +1378,9 @@ class XFormParser {
 
         question.setID(serialQuestionID++)
 
-        usedAtts.addElement(REF_ATTR)
-        usedAtts.addElement(BIND_ATTR)
-        usedAtts.addElement(APPEARANCE_ATTR)
+        usedAtts.add(REF_ATTR)
+        usedAtts.add(BIND_ATTR)
+        usedAtts.add(APPEARANCE_ATTR)
 
         var dataRef: XPathReference? = null
         var refFromBind = false
@@ -1430,9 +1427,9 @@ class XFormParser {
             question.setBind(dataRef)
 
             if (controlType == Constants.CONTROL_SELECT_ONE) {
-                selectOnes.addElement(dataRef.reference)
+                selectOnes.add(dataRef.reference)
             } else if (controlType == Constants.CONTROL_SELECT_MULTI) {
-                selectMultis.addElement(dataRef.reference)
+                selectMultis.add(dataRef.reference)
             }
         }
 
@@ -1490,8 +1487,8 @@ class XFormParser {
     }
 
     private fun parseHelperText(q: QuestionDef, e: Element) {
-        val usedAtts = Vector<String>()
-        usedAtts.addElement(REF_ATTR)
+        val usedAtts = ArrayList<String>()
+        usedAtts.add(REF_ATTR)
         val xmlText = getXMLText(e, true)
         val innerText = getLabel(e)
         val ref = e.getAttributeValue("", REF_ATTR)
@@ -1521,8 +1518,8 @@ class XFormParser {
     private fun parseGroupLabel(g: GroupDef, e: Element) {
         if (g.isRepeat()) return
 
-        val usedAtts = Vector<String>()
-        usedAtts.addElement(REF_ATTR)
+        val usedAtts = ArrayList<String>()
+        usedAtts.add(REF_ATTR)
 
         val labelItextId = getItextReference(e)
         g.setTextID(labelItextId)
@@ -1639,12 +1636,12 @@ class XFormParser {
             index = _f!!.getOutputFragments().indexOf(expr)
         } else {
             index = _f!!.getOutputFragments().size
-            _f!!.getOutputFragments().addElement(expr)
+            _f!!.getOutputFragments().add(expr)
         }
 
-        val usedAtts = Vector<String>()
-        usedAtts.addElement(REF_ATTR)
-        usedAtts.addElement(VALUE)
+        val usedAtts = ArrayList<String>()
+        usedAtts.add(REF_ATTR)
+        usedAtts.add(VALUE)
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e))
         }
@@ -1655,11 +1652,11 @@ class XFormParser {
     private fun parseItem(q: QuestionDef, e: Element) {
         val MAX_VALUE_LEN = 256
 
-        val usedAtts = Vector<String>()
-        val labelUA = Vector<String>()
-        val valueUA = Vector<String>()
-        labelUA.addElement(REF_ATTR)
-        valueUA.addElement(FORM_ATTR)
+        val usedAtts = ArrayList<String>()
+        val labelUA = ArrayList<String>()
+        val valueUA = ArrayList<String>()
+        labelUA.add(REF_ATTR)
+        valueUA.add(FORM_ATTR)
 
         var labelInnerText: String? = null
         var textRef: String? = null
@@ -1740,15 +1737,15 @@ class XFormParser {
     private fun parseItemset(q: QuestionDef, e: Element) {
         val itemset = ItemsetBinding()
 
-        val usedAtts = Vector<String>()
-        val labelUA = Vector<String>()
-        val valueUA = Vector<String>()
-        val copyUA = Vector<String>()
-        usedAtts.addElement(NODESET_ATTR)
-        labelUA.addElement(REF_ATTR)
-        valueUA.addElement(REF_ATTR)
-        valueUA.addElement(FORM_ATTR)
-        copyUA.addElement(REF_ATTR)
+        val usedAtts = ArrayList<String>()
+        val labelUA = ArrayList<String>()
+        val valueUA = ArrayList<String>()
+        val copyUA = ArrayList<String>()
+        usedAtts.add(NODESET_ATTR)
+        labelUA.add(REF_ATTR)
+        valueUA.add(REF_ATTR)
+        valueUA.add(FORM_ATTR)
+        copyUA.add(REF_ATTR)
 
         itemset.contextRef = getFormElementRef(q)
         val nodesetStr = e.getAttributeValue("", NODESET_ATTR)
@@ -1789,14 +1786,14 @@ class XFormParser {
         }
 
         q.setDynamicChoices(itemset)
-        itemsets.addElement(itemset)
+        itemsets.add(itemset)
 
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e))
         }
     }
 
-    private fun parseItemsetLabelElement(child: Element, itemset: ItemsetBinding, labelUA: Vector<String>) {
+    private fun parseItemsetLabelElement(child: Element, itemset: ItemsetBinding, labelUA: ArrayList<String>) {
         val labelXpath = child.getAttributeValue("", REF_ATTR)
 
         if (XFormUtils.showUnusedAttributeWarning(child, labelUA)) {
@@ -1806,7 +1803,7 @@ class XFormParser {
         ItemSetParsingUtils.setLabel(itemset, labelXpath)
     }
 
-    private fun parseItemsetCopyElement(child: Element, itemset: ItemsetBinding, copyUA: Vector<String>) {
+    private fun parseItemsetCopyElement(child: Element, itemset: ItemsetBinding, copyUA: ArrayList<String>) {
         val copyRef = child.getAttributeValue("", REF_ATTR)
         if (XFormUtils.showUnusedAttributeWarning(child, copyUA)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child))
@@ -1818,7 +1815,7 @@ class XFormParser {
         itemset.copyMode = true
     }
 
-    private fun parseItemsetValueElement(child: Element, itemset: ItemsetBinding, valueUA: Vector<String>) {
+    private fun parseItemsetValueElement(child: Element, itemset: ItemsetBinding, valueUA: ArrayList<String>) {
         val valueXpath = child.getAttributeValue("", REF_ATTR)
 
         if (XFormUtils.showUnusedAttributeWarning(child, valueUA)) {
@@ -1838,13 +1835,13 @@ class XFormParser {
         var dataRef: XPathReference? = null
         var refFromBind = false
 
-        val usedAtts = Vector<String>()
-        usedAtts.addElement(REF_ATTR)
-        usedAtts.addElement(NODESET_ATTR)
-        usedAtts.addElement(BIND_ATTR)
-        usedAtts.addElement(APPEARANCE_ATTR)
-        usedAtts.addElement("count")
-        usedAtts.addElement("noAddRemove")
+        val usedAtts = ArrayList<String>()
+        usedAtts.add(REF_ATTR)
+        usedAtts.add(NODESET_ATTR)
+        usedAtts.add(BIND_ATTR)
+        usedAtts.add(APPEARANCE_ATTR)
+        usedAtts.add("count")
+        usedAtts.add("noAddRemove")
 
         if (groupType == CONTAINER_REPEAT) {
             group.setIsRepeat(true)
@@ -1880,7 +1877,7 @@ class XFormParser {
         group.setBind(dataRef)
 
         if (group.isRepeat()) {
-            repeats.addElement(dataRef!!.reference)
+            repeats.add(dataRef!!.reference)
 
             val countRef = e.getAttributeValue(NAMESPACE_JAVAROSA, "count")
             if (countRef != null) {
@@ -1940,14 +1937,14 @@ class XFormParser {
     }
 
     fun registerExtensionParser(parser: QuestionExtensionParser) {
-        extensionParsers.addElement(parser)
+        extensionParsers.add(parser)
     }
 
     /**
      * Notify parser about a node that will later be relevant to an action.
      */
     fun registerActionTarget(target: TreeReference) {
-        actionTargets.addElement(target)
+        actionTargets.add(target)
     }
 
     fun setStringCache(stringCache: Interner<String>?) {
@@ -1958,7 +1955,7 @@ class XFormParser {
         val l = Localizer(true, true)
         _f!!.setLocalizer(l)
 
-        val usedAtts = Vector<String>()
+        val usedAtts = ArrayList<String>()
 
         for (i in 0 until itext.childCount) {
             val trans = itext.getElement(i) ?: continue
@@ -1980,9 +1977,9 @@ class XFormParser {
     }
 
     private fun parseTranslation(l: Localizer, trans: Element) {
-        val usedAtts = Vector<String>()
-        usedAtts.addElement("lang")
-        usedAtts.addElement("default")
+        val usedAtts = ArrayList<String>()
+        usedAtts.add("lang")
+        usedAtts.add("default")
 
         val lang = trans.getAttributeValue("", "lang")
         if (lang == null || lang.isEmpty()) {
@@ -2027,12 +2024,12 @@ class XFormParser {
     private fun parseTextHandle(l: TableLocaleSource, text: Element) {
         val id = text.getAttributeValue("", ID_ATTR)
 
-        val usedAtts = Vector<String>()
-        val childUsedAtts = Vector<String>()
-        usedAtts.addElement(ID_ATTR)
-        usedAtts.addElement(FORM_ATTR)
-        childUsedAtts.addElement(FORM_ATTR)
-        childUsedAtts.addElement(ID_ATTR)
+        val usedAtts = ArrayList<String>()
+        val childUsedAtts = ArrayList<String>()
+        usedAtts.add(ID_ATTR)
+        usedAtts.add(FORM_ATTR)
+        childUsedAtts.add(FORM_ATTR)
+        childUsedAtts.add(ID_ATTR)
 
         if (id == null || id.isEmpty()) {
             throw XFormParseException("no id defined for <text>", text)
@@ -2109,7 +2106,7 @@ class XFormParser {
                 val textForm = key.substring(key.indexOf(";") + 1, key.length)
                 if (!itextKnownForms.contains(textForm)) {
                     System.out.println("adding unexpected special itext form: $textForm to list of expected forms")
-                    itextKnownForms.addElement(textForm)
+                    itextKnownForms.add(textForm)
                 }
                 return true
             }
@@ -2117,18 +2114,18 @@ class XFormParser {
         return false
     }
 
-    private fun processStandardBindAttributes(usedAtts: Vector<String>, e: Element): DataBinding {
-        usedAtts.addElement(ID_ATTR)
-        usedAtts.addElement(NODESET_ATTR)
-        usedAtts.addElement("type")
-        usedAtts.addElement("relevant")
-        usedAtts.addElement("required")
-        usedAtts.addElement("readonly")
-        usedAtts.addElement("constraint")
-        usedAtts.addElement("constraintMsg")
-        usedAtts.addElement("calculate")
-        usedAtts.addElement("preload")
-        usedAtts.addElement("preloadParams")
+    private fun processStandardBindAttributes(usedAtts: ArrayList<String>, e: Element): DataBinding {
+        usedAtts.add(ID_ATTR)
+        usedAtts.add(NODESET_ATTR)
+        usedAtts.add("type")
+        usedAtts.add("relevant")
+        usedAtts.add("required")
+        usedAtts.add("readonly")
+        usedAtts.add("constraint")
+        usedAtts.add("constraintMsg")
+        usedAtts.add("calculate")
+        usedAtts.add("preload")
+        usedAtts.add("preloadParams")
 
         val binding = DataBinding()
 
@@ -2231,7 +2228,7 @@ class XFormParser {
     }
 
     private fun parseBind(e: Element) {
-        val usedAtts = Vector<String>()
+        val usedAtts = ArrayList<String>()
 
         val binding = processStandardBindAttributes(usedAtts, e)
 
@@ -2280,11 +2277,12 @@ class XFormParser {
     }
 
     private fun addBinding(binding: DataBinding) {
-        bindings.addElement(binding)
+        bindings.add(binding)
 
-        if (binding.id != null) {
-            if (bindingsByID.put(binding.id, binding) != null) {
-                throw XFormParseException("XForm Parse: <bind>s with duplicate ID: '${binding.id}'")
+        val bindingId = binding.id
+        if (bindingId != null) {
+            if (bindingsByID.put(bindingId, binding) != null) {
+                throw XFormParseException("XForm Parse: <bind>s with duplicate ID: '$bindingId'")
             }
         }
     }
@@ -2304,7 +2302,7 @@ class XFormParser {
     }
 
     private fun parseInstance(e: Element, isMainInstance: Boolean): FormInstance {
-        val name = instanceNodeIdStrs.elementAt(instanceNodes.indexOf(e))
+        val name: String? = instanceNodeIdStrs[instanceNodes.indexOf(e)]
 
         val root = buildInstanceStructure(e, null, if (!isMainInstance) name else null, e.namespace)
         val instanceModel = FormInstance(root, if (!isMainInstance) name else null)
@@ -2314,10 +2312,10 @@ class XFormParser {
             instanceModel.setName(name)
         }
 
-        val usedAtts = Vector<String>()
-        usedAtts.addElement("version")
-        usedAtts.addElement("uiVersion")
-        usedAtts.addElement("name")
+        val usedAtts = ArrayList<String>()
+        usedAtts.add("version")
+        usedAtts.add("uiVersion")
+        usedAtts.add("name")
 
         val schema = e.namespace
         if (schema != null && schema.isNotEmpty() && schema != defaultNamespace) {
@@ -2341,15 +2339,15 @@ class XFormParser {
         return instanceModel
     }
 
-    private fun getRepeatableRefs(): Vector<TreeReference> {
-        val refs = Vector<TreeReference>()
+    private fun getRepeatableRefs(): ArrayList<TreeReference> {
+        val refs = ArrayList<TreeReference>()
 
         for (i in 0 until repeats.size) {
-            refs.addElement(repeats.elementAt(i))
+            refs.add(repeats[i])
         }
 
         for (i in 0 until itemsets.size) {
-            val itemset = itemsets.elementAt(i)
+            val itemset = itemsets[i]
             val srcRef = itemset.nodesetRef!!
             if (!refs.contains(srcRef)) {
                 var nonstatic = true
@@ -2363,14 +2361,14 @@ class XFormParser {
                     nonstatic = false
                 }
                 if (nonstatic) {
-                    refs.addElement(srcRef)
+                    refs.add(srcRef)
                 }
             }
 
             if (itemset.copyMode) {
                 val destRef = itemset.getDestRef()!!
                 if (!refs.contains(destRef)) {
-                    refs.addElement(destRef)
+                    refs.add(destRef)
                 }
             }
         }
@@ -2387,10 +2385,10 @@ class XFormParser {
     private fun flagRepeatables(instance: FormInstance) {
         val refs = getRepeatableRefs()
         for (i in 0 until refs.size) {
-            val ref = refs.elementAt(i)
+            val ref = refs[i]
             val nodes = EvaluationContext(instance).expandReference(ref, true)!!
             for (j in 0 until nodes.size) {
-                val nref = nodes.elementAt(j)
+                val nref = nodes[j]
                 val node = instance.resolveReference(nref)
                 if (node != null) {
                     node.setRepeatable(true)
@@ -2402,7 +2400,7 @@ class XFormParser {
     private fun processTemplates(instance: FormInstance) {
         repeatTree = buildRepeatTree(getRepeatableRefs(), instance.getRoot().getName()!!)
 
-        val missingTemplates = Vector<TreeReference>()
+        val missingTemplates = ArrayList<TreeReference>()
         checkRepeatsForTemplate(instance, repeatTree, missingTemplates)
 
         removeInvalidTemplates(instance, repeatTree)
@@ -2462,9 +2460,9 @@ class XFormParser {
         return false
     }
 
-    private fun createMissingTemplates(instance: FormInstance, missingTemplates: Vector<TreeReference>) {
+    private fun createMissingTemplates(instance: FormInstance, missingTemplates: ArrayList<TreeReference>) {
         for (i in 0 until missingTemplates.size) {
-            val templRef = missingTemplates.elementAt(i)
+            val templRef = missingTemplates[i]
             val firstMatch: TreeReference
 
             val ref = templRef.clone()
@@ -2475,7 +2473,7 @@ class XFormParser {
             if (nodes.size == 0) {
                 continue
             } else {
-                firstMatch = nodes.elementAt(0)
+                firstMatch = nodes[0]
             }
 
             try {
@@ -2494,11 +2492,11 @@ class XFormParser {
     private fun checkHomogeneity(instance: FormInstance) {
         val refs = getRepeatableRefs()
         for (i in 0 until refs.size) {
-            val ref = refs.elementAt(i)
+            val ref = refs[i]
             var template: TreeElement? = null
             val nodes = EvaluationContext(instance).expandReference(ref)!!
             for (j in 0 until nodes.size) {
-                val nref = nodes.elementAt(j)
+                val nref = nodes[j]
                 val node = instance.resolveReference(nref) ?: continue
 
                 if (template == null) template = instance.getTemplate(nref)
@@ -2518,12 +2516,12 @@ class XFormParser {
         val instanceContext = EvaluationContext(instance)
         var i = 0
         while (i < bindings.size) {
-            val bind = bindings.elementAt(i)
+            val bind = bindings[i]
             val ref = DataInstance.unpackReference(bind.reference!!)
 
             if (ref.size() == 0) {
                 System.out.println("Cannot bind to '/'; ignoring bind...")
-                bindings.removeElementAt(i)
+                bindings.removeAt(i)
                 i--
             } else {
                 val nodes = instanceContext.expandReference(ref, true)!!
@@ -2549,18 +2547,18 @@ class XFormParser {
 
         val refs = getRepeatableRefs()
         for (idx in 0 until refs.size) {
-            val ref = refs.elementAt(idx)
+            val ref = refs[idx]
             if (ref.size() <= 1) {
                 throw XFormParseException("Cannot bind repeat to '/' or '/${mainInstanceNode!!.name}'")
             }
         }
 
-        val bindErrors = Vector<String>()
+        val bindErrors = ArrayList<String>()
         verifyControlBindings(_f!!, instance, bindErrors)
         if (bindErrors.size > 0) {
             var errorMsg = ""
             for (idx in 0 until bindErrors.size) {
-                errorMsg += bindErrors.elementAt(idx) + "\n"
+                errorMsg += bindErrors[idx] + "\n"
             }
             throw XFormParseException(errorMsg)
         }
@@ -2572,7 +2570,7 @@ class XFormParser {
 
     private fun verifyActions(instance: FormInstance) {
         for (i in 0 until actionTargets.size) {
-            val target = actionTargets.elementAt(i)
+            val target = actionTargets[i]
             val nodes = EvaluationContext(instance).expandReference(target, true)!!
             if (nodes.size == 0) {
                 throw XFormParseException("Invalid Action - Targets non-existent node: ${target.toString(true)}")
@@ -2580,11 +2578,11 @@ class XFormParser {
         }
     }
 
-    private fun verifyControlBindings(fe: IFormElement, instance: FormInstance, errors: Vector<String>) {
+    private fun verifyControlBindings(fe: IFormElement, instance: FormInstance, errors: ArrayList<String>) {
         if (fe.getChildren() == null) return
 
         for (i in 0 until fe.getChildren()!!.size) {
-            val child = fe.getChildren()!!.elementAt(i)
+            val child = fe.getChildren()!![i]
             var ref: XPathReference? = null
             var type: String? = null
 
@@ -2604,7 +2602,7 @@ class XFormParser {
                 if (nodes.size == 0) {
                     val error = "$type bound to non-existent node: [${tref}]"
                     reporter.error(error)
-                    errors.addElement(error)
+                    errors.add(error)
                 }
             }
 
@@ -2616,7 +2614,7 @@ class XFormParser {
         if (fe.getChildren() == null) return
 
         for (i in 0 until fe.getChildren()!!.size) {
-            val child = fe.getChildren()!!.elementAt(i)
+            val child = fe.getChildren()!![i]
             val isRepeat = child is GroupDef && child.isRepeat()
 
             val repeatBind = if (parentRepeat == null) TreeReference.rootRef() else DataInstance.unpackReference(parentRepeat.getBind()!!)
@@ -2632,21 +2630,21 @@ class XFormParser {
                 )
             }
 
-            val repeatAncestry = Vector<TreeElement>()
+            val repeatAncestry = ArrayList<TreeElement>()
             var repeatNode: TreeElement? = if (repeatTree == null) null else repeatTree!!.getRoot()
             if (repeatNode != null) {
-                repeatAncestry.addElement(repeatNode)
+                repeatAncestry.add(repeatNode)
                 for (j in 1 until childBind.size()) {
                     repeatNode = repeatNode!!.getChild(childBind.getName(j)!!, 0)
                     if (repeatNode != null) {
-                        repeatAncestry.addElement(repeatNode)
+                        repeatAncestry.add(repeatNode)
                     } else {
                         break
                     }
                 }
             }
             for (k in repeatBind.size() until childBind.size()) {
-                val rChild = if (k < repeatAncestry.size) repeatAncestry.elementAt(k) else null
+                val rChild = if (k < repeatAncestry.size) repeatAncestry[k] else null
                 val repeatable = rChild != null && rChild.isRepeatable
                 if (repeatable && !(k == childBind.size() - 1 && isRepeat)) {
                     throw XFormParseException(
@@ -2661,7 +2659,7 @@ class XFormParser {
 
     private fun verifyItemsetBindings(instance: FormInstance) {
         for (i in 0 until itemsets.size) {
-            val itemset = itemsets.elementAt(i)
+            val itemset = itemsets[i]
 
             if (!itemset.nodesetRef!!.isParentOf(itemset.labelRef!!, false)) {
                 throw XFormParseException("itemset nodeset ref is not a parent of label ref")
@@ -2693,7 +2691,7 @@ class XFormParser {
 
     private fun verifyItemsetSrcDstCompatibility(instance: FormInstance) {
         for (i in 0 until itemsets.size) {
-            val itemset = itemsets.elementAt(i)
+            val itemset = itemsets[i]
 
             val destRepeatable = instance.getTemplate(itemset.getDestRef()!!) != null
             if (itemset.copyMode) {
@@ -2721,7 +2719,7 @@ class XFormParser {
 
     private fun applyInstanceProperties(instance: FormInstance) {
         for (i in 0 until bindings.size) {
-            val bind = bindings.elementAt(i)
+            val bind = bindings[i]
             val ref = DataInstance.unpackReference(bind.reference!!)
             val nodes = EvaluationContext(instance).expandReference(ref, true)!!
 
@@ -2729,7 +2727,7 @@ class XFormParser {
                 attachBindGeneral(bind)
             }
             for (j in 0 until nodes.size) {
-                val nref = nodes.elementAt(j)
+                val nref = nodes[j]
                 attachBind(instance.resolveReference(nref)!!, bind)
             }
         }
@@ -2743,10 +2741,10 @@ class XFormParser {
             val type = if (h == 0) Constants.DATATYPE_CHOICE else Constants.DATATYPE_CHOICE_LIST
 
             for (i in 0 until selectRefs.size) {
-                val ref = selectRefs.elementAt(i)
+                val ref = selectRefs[i]
                 val nodes = EvaluationContext(instance).expandReference(ref, true)!!
                 for (j in 0 until nodes.size) {
-                    val node = instance.resolveReference(nodes.elementAt(j))!!
+                    val node = instance.resolveReference(nodes[j])!!
                     if (node.getDataType() == Constants.DATATYPE_CHOICE || node.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
                         // do nothing
                     } else if (node.getDataType() == Constants.DATATYPE_NULL || node.getDataType() == Constants.DATATYPE_TEXT) {
@@ -2764,43 +2762,43 @@ class XFormParser {
     }
 
     private fun checkDependencyCycles() {
-        val vertices = Vector<TreeReference>()
-        val edges = Vector<Array<TreeReference>>()
+        val vertices = ArrayList<TreeReference>()
+        val edges = ArrayList<Array<TreeReference>>()
 
         val it = _f!!.refWithTriggerDependencies()
         while (it.hasNext()) {
             val trigger = it.next()
-            if (!vertices.contains(trigger)) vertices.addElement(trigger)
+            if (!vertices.contains(trigger)) vertices.add(trigger)
 
             @Suppress("UNCHECKED_CAST")
-            val triggered = _f!!.conditionsTriggeredByRef(trigger) as Vector<org.javarosa.core.model.condition.Triggerable>
-            val targets = Vector<TreeReference>()
+            val triggered = _f!!.conditionsTriggeredByRef(trigger) as ArrayList<org.javarosa.core.model.condition.Triggerable>
+            val targets = ArrayList<TreeReference>()
             for (i in 0 until triggered.size) {
-                val t = triggered.elementAt(i)
+                val t = triggered[i]
                 for (j in 0 until t.targets.size) {
-                    val target = t.targets.elementAt(j)
-                    if (!targets.contains(target)) targets.addElement(target)
+                    val target = t.targets[j]
+                    if (!targets.contains(target)) targets.add(target)
                 }
             }
 
             for (i in 0 until targets.size) {
-                val target = targets.elementAt(i)
-                if (!vertices.contains(target)) vertices.addElement(target)
+                val target = targets[i]
+                if (!vertices.contains(target)) vertices.add(target)
 
                 val edge = arrayOf(trigger, target)
-                edges.addElement(edge)
+                edges.add(edge)
             }
         }
 
         var acyclic = true
         while (vertices.size > 0) {
-            val leaves = Vector<TreeReference>()
+            val leaves = ArrayList<TreeReference>()
             for (i in 0 until vertices.size) {
-                leaves.addElement(vertices.elementAt(i))
+                leaves.add(vertices[i])
             }
             for (i in 0 until edges.size) {
-                val edge = edges.elementAt(i)
-                leaves.removeElement(edge[0])
+                val edge = edges[i]
+                leaves.remove(edge[0])
             }
 
             if (leaves.size == 0) {
@@ -2809,12 +2807,12 @@ class XFormParser {
             }
 
             for (i in 0 until leaves.size) {
-                val leaf = leaves.elementAt(i)
-                vertices.removeElement(leaf)
+                val leaf = leaves[i]
+                vertices.remove(leaf)
             }
             for (i in edges.size - 1 downTo 0) {
-                val edge = edges.elementAt(i)
-                if (leaves.contains(edge[1])) edges.removeElementAt(i)
+                val edge = edges[i]
+                if (leaves.contains(edge[1])) edges.removeAt(i)
             }
         }
 

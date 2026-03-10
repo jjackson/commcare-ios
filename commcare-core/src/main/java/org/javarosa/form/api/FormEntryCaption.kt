@@ -8,8 +8,6 @@ import org.javarosa.core.model.IFormElement
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.services.locale.Localizer
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * This class gives you all the information you need to display a caption when
@@ -273,7 +271,7 @@ open class FormEntryCaption {
             }
         }
 
-        val vars = Hashtable<String, Any>()
+        val vars = HashMap<String, Any>()
         vars["name"] = title ?: ""
         vars["n"] = Integer.valueOf(count)
         return form!!.fillTemplateString(caption!!, index!!.getReference()!!, vars)
@@ -319,7 +317,7 @@ open class FormEntryCaption {
                 return if (title == null) "$ix/$count" else "$title $ix/$count"
             }
 
-            val vars = Hashtable<String, Any>()
+            val vars = HashMap<String, Any>()
             vars["name"] = title ?: ""
             vars["i"] = ix
             vars["n"] = count
@@ -330,16 +328,16 @@ open class FormEntryCaption {
         }
     }
 
-    fun getRepetitionsText(): Vector<String> {
+    fun getRepetitionsText(): ArrayList<String> {
         val g = element as GroupDef
         if (!g.isRepeat()) {
             throw RuntimeException("not a repeat")
         }
 
         val numRepetitions = getNumRepetitions()
-        val reps = Vector<String>()
+        val reps = ArrayList<String>()
         for (i in 0 until numRepetitions) {
-            reps.addElement(getRepetitionText("choose", form!!.descendIntoRepeat(index!!, i), false))
+            reps.add(getRepetitionText("choose", form!!.descendIntoRepeat(index!!, i), false)!!)
         }
         return reps
     }

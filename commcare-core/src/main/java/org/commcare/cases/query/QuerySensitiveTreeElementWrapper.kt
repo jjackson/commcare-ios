@@ -6,7 +6,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * Wraps an abstract tree element to provide no-op dispatch implementations for query sensitive
@@ -28,7 +27,7 @@ class QuerySensitiveTreeElementWrapper private constructor(
     override fun getChild(name: String, multiplicity: Int): AbstractTreeElement? =
         wrapped.getChild(context, name, multiplicity)
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> =
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> =
         wrapped.getChildrenWithName(name)
 
     override fun hasChildren(): Boolean = wrapped.hasChildren()
@@ -81,7 +80,7 @@ class QuerySensitiveTreeElementWrapper private constructor(
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? =
         wrapped.tryBatchChildFetch(name, mult, predicates, evalContext)

@@ -4,7 +4,7 @@ import org.javarosa.core.util.DataUtil;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,11 +15,11 @@ import static org.junit.Assert.assertTrue;
 public class DataUtilTest {
     @Test
     public void intersectionTest() {
-        Vector<String> setOne = new Vector<>();
+        ArrayList<String> setOne = new ArrayList<>();
         setOne.add("one");
         setOne.add("two");
 
-        Vector<String> setTwo = new Vector<>();
+        ArrayList<String> setTwo = new ArrayList<>();
         setTwo.add("one");
         setTwo.add("three");
         Collection<String> intersectSet = DataUtil.intersection(setOne, setTwo);

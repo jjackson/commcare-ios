@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 interface AbstractTreeElement {
 
@@ -25,7 +24,7 @@ interface AbstractTreeElement {
     /**
      * Get all the child nodes of this element, with specific name
      */
-    fun getChildrenWithName(name: String): Vector<AbstractTreeElement>
+    fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement>
 
     fun hasChildren(): Boolean
 
@@ -109,7 +108,7 @@ interface AbstractTreeElement {
     fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>?
 }

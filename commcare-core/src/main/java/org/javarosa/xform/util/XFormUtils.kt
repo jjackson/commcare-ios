@@ -11,7 +11,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.UnsupportedEncodingException
-import java.util.Vector
 
 /**
  * Static Utility methods pertaining to XForms.
@@ -44,7 +43,7 @@ class XFormUtils {
         @Throws(XFormParseException::class)
         fun getFormFromInputStream(
             `is`: InputStream,
-            extensionParsers: Vector<QuestionExtensionParser>
+            extensionParsers: ArrayList<QuestionExtensionParser>
         ): FormDef {
             var inputStream: InputStream = `is`
             var isr: InputStreamReader
@@ -121,25 +120,25 @@ class XFormUtils {
          * Get the list of attributes in an element
          */
         @JvmStatic
-        fun getAttributeList(e: Element): Vector<String> {
-            val atts = Vector<String>()
+        fun getAttributeList(e: Element): ArrayList<String> {
+            val atts = ArrayList<String>()
 
             for (i in 0 until e.attributeCount) {
-                atts.addElement(e.getAttributeName(i))
+                atts.add(e.getAttributeName(i))
             }
 
             return atts
         }
 
         /**
-         * @return Vector of attributes from 'e' that aren't in 'usedAtts'
+         * @return ArrayList of attributes from 'e' that aren't in 'usedAtts'
          */
         @JvmStatic
-        fun getUnusedAttributes(e: Element, usedAtts: Vector<String>): Vector<String> {
+        fun getUnusedAttributes(e: Element, usedAtts: ArrayList<String>): ArrayList<String> {
             val unusedAtts = getAttributeList(e)
             for (i in 0 until usedAtts.size) {
-                if (unusedAtts.contains(usedAtts.elementAt(i))) {
-                    unusedAtts.removeElement(usedAtts.elementAt(i))
+                if (unusedAtts.contains(usedAtts[i])) {
+                    unusedAtts.remove(usedAtts[i])
                 }
             }
             return unusedAtts
@@ -149,7 +148,7 @@ class XFormUtils {
          * @return String warning about which attributes from 'e' aren't in 'usedAtts'
          */
         @JvmStatic
-        fun unusedAttWarning(e: Element, usedAtts: Vector<String>): String {
+        fun unusedAttWarning(e: Element, usedAtts: ArrayList<String>): String {
             var warning = ""
             val unusedAtts = getUnusedAttributes(e, usedAtts)
 
@@ -157,7 +156,7 @@ class XFormUtils {
                     e.name + "] and will be ignored: "
             warning += "["
             for (i in 0 until unusedAtts.size) {
-                warning += unusedAtts.elementAt(i)
+                warning += unusedAtts[i]
                 if (i != unusedAtts.size - 1) {
                     warning += ","
                 }
@@ -172,7 +171,7 @@ class XFormUtils {
          * in 'usedAtts'
          */
         @JvmStatic
-        fun showUnusedAttributeWarning(e: Element, usedAtts: Vector<String>): Boolean {
+        fun showUnusedAttributeWarning(e: Element, usedAtts: ArrayList<String>): Boolean {
             return getUnusedAttributes(e, usedAtts).size > 0
         }
 

@@ -13,7 +13,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * Persistable object representing a CommCare mobile user.
@@ -35,7 +34,7 @@ class User : Persistable, Restorable, IMetaData {
     private var wrappedKey: ByteArray? = null
 
     @JvmField
-    var properties: Hashtable<String, String> = Hashtable()
+    var properties: HashMap<String, String> = HashMap()
 
     // Don't ever save!
     private var cachedPwd: String? = null
@@ -64,7 +63,7 @@ class User : Persistable, Restorable, IMetaData {
         this.rememberMe = ExtUtil.readBool(`in`)
         this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         @Suppress("UNCHECKED_CAST")
-        this.properties = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<String, String>
+        this.properties = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
         this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(`in`))
     }
 
@@ -136,7 +135,7 @@ class User : Persistable, Restorable, IMetaData {
         return this.properties[key]
     }
 
-    fun getProperties(): Hashtable<String, String> {
+    fun getProperties(): HashMap<String, String> {
         return this.properties
     }
 

@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
 import org.junit.Test;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -53,7 +53,7 @@ public class LocalizerTest {
         if (!l.hasLocale(TEST_LOCALE)) {
             fail("Localizer reports it does not contain newly added locale");
         }
-        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
+        HashMap<String, String> localeData = l.getLocaleData(TEST_LOCALE);
         if (localeData == null || localeData.size() != 0) {
             fail("Newly created locale not empty (or undefined)");
         }
@@ -92,14 +92,14 @@ public class LocalizerTest {
         table.setLocaleMapping("textID", "text");
         l.registerLocaleResource(TEST_LOCALE, table);
 
-        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
+        HashMap<String, String> localeData = l.getLocaleData(TEST_LOCALE);
 
         boolean result = l.addAvailableLocale(TEST_LOCALE);
         if (result) {
             fail("Localizer overwrote existing locale");
         }
 
-        Hashtable newLocaleData = l.getLocaleData(TEST_LOCALE);
+        HashMap newLocaleData = l.getLocaleData(TEST_LOCALE);
         if (!localeData.equals(newLocaleData)) {
             fail("Localizer overwrote existing locale");
         }
@@ -680,7 +680,7 @@ public class LocalizerTest {
     public void testHashSub() {
         final String F = "first";
         final String S = "second";
-        Hashtable h = new Hashtable();
+        HashMap h = new HashMap();
         h.put("fir", F);
         h.put("also first", F);
         h.put("sec", S);

@@ -1,7 +1,6 @@
 package org.javarosa.core.services.storage
 
 import org.javarosa.core.services.Logger
-import java.util.Hashtable
 
 /**
  * Manages StorageProviders for JavaRosa, which maintain persistent
@@ -13,7 +12,7 @@ import java.util.Hashtable
  */
 class StorageManager(factory: IStorageIndexedFactory) {
 
-    private val storageRegistry: Hashtable<String, IStorageUtilityIndexed<*>> = Hashtable()
+    private val storageRegistry: HashMap<String, IStorageUtilityIndexed<*>> = HashMap()
     private var storageFactory: IStorageIndexedFactory? = null
 
     init {
@@ -71,9 +70,8 @@ class StorageManager(factory: IStorageIndexedFactory) {
     }
 
     fun halt() {
-        val e = storageRegistry.elements()
-        while (e.hasMoreElements()) {
-            e.nextElement().close()
+        for (storage in storageRegistry.values) {
+            storage.close()
         }
     }
 

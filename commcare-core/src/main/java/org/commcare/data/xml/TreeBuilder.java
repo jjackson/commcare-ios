@@ -3,7 +3,7 @@ package org.commcare.data.xml;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,7 +23,7 @@ public class TreeBuilder {
     }
 
     private static void addChildren(String instanceId, TreeElement parent, List<SimpleNode> children) {
-        Hashtable<String, Integer> multiplicities = new Hashtable<>();
+        HashMap<String, Integer> multiplicities = new HashMap<>();
         for (SimpleNode node : children) {
             int val;
             String name = node.getName();

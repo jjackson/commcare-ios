@@ -14,12 +14,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Quick test to be able to restore a set of user data
@@ -33,7 +33,7 @@ public class CasePurgeRegressions {
     @Test
     public void testSimpleExtensions() throws Exception {
         MockUserDataSandbox sandbox;
-        Vector<String> owners;
+        ArrayList<String> owners;
         sandbox = MockDataUtils.getStaticStorage();
 
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().
@@ -74,9 +74,9 @@ public class CasePurgeRegressions {
         checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
 
         // Check that the correct cases were actually purged
-        Vector<Integer> expectedToRemove = new Vector<>();
+        ArrayList<Integer> expectedToRemove = new ArrayList<>();
         expectedToRemove.add(caseIdsToRecordIds.get("case_three"));
-        Vector<Integer> removed = storage.removeAll(filter);
+        ArrayList<Integer> removed = storage.removeAll(filter);
         checkProperCasesRemoved(expectedToRemove, removed);
     }
 
@@ -107,13 +107,13 @@ public class CasePurgeRegressions {
         checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
 
         // Check that the correct cases were actually purged
-        Vector<Integer> expectedToRemove = new Vector<>();
+        ArrayList<Integer> expectedToRemove = new ArrayList<>();
         expectedToRemove.add(caseIdsToRecordIds.get("case_three"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_four"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_five"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_six"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_seven"));
-        Vector<Integer> removed = storage.removeAll(filter);
+        ArrayList<Integer> removed = storage.removeAll(filter);
         checkProperCasesRemoved(expectedToRemove, removed);
     }
 
@@ -145,10 +145,10 @@ public class CasePurgeRegressions {
         checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
 
         // Check that the correct cases were actually purged
-        Vector<Integer> expectedToRemove = new Vector<>();
+        ArrayList<Integer> expectedToRemove = new ArrayList<>();
         expectedToRemove.add(caseIdsToRecordIds.get("case_one"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_four"));
-        Vector<Integer> removed = storage.removeAll(filter);
+        ArrayList<Integer> removed = storage.removeAll(filter);
         checkProperCasesRemoved(expectedToRemove, removed);
     }
 
@@ -180,8 +180,8 @@ public class CasePurgeRegressions {
         checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
 
         // Check that the correct cases (none in this case) were actually purged
-        Vector<Integer> expectedToRemove = new Vector<>();
-        Vector<Integer> removed = storage.removeAll(filter);
+        ArrayList<Integer> expectedToRemove = new ArrayList<>();
+        ArrayList<Integer> removed = storage.removeAll(filter);
         checkProperCasesRemoved(expectedToRemove, removed);
     }
 
@@ -234,14 +234,14 @@ public class CasePurgeRegressions {
         }
     }
 
-    private static void checkProperCasesRemoved(Vector<Integer> expectedToRemove,
-                                                Vector<Integer> removed) {
+    private static void checkProperCasesRemoved(ArrayList<Integer> expectedToRemove,
+                                                ArrayList<Integer> removed) {
         // Check that the 2 vectors are same size
         Assert.assertTrue(removed.size() == expectedToRemove.size());
 
         // Check that every element in expectedToRmove is also in removed
         for (Integer caseId : expectedToRemove) {
-            removed.removeElement(caseId);
+            removed.remove(caseId);
         }
 
         // Check that the removed vector is empty now that all elements from expectedToRemove
@@ -263,10 +263,10 @@ public class CasePurgeRegressions {
     }
 
     private static Set<String[]> getSimpleFormEdges(
-            Hashtable<String, Vector<DAG.Edge<String, String>>> edges) {
+            HashMap<String, ArrayList<DAG.Edge<String, String>>> edges) {
         Set<String[]> simpleFormEdges = new HashSet<>();
         for (String sourceIndex : edges.keySet()) {
-            Vector<DAG.Edge<String, String>> edgesFromSource = edges.get(sourceIndex);
+            ArrayList<DAG.Edge<String, String>> edgesFromSource = edges.get(sourceIndex);
             for (DAG.Edge<String, String> edge : edgesFromSource) {
                 simpleFormEdges.add(new String[]{sourceIndex, edge.i});
             }
@@ -274,10 +274,10 @@ public class CasePurgeRegressions {
         return simpleFormEdges;
     }
 
-    private static Set<String> getSimpleFormNodes(Enumeration e) {
+    private static Set<String> getSimpleFormNodes(Iterator e) {
         Set<String> simpleFormNodes = new HashSet<>();
-        for (; e.hasMoreElements(); ) {
-            simpleFormNodes.add((String)e.nextElement());
+        for (; e.hasNext(); ) {
+            simpleFormNodes.add((String)e.next());
         }
         return simpleFormNodes;
     }

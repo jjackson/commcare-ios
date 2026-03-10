@@ -81,7 +81,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
         if (validateSelectionSize(selectionSize)) {
             String[] evaluatedValues = new String[selectionSize];
             for (int i = 0; i < selectionSize; i++) {
-                evaluatedValues[i] = getReturnValueFromSelection(references.elementAt(i));
+                evaluatedValues[i] = getReturnValueFromSelection(references.get(i));
             }
             processSelectionIntoInstance(evaluatedValues, getNeededDatumId());
             updateSession(session);

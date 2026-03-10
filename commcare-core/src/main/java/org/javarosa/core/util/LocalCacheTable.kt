@@ -1,7 +1,6 @@
 package org.javarosa.core.util
 
 import java.lang.ref.WeakReference
-import java.util.Hashtable
 
 /**
  * A Local Cache Table is a weak reference store that can be used
@@ -11,7 +10,7 @@ import java.util.Hashtable
  * use [CacheTable].
  */
 class LocalCacheTable<T, K> {
-    private val currentTable = Hashtable<T, WeakReference<K>>()
+    private val currentTable = HashMap<T, WeakReference<K>>()
 
     fun retrieve(key: T): K? {
         synchronized(this) {

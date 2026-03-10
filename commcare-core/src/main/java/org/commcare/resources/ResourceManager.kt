@@ -12,7 +12,6 @@ import org.commcare.util.CommCarePlatform
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import java.util.Vector
 
 /**
  * Resource table install and update logic.
@@ -62,8 +61,8 @@ open class ResourceManager(
                 if (profile == null) {
                     // Create a stub for the profile resource that points to the authority and location
                     // from which we will install it
-                    val locations = Vector<ResourceLocation>()
-                    locations.addElement(ResourceLocation(authorityForProfile, profileReference))
+                    val locations = ArrayList<ResourceLocation>()
+                    locations.add(ResourceLocation(authorityForProfile, profileReference))
                     val r = Resource(
                         Resource.RESOURCE_VERSION_UNKNOWN,
                         CommCarePlatform.APP_PROFILE_RESOURCE_ID,
@@ -88,18 +87,18 @@ open class ResourceManager(
         }
 
         @JvmStatic
-        fun getResourceListFromProfile(master: ResourceTable): Vector<Resource> {
-            val unresolved = Vector<Resource>()
-            val resolved = Vector<Resource>()
+        fun getResourceListFromProfile(master: ResourceTable): ArrayList<Resource> {
+            val unresolved = ArrayList<Resource>()
+            val resolved = ArrayList<Resource>()
             val r = master.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID) ?: return resolved
-            unresolved.addElement(r)
+            unresolved.add(r)
             while (unresolved.size > 0) {
-                val current = unresolved.firstElement()
-                unresolved.removeElement(current)
-                resolved.addElement(current)
+                val current = unresolved.first()
+                unresolved.remove(current)
+                resolved.add(current)
                 val children = master.getResourcesForParent(current.getRecordGuid())
                 for (child in children) {
-                    unresolved.addElement(child)
+                    unresolved.add(child)
                 }
             }
             return resolved
@@ -156,8 +155,8 @@ open class ResourceManager(
         authority: Int,
         resourceInstallContext: ResourceInstallContext
     ) {
-        val locations = Vector<ResourceLocation>()
-        locations.addElement(ResourceLocation(authority, profileRef))
+        val locations = ArrayList<ResourceLocation>()
+        locations.add(ResourceLocation(authority, profileRef))
 
         val r = Resource(
             Resource.RESOURCE_VERSION_UNKNOWN,

@@ -18,7 +18,6 @@ import org.javarosa.xml.PlatformXmlParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * TODO: This is... not useful
@@ -111,7 +110,7 @@ open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
     }
 
     override fun verifyInstallation(
-        r: Resource, problemList: Vector<MissingMediaException>,
+        r: Resource, problemList: ArrayList<MissingMediaException>,
         platform: CommCarePlatform
     ): Boolean {
         //Work by default

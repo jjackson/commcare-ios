@@ -9,7 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * The ReferenceDataSource is a source of locale data which
@@ -39,7 +39,7 @@ public class ReferenceDataSource implements LocaleDataSource {
     }
 
     @Override
-    public Hashtable<String, String> getLocalizedText() {
+    public HashMap<String, String> getLocalizedText() {
         InputStream is = null;
         try {
             is = ReferenceManager.instance().DeriveReference(referenceURI).getStream();

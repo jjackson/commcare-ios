@@ -20,9 +20,7 @@ import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathSelectedFunc
-import java.util.Hashtable
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -33,12 +31,12 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
     protected var defaultCacher: BasicStorageBackedCachingQueryHandler? = null
 
     @JvmField
-    protected val objectIdMapping: Hashtable<Int, Int> = Hashtable()
+    protected val objectIdMapping: HashMap<Int, Int> = HashMap()
 
     /**
      * Super basic cache for Key/Index responses from the DB
      */
-    private val mIndexResultCache: Hashtable<String, LinkedHashSet<Int>> = Hashtable()
+    private val mIndexResultCache: HashMap<String, LinkedHashSet<Int>> = HashMap()
 
     /**
      * Get the key/value meta lookups for the most recent batch fetch. Used to prime a couple
@@ -49,7 +47,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
 
     protected abstract fun getChildHintName(): String
 
-    protected abstract fun getStorageIndexMap(): Hashtable<XPathPathExpr, String>
+    protected abstract fun getStorageIndexMap(): HashMap<XPathPathExpr, String>
 
     protected abstract fun getStorage(): IStorageUtilityIndexed<*>
 
@@ -58,7 +56,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
     protected open fun translateFilterExpr(
         expressionTemplate: XPathPathExpr,
         matchingExpr: XPathPathExpr,
-        indices: Hashtable<XPathPathExpr, String>
+        indices: HashMap<XPathPathExpr, String>
     ): String? {
         return indices[expressionTemplate]
     }
@@ -66,7 +64,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? {
         // Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
@@ -76,13 +74,13 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
 
         val indices = getStorageIndexMap()
 
-        val profiles = Vector<PredicateProfile>()
+        val profiles = ArrayList<PredicateProfile>()
 
         val queryContext = evalContext.getCurrentQueryContext()
 
         // First, attempt to use 'preferred' optimizations detectable by the query planner
         // using advanced inspection of the predicates
-        val preferredProfiles = Vector<PredicateProfile>()
+        val preferredProfiles = ArrayList<PredicateProfile>()
 
         val collected = getQueryPlanner().collectPredicateProfiles(
             predicates, queryContext, evalContext
@@ -114,13 +112,13 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
     }
 
     private fun processPredicatesAndPrepareResponse(
-        profiles: Vector<PredicateProfile>,
+        profiles: ArrayList<PredicateProfile>,
         queryContext: QueryContext,
-        predicates: Vector<XPathExpression>
+        predicates: ArrayList<XPathExpression>
     ): Collection<TreeReference>? {
         // Now go through each profile and see if we can match / process any of them. If not, we
         // will return null and move on
-        val toRemove = Vector<Int>()
+        val toRemove = ArrayList<Int>()
         val selectedElements = processPredicates(toRemove, profiles, queryContext)
 
         // if we weren't able to evaluate any predicates, signal that.
@@ -130,17 +128,17 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
 
         // otherwise, remove all of the predicates we've already evaluated
         for (i in toRemove.size - 1 downTo 0) {
-            predicates.removeElementAt(toRemove.elementAt(i))
+            predicates.removeAt(toRemove[i])
         }
 
         return buildReferencesFromFetchResults(selectedElements)
     }
 
     private fun collectNativePredicateProfiles(
-        predicates: Vector<XPathExpression>,
-        indices: Hashtable<XPathPathExpr, String>,
+        predicates: ArrayList<XPathExpression>,
+        indices: HashMap<XPathPathExpr, String>,
         evalContext: EvaluationContext,
-        optimizations: Vector<PredicateProfile>
+        optimizations: ArrayList<PredicateProfile>
     ) {
         for (xpe in predicates) {
             // what we want here is a static evaluation of the expression to see if it consists of evaluating
@@ -148,10 +146,10 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             if (xpe is XPathEqExpr) {
                 val left = xpe.a
                 if (left is XPathPathExpr) {
-                    val en = indices.keys()
+                    val en = indices.keys.iterator()
                     var matched = false
-                    while (en.hasMoreElements()) {
-                        val expr = en.nextElement()
+                    while (en.hasNext()) {
+                        val expr = en.next()
                         if (expr.matches(left)) {
                             val filterIndex = translateFilterExpr(expr, left, indices)
 
@@ -175,17 +173,17 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             } else if (xpe is XPathSelectedFunc) {
                 val lookupArg = xpe.args[1]
                 if (lookupArg is XPathPathExpr) {
-                    val en = indices.keys()
+                    val en = indices.keys.iterator()
                     var matched = false
-                    while (en.hasMoreElements()) {
-                        val expr = en.nextElement()
+                    while (en.hasNext()) {
+                        val expr = en.next()
                         if (expr.matches(lookupArg)) {
                             val filterIndex = translateFilterExpr(expr, lookupArg, indices)
 
                             // TODO: We need a way to determine that this value does not also depend on anything in the current context
                             val o = FunctionUtils.unpack(xpe.args[0].eval(evalContext))
 
-                            optimizations.addElement(IndexedSetMemberLookup(filterIndex!!, o!!))
+                            optimizations.add(IndexedSetMemberLookup(filterIndex!!, o!!))
                             matched = true
                             break
                         }
@@ -217,8 +215,8 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
     }
 
     private fun processPredicates(
-        toRemove: Vector<Int>,
-        profiles: Vector<PredicateProfile>,
+        toRemove: ArrayList<Int>,
+        profiles: ArrayList<PredicateProfile>,
         currentQueryContext: QueryContext
     ): Collection<Int>? {
         var selectedElements: Collection<Int>? = null
@@ -263,7 +261,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             val numPredicatesRemoved = startCount - profiles.size
             for (i in 0 until numPredicatesRemoved) {
                 // Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-                toRemove.addElement(DataUtil.integer(predicatesProcessed))
+                toRemove.add(DataUtil.integer(predicatesProcessed))
                 predicatesProcessed++
             }
             context = context.testForInlineScopeEscalation(selectedElements!!.size)
@@ -276,13 +274,13 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
 
         initStorageCache()
 
-        val filtered = Vector<TreeReference>()
+        val filtered = ArrayList<TreeReference>()
         for (i in selectedElements) {
             // this takes _waaaaay_ too long, we need to refactor this
             val ref = base.clone()
             val realIndex = objectIdMapping[i]!!
             ref.add(this.getChildHintName(), realIndex)
-            filtered.addElement(ref)
+            filtered.add(ref)
         }
         return filtered
     }
@@ -299,13 +297,13 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
      * @param profiles    A vector of pending optimizations to be attempted. The keys should be processed left->right
      * @param storage The storage to be processed
      * @param currentQueryContext
-     * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
+     * @return A ArrayList of integer ID's for records in the provided storage which match one or more of the keys provided.
      * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
      *                                  won't be shortened.
      */
     @Throws(IllegalArgumentException::class)
     protected open fun getNextIndexMatch(
-        profiles: Vector<PredicateProfile>,
+        profiles: ArrayList<PredicateProfile>,
         storage: IStorageUtilityIndexed<*>,
         currentQueryContext: QueryContext
     ): Collection<Int> {
@@ -315,10 +313,10 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             throw IllegalArgumentException("No optimization path found for optimization type")
         }
 
-        val namesToMatch = Vector<String>()
-        val valuesToMatch = Vector<String>()
-        val namesToInverseMatch = Vector<String>()
-        val valuesToInverseMatch = Vector<String>()
+        val namesToMatch = ArrayList<String>()
+        val valuesToMatch = ArrayList<String>()
+        val namesToInverseMatch = ArrayList<String>()
+        val valuesToInverseMatch = ArrayList<String>()
 
         var cacheKey = ""
         var keyDescription = ""
@@ -327,15 +325,15 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             var name = ""
             var value = ""
             var operator = ""
-            if (profiles.elementAt(i) is IndexedValueLookup) {
-                name = profiles.elementAt(i).getKey()
-                value = (profiles.elementAt(i) as IndexedValueLookup).value as String
+            if (profiles[i] is IndexedValueLookup) {
+                name = profiles[i].getKey()
+                value = (profiles[i] as IndexedValueLookup).value as String
                 namesToMatch.add(name)
                 valuesToMatch.add(value)
                 operator = "="
-            } else if (profiles.elementAt(i) is NegativeIndexedValueLookup) {
-                name = profiles.elementAt(i).getKey()
-                value = (profiles.elementAt(i) as NegativeIndexedValueLookup).value as String
+            } else if (profiles[i] is NegativeIndexedValueLookup) {
+                name = profiles[i].getKey()
+                value = (profiles[i] as NegativeIndexedValueLookup).value as String
                 namesToInverseMatch.add(name)
                 valuesToInverseMatch.add(value)
                 operator = "!="
@@ -376,7 +374,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
 
         // Ok, we matched! Remove all of the keys that we matched
         for (i in 0 until numKeysToProcess) {
-            profiles.removeElementAt(0)
+            profiles.removeAt(0)
         }
         return ids
     }
@@ -390,13 +388,13 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
      * @return The number of elements to process from the provided set. If only the first
      * profile would be processed, for instance, this method should return 1
      */
-    protected open fun getNumberOfBatchableKeysInProfileSet(profiles: Vector<PredicateProfile>): Int {
+    protected open fun getNumberOfBatchableKeysInProfileSet(profiles: ArrayList<PredicateProfile>): Int {
         var keysToBatch = 0
         // Otherwise see how many of these we can bulk process
         for (i in 0 until profiles.size) {
             // If the current key isn't an indexedvalue lookup, we can't process in this step
-            if (profiles.elementAt(i) !is IndexedValueLookup &&
-                profiles.elementAt(i) !is NegativeIndexedValueLookup
+            if (profiles[i] !is IndexedValueLookup &&
+                profiles[i] !is NegativeIndexedValueLookup
             ) {
                 break
             }

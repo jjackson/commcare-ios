@@ -15,7 +15,6 @@ import org.javarosa.model.xform.XPathReference
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * Child TreeElement of an indexed fixture whose data is loaded from a DB.

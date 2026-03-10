@@ -23,8 +23,6 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -63,12 +61,12 @@ class EntryParser private constructor(
         this.checkNode(parserBlockTag)
 
         var xFormNamespace: String? = null
-        val data = Vector<SessionDatum>()
-        val instances = Hashtable<String, DataInstance<*>>()
+        val data = ArrayList<SessionDatum>()
+        val instances = HashMap<String, DataInstance<*>>()
 
         var commandId = ""
         var display: DisplayUnit? = null
-        val stackOps = Vector<StackOperation>()
+        val stackOps = ArrayList<StackOperation>()
         var assertions: AssertionSet? = null
         var post: PostRequest? = null
 
@@ -147,18 +145,18 @@ class EntryParser private constructor(
         InvalidStructureException::class, PlatformIOException::class,
         PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
-    private fun parseSessionData(data: Vector<SessionDatum>) {
+    private fun parseSessionData(data: ArrayList<SessionDatum>) {
         while (nextTagInBlock("session")) {
             val datumParser = SessionDatumParser(this.parser)
-            data.addElement(datumParser.parse())
+            data.add(datumParser.parse())
         }
     }
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
-    private fun parseStack(stackOps: Vector<StackOperation>) {
+    private fun parseStack(stackOps: ArrayList<StackOperation>) {
         val sop = StackOpParser(parser)
         while (this.nextTagInBlock(StackOpParser.NAME_STACK)) {
-            stackOps.addElement(sop.parse())
+            stackOps.add(sop.parse())
         }
     }
 

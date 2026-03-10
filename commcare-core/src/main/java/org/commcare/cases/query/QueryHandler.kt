@@ -2,7 +2,6 @@ package org.commcare.cases.query
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * A query handler encapsulates piece of code which can inspect predicates for shortcuts in how
@@ -55,7 +54,7 @@ interface QueryHandler<T> {
      * them with potential optimizations.
      */
     fun collectPredicateProfiles(
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         context: QueryContext,
         evaluationContext: EvaluationContext
     ): Collection<PredicateProfile>?
@@ -69,7 +68,7 @@ interface QueryHandler<T> {
      * @return a querySet object to be passed back into this handler specifying the query to be run.
      * often a single (or collection of) predicate profiles.
      */
-    fun profileHandledQuerySet(profiles: Vector<PredicateProfile>): T?
+    fun profileHandledQuerySet(profiles: ArrayList<PredicateProfile>): T?
 
     /**
      * Given a querySet to be matched from the profileHandledQuerySet method and a context,
@@ -87,5 +86,5 @@ interface QueryHandler<T> {
      *
      * This method will not be run if loadProfileMatches returned null to signal a failure
      */
-    fun updateProfiles(querySet: T, profiles: Vector<PredicateProfile>)
+    fun updateProfiles(querySet: T, profiles: ArrayList<PredicateProfile>)
 }

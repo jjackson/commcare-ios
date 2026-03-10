@@ -14,7 +14,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Collections
-import java.util.Vector
 
 class ItemsetBinding : Externalizable {
 
@@ -56,13 +55,13 @@ class ItemsetBinding : Externalizable {
     private var destRef: TreeReference? = null //ref that identifies the repeated nodes resulting from this itemset
 
     // dynamic choices, not serialized
-    private var choices: Vector<SelectChoice>? = null
+    private var choices: ArrayList<SelectChoice>? = null
 
-    fun getChoices(): Vector<SelectChoice>? {
+    fun getChoices(): ArrayList<SelectChoice>? {
         return choices
     }
 
-    fun setChoices(choices: Vector<SelectChoice>?) {
+    fun setChoices(choices: ArrayList<SelectChoice>?) {
         if (this.choices != null) {
             clearChoices()
         }

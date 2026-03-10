@@ -81,7 +81,7 @@ internal class StackFrameStepParser(parser: KXmlParser) : ElementParser<StackFra
             //Can we get here, or would this have caused an exception?
             if (value == null) {
                 throw InvalidStructureException(
-                    "Stack frame element must define a value expression or have a direct value",
+                    "ArrayDeque frame element must define a value expression or have a direct value",
                     parser
                 )
             } else {

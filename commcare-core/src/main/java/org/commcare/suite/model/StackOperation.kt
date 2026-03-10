@@ -14,7 +14,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A stack operation descriptor, containing all of the relevant details
@@ -25,7 +24,7 @@ import java.util.Vector
 class StackOperation : Externalizable {
     private var opType: Int = 0
     private var ifCondition: String? = null
-    private var elements: Vector<StackFrameStep> = Vector()
+    private var elements: ArrayList<StackFrameStep> = ArrayList()
 
     /**
      * Deserialization Only!
@@ -36,14 +35,14 @@ class StackOperation : Externalizable {
     constructor(oldStackOp: StackOperation) {
         this.opType = oldStackOp.opType
         this.ifCondition = oldStackOp.ifCondition
-        this.elements = Vector(oldStackOp.elements.size)
+        this.elements = ArrayList(oldStackOp.elements.size)
         for (element in oldStackOp.elements) {
             elements.add(StackFrameStep(element))
         }
     }
 
     @Throws(XPathSyntaxException::class)
-    private constructor(opType: Int, ifCondition: String?, elements: Vector<StackFrameStep>) {
+    private constructor(opType: Int, ifCondition: String?, elements: ArrayList<StackFrameStep>) {
         this.opType = opType
         this.ifCondition = ifCondition
         if (ifCondition != null) {
@@ -75,7 +74,7 @@ class StackOperation : Externalizable {
      * @return The definitions for the steps that should be included in this operation
      * @throws IllegalStateException if this operation do not support stack frame steps
      */
-    fun getStackFrameSteps(): Vector<StackFrameStep> {
+    fun getStackFrameSteps(): ArrayList<StackFrameStep> {
         if (opType == OPERATION_CLEAR) {
             throw IllegalStateException("Clear Operations do not define frame steps")
         }
@@ -87,7 +86,7 @@ class StackOperation : Externalizable {
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         opType = ExtUtil.readInt(`in`)
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        elements = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as Vector<StackFrameStep>
+        elements = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
     }
 
     @Throws(PlatformIOException::class)
@@ -110,7 +109,7 @@ class StackOperation : Externalizable {
         @Throws(XPathSyntaxException::class)
         fun buildCreateFrame(
             ifCondition: String?,
-            elements: Vector<StackFrameStep>
+            elements: ArrayList<StackFrameStep>
         ): StackOperation {
             return StackOperation(OPERATION_CREATE, ifCondition, elements)
         }
@@ -119,7 +118,7 @@ class StackOperation : Externalizable {
         @Throws(XPathSyntaxException::class)
         fun buildPushFrame(
             ifCondition: String?,
-            elements: Vector<StackFrameStep>
+            elements: ArrayList<StackFrameStep>
         ): StackOperation {
             return StackOperation(OPERATION_PUSH, ifCondition, elements)
         }
@@ -127,7 +126,7 @@ class StackOperation : Externalizable {
         @JvmStatic
         @Throws(XPathSyntaxException::class)
         fun buildClearFrame(ifCondition: String?): StackOperation {
-            return StackOperation(OPERATION_CLEAR, ifCondition, Vector())
+            return StackOperation(OPERATION_CLEAR, ifCondition, ArrayList())
         }
     }
 }

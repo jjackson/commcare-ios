@@ -3,7 +3,6 @@ package org.javarosa.core.model.trace
 import org.javarosa.core.util.OrderedHashtable
 import java.util.ConcurrentModificationException
 import java.util.HashMap
-import java.util.Vector
 
 /**
  * A Trace Reduction represents a "folded-in" model of an evaluation trace
@@ -48,7 +47,7 @@ class EvaluationTraceReduction(trace: EvaluationTrace) : EvaluationTrace(trace.g
         valueMap[trace.getValue()] = valueCount
         val subTraceVector = trace.getSubTraces()
         @Suppress("UNCHECKED_CAST")
-        val copy = subTraceVector.clone() as Vector<EvaluationTrace>
+        val copy = subTraceVector.clone() as ArrayList<EvaluationTrace>
         synchronized(subTraceVector) {
             try {
                 for (subTrace in copy) {
@@ -67,8 +66,8 @@ class EvaluationTraceReduction(trace: EvaluationTrace) : EvaluationTrace(trace.g
         }
     }
 
-    override fun getSubTraces(): Vector<EvaluationTrace> {
-        return Vector<EvaluationTrace>(subTraces.values)
+    override fun getSubTraces(): ArrayList<EvaluationTrace> {
+        return ArrayList<EvaluationTrace>(subTraces.values)
     }
 
     override fun getExpression(): String {

@@ -1,6 +1,5 @@
 package org.javarosa.core.model.trace
 
-import java.util.Vector
 
 /**
  * A trace reporter provides a callback interface to allow for an
@@ -17,7 +16,7 @@ interface EvaluationTraceReporter {
 
     fun reset()
 
-    fun getCollectedTraces(): Vector<EvaluationTrace>
+    fun getCollectedTraces(): ArrayList<EvaluationTrace>
 
     /**
      * If true, all traces are collected at a single flat level, rather than creating subtraces

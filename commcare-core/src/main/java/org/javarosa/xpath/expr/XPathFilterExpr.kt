@@ -15,7 +15,6 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * This construct, whose syntax is of the form '(filter-expr pred1 pred2 ...)',
@@ -74,17 +73,17 @@ class XPathFilterExpr : XPathExpression {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         x = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
+        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
 
-        predicates = Array(v.size) { i -> v.elementAt(i) as XPathExpression }
+        predicates = Array(v.size) { i -> v[i] as XPathExpression }
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
-        val v = Vector<XPathExpression>()
+        val v = ArrayList<XPathExpression>()
         for (predicate in predicates) {
-            v.addElement(predicate)
+            v.add(predicate)
         }
 
         ExtUtil.write(out, ExtWrapTagged(x!!))
@@ -93,7 +92,7 @@ class XPathFilterExpr : XPathExpression {
     }
 
     @Throws(UnpivotableExpressionException::class)
-    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: Vector<Any>, sentinal: Any?): Any? {
+    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: ArrayList<Any>, sentinal: Any?): Any? {
         throw UnpivotableExpressionException()
     }
 

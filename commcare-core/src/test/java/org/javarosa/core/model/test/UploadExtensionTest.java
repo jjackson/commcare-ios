@@ -12,7 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,14 +22,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class UploadExtensionTest {
 
-    private Vector<QuestionExtensionParser> extensionParsers;
+    private ArrayList<QuestionExtensionParser> extensionParsers;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
     @Before
     public void init() {
-        extensionParsers = new Vector<>();
+        extensionParsers = new ArrayList<>();
         extensionParsers.add(new UploadQuestionExtensionParser());
     }
 
@@ -38,7 +38,7 @@ public class UploadExtensionTest {
         FormParseInit formWithPx = new FormParseInit("/xform_tests/test_upload_extension_1.xml", extensionParsers);
         QuestionDef q = formWithPx.getFirstQuestionDef();
 
-        Vector<QuestionDataExtension> extensions = q.getExtensions();
+        ArrayList<QuestionDataExtension> extensions = q.getExtensions();
         assertEquals("There should be exactly one QuestionDataExtension registered with this QuestionDef",
                 1, extensions.size());
 
@@ -54,7 +54,7 @@ public class UploadExtensionTest {
         FormParseInit formWithoutPx = new FormParseInit("/xform_tests/test_upload_extension_2.xml", extensionParsers);
         QuestionDef q = formWithoutPx.getFirstQuestionDef();
 
-        Vector<QuestionDataExtension> extensions = q.getExtensions();
+        ArrayList<QuestionDataExtension> extensions = q.getExtensions();
         assertEquals("There should be exactly one QuestionDataExtension registered with this QuestionDef",
                 1, extensions.size());
 

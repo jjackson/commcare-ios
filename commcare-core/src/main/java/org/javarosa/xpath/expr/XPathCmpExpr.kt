@@ -8,7 +8,6 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathNodeset
 
-import java.util.Vector
 
 class XPathCmpExpr : XPathBinaryOpExpr {
 
@@ -53,7 +52,7 @@ class XPathCmpExpr : XPathBinaryOpExpr {
     }
 
     @Throws(UnpivotableExpressionException::class)
-    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: Vector<Any>, sentinal: Any?): Any? {
+    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: ArrayList<Any>, sentinal: Any?): Any? {
         val aval = a!!.pivot(model, evalContext, pivots, sentinal)
         var bval = b!!.pivot(model, evalContext, pivots, sentinal)
         if (bval is XPathNodeset) {
@@ -68,7 +67,7 @@ class XPathCmpExpr : XPathBinaryOpExpr {
     }
 
     @Throws(UnpivotableExpressionException::class)
-    private fun handled(a: Any?, b: Any?, sentinal: Any?, pivots: Vector<Any>): Boolean {
+    private fun handled(a: Any?, b: Any?, sentinal: Any?, pivots: ArrayList<Any>): Boolean {
         if (sentinal === a) {
             if (b == null) {
                 //Can't pivot on an expression which is derived from pivoted expressions
@@ -107,7 +106,7 @@ class XPathCmpExpr : XPathBinaryOpExpr {
                     }
                 }
 
-                pivots.addElement(CmpPivot(`val`!!, op))
+                pivots.add(CmpPivot(`val`!!, op))
                 return true
             }
         }

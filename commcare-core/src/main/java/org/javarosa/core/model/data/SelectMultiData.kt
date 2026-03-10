@@ -10,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A response to a question requesting a selection of
@@ -19,7 +18,7 @@ import java.util.Vector
  * @author Drew Roos
  */
 class SelectMultiData : IAnswerData {
-    private var vs: Vector<Selection>? = null // vector of Selection
+    private var vs: ArrayList<Selection>? = null // vector of Selection
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -27,14 +26,14 @@ class SelectMultiData : IAnswerData {
      */
     constructor()
 
-    constructor(vs: Vector<Selection>) {
+    constructor(vs: ArrayList<Selection>) {
         setValue(vs)
     }
 
     override fun clone(): IAnswerData {
-        val v = Vector<Selection>()
+        val v = ArrayList<Selection>()
         for (i in 0 until vs!!.size) {
-            v.addElement(vs!!.elementAt(i).clone())
+            v.add(vs!![i].clone())
         }
         return SelectMultiData(v)
     }
@@ -46,24 +45,24 @@ class SelectMultiData : IAnswerData {
         }
 
         // ensure elements are all instances of Selection
-        for (elem in o as Vector<*>) {
+        for (elem in o as ArrayList<*>) {
             if (elem !is Selection) {
                 throw RuntimeException("$elem is not an instance of Selection")
             }
         }
 
-        vs = Vector(o as Vector<Selection>)
+        vs = ArrayList(o as ArrayList<Selection>)
     }
 
-    override fun getValue(): Vector<Selection> {
-        return Vector(vs)
+    override fun getValue(): ArrayList<Selection> {
+        return ArrayList(vs)
     }
 
     override fun getDisplayText(): String {
         var str = ""
 
         for (i in 0 until vs!!.size) {
-            val s = vs!!.elementAt(i)
+            val s = vs!![i]
             str += s.getValue()
             if (i < vs!!.size - 1)
                 str += ", "
@@ -75,7 +74,7 @@ class SelectMultiData : IAnswerData {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        vs = ExtUtil.read(`in`, ExtWrapList(Selection::class.java), pf) as Vector<Selection>
+        vs = ExtUtil.read(`in`, ExtWrapList(Selection::class.java), pf) as ArrayList<Selection>
     }
 
     @Throws(PlatformIOException::class)
@@ -84,11 +83,11 @@ class SelectMultiData : IAnswerData {
     }
 
     override fun uncast(): UncastData {
-        val en = vs!!.elements()
+        val en = vs!!.iterator()
         val selectString = StringBuffer()
 
-        while (en.hasMoreElements()) {
-            val selection = en.nextElement()
+        while (en.hasNext()) {
+            val selection = en.next()
             if (selectString.isNotEmpty())
                 selectString.append(" ")
             selectString.append(selection.getValue())
@@ -99,10 +98,10 @@ class SelectMultiData : IAnswerData {
     }
 
     override fun cast(data: UncastData): SelectMultiData {
-        val v = Vector<Selection>()
+        val v = ArrayList<Selection>()
         val choices = DataUtil.splitOnSpaces(data.value!!)
         for (s in choices) {
-            v.addElement(Selection(s))
+            v.add(Selection(s))
         }
         return SelectMultiData(v)
     }

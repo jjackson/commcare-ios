@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
@@ -423,14 +423,14 @@ public class XFormPlayer {
                     //for multiselects, etc.
                     actualInput = this.current.getAction().getRawAnswer();
                 } else {
-                    Vector<SelectChoice> choices = fep.getSelectChoices();
+                    ArrayList<SelectChoice> choices = fep.getSelectChoices();
                     if (choices != null) {
                         if (input.equals("") &&
                                 fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
-                            Vector<Selection> answers = new Vector<>();
+                            ArrayList<Selection> answers = new ArrayList<>();
                             for (int i = 0; i < mCurrentSelectList.length; ++i) {
                                 if (mCurrentSelectList[i]) {
-                                    answers.addElement(choices.elementAt(i).selection());
+                                    answers.add(choices.get(i).selection());
                                 }
                             }
                             actualInput = new SelectMultiData(answers).uncast().getString();
@@ -438,7 +438,7 @@ public class XFormPlayer {
                             int index = parseAndValidate(input, choices.size()) - 1;
 
                             if (fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_ONE) {
-                                actualInput = choices.elementAt(index).getValue();
+                                actualInput = choices.get(index).getValue();
                             }
 
                             if (fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
@@ -549,7 +549,7 @@ public class XFormPlayer {
         String text = fep.getQuestionText();
         out.println(text);
 
-        Vector<SelectChoice> choices = fep.getSelectChoices();
+        ArrayList<SelectChoice> choices = fep.getSelectChoices();
         if (choices != null) {
             initSelectList(fep);
             for (int i = 0; i < choices.size(); ++i) {
@@ -557,7 +557,7 @@ public class XFormPlayer {
                 if (fep.getControlType() == Constants.CONTROL_SELECT_MULTI) {
                     prefix = "[" + (mCurrentSelectList[i] ? "X" : " ") + "] ";
                 }
-                System.out.println(prefix + (i + 1) + ") " + fep.getSelectChoiceText(choices.elementAt(i)));
+                System.out.println(prefix + (i + 1) + ") " + fep.getSelectChoiceText(choices.get(i)));
             }
         }
 
@@ -581,7 +581,7 @@ public class XFormPlayer {
 
         mCurrentSelectIndex = fep.getIndex();
 
-        Vector<SelectChoice> choices = fep.getSelectChoices();
+        ArrayList<SelectChoice> choices = fep.getSelectChoices();
         mCurrentSelectList = new boolean[choices.size()];
 
         IAnswerData data = fep.getAnswerValue();
@@ -592,7 +592,7 @@ public class XFormPlayer {
         SelectMultiData selectData = new SelectMultiData().cast(data.uncast());
 
         for (int i = 0; i < choices.size(); ++i) {
-            if (selectData.isInSelection(choices.elementAt(i).getValue())) {
+            if (selectData.isInSelection(choices.get(i).getValue())) {
                 mCurrentSelectList[i] = true;
             }
         }

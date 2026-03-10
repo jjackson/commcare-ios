@@ -11,7 +11,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class XPathStep : Externalizable {
     @JvmField
@@ -197,8 +196,8 @@ class XPathStep : Externalizable {
         }
 
         @Suppress("UNCHECKED_CAST")
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
-        predicates = Array(v.size) { i -> v.elementAt(i) as XPathExpression }
+        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
+        predicates = Array(v.size) { i -> v[i] as XPathExpression }
     }
 
     @Throws(PlatformIOException::class)
@@ -212,9 +211,9 @@ class XPathStep : Externalizable {
             TEST_TYPE_PROCESSING_INSTRUCTION -> ExtUtil.write(out, ExtWrapNullable(literal))
         }
 
-        val v = Vector<XPathExpression>()
+        val v = ArrayList<XPathExpression>()
         for (predicate in predicates) {
-            v.addElement(predicate)
+            v.add(predicate)
         }
         ExtUtil.write(out, ExtWrapListPoly(v))
     }

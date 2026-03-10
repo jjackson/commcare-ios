@@ -4,7 +4,6 @@ import org.javarosa.core.api.ClassNameHasher
 import org.javarosa.core.model.data.UncastData
 import java.util.Date
 import java.util.HashSet
-import java.util.Vector
 
 /**
  * ProtoType factory for serializing and deserializing persisted classes using
@@ -13,8 +12,8 @@ import java.util.Vector
  */
 open class PrototypeFactory {
 
-    private var classes: Vector<Class<*>>? = null
-    private var hashes: Vector<ByteArray>? = null
+    private var classes: ArrayList<Class<*>>? = null
+    private var hashes: ArrayList<ByteArray>? = null
 
     // lazy evaluation
     private var classNames: HashSet<String>?
@@ -49,8 +48,8 @@ open class PrototypeFactory {
     protected open fun lazyInit() {
         initialized = true
 
-        classes = Vector()
-        hashes = Vector()
+        classes = ArrayList()
+        hashes = ArrayList()
 
         addDefaultClasses()
         addMigratedClasses()
@@ -119,8 +118,8 @@ open class PrototypeFactory {
         }
 
         for (i in 0 until classes!!.size) {
-            if (compareHash(hash, hashes!!.elementAt(i))) {
-                return classes!!.elementAt(i)
+            if (compareHash(hash, hashes!![i])) {
+                return classes!![i]
             }
         }
 
@@ -132,8 +131,8 @@ open class PrototypeFactory {
     }
 
     protected open fun storeHash(c: Class<*>, hash: ByteArray) {
-        classes!!.addElement(c)
-        hashes!!.addElement(hash)
+        classes!!.add(c)
+        hashes!!.add(hash)
     }
 
     companion object {

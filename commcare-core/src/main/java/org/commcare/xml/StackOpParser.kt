@@ -8,7 +8,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -51,11 +50,11 @@ class StackOpParser(parser: KXmlParser) : ElementParser<StackOperation>(parser) 
     }
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
-    private fun getChildren(operation: String): Vector<StackFrameStep> {
-        val elements = Vector<StackFrameStep>()
+    private fun getChildren(operation: String): ArrayList<StackFrameStep> {
+        val elements = ArrayList<StackFrameStep>()
         val sfep = StackFrameStepParser(parser)
         while (nextTagInBlock(operation)) {
-            elements.addElement(sfep.parse())
+            elements.add(sfep.parse())
         }
         return elements
     }

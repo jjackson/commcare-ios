@@ -16,7 +16,6 @@ import org.javarosa.xform.parse.XFormParseException
 import org.javarosa.xform.util.XFormUtils
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStreamReader
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -174,7 +173,7 @@ class XFormInstaller : CacheInstaller<FormDef>() {
     }
 
     override fun verifyInstallation(
-        r: Resource, problemList: Vector<MissingMediaException>,
+        r: Resource, problemList: ArrayList<MissingMediaException>,
         platform: CommCarePlatform
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
@@ -185,7 +184,7 @@ class XFormInstaller : CacheInstaller<FormDef>() {
         try {
             formDef = storage(platform).read(cacheLocation)
         } catch (e: Exception) {
-            sizeBoundProblems.addElement(
+            sizeBoundProblems.add(
                 MissingMediaException(
                     r, "Form did not properly save into persistent storage",
                     MissingMediaException.MissingMediaExceptionType.NONE

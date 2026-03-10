@@ -9,7 +9,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 
 /**
@@ -31,7 +31,7 @@ public class MockDataUtils {
      * Create an evaluation context with an abstract instance available.
      */
     public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef){
-        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        HashMap<String, String> instanceRefToId = new HashMap<>();
         instanceRefToId.put(instanceRef, instanceId);
         return buildContextWithInstances(sandbox, instanceRefToId);
     }
@@ -40,10 +40,10 @@ public class MockDataUtils {
      * Create an evaluation context with an abstract instances available.
      */
     public static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
-                                                              Hashtable<String, String> instanceRefToId) {
+                                                              HashMap<String, String> instanceRefToId) {
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
-        Hashtable<String, DataInstance<?>> instances = new Hashtable<>();
+        HashMap<String, DataInstance<?>> instances = new HashMap<>();
         for (String instanceRef : instanceRefToId.keySet()) {
             String instanceId = instanceRefToId.get(instanceRef);
             ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);

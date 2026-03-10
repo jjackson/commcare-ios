@@ -8,19 +8,18 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * @author Clayton Sims
  */
 class TableLocaleSource : LocaleDataSource {
-    private var localeData: Hashtable<String, String>
+    private var localeData: HashMap<String, String>
 
     constructor() {
-        localeData = Hashtable()
+        localeData = HashMap()
     }
 
-    constructor(localeData: Hashtable<String, String>) {
+    constructor(localeData: HashMap<String, String>) {
         this.localeData = localeData
     }
 
@@ -67,14 +66,14 @@ class TableLocaleSource : LocaleDataSource {
         return localeData.hashCode()
     }
 
-    override fun getLocalizedText(): Hashtable<String, String> {
+    override fun getLocalizedText(): HashMap<String, String> {
         return localeData
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        localeData = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<String, String>
+        localeData = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
     }
 
     @Throws(PlatformIOException::class)

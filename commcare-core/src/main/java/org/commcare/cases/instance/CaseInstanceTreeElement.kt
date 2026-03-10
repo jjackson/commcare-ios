@@ -20,9 +20,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Hashtable
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * The root element for the `<casedb>` abstract type. All children are
@@ -33,13 +31,13 @@ import java.util.Vector
  */
 class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElement>, CacheHost {
 
-    private val multiplicityIdMapping: Hashtable<Int, Int> = Hashtable()
+    private val multiplicityIdMapping: HashMap<Int, Int> = HashMap()
 
     private val caseIndexTable: CaseIndexTable?
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    private var mIndexCache: Hashtable<String, LinkedHashSet<Int>> = Hashtable()
+    private var mIndexCache: HashMap<String, LinkedHashSet<Int>> = HashMap()
 
     constructor(
         instanceRoot: AbstractTreeElement?,
@@ -71,15 +69,15 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
         queryPlanner.addQueryHandler(ModelQueryLookupHandler(matcher))
     }
 
-    override fun getNumberOfBatchableKeysInProfileSet(profiles: Vector<PredicateProfile>): Int {
+    override fun getNumberOfBatchableKeysInProfileSet(profiles: ArrayList<PredicateProfile>): Int {
         var keysToBatch = 0
         //Otherwise see how many of these we can bulk process
         for (i in 0 until profiles.size) {
             //If the current key is an index fetch, we actually can't do it in bulk,
             //so we need to stop
-            if (profiles.elementAt(i).getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
-                (profiles.elementAt(i) !is IndexedValueLookup &&
-                        profiles.elementAt(i) !is NegativeIndexedValueLookup)
+            if (profiles[i].getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
+                (profiles[i] !is IndexedValueLookup &&
+                        profiles[i] !is NegativeIndexedValueLookup)
             ) {
                 break
             }
@@ -95,7 +93,7 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
     override fun translateFilterExpr(
         expressionTemplate: XPathPathExpr,
         matchingExpr: XPathPathExpr,
-        indices: Hashtable<XPathPathExpr, String>
+        indices: HashMap<XPathPathExpr, String>
     ): String? {
         var filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices)
 
@@ -108,8 +106,8 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
         return filter
     }
 
-    override fun getStorageIndexMap(): Hashtable<XPathPathExpr, String> {
-        val indices = Hashtable<XPathPathExpr, String>()
+    override fun getStorageIndexMap(): HashMap<XPathPathExpr, String> {
+        val indices = HashMap<XPathPathExpr, String>()
 
         //TODO: Much better matching
         indices[CASE_ID_EXPR] = Case.INDEX_CASE_ID
@@ -173,13 +171,13 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
     }
 
     override fun getNextIndexMatch(
-        profiles: Vector<PredicateProfile>,
+        profiles: ArrayList<PredicateProfile>,
         storage: IStorageUtilityIndexed<*>,
         currentQueryContext: QueryContext
     ): Collection<Int> {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run
         //this over the case index table
-        val firstKey = profiles.elementAt(0).getKey()
+        val firstKey = profiles[0].getKey()
         if (firstKey.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
             return performCaseIndexQuery(firstKey, profiles)
         }
@@ -191,7 +189,7 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
         if (elements != null) {
             return
         }
-        elements = Vector()
+        elements = ArrayList()
 
         var mult = 0
 
@@ -207,13 +205,13 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
 
     private fun performCaseIndexQuery(
         firstKey: String,
-        optimizations: Vector<PredicateProfile>
+        optimizations: ArrayList<PredicateProfile>
     ): LinkedHashSet<Int> {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
         //are a frequent target of bulk operations like graphing which do multiple requests across the
         //same query.
 
-        val op = optimizations.elementAt(0)
+        val op = optimizations[0]
 
         //TODO: This should likely be generalized for a number of other queries with bulk/nodeset
         //returns
@@ -232,7 +230,7 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
             //Check whether we've got a cache of this index.
             if (mIndexCache.containsKey(indexCacheKey)) {
                 //remove the match from the inputs
-                optimizations.removeElementAt(0)
+                optimizations.removeAt(0)
                 return mIndexCache[indexCacheKey]!!
             }
 
@@ -248,7 +246,7 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
         mMostRecentBatchFetch = arrayOf(emptyArray(), emptyArray(), emptyArray(), emptyArray())
 
         //remove the match from the inputs
-        optimizations.removeElementAt(0)
+        optimizations.removeAt(0)
 
         if (indexCacheKey != null) {
             //For now we're only going to run this on very small data sets because we don't

@@ -15,8 +15,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Application callout described in suite.xml
@@ -29,8 +27,8 @@ class Callout : Externalizable, DetailTemplate {
     private var image: String? = null
     private var displayName: String? = null
     private var type: String? = null
-    private var extras: Hashtable<String, String>? = null
-    private var responses: Vector<String>? = null
+    private var extras: HashMap<String, String>? = null
+    private var responses: ArrayList<String>? = null
     private var isAutoLaunching: Boolean = false
     private var assumePlainTextValues: Boolean = false
 
@@ -48,7 +46,7 @@ class Callout : Externalizable, DetailTemplate {
 
     constructor(
         actionName: String?, image: String?, displayName: String?,
-        extras: Hashtable<String, String>?, responses: Vector<String>?,
+        extras: HashMap<String, String>?, responses: ArrayList<String>?,
         responseDetail: DetailField?, type: String?, isAutoLaunching: Boolean
     ) {
         this.actionName = actionName
@@ -63,11 +61,11 @@ class Callout : Externalizable, DetailTemplate {
     }
 
     override fun evaluate(context: EvaluationContext?): CalloutData {
-        val evaluatedExtras = Hashtable<String, String>()
+        val evaluatedExtras = HashMap<String, String>()
         val forceXpathParsing = forceXpathParsing()
-        val keys = extras!!.keys()
-        while (keys.hasMoreElements()) {
-            val key = keys.nextElement() as String
+        val keys = extras!!.keys.iterator()
+        while (keys.hasNext()) {
+            val key = keys.next() as String
             if (!key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
                 val rawValue = extras!![key]
                 if (assumePlainTextValues && !forceXpathParsing) {
@@ -90,9 +88,9 @@ class Callout : Externalizable, DetailTemplate {
 
     // Returns true if force_xpath_parsing is yes
     private fun forceXpathParsing(): Boolean {
-        val keys = extras!!.keys()
-        while (keys.hasMoreElements()) {
-            val key = keys.nextElement() as String
+        val keys = extras!!.keys.iterator()
+        while (keys.hasNext()) {
+            val key = keys.next() as String
             if (key.contentEquals(KEY_FORCE_XPATH_PARSING)) {
                 val forceXpathVal = extras!![key]
                 return forceXpathVal!!.contentEquals(KEY_FORCE_XPATH_PARSING_VALUE_TRUE)
@@ -107,8 +105,8 @@ class Callout : Externalizable, DetailTemplate {
         displayName = ExtUtil.readString(`in`)
         actionName = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         image = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        extras = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<String, String>
-        responses = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
+        extras = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
+        responses = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
         responseDetailField = ExtUtil.read(`in`, ExtWrapNullable(DetailField::class.java), pf) as DetailField?
         type = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         isAutoLaunching = ExtUtil.readBool(`in`)
@@ -132,9 +130,9 @@ class Callout : Externalizable, DetailTemplate {
 
     fun getDisplayName(): String? = displayName
 
-    fun getExtras(): Hashtable<String, String>? = extras
+    fun getExtras(): HashMap<String, String>? = extras
 
-    fun getResponses(): Vector<String>? = responses
+    fun getResponses(): ArrayList<String>? = responses
 
     fun getResponseDetailField(): DetailField? = responseDetailField
 

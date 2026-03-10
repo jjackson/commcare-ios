@@ -11,8 +11,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -27,7 +25,7 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
         var root = parser.getAttributeValue(null, "root")
         root = root ?: "root"
 
-        val instances = Hashtable<String, DataInstance<*>>()
+        val instances = HashMap<String, DataInstance<*>>()
 
         val relevant = parser.getAttributeValue(null, "relevant")
         var relevantExpression: XPathExpression? = null
@@ -57,20 +55,20 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
             throw InvalidStructureException("Expected either <text> or <display> in menu", parser)
         }
 
-        val commandIds = Vector<String>()
-        val relevantExprs = Vector<String?>()
+        val commandIds = ArrayList<String>()
+        val relevantExprs = ArrayList<String?>()
         while (nextTagInBlock("menu")) {
             val tagName = parser.name
             if (tagName == "command") {
-                commandIds.addElement(parser.getAttributeValue(null, "id"))
+                commandIds.add(parser.getAttributeValue(null, "id"))
                 val relevantExpr = parser.getAttributeValue(null, "relevant")
                 if (relevantExpr == null) {
-                    relevantExprs.addElement(null)
+                    relevantExprs.add(null)
                 } else {
                     try {
                         //Safety checking
                         XPathParseTool.parseXPath(relevantExpr)
-                        relevantExprs.addElement(relevantExpr)
+                        relevantExprs.add(relevantExpr)
                     } catch (e: XPathSyntaxException) {
                         e.printStackTrace()
                         throw InvalidStructureException("Bad XPath Expression {$relevantExpr}", parser)
@@ -88,8 +86,7 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
             }
         }
 
-        val expressions = arrayOfNulls<String>(relevantExprs.size)
-        relevantExprs.copyInto(expressions)
+        val expressions = relevantExprs.toTypedArray()
 
         return Menu(
             id, root, relevant, relevantExpression, display, commandIds, expressions,

@@ -8,7 +8,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class ResourceParser(
     parser: KXmlParser,
@@ -25,7 +24,7 @@ class ResourceParser(
         val descriptor = parser.getAttributeValue(null, "descriptor")
         val lazy = parser.getAttributeValue(null, "lazy")
 
-        val locations = Vector<ResourceLocation>()
+        val locations = ArrayList<ResourceLocation>()
 
         while (nextTagInBlock("resource")) {
             //New Location
@@ -39,7 +38,7 @@ class ResourceParser(
             }
             //Don't use any authorities which are outside of the scope of the maximum
             if (authority >= maximumAuthority) {
-                locations.addElement(ResourceLocation(authority, location))
+                locations.add(ResourceLocation(authority, location))
             }
         }
 

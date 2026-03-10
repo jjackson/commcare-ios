@@ -9,7 +9,6 @@ import org.javarosa.core.model.data.SelectMultiData
 import org.javarosa.core.model.data.StringData
 import org.javarosa.core.model.data.helper.Selection
 import java.util.Date
-import java.util.Vector
 
 /**
  * @author Clayton Sims
@@ -35,9 +34,9 @@ object PreloadUtils {
             is Int -> IntegerData(o)
             is Long -> LongData(o)
             is Double -> DecimalData(o)
-            is Vector<*> -> {
+            is ArrayList<*> -> {
                 @Suppress("UNCHECKED_CAST")
-                SelectMultiData(o as Vector<Selection>)
+                SelectMultiData(o as ArrayList<Selection>)
             }
             is IAnswerData -> o
             else -> StringData(o.toString())

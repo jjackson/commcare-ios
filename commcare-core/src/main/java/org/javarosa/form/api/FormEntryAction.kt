@@ -8,7 +8,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Describes one form entry action used to replay form entry.
@@ -125,16 +124,16 @@ class FormEntryAction : Externalizable {
                 )
             }
 
-            val wrappedQuestionRefString = actionEntries.elementAt(0)
+            val wrappedQuestionRefString = actionEntries[0]
             val questionRefString = wrappedQuestionRefString.substring(1, wrappedQuestionRefString.length - 1)
             return if (entryCount == 2) {
-                if ("($NEW_REPEAT)" == actionEntries.elementAt(1)) {
+                if ("($NEW_REPEAT)" == actionEntries[1]) {
                     buildNewRepeatAction(questionRefString)
                 } else {
                     buildSkipAction(questionRefString)
                 }
             } else {
-                val wrappedValue = actionEntries.elementAt(2)
+                val wrappedValue = actionEntries[2]
                 val value = wrappedValue.substring(1, wrappedValue.length - 1)
                 buildValueSetAction(questionRefString, value)
             }

@@ -16,7 +16,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Base class for xpath function expressions.
@@ -130,8 +129,8 @@ abstract class XPathFuncExpr : XPathExpression {
         expectedArgCount = ExtUtil.readInt(`in`)
         evaluateArgsFirst = ExtUtil.readBool(`in`)
 
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
-        args = Array(v.size) { i -> v.elementAt(i) as XPathExpression }
+        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
+        args = Array(v.size) { i -> v[i] as XPathExpression }
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
@@ -140,16 +139,16 @@ abstract class XPathFuncExpr : XPathExpression {
         ExtUtil.write(out, expectedArgCount)
         ExtUtil.write(out, evaluateArgsFirst)
 
-        val v = Vector<XPathExpression>()
+        val v = ArrayList<XPathExpression>()
         for (arg in args) {
-            v.addElement(arg)
+            v.add(arg)
         }
         ExtUtil.write(out, ExtWrapListPoly(v))
         ExtUtil.write(out, cacheState)
     }
 
     @Throws(UnpivotableExpressionException::class)
-    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: Vector<Any>, sentinal: Any?): Any? {
+    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: ArrayList<Any>, sentinal: Any?): Any? {
         //for now we'll assume that all that functions do is return the composition of their components
         val argVals = arrayOfNulls<Any>(args.size)
 

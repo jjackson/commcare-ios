@@ -12,8 +12,8 @@ import org.kxml2.io.KXmlSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.HashMap;
 
 /**
  * @author ctsims
@@ -45,9 +45,9 @@ public class MockupSerializer {
                 s.endTag(XMLNS, "date");
             }
 
-            Hashtable<String, FormInstance> instances = mockup.getInstances();
-            for(Enumeration en = instances.keys() ; en.hasMoreElements() ;) {
-                String key = (String)en.nextElement();
+            HashMap<String, FormInstance> instances = mockup.getInstances();
+            for(Iterator en = instances.keySet().iterator() ; en.hasNext() ;) {
+                String key = (String)en.next();
                 DataInstance theInstance = instances.get(key);
 
                 s.startTag(XMLNS, "instance");

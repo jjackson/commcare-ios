@@ -1,6 +1,5 @@
 package org.javarosa.core.model.trace
 
-import java.util.Vector
 
 /**
  * A simple accumulator which keeps track of expressions which are evaluated
@@ -10,17 +9,17 @@ import java.util.Vector
  */
 class AccumulatingReporter : EvaluationTraceReporter {
 
-    private val traces: Vector<EvaluationTrace> = Vector()
+    private val traces: ArrayList<EvaluationTrace> = ArrayList()
 
     override fun wereTracesReported(): Boolean {
         return traces.size > 0
     }
 
     override fun reportTrace(trace: EvaluationTrace?) {
-        this.traces.add(trace)
+        this.traces.add(trace!!)
     }
 
-    override fun getCollectedTraces(): Vector<EvaluationTrace> {
+    override fun getCollectedTraces(): ArrayList<EvaluationTrace> {
         return traces
     }
 

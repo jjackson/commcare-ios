@@ -5,7 +5,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Hashtable
 
 /**
  * @author ctsims
@@ -28,8 +27,8 @@ class LedgerInstanceTreeElement(
         return LedgerChildElement.templateElement(this)
     }
 
-    override fun getStorageIndexMap(): Hashtable<XPathPathExpr, String> {
-        val indices = Hashtable<XPathPathExpr, String>()
+    override fun getStorageIndexMap(): HashMap<XPathPathExpr, String> {
+        val indices = HashMap<XPathPathExpr, String>()
 
         //TODO: Much better matching
         indices[ENTITY_ID_EXPR] = Ledger.INDEX_ENTITY_ID

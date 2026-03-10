@@ -3,7 +3,6 @@ package org.javarosa.xpath.parser.ast
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathFilterExpr
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Vector
 
 class ASTNodeFilterExpr : ASTNode() {
 
@@ -11,7 +10,7 @@ class ASTNodeFilterExpr : ASTNode() {
     var expr: ASTNodeAbstractExpr? = null
 
     @JvmField
-    val predicates: Vector<ASTNode> = Vector()
+    val predicates: ArrayList<ASTNode> = ArrayList()
 
     override fun getChildren(): List<ASTNode> {
         val list = ArrayList<ASTNode>()
@@ -25,7 +24,7 @@ class ASTNodeFilterExpr : ASTNode() {
     @Throws(XPathSyntaxException::class)
     override fun build(): XPathExpression {
         val preds = Array(predicates.size) { i ->
-            predicates.elementAt(i).build()!!
+            predicates[i].build()!!
         }
 
         return XPathFilterExpr(expr!!.build()!!, preds)

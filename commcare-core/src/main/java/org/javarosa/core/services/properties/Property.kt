@@ -6,7 +6,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Property is an encapsulation of a record containing a property in the J2ME
@@ -20,7 +19,7 @@ class Property : Persistable, IMetaData {
     var name: String = ""
 
     @JvmField
-    var value: Vector<String> = Vector()
+    var value: ArrayList<String> = ArrayList()
 
     @JvmField
     var recordId: Int = -1
@@ -37,7 +36,7 @@ class Property : Persistable, IMetaData {
             fullString = fullString + c
         }
         val nameindex = fullString.indexOf(",")
-        value = Vector()
+        value = ArrayList()
         if (nameindex == -1) {
             System.out.println("WARNING: Property in RMS with no value:$fullString")
             name = fullString.substring(0, fullString.length)
@@ -48,10 +47,10 @@ class Property : Persistable, IMetaData {
             while (packedvalue.isNotEmpty()) {
                 val index = packedvalue.indexOf(",")
                 if (index == -1) {
-                    value.addElement(packedvalue)
+                    value.add(packedvalue)
                     packedvalue = ""
                 } else {
-                    value.addElement(packedvalue.substring(0, index))
+                    value.add(packedvalue.substring(0, index))
                     packedvalue = packedvalue.substring(index + 1, packedvalue.length)
                 }
             }
@@ -64,9 +63,9 @@ class Property : Persistable, IMetaData {
         var outputString = name
         // Note that this enumeration should contain at least one element, otherwise the
         // deserialization is invalid
-        val en = value.elements()
-        while (en.hasMoreElements()) {
-            outputString += "," + en.nextElement()
+        val en = value.iterator()
+        while (en.hasNext()) {
+            outputString += "," + en.next()
         }
 
         for (i in outputString.indices) {

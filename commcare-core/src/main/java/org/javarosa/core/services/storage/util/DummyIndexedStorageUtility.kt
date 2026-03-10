@@ -16,18 +16,16 @@ import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 import java.util.LinkedHashSet
 import java.util.NoSuchElementException
-import java.util.Vector
 
 /**
  * @author ctsims
  */
 class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
 
-    private var meta: Hashtable<String, Hashtable<Any, Vector<Int>>>? = Hashtable()
-    private val data: Hashtable<Int, T> = Hashtable()
+    private var meta: HashMap<String, HashMap<Any, ArrayList<Int>>>? = HashMap()
+    private val data: HashMap<Int, T> = HashMap()
     private var curCount: Int = 0
     private val prototype: Class<T>
     private val mFactory: PrototypeFactory
@@ -65,20 +63,20 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         val m = p as IMetaData
         for (key in m.getMetaDataFields()) {
             if (!meta!!.containsKey(key)) {
-                meta!![key] = Hashtable<Any, Vector<Int>>()
+                meta!![key] = HashMap<Any, ArrayList<Int>>()
             }
         }
     }
 
-    private fun getIDsForInverseValue(fieldName: String, value: Any): Vector<Int> {
+    private fun getIDsForInverseValue(fieldName: String, value: Any): ArrayList<Int> {
         if (meta!![fieldName] == null) {
             throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototype.name}")
         }
         val allValues = meta!![fieldName]!!
-        val ids = Vector<Int>()
-        val en = allValues.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement()
+        val ids = ArrayList<Int>()
+        val en = allValues.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next()
 
             if (key != value && allValues[key] != null) {
                 for (id in allValues[key]!!) {
@@ -89,13 +87,13 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         return ids
     }
 
-    override fun getIDsForValue(fieldName: String, value: Any): Vector<Int> {
+    override fun getIDsForValue(fieldName: String, value: Any): ArrayList<Int> {
         //We don't support all index types
         if (meta!![fieldName] == null) {
             throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototype.name}")
         }
         if (meta!![fieldName]!![value] == null) {
-            return Vector()
+            return ArrayList()
         }
         return meta!![fieldName]!![value]!!
     }
@@ -125,7 +123,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         for (i in fieldNames.indices) {
             val matches = getIDsForValue(fieldNames[i], values[i])
             if (accumulator == null) {
-                accumulator = Vector(matches)
+                accumulator = ArrayList(matches)
             } else {
                 accumulator = DataUtil.intersection(accumulator, matches) as MutableList<Int>
             }
@@ -133,7 +131,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         for (i in inverseMatchFields.indices) {
             val matches = getIDsForInverseValue(inverseMatchFields[i], inverseMatchValues[i])
             if (accumulator == null) {
-                accumulator = Vector(matches)
+                accumulator = ArrayList(matches)
             } else {
                 accumulator = DataUtil.intersection(accumulator, matches) as MutableList<Int>
             }
@@ -157,11 +155,11 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
             throw InvalidIndexException("Multiple records matching meta index $fieldName with value $value", fieldName)
         }
 
-        return read(matches.elementAt(0))
+        return read(matches[0])
     }
 
-    override fun getRecordsForValues(metaFieldNames: Array<String>, values: Array<Any>): Vector<T> {
-        val matches = Vector<T>()
+    override fun getRecordsForValues(metaFieldNames: Array<String>, values: Array<Any>): ArrayList<T> {
+        val matches = ArrayList<T>()
         val idMatches = getIDsForValues(metaFieldNames, values)
         for (id in idMatches) {
             matches.add(read(id))
@@ -257,21 +255,21 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         data.clear()
     }
 
-    override fun removeAll(ef: EntityFilter<*>): Vector<Int> {
-        val removed = Vector<Int>()
-        val en = data.keys()
-        while (en.hasMoreElements()) {
-            val i = en.nextElement()
+    override fun removeAll(ef: EntityFilter<*>): ArrayList<Int> {
+        val removed = ArrayList<Int>()
+        val en = data.keys.iterator()
+        while (en.hasNext()) {
+            val i = en.next()
             when (ef.preFilter(i, null)) {
                 EntityFilter.PREFILTER_INCLUDE -> {
-                    removed.addElement(i)
+                    removed.add(i)
                     continue
                 }
                 EntityFilter.PREFILTER_EXCLUDE -> continue
             }
             @Suppress("UNCHECKED_CAST")
             if ((ef as EntityFilter<Any>).matches(data[i]!!)) {
-                removed.addElement(i)
+                removed.add(i)
             }
         }
         for (i in removed) {
@@ -305,9 +303,9 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
             metaEntry.clear()
         }
 
-        val en = data.keys()
-        while (en.hasMoreElements()) {
-            val i = en.nextElement()
+        val en = data.keys.iterator()
+        while (en.hasNext()) {
+            val i = en.next()
             addMeta(i)
         }
     }
@@ -317,16 +315,16 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
 
         if (e is IMetaData) {
             val m = e as IMetaData
-            val keys = meta!!.keys()
-            while (keys.hasMoreElements()) {
-                val key = keys.nextElement()
+            val keys = meta!!.keys.iterator()
+            while (keys.hasNext()) {
+                val key = keys.next()
 
                 val value = m.getMetaData(key) ?: continue
 
                 val records = meta!![key]!!
 
                 if (!records.containsKey(value)) {
-                    records[value] = Vector()
+                    records[value] = ArrayList()
                 }
                 val indices = records[value]!!
                 if (!indices.contains(i)) {
@@ -349,17 +347,17 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         }
     }
 
-    override fun getBulkRecordsForIndex(metaFieldName: String, matchingValues: Collection<String>): Vector<T> {
+    override fun getBulkRecordsForIndex(metaFieldName: String, matchingValues: Collection<String>): ArrayList<T> {
         // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
         @Suppress("UNCHECKED_CAST")
         return getRecordsForValues(arrayOf(metaFieldName), matchingValues.toTypedArray() as Array<Any>)
     }
 
-    override fun getBulkIdsForIndex(metaFieldName: String, matchingValues: Collection<String>): Vector<Int> {
+    override fun getBulkIdsForIndex(metaFieldName: String, matchingValues: Collection<String>): ArrayList<Int> {
         // we don't care about bulk retrieval for dummy storage, so just call normal method to get records here
         @Suppress("UNCHECKED_CAST")
         val result = getIDsForValues(arrayOf(metaFieldName), matchingValues.toTypedArray() as Array<Any>)
-        return Vector(result)
+        return ArrayList(result)
     }
 
     override fun bulkReadMetadata(cuedCases: LinkedHashSet<Int>, metaDataIds: Array<String>, metadataMap: HashMap<Int, Array<String>>) {
@@ -377,7 +375,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     }
 
     override fun initStorage() {
-        meta = Hashtable()
+        meta = HashMap()
     }
 
     override fun deleteStorage() {

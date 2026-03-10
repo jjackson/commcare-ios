@@ -1,7 +1,5 @@
 package org.commcare.suite.model
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Evaluated form of Callout class where all XPaths have been processed.
@@ -12,7 +10,7 @@ class CalloutData(
     val actionName: String?,
     val image: String?,
     val displayName: String?,
-    val extras: Hashtable<String, String>,
-    val responses: Vector<String>,
+    val extras: HashMap<String, String>,
+    val responses: ArrayList<String>,
     val type: String?
 )

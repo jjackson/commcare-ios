@@ -1,6 +1,5 @@
 package org.commcare.util
 
-import java.util.Vector
 
 /**
  * Common operations on Collections
@@ -8,21 +7,21 @@ import java.util.Vector
 object CollectionUtils {
 
     /**
-     * @param first  First Integer Vector to be merged
-     * @param second Second Integer Vector to be merged
+     * @param first  First Integer ArrayList to be merged
+     * @param second Second Integer ArrayList to be merged
      * @return single merged int array of first and second
      */
     @JvmStatic
-    fun mergeIntegerVectorsInArray(first: Vector<Int>, second: Vector<Int>): IntArray {
+    fun mergeIntegerVectorsInArray(first: ArrayList<Int>, second: ArrayList<Int>): IntArray {
         val resultLength = first.size + second.size
         val result = IntArray(resultLength)
         var i = 0
         while (i < first.size) {
-            result[i] = first.elementAt(i)
+            result[i] = first[i]
             ++i
         }
         while (i < resultLength) {
-            result[i] = second.elementAt(i - first.size)
+            result[i] = second[i - first.size]
             ++i
         }
         return result

@@ -9,15 +9,13 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.instance.utils.TreeUtilities
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * @author ctsims
  */
 class LedgerChildElement : StorageBackedChildElement<Ledger> {
 
-    private var childAttributeHintMap: Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>? = null
+    private var childAttributeHintMap: HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>? = null
 
     private var empty: TreeElement? = null
 
@@ -72,8 +70,8 @@ class LedgerChildElement : StorageBackedChildElement<Ledger> {
 
             cacheBuilder.setAttribute(null, nameId, ledger.getEntiyId())
 
-            val childAttrHintMap = Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>()
-            val sectionIdMap = Hashtable<String, Array<TreeElement>>()
+            val childAttrHintMap = HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>()
+            val sectionIdMap = HashMap<String, Array<TreeElement>>()
 
             val sectionList = ledger.getSectionList()
             for (i in sectionList.indices) {
@@ -82,8 +80,8 @@ class LedgerChildElement : StorageBackedChildElement<Ledger> {
                 cacheBuilder.addChild(ledgerElement)
                 sectionIdMap[sectionList[i]] = arrayOf(ledgerElement)
 
-                val hintMap = Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>()
-                val idMap = Hashtable<String, Array<TreeElement>>()
+                val hintMap = HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>()
+                val idMap = HashMap<String, Array<TreeElement>>()
 
                 val entryList = ledger.getListOfEntries(sectionList[i])
                 for (j in entryList.indices) {
@@ -112,7 +110,7 @@ class LedgerChildElement : StorageBackedChildElement<Ledger> {
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? {
         return TreeUtilities.tryBatchChildFetch(this, childAttributeHintMap, name, mult, predicates, evalContext)

@@ -11,7 +11,6 @@ import org.javarosa.model.xform.XFormSerializingVisitor
 import org.javarosa.model.xform.XPathReference
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
@@ -59,7 +58,7 @@ open class FormController(
      *
      * @return Array of Strings containing the languages embedded in the XForm.
      */
-    fun getLanguages(): Array<String?>? {
+    fun getLanguages(): Array<String>? {
         return mFormEntryController.getModel().getLanguages()
     }
 
@@ -440,7 +439,7 @@ open class FormController(
         var instanceId: String? = null
 
         if (e != null) {
-            val v: Vector<AbstractTreeElement>
+            val v: ArrayList<AbstractTreeElement>
 
             // instance id...
             v = e.getChildrenWithName(INSTANCE_ID)

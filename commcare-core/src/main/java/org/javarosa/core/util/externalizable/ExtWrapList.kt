@@ -3,7 +3,6 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 // List of objects of single (non-polymorphic) type
 class ExtWrapList : ExternalizableWrapper {
@@ -30,8 +29,8 @@ class ExtWrapList : ExternalizableWrapper {
 
     constructor()
 
-    // Assumes that the list implementation is a Vector, since that is most common
-    constructor(listElementType: Class<*>) : this(listElementType, Vector::class.java)
+    // Assumes that the list implementation is a ArrayList, since that is most common
+    constructor(listElementType: Class<*>) : this(listElementType, ArrayList::class.java)
 
     @Suppress("UNCHECKED_CAST")
     constructor(listElementType: Class<*>, listImplementation: Class<*>) {
@@ -40,8 +39,8 @@ class ExtWrapList : ExternalizableWrapper {
         this.sealed = false
     }
 
-    // Assumes that the list implementation is a Vector, since that is most common
-    constructor(type: ExternalizableWrapper) : this(type, Vector::class.java)
+    // Assumes that the list implementation is a ArrayList, since that is most common
+    constructor(type: ExternalizableWrapper) : this(type, ArrayList::class.java)
 
     @Suppress("UNCHECKED_CAST")
     constructor(type: ExternalizableWrapper, listImplementation: Class<*>) {
@@ -60,9 +59,9 @@ class ExtWrapList : ExternalizableWrapper {
         if (!sealed) {
             val size = ExtUtil.readNumeric(`in`).toInt()
             try {
-                val l: MutableList<Any?> = if (listImplementation == Vector::class.java) {
-                    // to preserve performance gains of instantiating a Vector with its size
-                    Vector(size)
+                val l: MutableList<Any?> = if (listImplementation == ArrayList::class.java) {
+                    // to preserve performance gains of instantiating a ArrayList with its size
+                    ArrayList(size)
                 } else {
                     @Suppress("DEPRECATION")
                     listImplementation!!.newInstance() as MutableList<Any?>

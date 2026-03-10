@@ -10,7 +10,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Parses case list actions, which when triggered manipulate the session stack
@@ -30,7 +29,7 @@ class ActionParser(parser: KXmlParser) : CommCareElementParser<Action>(parser) {
         val iconForActionBarPlacement = parser.getAttributeValue(null, "action-bar-icon")
 
         var display: DisplayUnit? = null
-        val stackOps = Vector<StackOperation>()
+        val stackOps = ArrayList<StackOperation>()
 
         val relevantExpr = parseRelevancyExpr()
 
@@ -56,7 +55,7 @@ class ActionParser(parser: KXmlParser) : CommCareElementParser<Action>(parser) {
             } else if (parser.name == "stack") {
                 val sop = StackOpParser(parser)
                 while (this.nextTagInBlock(StackOpParser.NAME_STACK)) {
-                    stackOps.addElement(sop.parse())
+                    stackOps.add(sop.parse())
                 }
             }
         }

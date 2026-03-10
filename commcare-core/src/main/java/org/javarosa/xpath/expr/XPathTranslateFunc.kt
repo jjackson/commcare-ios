@@ -3,7 +3,6 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Hashtable
 
 open class XPathTranslateFunc : XPathFuncExpr {
     constructor() {
@@ -41,7 +40,7 @@ open class XPathTranslateFunc : XPathFuncExpr {
             val from = FunctionUtils.toString(o2)
             val to = FunctionUtils.toString(o3)
 
-            val map = Hashtable<Char, Char>()
+            val map = HashMap<Char, Char>()
             for (i in 0 until Math.min(from.length, to.length)) {
                 if (!map.containsKey(from[i])) {
                     map[from[i]] = to[i]

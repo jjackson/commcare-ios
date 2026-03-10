@@ -1,7 +1,5 @@
 package org.commcare.core.graph.model
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Contains the fully-evaluated data for a single graph series.
@@ -9,14 +7,14 @@ import java.util.Vector
  * @author jschweers
  */
 class SeriesData : ConfigurableData {
-    private val mPoints = Vector<XYPointData>()
-    private val mConfiguration = Hashtable<String, String>()
+    private val mPoints = ArrayList<XYPointData>()
+    private val mConfiguration = HashMap<String, String>()
 
     fun addPoint(p: XYPointData) {
-        mPoints.addElement(p)
+        mPoints.add(p)
     }
 
-    fun getPoints(): Vector<XYPointData> = mPoints
+    fun getPoints(): ArrayList<XYPointData> = mPoints
 
     /**
      * Number of points in the series.

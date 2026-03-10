@@ -13,8 +13,6 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.ArrayList
 import java.util.HashMap
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Suites are containers for a set of actions,
@@ -30,21 +28,21 @@ class Suite : Persistable {
     private var recordId: Int = -1
 
     /** Detail id -> Detail Object  */
-    private var details: Hashtable<String, Detail>? = null
+    private var details: HashMap<String, Detail>? = null
 
     /** Entry id (also the same for menus) -> Entry Object  */
-    private var entries: Hashtable<String, Entry>? = null
+    private var entries: HashMap<String, Entry>? = null
     private val idToMenus: HashMap<String, MutableList<Menu>> = HashMap()
     private val rootToMenus: HashMap<String, MutableList<Menu>> = HashMap()
 
-    private var menus: Vector<Menu>? = null
-    private var endpoints: Hashtable<String, Endpoint>? = null
+    private var menus: ArrayList<Menu>? = null
+    private var endpoints: HashMap<String, Endpoint>? = null
 
     constructor()
 
     constructor(
-        version: Int, details: Hashtable<String, Detail>?,
-        entries: Hashtable<String, Entry>?, menus: Vector<Menu>?, endpoints: Hashtable<String, Endpoint>?
+        version: Int, details: HashMap<String, Detail>?,
+        entries: HashMap<String, Entry>?, menus: ArrayList<Menu>?, endpoints: HashMap<String, Endpoint>?
     ) {
         this.version = version
         this.details = details
@@ -82,7 +80,7 @@ class Suite : Persistable {
      * @return The menus which define how to access the actions
      * which are available in this suite.
      */
-    fun getMenus(): Vector<Menu> = menus!!
+    fun getMenus(): ArrayList<Menu> = menus!!
 
     fun getMenusWithId(id: String?): List<Menu>? = idToMenus[id]
 
@@ -97,13 +95,13 @@ class Suite : Persistable {
      * suite, indexed by their id (which is present in the menu
      * definitions).
      */
-    fun getEntries(): Hashtable<String, Entry> = entries!!
+    fun getEntries(): HashMap<String, Entry> = entries!!
 
     fun getEntry(id: String?): Entry? = entries!![id]
 
     fun getEndpoint(id: String?): Endpoint? = endpoints!![id]
 
-    fun getEndpoints(): Hashtable<String, Endpoint> = endpoints!!
+    fun getEndpoints(): HashMap<String, Endpoint> = endpoints!!
 
     /**
      * @param id The String ID of a detail definition
@@ -117,10 +115,10 @@ class Suite : Persistable {
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.version = ExtUtil.readInt(`in`)
-        this.details = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Detail::class.java), pf) as Hashtable<String, Detail>
-        this.entries = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as Hashtable<String, Entry>
-        this.menus = ExtUtil.read(`in`, ExtWrapList(Menu::class.java), pf) as Vector<Menu>
-        this.endpoints = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Endpoint::class.java), pf) as Hashtable<String, Endpoint>
+        this.details = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Detail::class.java), pf) as HashMap<String, Detail>
+        this.entries = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Entry>
+        this.menus = ExtUtil.read(`in`, ExtWrapList(Menu::class.java), pf) as ArrayList<Menu>
+        this.endpoints = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Endpoint::class.java), pf) as HashMap<String, Endpoint>
         buildIdToMenus()
     }
 

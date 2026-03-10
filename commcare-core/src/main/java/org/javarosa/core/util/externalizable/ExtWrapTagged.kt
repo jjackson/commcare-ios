@@ -3,7 +3,6 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 class ExtWrapTagged : ExternalizableWrapper {
 
@@ -44,7 +43,7 @@ class ExtWrapTagged : ExternalizableWrapper {
     }
 
     companion object {
-        private val WRAPPER_CODES: Hashtable<Class<*>, Int> = Hashtable<Class<*>, Int>().apply {
+        private val WRAPPER_CODES: HashMap<Class<*>, Int> = HashMap<Class<*>, Int>().apply {
             put(ExtWrapNullable::class.java, 0x00)
             put(ExtWrapList::class.java, 0x20)
             put(ExtWrapListPoly::class.java, 0x21)
@@ -66,9 +65,9 @@ class ExtWrapTagged : ExternalizableWrapper {
 
                 // find wrapper indicated by code
                 var type: ExternalizableWrapper? = null
-                val e = WRAPPER_CODES.keys()
-                while (e.hasMoreElements()) {
-                    val t = e.nextElement()
+                val e = WRAPPER_CODES.keys.iterator()
+                while (e.hasNext()) {
+                    val t = e.next()
                     if (WRAPPER_CODES[t]!! == wrapperCode) {
                         try {
                             type = PrototypeFactory.getInstance(t) as ExternalizableWrapper

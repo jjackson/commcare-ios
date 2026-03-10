@@ -21,8 +21,6 @@ import org.javarosa.xpath.expr.XPathPathExpr
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * An element of a FormInstance.
@@ -54,9 +52,9 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     // I made all of these null again because there are so many treeelements that they
     // take up a huuuge amount of space together.
     @JvmField
-    protected var attributes: Vector<TreeElement>? = null
+    protected var attributes: ArrayList<TreeElement>? = null
     @JvmField
-    protected var children: Vector<TreeElement>? = null
+    protected var children: ArrayList<TreeElement>? = null
 
     /* model properties */
     @JvmField
@@ -82,7 +80,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      * An optional mapping of this element's children based on a path step
      * result that can be used to quickly index child nodes
      */
-    private var mChildStepMapping: Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>? = null
+    private var mChildStepMapping: HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>? = null
 
     /**
      * TreeElement with null name and 0 multiplicity? (a "hidden root" node?)
@@ -132,7 +130,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
             if (multiplicity == TreeReference.INDEX_TEMPLATE || currentChildren.size < multiplicity + 1) {
                 return null
             }
-            return currentChildren.elementAt(multiplicity) // droos: i'm suspicious of this
+            return currentChildren[multiplicity] // droos: i'm suspicious of this
         } else {
             for (child in currentChildren) {
                 if (child.getMult() == multiplicity &&
@@ -146,19 +144,19 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         return null
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         return getChildrenWithName(name, false)
     }
 
-    private fun getChildrenWithName(name: String, includeTemplate: Boolean): Vector<AbstractTreeElement> {
-        val v = Vector<AbstractTreeElement>()
+    private fun getChildrenWithName(name: String, includeTemplate: Boolean): ArrayList<AbstractTreeElement> {
+        val v = ArrayList<AbstractTreeElement>()
         val currentChildren = children ?: return v
 
         for (child in currentChildren) {
             if ((child.getName() == name || name == TreeReference.NAME_WILDCARD) &&
                 (includeTemplate || child.getMult() != TreeReference.INDEX_TEMPLATE)
             )
-                v.addElement(child)
+                v.add(child)
         }
 
         return v
@@ -168,7 +166,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
     override fun hasChildren(): Boolean = getNumChildren() > 0
 
-    override fun getChildAt(i: Int): TreeElement? = children!!.elementAt(i)
+    override fun getChildAt(i: Int): TreeElement? = children!![i]
 
     override val isRepeatable: Boolean
         get() = getMaskVar(MASK_REPEATABLE)
@@ -194,7 +192,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
 
         if (children == null) {
-            children = Vector()
+            children = ArrayList()
         }
 
         // try to keep things in order
@@ -213,7 +211,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
                 i = referenceIndexOf(children!!, anchor) + 1
             }
         }
-        children!!.insertElementAt(child, i)
+        children!!.add(i, child)
 
         initAddedSubNode(child)
     }
@@ -226,11 +224,11 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     fun removeChild(child: TreeElement) {
-        children?.removeElement(child)
+        children?.remove(child)
     }
 
     fun removeChildAt(i: Int) {
-        children!!.removeElementAt(i)
+        children!!.removeAt(i)
     }
 
     override fun getChildMultiplicity(name: String): Int {
@@ -267,9 +265,9 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         val newNode = shallowCopy()
 
         if (children != null) {
-            newNode.children = Vector()
+            newNode.children = ArrayList()
             for (i in 0 until children!!.size) {
-                val child = children!!.elementAt(i)
+                val child = children!![i]
                 if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
                     newNode.addChild(child.deepCopy(includeTemplates))
                 }
@@ -277,7 +275,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
 
         if (attributes != null) {
-            newNode.attributes = Vector()
+            newNode.attributes = ArrayList()
             for (attr in attributes!!) {
                 if (includeTemplates || attr.getMult() != TreeReference.INDEX_TEMPLATE) {
                     newNode.addAttribute(attr.deepCopy(includeTemplates))
@@ -294,10 +292,10 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
 
         if (attributes == null) {
-            attributes = Vector()
+            attributes = ArrayList()
         }
 
-        attributes!!.addElement(attr)
+        attributes!!.add(attr)
 
         initAddedSubNode(attr)
     }
@@ -357,12 +355,12 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         if (isRelevant != oldRelevancy) {
             attributes?.let { attrs ->
                 for (i in 0 until attrs.size) {
-                    attrs.elementAt(i).setRelevant(isRelevant, true)
+                    attrs[i].setRelevant(isRelevant, true)
                 }
             }
             children?.let { kids ->
                 for (i in 0 until kids.size) {
-                    kids.elementAt(i).setRelevant(isRelevant, true)
+                    kids[i].setRelevant(isRelevant, true)
                 }
             }
         }
@@ -383,7 +381,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         if (isEnabled() != oldEnabled) {
             children?.let { kids ->
                 for (i in 0 until kids.size) {
-                    kids.elementAt(i).setEnabled(isEnabled(), true)
+                    kids[i].setEnabled(isEnabled(), true)
                 }
             }
         }
@@ -395,9 +393,9 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         visitor.visit(this)
 
         val currentChildren = children ?: return
-        val en = currentChildren.elements()
-        while (en.hasMoreElements()) {
-            (en.nextElement() as TreeElement).accept(visitor)
+        val en = currentChildren.iterator()
+        while (en.hasNext()) {
+            (en.next() as TreeElement).accept(visitor)
         }
     }
 
@@ -406,15 +404,15 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     override fun getAttributeCount(): Int = attributes?.size ?: 0
 
     override fun getAttributeNamespace(index: Int): String? {
-        return attributes!!.elementAt(index).namespace
+        return attributes!![index].namespace
     }
 
     override fun getAttributeName(index: Int): String? {
-        return attributes!!.elementAt(index).name
+        return attributes!![index].name
     }
 
     override fun getAttributeValue(index: Int): String? {
-        return getAttributeValue(attributes!!.elementAt(index))
+        return getAttributeValue(attributes!![index])
     }
 
     /**
@@ -441,7 +439,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
     fun setAttribute(namespace: String?, name: String, value: String?) {
         if (attributes == null) {
-            this.attributes = Vector()
+            this.attributes = ArrayList()
         }
 
         var ns = namespace
@@ -452,10 +450,10 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
 
         for (i in attributes!!.size - 1 downTo 0) {
-            val attribut = attributes!!.elementAt(i)
+            val attribut = attributes!![i]
             if (attribut.name == name && (ns == null || ns == attribut.namespace)) {
                 if (value == null) {
-                    attributes!!.removeElementAt(i)
+                    attributes!!.removeAt(i)
                 } else {
                     attribut.setValue(UncastData(value))
                 }
@@ -467,7 +465,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         attr.setValue(UncastData(value!!))
         attr.setParent(this)
 
-        attributes!!.addElement(attr)
+        attributes!!.add(attr)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
@@ -496,13 +494,13 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         if (!ExtUtil.readBool(`in`)) {
             children = null
         } else {
-            children = Vector()
+            children = ArrayList()
             val numChildren = ExtUtil.readNumeric(`in`).toInt()
             for (i in 0 until numChildren) {
                 val child = TreeElement()
                 child.readExternal(`in`, pf)
                 child.setParent(this)
-                children!!.addElement(child)
+                children!!.add(child)
             }
         }
     }
@@ -512,13 +510,13 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         if (!ExtUtil.readBool(`in`)) {
             attributes = null
         } else {
-            attributes = Vector()
+            attributes = ArrayList()
             val attrCount = ExtUtil.readNumeric(`in`).toInt()
             for (i in 0 until attrCount) {
                 val attr = TreeElement()
                 attr.readExternal(`in`, pf)
                 attr.setParent(this)
-                attributes!!.addElement(attr)
+                attributes!!.add(attr)
             }
         }
     }
@@ -550,9 +548,9 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         } else {
             ExtUtil.writeBool(out, true)
             ExtUtil.writeNumeric(out, children!!.size.toLong())
-            val en = children!!.elements()
-            while (en.hasMoreElements()) {
-                val child = en.nextElement() as TreeElement
+            val en = children!!.iterator()
+            while (en.hasNext()) {
+                val child = en.next() as TreeElement
                 child.writeExternal(out)
             }
         }
@@ -565,9 +563,9 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         } else {
             ExtUtil.writeBool(out, true)
             ExtUtil.writeNumeric(out, attributes!!.size.toLong())
-            val en = attributes!!.elements()
-            while (en.hasMoreElements()) {
-                val attr = en.nextElement() as TreeElement
+            val en = attributes!!.iterator()
+            while (en.hasNext()) {
+                val attr = en.next() as TreeElement
                 attr.writeExternal(out)
             }
         }
@@ -612,17 +610,17 @@ open class TreeElement : Externalizable, AbstractTreeElement {
                         val newChild = child.deepCopy(true)
                         newChild.setMult(k)
                         if (children == null) {
-                            children = Vector()
+                            children = ArrayList()
                         }
-                        this.children!!.insertElementAt(newChild, j + k + 1)
-                        newChild.populate(newChildren.elementAt(k) as TreeElement)
+                        this.children!!.add(j + k + 1, newChild)
+                        newChild.populate(newChildren[k] as TreeElement)
                     }
                     j += newChildren.size
                 } else {
                     if (newChildren.size == 0) {
                         child.setRelevant(false)
                     } else {
-                        child.populate(newChildren.elementAt(0) as TreeElement)
+                        child.populate(newChildren[0] as TreeElement)
                     }
                 }
                 j++
@@ -665,14 +663,14 @@ open class TreeElement : Externalizable, AbstractTreeElement {
                         val newChild = template!!.deepCopy(false)
                         newChild.setMult(k)
                         if (children == null) {
-                            children = Vector()
+                            children = ArrayList()
                         }
-                        this.children!!.insertElementAt(newChild, i + k + 1)
-                        newChild.populateTemplate(newChildren.elementAt(k) as TreeElement, f)
+                        this.children!!.add(i + k + 1, newChild)
+                        newChild.populateTemplate(newChildren[k] as TreeElement, f)
                     }
                     i += newChildren.size
                 } else {
-                    child.populateTemplate(newChildren.elementAt(0) as TreeElement, f)
+                    child.populateTemplate(newChildren[0] as TreeElement, f)
                 }
                 i++
             }
@@ -790,14 +788,14 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      * @param childAttributeHintMap A table of Path Steps which can be indexed during batch fetch, along with
      *                              a mapping of which values of those steps match which children
      */
-    fun addAttributeMap(childAttributeHintMap: Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>) {
+    fun addAttributeMap(childAttributeHintMap: HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>) {
         this.mChildStepMapping = childAttributeHintMap
     }
 
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? {
         return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext)
@@ -908,7 +906,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         if (!ExtUtil.readBool(`in`)) {
             children = null
         } else {
-            children = Vector()
+            children = ArrayList()
             val numChildren = ExtUtil.readNumeric(`in`).toInt()
             for (i in 0 until numChildren) {
                 val normal = ExtUtil.readBool(`in`)
@@ -921,7 +919,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
                     child = ExtUtil.read(`in`, ExtWrapTagged(), pf) as TreeElement
                 }
                 child.setParent(this)
-                children!!.addElement(child)
+                children!!.add(child)
             }
         }
 
@@ -936,22 +934,22 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
         @Suppress("UNCHECKED_CAST")
         val attStrings = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<Any>
+            ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<Any>
         )
         setAttributesFromSingleStringVector(attStrings)
     }
 
-    private fun setAttributesFromSingleStringVector(attStrings: Vector<Any>?) {
+    private fun setAttributesFromSingleStringVector(attStrings: ArrayList<Any>?) {
         if (attStrings != null) {
-            this.attributes = Vector()
+            this.attributes = ArrayList()
             for (i in 0 until attStrings.size) {
                 addSingleAttribute(i, attStrings)
             }
         }
     }
 
-    private fun addSingleAttribute(i: Int, attStrings: Vector<Any>) {
-        var att = attStrings.elementAt(i) as String
+    private fun addSingleAttribute(i: Int, attStrings: ArrayList<Any>) {
+        var att = attStrings[i] as String
         val array = arrayOfNulls<String>(3)
 
         var pos: Int
@@ -1020,12 +1018,12 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
 
         /**
-         * Implementation of Vector.indexOf that avoids calling TreeElement.equals,
+         * Implementation of ArrayList.indexOf that avoids calling TreeElement.equals,
          * which is very slow.
          */
-        private fun referenceIndexOf(list: Vector<*>, potentialEntry: Any): Int {
+        private fun referenceIndexOf(list: ArrayList<*>, potentialEntry: Any): Int {
             for (i in 0 until list.size) {
-                val element = list.elementAt(i)
+                val element = list[i]
                 if (potentialEntry === element) {
                     return i
                 }

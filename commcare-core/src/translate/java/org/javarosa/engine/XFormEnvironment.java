@@ -13,7 +13,7 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Run an XForm programatically for fun and profit.
@@ -65,7 +65,7 @@ public class XFormEnvironment {
             session = new Session();
             currentStep = new Step();
         } else {
-            currentStep = session.getSteps().elementAt(0);
+            currentStep = session.getSteps().get(0);
         }
 
         FormEntryModel fem = new FormEntryModel(form);
@@ -77,7 +77,7 @@ public class XFormEnvironment {
             Step toRet = currentStep;
             stepCount++;
             if(session.getSteps().size() > stepCount) {
-                currentStep = session.getSteps().elementAt(stepCount);
+                currentStep = session.getSteps().get(stepCount);
             } else {
                 currentStep = null;
             }
@@ -88,7 +88,7 @@ public class XFormEnvironment {
     }
 
     private InstanceInitializationFactory createIIF() {
-        return new MockupProviderFactory(mockup == null ? new Hashtable() : mockup.getInstances());
+        return new MockupProviderFactory(mockup == null ? new HashMap() : mockup.getInstances());
     }
 
     /**

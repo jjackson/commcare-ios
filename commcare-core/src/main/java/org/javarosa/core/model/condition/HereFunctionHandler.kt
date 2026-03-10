@@ -1,14 +1,13 @@
 package org.javarosa.core.model.condition
 
-import java.util.Vector
 
 abstract class HereFunctionHandler : IFunctionHandler {
 
     protected var listener: HereFunctionHandlerListener? = null
 
-    override fun getPrototypes(): Vector<*> {
-        val p = Vector<Array<Class<*>>>()
-        p.addElement(arrayOf())
+    override fun getPrototypes(): ArrayList<*> {
+        val p = ArrayList<Array<Class<*>>>()
+        p.add(arrayOf())
         return p
     }
 

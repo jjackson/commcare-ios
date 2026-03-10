@@ -13,7 +13,6 @@ import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.xpath.expr.XPathExpression
 
 import java.util.HashMap
-import java.util.Vector
 
 /**
  * This handler detects contexts in which the query is likely to trip many index lookups and will
@@ -33,9 +32,9 @@ class CaseIndexPrefetchHandler(private val mCaseIndexTable: CaseIndexTable?) : Q
 
     class Cache : QueryCache {
         @JvmField
-        var currentlyFetchedIndexKeys: Vector<String> = Vector()
+        var currentlyFetchedIndexKeys: ArrayList<String> = ArrayList()
         @JvmField
-        var indexCache: HashMap<String, Vector<Int>> = HashMap()
+        var indexCache: HashMap<String, ArrayList<Int>> = HashMap()
     }
 
     //TODO: Profile table by each type of index for size to identify threshold changes.
@@ -44,7 +43,7 @@ class CaseIndexPrefetchHandler(private val mCaseIndexTable: CaseIndexTable?) : Q
         return 1
     }
 
-    override fun profileHandledQuerySet(profiles: Vector<PredicateProfile>): IndexedValueLookup? {
+    override fun profileHandledQuerySet(profiles: ArrayList<PredicateProfile>): IndexedValueLookup? {
         val ret = QueryUtils.getFirstKeyIndexedValue(profiles)
         if (ret != null) {
             if (ret.key.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
@@ -74,11 +73,11 @@ class CaseIndexPrefetchHandler(private val mCaseIndexTable: CaseIndexTable?) : Q
         return cache.indexCache[cacheKey]
     }
 
-    override fun updateProfiles(querySet: IndexedValueLookup, profiles: Vector<PredicateProfile>) {
+    override fun updateProfiles(querySet: IndexedValueLookup, profiles: ArrayList<PredicateProfile>) {
         profiles.remove(querySet)
     }
 
-    override fun collectPredicateProfiles(predicates: Vector<XPathExpression>, context: QueryContext, evaluationContext: EvaluationContext): Collection<PredicateProfile>? {
+    override fun collectPredicateProfiles(predicates: ArrayList<XPathExpression>, context: QueryContext, evaluationContext: EvaluationContext): Collection<PredicateProfile>? {
         return null
     }
 }

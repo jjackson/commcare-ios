@@ -24,9 +24,9 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import static org.junit.Assert.fail;
 
@@ -89,25 +89,25 @@ public class ExternalizableTest {
 
         if (o == null) {
             return "(null)";
-        } else if (o instanceof Vector) {
+        } else if (o instanceof ArrayList) {
             StringBuffer sb = new StringBuffer();
             sb.append("V[");
-            for (Enumeration e = ((Vector)o).elements(); e.hasMoreElements(); ) {
-                sb.append(printObj(e.nextElement()));
-                if (e.hasMoreElements())
+            for (Iterator e = ((ArrayList)o).iterator(); e.hasNext(); ) {
+                sb.append(printObj(e.next()));
+                if (e.hasNext())
                     sb.append(", ");
             }
             sb.append("]");
             return sb.toString();
-        } else if (o instanceof Hashtable) {
+        } else if (o instanceof HashMap) {
             StringBuffer sb = new StringBuffer();
             sb.append(o instanceof OrderedHashtable ? "oH" : "H").append("[");
-            for (Enumeration e = ((Hashtable)o).keys(); e.hasMoreElements(); ) {
-                Object key = e.nextElement();
+            for (Iterator e = ((HashMap)o).keySet().iterator(); e.hasNext(); ) {
+                Object key = e.next();
                 sb.append(printObj(key));
                 sb.append("=>");
-                sb.append(printObj(((Hashtable)o).get(key)));
-                if (e.hasMoreElements())
+                sb.append(printObj(((HashMap)o).get(key)));
+                if (e.hasNext())
                     sb.append(", ");
             }
             sb.append("]");
@@ -164,22 +164,22 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapNullable(new SampleExtz("hi", "there")), new ExtWrapNullable(SampleExtz.class));
 
         //vectors of base types
-        Vector v = new Vector();
-        v.addElement(Integer.valueOf(27));
-        v.addElement(Integer.valueOf(-73));
-        v.addElement(Integer.valueOf(1024));
-        v.addElement(Integer.valueOf(66066066));
+        ArrayList v = new ArrayList();
+        v.add(Integer.valueOf(27));
+        v.add(Integer.valueOf(-73));
+        v.add(Integer.valueOf(1024));
+        v.add(Integer.valueOf(66066066));
         testExternalizable(new ExtWrapList(v), new ExtWrapList(Integer.class));
 
-        Vector vs = new Vector();
-        vs.addElement("alpha");
-        vs.addElement("beta");
-        vs.addElement("gamma");
+        ArrayList vs = new ArrayList();
+        vs.add("alpha");
+        vs.add("beta");
+        vs.add("gamma");
         testExternalizable(new ExtWrapList(vs), new ExtWrapList(String.class));
 
-        Vector w = new Vector();
-        w.addElement(new SampleExtz("where", "is"));
-        w.addElement(new SampleExtz("the", "beef"));
+        ArrayList w = new ArrayList();
+        w.add(new SampleExtz("where", "is"));
+        w.add(new SampleExtz("the", "beef"));
         testExternalizable(new ExtWrapList(w), new ExtWrapList(SampleExtz.class));
 
         //nullable vectors; vectors of nullables (no practical use)
@@ -188,19 +188,19 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapList(v, new ExtWrapNullable()), new ExtWrapList(new ExtWrapNullable(Integer.class)));
 
         //empty vectors (base types)
-        testExternalizable(new ExtWrapList(new Vector()), new ExtWrapList(String.class));
-        testExternalizable(new ExtWrapList(new Vector(), new ExtWrapBase(Integer.class)), new ExtWrapList(String.class)); //sub-types don't matter for empties
+        testExternalizable(new ExtWrapList(new ArrayList()), new ExtWrapList(String.class));
+        testExternalizable(new ExtWrapList(new ArrayList(), new ExtWrapBase(Integer.class)), new ExtWrapList(String.class)); //sub-types don't matter for empties
 
         //vectors of vectors (including empties)
-        Vector x = new Vector();
-        x.addElement(Integer.valueOf(-35));
-        x.addElement(Integer.valueOf(-31415926));
-        Vector y = new Vector();
-        y.addElement(v);
-        y.addElement(x);
-        y.addElement(new Vector());
+        ArrayList x = new ArrayList();
+        x.add(Integer.valueOf(-35));
+        x.add(Integer.valueOf(-31415926));
+        ArrayList y = new ArrayList();
+        y.add(v);
+        y.add(x);
+        y.add(new ArrayList());
         testExternalizable(new ExtWrapList(y, new ExtWrapList()), new ExtWrapList(new ExtWrapList(Integer.class))); //risky to not specify 'leaf' type (Integer), but works in limited situations
-        testExternalizable(new ExtWrapList(new Vector(), new ExtWrapList()), new ExtWrapList(new ExtWrapList(Integer.class))); //same as above
+        testExternalizable(new ExtWrapList(new ArrayList(), new ExtWrapList()), new ExtWrapList(new ExtWrapList(Integer.class))); //same as above
 
         //tagged base types
         testExternalizable(new ExtWrapTagged("string"), new ExtWrapTagged());
@@ -216,20 +216,20 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapTagged(new ExtWrapNullable("string")), new ExtWrapTagged());
         testExternalizable(new ExtWrapTagged(new ExtWrapNullable((String)null)), new ExtWrapTagged());
         testExternalizable(new ExtWrapTagged(new ExtWrapList(y, new ExtWrapList(Integer.class))), new ExtWrapTagged());
-        testExternalizable(new ExtWrapTagged(new ExtWrapList(new Vector(), new ExtWrapList(Integer.class))), new ExtWrapTagged());
+        testExternalizable(new ExtWrapTagged(new ExtWrapList(new ArrayList(), new ExtWrapList(Integer.class))), new ExtWrapTagged());
 
         //polymorphic vectors
-        Vector a = new Vector();
-        a.addElement(Integer.valueOf(47));
-        a.addElement("string");
-        a.addElement(Boolean.FALSE);
-        a.addElement(new SampleExtz("hello", "dolly"));
+        ArrayList a = new ArrayList();
+        a.add(Integer.valueOf(47));
+        a.add("string");
+        a.add(Boolean.FALSE);
+        a.add(new SampleExtz("hello", "dolly"));
         testExternalizable(new ExtWrapListPoly(a), new ExtWrapListPoly(), pf);
         testExternalizable(new ExtWrapTagged(new ExtWrapListPoly(a)), new ExtWrapTagged(), pf);
         //polymorphic vector with complex sub-types
-        a.addElement(new ExtWrapList(y, new ExtWrapList(Integer.class))); //note: must manually wrap children in polymorphic lists
+        a.add(new ExtWrapList(y, new ExtWrapList(Integer.class))); //note: must manually wrap children in polymorphic lists
         testExternalizable(new ExtWrapListPoly(a), new ExtWrapListPoly(), pf);
-        testExternalizable(new ExtWrapListPoly(new Vector()), new ExtWrapListPoly());
+        testExternalizable(new ExtWrapListPoly(new ArrayList()), new ExtWrapListPoly());
 
         //hashtables
         OrderedHashtable oh = new OrderedHashtable();
@@ -243,7 +243,7 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapMap(oh), new ExtWrapMap(String.class, SampleExtz.class, ExtWrapMap.TYPE_ORDERED), pf);
         testExternalizable(new ExtWrapTagged(new ExtWrapMap(oh)), new ExtWrapTagged(), pf);
 
-        Hashtable h = new Hashtable();
+        HashMap h = new HashMap();
         testExternalizable(new ExtWrapMap(h), new ExtWrapMap(String.class, Integer.class));
         testExternalizable(new ExtWrapMapPoly(h), new ExtWrapMapPoly(Date.class));
         testExternalizable(new ExtWrapTagged(new ExtWrapMap(h)), new ExtWrapTagged());
@@ -254,10 +254,10 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapMap(h), new ExtWrapMap(String.class, SampleExtz.class), pf);
         testExternalizable(new ExtWrapTagged(new ExtWrapMap(h)), new ExtWrapTagged(), pf);
 
-        Hashtable j = new Hashtable();
+        HashMap j = new HashMap();
         j.put(Integer.valueOf(17), h);
         j.put(Integer.valueOf(-3), h);
-        Hashtable k = new Hashtable();
+        HashMap k = new HashMap();
         k.put("key", j);
         testExternalizable(new ExtWrapMap(k, new ExtWrapMap(Integer.class, new ExtWrapMap(String.class, SampleExtz.class))),
                 new ExtWrapMap(String.class, new ExtWrapMap(Integer.class, new ExtWrapMap(String.class, SampleExtz.class))), pf);    //note: this example contains mixed hashtable types; would choke if we used a tagging wrapper

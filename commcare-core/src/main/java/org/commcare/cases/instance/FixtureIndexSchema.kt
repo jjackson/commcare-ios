@@ -5,7 +5,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.util.InvalidStructureException
 import java.util.HashSet
-import java.util.Vector
 import java.util.regex.Pattern
 
 /**
@@ -23,7 +22,7 @@ class FixtureIndexSchema(schemaTree: TreeElement, @JvmField val fixtureName: Str
     }
 
     @Throws(InvalidStructureException::class)
-    private fun setupIndices(indexElements: Vector<AbstractTreeElement>) {
+    private fun setupIndices(indexElements: ArrayList<AbstractTreeElement>) {
         for (index in indexElements) {
             val value = index.getValue()
             if (value != null) {

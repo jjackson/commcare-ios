@@ -14,7 +14,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * An action defines a user interface element that can be
@@ -25,7 +24,7 @@ import java.util.Vector
  */
 class Action : Externalizable {
     private var display: DisplayUnit? = null
-    private var stackOps: Vector<StackOperation>? = null
+    private var stackOps: ArrayList<StackOperation>? = null
     private var relevantExpr: XPathExpression? = null
     private var iconReferenceForActionBar: String? = null
     private var autoLaunchExpr: XPathExpression? = null
@@ -42,7 +41,7 @@ class Action : Externalizable {
      */
     constructor(
         display: DisplayUnit?,
-        stackOps: Vector<StackOperation>?,
+        stackOps: ArrayList<StackOperation>?,
         relevantExpr: XPathExpression?,
         iconForActionBar: String?,
         autoLaunchExpr: XPathExpression?,
@@ -66,7 +65,7 @@ class Action : Externalizable {
      * should be processed sequentially upon this action
      * being triggered by the user.
      */
-    fun getStackOperations(): Vector<StackOperation>? = stackOps
+    fun getStackOperations(): ArrayList<StackOperation>? = stackOps
 
     fun isRelevant(evalContext: EvaluationContext): Boolean {
         val re = relevantExpr ?: return true
@@ -92,7 +91,7 @@ class Action : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
-        stackOps = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as Vector<StackOperation>
+        stackOps = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
         autoLaunchExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
         relevantExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
         iconReferenceForActionBar = ExtUtil.readString(`in`)

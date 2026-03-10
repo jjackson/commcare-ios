@@ -7,7 +7,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * @author ctsims
@@ -33,7 +33,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
             element.setAttribute(parser.getAttributeNamespace(i), parser.getAttributeName(i), parser.getAttributeValue(i));
         }
 
-        Hashtable<String, Integer> multiplicities = new Hashtable<>();
+        HashMap<String, Integer> multiplicities = new HashMap<>();
         //NOTE: We never expect this to be the exit condition
         while (parser.getDepth() >= depth) {
             switch (this.nextNonWhitespace()) {

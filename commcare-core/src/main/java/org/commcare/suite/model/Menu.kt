@@ -19,8 +19,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * A Menu definition describes the structure of how
@@ -32,7 +30,7 @@ import java.util.Vector
 class Menu : Externalizable, MenuDisplayable {
 
     private var display: DisplayUnit? = null
-    private var commandIds: Vector<String>? = null
+    private var commandIds: ArrayList<String>? = null
     private var commandExprs: Array<String?>? = null
     private var _id: String? = null
     private var root: String? = null
@@ -42,7 +40,7 @@ class Menu : Externalizable, MenuDisplayable {
     @JvmField
     internal var assertions: AssertionSet? = null
     @JvmField
-    internal var instances: Hashtable<String, DataInstance<*>>? = null
+    internal var instances: HashMap<String, DataInstance<*>>? = null
 
     /**
      * Serialization only!!!
@@ -52,9 +50,9 @@ class Menu : Externalizable, MenuDisplayable {
     constructor(
         id: String?, root: String?, rawRelevance: String?,
         relevance: XPathExpression?, display: DisplayUnit?,
-        commandIds: Vector<String>?, commandExprs: Array<String?>?,
+        commandIds: ArrayList<String>?, commandExprs: Array<String?>?,
         style: String?, assertions: AssertionSet?,
-        instances: Hashtable<String, DataInstance<*>>?
+        instances: HashMap<String, DataInstance<*>>?
     ) {
         this._id = id
         this.root = root
@@ -110,7 +108,7 @@ class Menu : Externalizable, MenuDisplayable {
      * @return The ID of what command actions should be available
      * when viewing this menu.
      */
-    fun getCommandIds(): Vector<String> = commandIds!!
+    fun getCommandIds(): ArrayList<String> = commandIds!!
 
     @Throws(XPathSyntaxException::class)
     fun getCommandRelevance(index: Int): XPathExpression? {
@@ -118,12 +116,12 @@ class Menu : Externalizable, MenuDisplayable {
         return if (commandExprs!![index] == null) null else XPathParseTool.parseXPath(commandExprs!![index]!!)
     }
 
-    fun getInstances(instancesToInclude: Set<String>?): Hashtable<String, DataInstance<*>> {
+    fun getInstances(instancesToInclude: Set<String>?): HashMap<String, DataInstance<*>> {
         return InstanceUtils.getLimitedInstances(instancesToInclude, instances)
     }
 
     fun getAssertions(): AssertionSet {
-        return if (assertions == null) AssertionSet(Vector<String>(), Vector<Text>()) else assertions!!
+        return if (assertions == null) AssertionSet(ArrayList<String>(), ArrayList<Text>()) else assertions!!
     }
 
     /**
@@ -144,8 +142,8 @@ class Menu : Externalizable, MenuDisplayable {
         root = ExtUtil.readString(`in`)
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
-        commandIds = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
-        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as Hashtable<String, DataInstance<*>>
+        commandIds = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
+        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>
         commandExprs = arrayOfNulls(ExtUtil.readInt(`in`))
         for (i in commandExprs!!.indices) {
             if (ExtUtil.readBool(`in`)) {

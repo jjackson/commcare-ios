@@ -6,8 +6,6 @@ import org.javarosa.core.services.storage.IStorageIterator
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -17,7 +15,7 @@ class LedgerPurgeFilter(
     caseStorage: IStorageUtilityIndexed<Case>
 ) : EntityFilter<Ledger>() {
 
-    val idsToRemove: Vector<Int> = Vector()
+    val idsToRemove: ArrayList<Int> = ArrayList()
 
     init {
         val i: IStorageIterator<Ledger> = ledgerStorage.iterate()
@@ -26,12 +24,12 @@ class LedgerPurgeFilter(
             try {
                 caseStorage.getRecordForValue(Case.INDEX_CASE_ID, s.getEntiyId() as Any)
             } catch (nsee: NoSuchElementException) {
-                idsToRemove.addElement(Integer.valueOf(s.getID()))
+                idsToRemove.add(Integer.valueOf(s.getID()))
             }
         }
     }
 
-    override fun preFilter(id: Int, metaData: Hashtable<String, Any>?): Int {
+    override fun preFilter(id: Int, metaData: HashMap<String, Any>?): Int {
         return if (idsToRemove.contains(DataUtil.integer(id))) {
             PREFILTER_INCLUDE
         } else {

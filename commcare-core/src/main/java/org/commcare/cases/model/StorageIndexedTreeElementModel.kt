@@ -12,7 +12,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A DB model for storing TreeElements such that particular attributes and
@@ -26,7 +25,7 @@ import java.util.Vector
 open class StorageIndexedTreeElementModel : Persistable, IMetaData {
 
     private var metaDataFields: Array<String>? = null
-    private var indices: Vector<String>? = null
+    private var indices: ArrayList<String>? = null
     private var root: TreeElement? = null
 
     @JvmField
@@ -41,7 +40,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
     }
 
     constructor(indices: Set<String>, root: TreeElement?) {
-        this.indices = Vector(indices)
+        this.indices = ArrayList(indices)
         this.root = root
         metaDataFields = buildMetadataFields(this.indices!!)
     }
@@ -51,7 +50,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
      * format, which generally can be interpreted as a treereference step into the model which
      * will reference the metadata field in the virtual instance, IE: "@attributename"
      */
-    fun getIndexedTreeReferenceSteps(): Vector<String>? = indices
+    fun getIndexedTreeReferenceSteps(): ArrayList<String>? = indices
 
     override fun getMetaDataFields(): Array<String> = metaDataFields ?: emptyArray()
 
@@ -102,7 +101,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         root = ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement
         @Suppress("UNCHECKED_CAST")
-        indices = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
+        indices = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
         metaDataFields = buildMetadataFields(indices!!)
     }
 

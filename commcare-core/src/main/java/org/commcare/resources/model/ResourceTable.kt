@@ -16,9 +16,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import java.io.FileNotFoundException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Stack
-import java.util.Vector
 
 /**
  * A Resource Table maintains a set of Resource Records,
@@ -47,7 +44,7 @@ open class ResourceTable {
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
 
-    private val compoundResourceCache = Hashtable<String, Resource>()
+    private val compoundResourceCache = HashMap<String, Resource>()
     private var mMissingResources = SizeBoundUniqueVector<Resource>(0)
 
     constructor()
@@ -161,12 +158,12 @@ open class ResourceTable {
         commit(resource)
     }
 
-    fun getResourcesForParent(parent: String): Vector<Resource> {
-        val v = Vector<Resource>()
-        val en = storage!!.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements()
-        while (en.hasMoreElements()) {
-            val r = storage!!.read(en.nextElement() as Int) as Resource
-            v.addElement(r)
+    fun getResourcesForParent(parent: String): ArrayList<Resource> {
+        val v = ArrayList<Resource>()
+        val en = storage!!.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).iterator()
+        while (en.hasNext()) {
+            val r = storage!!.read(en.next() as Int) as Resource
+            v.add(r)
         }
         return v
     }
@@ -217,12 +214,12 @@ open class ResourceTable {
     /**
      * Get the all the resources in this table's storage.
      */
-    private fun getResources(): Vector<Resource> {
-        val v = Vector<Resource>()
+    private fun getResources(): ArrayList<Resource> {
+        val v = ArrayList<Resource>()
         val it = storage!!.iterate()
         while (it.hasMore()) {
             val r = it.nextRecord() as Resource
-            v.addElement(r)
+            v.add(r)
         }
         return v
     }
@@ -230,12 +227,12 @@ open class ResourceTable {
     /**
      * Get the all the resources in this table's storage.
      */
-    private fun getResourceStack(): Stack<Resource> {
-        val v = Stack<Resource>()
+    private fun getResourceStack(): ArrayDeque<Resource> {
+        val v = ArrayDeque<Resource>()
         val it = storage!!.iterate()
         while (it.hasMore()) {
             val r = it.nextRecord() as Resource
-            v.push(r)
+            v.addLast(r)
         }
         return v
     }
@@ -243,13 +240,13 @@ open class ResourceTable {
     /**
      * Get the resources in this table's storage that have a given status.
      */
-    private fun getResourceStackWithStatus(status: Int): Stack<Resource> {
-        val v = Stack<Resource>()
+    private fun getResourceStackWithStatus(status: Int): ArrayDeque<Resource> {
+        val v = ArrayDeque<Resource>()
         val it = storage!!.iterate()
         while (it.hasMore()) {
             val r = it.nextRecord() as Resource
             if (r.getStatus() == status) {
-                v.push(r)
+                v.addLast(r)
             }
         }
         return v
@@ -264,17 +261,17 @@ open class ResourceTable {
      * - marked as ready for upgrade are ready
      * - marked as pending aren't capable of installation yet
      *
-     * @return Stack of resource records that aren't ready for installation
+     * @return ArrayDeque of resource records that aren't ready for installation
      */
-    private fun getUnreadyResources(): Stack<Resource> {
-        val v = Stack<Resource>()
+    private fun getUnreadyResources(): ArrayDeque<Resource> {
+        val v = ArrayDeque<Resource>()
         val it = storage!!.iterate()
         while (it.hasMore()) {
             val r = it.nextRecord() as Resource
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
                 r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE
             ) {
-                v.push(r)
+                v.addLast(r)
             }
         }
         return v
@@ -326,7 +323,7 @@ open class ResourceTable {
     fun rollbackCommits(platform: CommCarePlatform) {
         val s = this.getResourceStack()
         while (!s.isEmpty()) {
-            val r = s.pop()
+            val r = s.removeLast()
             if (r.isDirty()) {
                 this.commit(r, r.getInstaller().rollback(r, platform))
             }
@@ -355,7 +352,7 @@ open class ResourceTable {
     )
     private fun findResourceLocationAndInstall(
         r: Resource,
-        invalid: Vector<Reference>,
+        invalid: ArrayList<Reference>,
         upgrade: Boolean,
         platform: CommCarePlatform,
         master: ResourceTable?,
@@ -461,7 +458,7 @@ open class ResourceTable {
         platform: CommCarePlatform,
         resourceInstallContext: ResourceInstallContext
     ) {
-        var masterResourceMap: Hashtable<String, Resource>? = null
+        var masterResourceMap: HashMap<String, Resource>? = null
         if (master != null) {
             // avoid hitting storage in loops by front-loading resource
             // acquisition from master table
@@ -530,12 +527,12 @@ open class ResourceTable {
     )
     private fun prepareResource(
         master: ResourceTable?, platform: CommCarePlatform,
-        r: Resource, masterResourceMap: Hashtable<String, Resource>?,
+        r: Resource, masterResourceMap: HashMap<String, Resource>?,
         resourceInstallContext: ResourceInstallContext
     ) {
         var upgrade = false
 
-        var invalid = Vector<Reference>()
+        var invalid = ArrayList<Reference>()
 
         if (master != null) {
             val peer: Resource?
@@ -775,7 +772,7 @@ open class ResourceTable {
     fun repairTable(incoming: ResourceTable?, platform: CommCarePlatform) {
         val s = this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED)
         while (!s.isEmpty()) {
-            val resource = s.pop()
+            val resource = s.removeLast()
 
             if (incoming != null) {
                 // See if there's a competing resource
@@ -884,7 +881,7 @@ open class ResourceTable {
         val s = this.getResourceStack()
         var count = 0
         while (!s.isEmpty()) {
-            val r = s.pop()
+            val r = s.removeLast()
             if (r.getStatus() == resourceStatus || resourceStatus == RESOURCE_STATUS_ALL_RESOURCES) {
                 try {
                     r.getInstaller().uninstall(r, platform)
@@ -915,14 +912,14 @@ open class ResourceTable {
     @Throws(ResourceInitializationException::class)
     fun initializeResources(platform: CommCarePlatform, isUpgrade: Boolean) {
         val missingResources = SizeBoundUniqueVector<Resource>(storage!!.getNumRecords())
-        val lateInit = Vector<Resource>()
+        val lateInit = ArrayList<Resource>()
         val it = storage!!.iterate()
         while (it.hasMore()) {
             val r = it.nextRecord() as Resource
             val i = r.getInstaller()
             if (i.requiresRuntimeInitialization()) {
                 if (i is ProfileInstaller) {
-                    lateInit.addElement(r)
+                    lateInit.add(r)
                 } else {
                     attemptResourceInitialization(platform, isUpgrade, r, missingResources)
                 }
@@ -937,7 +934,7 @@ open class ResourceTable {
     @Throws(ResourceInitializationException::class)
     fun attemptResourceInitialization(
         platform: CommCarePlatform, isUpgrade: Boolean,
-        r: Resource, missingResources: Vector<Resource>
+        r: Resource, missingResources: ArrayList<Resource>
     ) {
         try {
             r.getInstaller().initialize(platform, isUpgrade)
@@ -975,8 +972,8 @@ open class ResourceTable {
     private fun gatherResourcesLocalRefs(
         r: Resource,
         t: ResourceTable
-    ): Vector<Reference> {
-        val ret = Vector<Reference>()
+    ): ArrayList<Reference> {
+        val ret = ArrayList<Reference>()
 
         for (location in r.getLocations()) {
             if (location.isRelative()) {
@@ -998,7 +995,7 @@ open class ResourceTable {
         return ret
     }
 
-    fun verifyInstallation(problems: Vector<MissingMediaException>, platform: CommCarePlatform) {
+    fun verifyInstallation(problems: ArrayList<MissingMediaException>, platform: CommCarePlatform) {
         val resources = getResources()
         val total = resources.size
         var count = 0
@@ -1046,7 +1043,7 @@ open class ResourceTable {
     )
     private fun recoverResources(
         platform: CommCarePlatform, profileRef: String,
-        resourceInstallContext: ResourceInstallContext, missingResources: Vector<Resource>
+        resourceInstallContext: ResourceInstallContext, missingResources: ArrayList<Resource>
     ): Boolean {
         var count = 0
         val total = missingResources.size
@@ -1081,7 +1078,7 @@ open class ResourceTable {
             addRemoteLocationIfMissing(missingResource, profileRef)
         }
 
-        findResourceLocationAndInstall(missingResource, Vector(), false, platform, null, resourceInstallContext)
+        findResourceLocationAndInstall(missingResource, ArrayList(), false, platform, null, resourceInstallContext)
     }
 
     private fun addRemoteLocationIfMissing(resource: Resource, remoteLocation: String) {
@@ -1105,17 +1102,17 @@ open class ResourceTable {
         return mMissingResources
     }
 
-    fun getLazyResources(): Vector<Resource> {
+    fun getLazyResources(): ArrayList<Resource> {
         @Suppress("UNCHECKED_CAST")
         return storage!!.getRecordsForValues(
             arrayOf(Resource.META_INDEX_LAZY),
             arrayOf(Resource.LAZY_VAL_TRUE)
-        ) as Vector<Resource>
+        ) as ArrayList<Resource>
     }
 
-    fun getLazyResourceIds(): Vector<Int> {
+    fun getLazyResourceIds(): ArrayList<Int> {
         @Suppress("UNCHECKED_CAST")
-        return storage!!.getIDsForValue(Resource.META_INDEX_LAZY, Resource.LAZY_VAL_TRUE) as Vector<Int>
+        return storage!!.getIDsForValue(Resource.META_INDEX_LAZY, Resource.LAZY_VAL_TRUE) as ArrayList<Int>
     }
 
     fun getAllResourceIds(): List<Int> {
@@ -1172,8 +1169,8 @@ open class ResourceTable {
             }
         }
 
-        private fun getResourceMap(table: ResourceTable): Hashtable<String, Resource> {
-            val resourceMap = Hashtable<String, Resource>()
+        private fun getResourceMap(table: ResourceTable): HashMap<String, Resource> {
+            val resourceMap = HashMap<String, Resource>()
             val it = table.storage!!.iterate()
             while (it.hasMore()) {
                 val r = it.nextRecord() as Resource
@@ -1199,8 +1196,8 @@ open class ResourceTable {
             r: Resource,
             t: ResourceTable,
             m: ResourceTable?
-        ): Vector<Reference> {
-            val ret = Vector<Reference>()
+        ): ArrayList<Reference> {
+            val ret = ArrayList<Reference>()
 
             if (r.hasParent()) {
                 var parent = t.getParentResource(r)
@@ -1239,8 +1236,8 @@ open class ResourceTable {
             r: Resource,
             t: ResourceTable,
             m: ResourceTable?
-        ): Vector<Reference> {
-            val ret = Vector<Reference>()
+        ): ArrayList<Reference> {
+            val ret = ArrayList<Reference>()
 
             for (location in r.getLocations()) {
                 if (location.getAuthority() == type) {
@@ -1276,12 +1273,12 @@ open class ResourceTable {
          * @param location Contains a reference to a resource.
          * @param context  Provides context for any relative reference accessors.
          *                 Can be null.
-         * @param ret      Add derived reference of location to this Vector.
+         * @param ret      Add derived reference of location to this ArrayList.
          */
         private fun addDerivedLocation(
             location: ResourceLocation,
             context: Reference?,
-            ret: Vector<Reference>
+            ret: ArrayList<Reference>
         ) {
             try {
                 val derivedRef: Reference
@@ -1297,7 +1294,7 @@ open class ResourceTable {
                             context
                         )
                 }
-                ret.addElement(derivedRef)
+                ret.add(derivedRef)
             } catch (e: InvalidReferenceException) {
                 e.printStackTrace()
             }

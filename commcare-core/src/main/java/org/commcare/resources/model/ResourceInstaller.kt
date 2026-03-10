@@ -9,7 +9,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A Resource Installer (Possible name change pending) is
@@ -125,5 +124,5 @@ interface ResourceInstaller<T : CommCarePlatform> : Externalizable {
      */
     fun cleanup()
 
-    fun verifyInstallation(r: Resource, problemList: Vector<MissingMediaException>, platform: CommCarePlatform): Boolean
+    fun verifyInstallation(r: Resource, problemList: ArrayList<MissingMediaException>, platform: CommCarePlatform): Boolean
 }

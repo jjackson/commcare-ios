@@ -4,7 +4,6 @@ import org.javarosa.core.model.actions.ActionController
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.model.xform.XPathReference
-import java.util.Vector
 
 /**
  * An IFormDataElement is an element of the physical interaction for
@@ -34,7 +33,7 @@ interface IFormElement : Persistable, Externalizable {
      * might have. Null if the element is not able to have child
      * elements.
      */
-    fun getChildren(): Vector<IFormElement>?
+    fun getChildren(): ArrayList<IFormElement>?
 
     /**
      * @param v the children of this element, if it is capable of having
@@ -42,7 +41,7 @@ interface IFormElement : Persistable, Externalizable {
      * @throws IllegalStateException if the element is incapable of
      *                               having children.
      */
-    fun setChildren(v: Vector<IFormElement>?)
+    fun setChildren(v: ArrayList<IFormElement>?)
 
     /**
      * @param fe The child element to be added

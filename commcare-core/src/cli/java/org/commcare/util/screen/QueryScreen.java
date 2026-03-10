@@ -31,8 +31,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 
 import datadog.trace.api.Trace;
@@ -47,7 +47,7 @@ public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
-    protected Hashtable<String, QueryGroup> groupHeaders;
+    protected HashMap<String, QueryGroup> groupHeaders;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -190,9 +190,9 @@ public class QueryScreen extends Screen {
         return CryptUtil.sha256(builder.toString());
     }
 
-    public void answerPrompts(Hashtable<String, String> answers) {
-        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
+    public void answerPrompts(HashMap<String, String> answers) {
+        for (Iterator en = userInputDisplays.keySet().iterator(); en.hasNext(); ) {
+            String key = (String)en.next();
             String answer = answers.get(key);
             remoteQuerySessionManager.answerUserPrompt(key, answer);
         }
@@ -253,7 +253,7 @@ public class QueryScreen extends Screen {
     public boolean handleInputAndUpdateSession(CommCareSession session, String input, boolean allowAutoLaunch,
             String[] selectedValues, boolean respectRelevancy) {
         String[] answers = input.split(",");
-        Hashtable<String, String> userAnswers = new Hashtable<>();
+        HashMap<String, String> userAnswers = new HashMap<>();
         int count = 0;
         for (Map.Entry<String, QueryPrompt> queryPromptEntry : userInputDisplays.entrySet()) {
             userAnswers.put(queryPromptEntry.getKey(), answers[count]);
@@ -275,12 +275,12 @@ public class QueryScreen extends Screen {
         return userInputDisplays;
     }
 
-    public Hashtable<String, QueryGroup> getGroupHeaders() {
+    public HashMap<String, QueryGroup> getGroupHeaders() {
         return groupHeaders;
     }
 
-    public Hashtable<String, String> evalGroupHeaders() {
-        Hashtable<String, String> queryGroupMap = new Hashtable<>();
+    public HashMap<String, String> evalGroupHeaders() {
+        HashMap<String, String> queryGroupMap = new HashMap<>();
         for (Map.Entry<String, QueryGroup> entry : groupHeaders.entrySet()) {
             String key = entry.getKey();
             QueryGroup queryGroupItem = entry.getValue();
@@ -294,15 +294,15 @@ public class QueryScreen extends Screen {
         return currentMessage;
     }
 
-    public Hashtable<String, String> getCurrentAnswers() {
+    public HashMap<String, String> getCurrentAnswers() {
         return remoteQuerySessionManager.getUserAnswers();
     }
 
-    public Hashtable<String, String> getErrors() {
+    public HashMap<String, String> getErrors() {
         return remoteQuerySessionManager.getErrors();
     }
 
-    public Hashtable<String, Boolean> getRequiredPrompts() {
+    public HashMap<String, Boolean> getRequiredPrompts() {
         return remoteQuerySessionManager.getRequiredPrompts();
     }
 

@@ -11,7 +11,6 @@ import org.javarosa.core.model.instance.UnrecognisedInstanceRootException
 import org.javarosa.core.model.instance.utils.TreeUtilities.xmlToTreeElement
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * Collection of static instance loading methods
@@ -70,13 +69,13 @@ object InstanceUtils {
     @JvmSuppressWildcards
     fun getLimitedInstances(
         limitingList: Set<String>?,
-        instances: Hashtable<String, DataInstance<*>>?
-    ): Hashtable<String, DataInstance<*>> {
-        val copy = Hashtable<String, DataInstance<*>>()
+        instances: HashMap<String, DataInstance<*>>?
+    ): HashMap<String, DataInstance<*>> {
+        val copy = HashMap<String, DataInstance<*>>()
         if (instances == null) return copy
-        val en = instances.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement()
+        val en = instances.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next()
 
             // This is silly, all of these are external data instances. TODO: save their
             // construction details instead.

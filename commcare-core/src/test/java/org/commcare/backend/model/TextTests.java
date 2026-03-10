@@ -6,7 +6,7 @@ import org.javarosa.xpath.XPathException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Created by ctsims on 12/14/2016.
@@ -16,7 +16,7 @@ public class TextTests {
     @Test
     public void testXPathExceptionHandling() throws Exception {
         boolean thrown = false;
-        Hashtable<String, Text> arguments = new Hashtable<>();
+        HashMap<String, Text> arguments = new HashMap<>();
         Text t = Text.XPathText("date('steve')", arguments);
         try {
             t.evaluate(new EvaluationContext(null));

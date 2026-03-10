@@ -5,7 +5,6 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.expr.XPathPathExpr
 import java.text.MessageFormat
-import java.util.Vector
 
 /**
  * Represents a set of XPath nodes returned from a path or other operation which acts on multiple
@@ -28,7 +27,7 @@ import java.util.Vector
  */
 open class XPathNodeset {
 
-    private var nodes: Vector<TreeReference>? = null
+    private var nodes: ArrayList<TreeReference>? = null
 
     @JvmField
     protected var instance: DataInstance<*>? = null
@@ -49,11 +48,11 @@ open class XPathNodeset {
         this.ec = ec
     }
 
-    protected fun setReferences(nodes: Vector<TreeReference>?) {
+    protected fun setReferences(nodes: ArrayList<TreeReference>?) {
         this.nodes = nodes
     }
 
-    open fun getReferences(): Vector<TreeReference>? {
+    open fun getReferences(): ArrayList<TreeReference>? {
         return this.nodes
     }
 
@@ -106,7 +105,7 @@ open class XPathNodeset {
             throw getInvalidNodesetException()
         }
 
-        return nodes!!.elementAt(i)
+        return nodes!![i]
     }
 
     fun getInstance(): DataInstance<*>? {
@@ -158,10 +157,10 @@ open class XPathNodeset {
         }
 
         @JvmStatic
-        fun printNodeContents(nodes: Vector<TreeReference>): String {
+        fun printNodeContents(nodes: ArrayList<TreeReference>): String {
             val sb = StringBuffer()
             for (i in 0 until nodes.size) {
-                sb.append(nodes.elementAt(i).toString())
+                sb.append(nodes[i].toString())
                 if (i < nodes.size - 1) {
                     sb.append(";")
                 }

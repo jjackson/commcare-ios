@@ -2,7 +2,6 @@ package org.javarosa.core.model.trace
 
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.expr.FunctionUtils
-import java.util.Vector
 
 /**
  * Captures details about the outcome of a "Step" of expression execution, and
@@ -19,7 +18,7 @@ open class EvaluationTrace(private val expression: String) {
     private var value: Any? = null
     private var usedExpressionCache: Boolean = false
 
-    private val children: Vector<EvaluationTrace> = Vector()
+    private val children: ArrayList<EvaluationTrace> = ArrayList()
 
     fun setParent(parent: EvaluationTrace?) {
         if (this.parent != null) {
@@ -61,11 +60,11 @@ open class EvaluationTrace(private val expression: String) {
 
     fun addSubTrace(child: EvaluationTrace?) {
         synchronized(children) {
-            this.children.addElement(child)
+            this.children.add(child!!)
         }
     }
 
-    open fun getSubTraces(): Vector<EvaluationTrace> {
+    open fun getSubTraces(): ArrayList<EvaluationTrace> {
         return children
     }
 

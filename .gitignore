@@ -3,3 +3,4 @@ pipeline/tests/__pycache__/
 __pycache__/
 *.pyc
 docs/.dry-run/
+commcare-core/.kotlin/

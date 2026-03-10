@@ -31,9 +31,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.net.URL
 import java.text.ParseException
-import java.util.Enumeration
 import java.util.HashMap
-import java.util.Hashtable
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -47,9 +45,9 @@ class RemoteQuerySessionManager private constructor(
     private val supportedPrompts: List<String>
 ) {
 
-    private val userAnswers: Hashtable<String, String> = Hashtable()
-    private var errors: Hashtable<String, String> = Hashtable()
-    private var requiredPrompts: Hashtable<String, Boolean> = Hashtable()
+    private val userAnswers: HashMap<String, String> = HashMap()
+    private var errors: HashMap<String, String> = HashMap()
+    private var requiredPrompts: HashMap<String, Boolean> = HashMap()
 
     init {
         initUserAnswers()
@@ -59,9 +57,9 @@ class RemoteQuerySessionManager private constructor(
     @Throws(XPathException::class)
     private fun initUserAnswers() {
         val queryPrompts = queryDatum.getUserQueryPrompts() ?: return
-        val en: Enumeration<*> = queryPrompts.keys()
-        while (en.hasMoreElements()) {
-            val promptId = en.nextElement() as String
+        val en: Iterator<*> = queryPrompts.keys.iterator()
+        while (en.hasNext()) {
+            val promptId = en.next() as String
             val prompt = queryPrompts[promptId]
 
             if (isPromptSupported(prompt!!) && prompt.getDefaultValueExpr() != null) {
@@ -73,7 +71,7 @@ class RemoteQuerySessionManager private constructor(
                         Logger.exception("Error parsing default date range $value for $promptId", e)
                     }
                 }
-                userAnswers.put(prompt.getKey(), value)
+                userAnswers[prompt.getKey()!!] = value
             }
         }
     }
@@ -82,15 +80,15 @@ class RemoteQuerySessionManager private constructor(
         return queryDatum.getUserQueryPrompts()
     }
 
-    fun getUserAnswers(): Hashtable<String, String> {
+    fun getUserAnswers(): HashMap<String, String> {
         return userAnswers
     }
 
-    fun getErrors(): Hashtable<String, String> {
+    fun getErrors(): HashMap<String, String> {
         return errors
     }
 
-    fun getRequiredPrompts(): Hashtable<String, Boolean> {
+    fun getRequiredPrompts(): HashMap<String, Boolean> {
         return requiredPrompts
     }
 
@@ -128,9 +126,9 @@ class RemoteQuerySessionManager private constructor(
         }
 
         if (!skipDefaultPromptValues) {
-            val en: Enumeration<*> = userAnswers.keys()
-            while (en.hasMoreElements()) {
-                val key = en.nextElement() as String
+            val en: Iterator<*> = userAnswers.keys.iterator()
+            while (en.hasNext()) {
+                val key = en.next() as String
                 val value = userAnswers[key]
                 val prompt = queryDatum.getUserQueryPrompts()?.get(key)
                 val excludeExpr = prompt!!.getExclude()
@@ -177,9 +175,9 @@ class RemoteQuerySessionManager private constructor(
     fun getUserQueryValues(includeNulls: Boolean): Map<String, String?> {
         val values: MutableMap<String, String?> = HashMap()
         val queryPrompts = queryDatum.getUserQueryPrompts() ?: return values
-        val en: Enumeration<*> = queryPrompts.keys()
-        while (en.hasMoreElements()) {
-            val promptId = en.nextElement() as String
+        val en: Iterator<*> = queryPrompts.keys.iterator()
+        while (en.hasNext()) {
+            val promptId = en.next() as String
             if (isPromptSupported(queryPrompts[promptId]!!)) {
                 val answer = userAnswers[promptId]
                 if (includeNulls || answer != null) {
@@ -207,9 +205,9 @@ class RemoteQuerySessionManager private constructor(
                 )
             }
             dirty = false
-            val en: Enumeration<*> = userInputDisplays.keys()
-            while (en.hasMoreElements()) {
-                val promptId = en.nextElement() as String
+            val en: Iterator<*> = userInputDisplays.keys.iterator()
+            while (en.hasNext()) {
+                val promptId = en.next() as String
                 val queryPrompt = userInputDisplays[promptId]!!
                 if (queryPrompt.isSelect()) {
                     val answer = userAnswers[promptId]
@@ -245,25 +243,25 @@ class RemoteQuerySessionManager private constructor(
     }
 
     private fun validateUserAnswers() {
-        requiredPrompts = Hashtable()
-        errors = Hashtable()
+        requiredPrompts = HashMap()
+        errors = HashMap()
         val userInputDisplays = getNeededUserInputDisplays() ?: return
         val instanceId = VirtualInstances.makeSearchInputInstanceID(getSearchInstanceReferenceId())
         val ec = getEvaluationContextWithUserInputInstance()
-        val en: Enumeration<*> = userInputDisplays.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement() as String
+        val en: Iterator<*> = userInputDisplays.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next() as String
             val queryPrompt = userInputDisplays[key]!!
             val isRequired = queryPrompt.isRequired(ec)
             requiredPrompts.put(key, isRequired)
             val value = userAnswers[key]
             val currentRef = getReferenceToInstanceNode(instanceId, key)
             if (!StringUtils.isEmpty(value) && queryPrompt.isInvalidInput(EvaluationContext(ec, currentRef))) {
-                errors.put(key, queryPrompt.getValidationMessage(ec))
+                errors[key] = queryPrompt.getValidationMessage(ec) ?: ""
             }
             if (StringUtils.isEmpty(value) && isRequired) {
-                val message = queryPrompt.getRequiredMessage(ec)
-                errors.put(key, message)
+                val message = queryPrompt.getRequiredMessage(ec) ?: ""
+                errors[key] = message
             }
         }
     }

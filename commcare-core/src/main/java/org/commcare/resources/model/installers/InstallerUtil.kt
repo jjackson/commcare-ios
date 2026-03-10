@@ -38,7 +38,7 @@ object InstallerUtil {
                     }
                 }
             } catch (e: PlatformIOException) {
-                problems.addElement(
+                problems.add(
                     MissingMediaException(
                         r, "Problem reading external media: $localName", filePath,
                         MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE

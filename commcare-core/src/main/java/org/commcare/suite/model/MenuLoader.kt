@@ -15,8 +15,6 @@ import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Created by willpride on 1/3/17.
@@ -66,9 +64,9 @@ class MenuLoader {
         menuID: String?, hideTrainingRoot: Boolean,
         includeBadges: Boolean
     ) {
-        val items = Vector<MenuDisplayable>()
-        val allItems = Vector<MenuDisplayable>()
-        val badgesList = Vector<String>()
+        val items = ArrayList<MenuDisplayable>()
+        val allItems = ArrayList<MenuDisplayable>()
+        val badgesList = ArrayList<String>()
         val map = platform.getCommandToEntryMap()
         for (s in platform.getInstalledSuites()) {
             for (m in s.getMenus()) {
@@ -94,23 +92,22 @@ class MenuLoader {
                 }
             }
         }
-        menus = arrayOfNulls<MenuDisplayable>(items.size) as Array<MenuDisplayable>
-        items.copyInto(menus!!)
+        @Suppress("UNCHECKED_CAST")
+        menus = items.toTypedArray() as Array<MenuDisplayable>
 
-        allMenus = arrayOfNulls<MenuDisplayable>(allItems.size) as Array<MenuDisplayable>
-        allItems.copyInto(allMenus!!)
+        @Suppress("UNCHECKED_CAST")
+        allMenus = allItems.toTypedArray() as Array<MenuDisplayable>
 
         if (includeBadges) {
-            this.badges = arrayOfNulls<String>(badgesList.size) as Array<String>
-            badgesList.copyInto(this.badges!!)
+            this.badges = badgesList.toTypedArray()
         }
     }
 
     private fun addUnaddedMenu(
         sessionWrapper: SessionWrapperInterface, currentMenuId: String?,
-        toAdd: Menu, items: Vector<MenuDisplayable>, badges: Vector<String>,
+        toAdd: Menu, items: ArrayList<MenuDisplayable>, badges: ArrayList<String>,
         hideTrainingRoot: Boolean, includeBadges: Boolean,
-        allItems: Vector<MenuDisplayable>
+        allItems: ArrayList<MenuDisplayable>
     ) {
         if (hideTrainingRoot && toAdd.getId() == Menu.TRAINING_MENU_ROOT) {
             return
@@ -195,16 +192,16 @@ class MenuLoader {
     private fun addRelevantCommandEntries(
         sessionWrapper: SessionWrapperInterface,
         m: Menu,
-        items: Vector<MenuDisplayable>,
-        badges: Vector<String>,
-        map: Hashtable<String, Entry>,
+        items: ArrayList<MenuDisplayable>,
+        badges: ArrayList<String>,
+        map: HashMap<String, Entry>,
         includeBadges: Boolean,
-        allItems: Vector<MenuDisplayable>,
+        allItems: ArrayList<MenuDisplayable>,
         addToItems: Boolean
     ) {
         xPathErrorMessage = ""
         for (command in m.getCommandIds()) {
-            allItems.add(map[command])
+            allItems.add(map[command]!!)
             val relevancyCondition = m.getCommandRelevance(m.indexOfCommand(command))
             if (relevancyCondition != null) {
                 xPathErrorMessage = m.getCommandRelevanceRaw(m.indexOfCommand(command))

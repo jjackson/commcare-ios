@@ -16,7 +16,7 @@ import org.javarosa.core.util.DataUtil;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * The entity list subscreen handles actually displaying the list of dynamic entities to the
@@ -32,7 +32,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String[] rows;
     private final String mHeader;
 
-    private final Vector<Action> actions;
+    private final ArrayList<Action> actions;
 
     private final Detail shortDetail;
     private final EvaluationContext rootContext;
@@ -40,14 +40,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private boolean handleCaseIndex;
     private List<Entity<TreeReference>> entities;
 
-    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context,
+    public EntityListSubscreen(Detail shortDetail, ArrayList<TreeReference> references, EvaluationContext context,
             boolean handleCaseIndex, EntityScreenContext entityScreenContext) throws CommCareSessionException {
         mHeader = createHeader(shortDetail, context);
         this.shortDetail = shortDetail;
         this.rootContext = context;
         this.handleCaseIndex = handleCaseIndex;
         this.entitiesRefs = new TreeReference[references.size()];
-        references.copyInto(entitiesRefs);
+        references.toArray(entitiesRefs);
         actions = shortDetail.getCustomActions(context);
         entities = initEntities(context, shortDetail, entityScreenContext, entitiesRefs);
     }
@@ -180,7 +180,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 return false;
             }
             if (actions.size() > chosenActionIndex) {
-                host.setPendingAction(actions.elementAt(chosenActionIndex));
+                host.setPendingAction(actions.get(chosenActionIndex));
                 return true;
             }
         }
@@ -245,7 +245,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return widthHint;
     }
 
-    public Vector<Action> getActions() {
+    public ArrayList<Action> getActions() {
         return actions;
     }
 

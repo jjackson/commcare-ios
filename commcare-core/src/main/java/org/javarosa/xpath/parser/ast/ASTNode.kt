@@ -82,7 +82,7 @@ abstract class ASTNode {
             val offset = if (o.isAbsolute()) 1 else 0
             for (i in 0 until o.clauses.size + offset) {
                 if (offset == 0 || i > 0)
-                    print(o.clauses.elementAt(i - offset))
+                    print(o.clauses[i - offset])
                 if (i < o.separators.size) {
                     when (o.separators[i]) {
                         Token.DBL_SLASH -> printStr("dbl-slash:")
@@ -99,17 +99,17 @@ abstract class ASTNode {
                 printStr("  node test name: ${o.nodeTestQName}")
             if (o.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_FUNC) print(o.nodeTestFunc)
             printStr("predicates...")
-            val e = o.predicates.elements()
-            while (e.hasMoreElements())
-                print(e.nextElement())
+            val e = o.predicates.iterator()
+            while (e.hasNext())
+                print(e.next())
             printStr("}")
         } else if (o is ASTNodeFilterExpr) {
             printStr("filter expr {")
             print(o.expr)
             printStr("predicates...")
-            val e = o.predicates.elements()
-            while (e.hasMoreElements())
-                print(e.nextElement())
+            val e = o.predicates.iterator()
+            while (e.hasNext())
+                print(e.next())
             printStr("}")
         }
 

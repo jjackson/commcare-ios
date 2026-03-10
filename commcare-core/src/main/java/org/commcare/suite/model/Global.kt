@@ -10,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Defines top level UI logic for a case-select or case-detail view,
@@ -24,7 +23,7 @@ class Global : Externalizable {
      */
     constructor()
 
-    constructor(geoOverlays: Vector<GeoOverlay>) {
+    constructor(geoOverlays: ArrayList<GeoOverlay>) {
         @Suppress("UNCHECKED_CAST")
         this.geoOverlays = ArrayUtilities.copyIntoArray(geoOverlays, arrayOfNulls<GeoOverlay>(geoOverlays.size) as Array<GeoOverlay>)
     }
@@ -32,7 +31,7 @@ class Global : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        val theGeoOverlays = ExtUtil.read(`in`, ExtWrapList(GeoOverlay::class.java), pf) as Vector<GeoOverlay>
+        val theGeoOverlays = ExtUtil.read(`in`, ExtWrapList(GeoOverlay::class.java), pf) as ArrayList<GeoOverlay>
         geoOverlays = arrayOfNulls<GeoOverlay>(theGeoOverlays.size) as Array<GeoOverlay>
         ArrayUtilities.copyIntoArray(theGeoOverlays, geoOverlays)
     }

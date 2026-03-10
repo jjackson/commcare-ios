@@ -10,7 +10,6 @@ import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
-import java.util.Vector
 
 /**
  * Contains all of the logic for parsing transactions in xml that pertain to
@@ -43,7 +42,7 @@ class LedgerXmlParsers(
 
         val name = parser.name.lowercase()
 
-        val toWrite = Vector<Ledger>()
+        val toWrite = ArrayList<Ledger>()
 
         val dateModified = parser.getAttributeValue(null, "date")
             ?: throw InvalidStructureException(
@@ -107,7 +106,7 @@ class LedgerXmlParsers(
                 }
             }
 
-            toWrite.addElement(ledger)
+            toWrite.add(ledger)
         } else if (name == TRANSFER) {
             val source = parser.getAttributeValue(null, "src")
             val destination = parser.getAttributeValue(null, "dest")
@@ -184,10 +183,10 @@ class LedgerXmlParsers(
             }
 
             if (sourceLeger != null) {
-                toWrite.addElement(sourceLeger)
+                toWrite.add(sourceLeger)
             }
             if (destinationLedger != null) {
-                toWrite.addElement(destinationLedger)
+                toWrite.add(destinationLedger)
             }
         }
 

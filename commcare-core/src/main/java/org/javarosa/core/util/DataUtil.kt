@@ -1,7 +1,6 @@
 package org.javarosa.core.util
 
 import java.util.HashSet
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -51,7 +50,7 @@ object DataUtil {
             HashSet(b)
         }
         setA.retainAll(setB)
-        return Vector(setA)
+        return ArrayList(setA)
     }
 
     @JvmStatic

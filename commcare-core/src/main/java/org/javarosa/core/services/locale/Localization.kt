@@ -2,7 +2,6 @@ package org.javarosa.core.services.locale
 
 import org.javarosa.core.reference.ReferenceDataSource
 import org.javarosa.core.util.NoLocalizedTextException
-import java.util.Hashtable
 
 object Localization {
 
@@ -24,7 +23,7 @@ object Localization {
     }
 
     @JvmStatic
-    fun get(key: String, args: Hashtable<*, *>): String {
+    fun get(key: String, args: HashMap<*, *>): String {
         checkRep()
         return LocalizerManager.getGlobalLocalizer()!!.getText(key, args)
     }

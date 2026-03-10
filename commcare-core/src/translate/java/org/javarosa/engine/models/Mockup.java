@@ -6,24 +6,24 @@ package org.javarosa.engine.models;
 import org.javarosa.core.model.instance.FormInstance;
 
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
  *
  */
 public class Mockup {
-    final Hashtable<String, FormInstance> instances;
+    final HashMap<String, FormInstance> instances;
     Date date;
-    final Vector<Session> sessions;
+    final ArrayList<Session> sessions;
 
     public Mockup() {
-        sessions = new Vector<>();
-        instances = new Hashtable<>();
+        sessions = new ArrayList<>();
+        instances = new HashMap<>();
     }
 
-    public Hashtable<String, FormInstance> getInstances() {
+    public HashMap<String, FormInstance> getInstances() {
         return instances;
     }
 

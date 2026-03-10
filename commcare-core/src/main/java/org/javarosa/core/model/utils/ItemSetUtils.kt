@@ -13,7 +13,6 @@ import org.javarosa.core.model.trace.ReducingTraceReporter
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer
-import java.util.Vector
 import javax.annotation.Nullable
 
 // helper class for common functions related to @code{ItemsetBinding}
@@ -92,7 +91,7 @@ object ItemSetUtils {
             }
         }
 
-        val choices = Vector<SelectChoice>()
+        val choices = ArrayList<SelectChoice>()
         //Escalate the new context if our result set is substantial, this will prevent reverting
         //from a bulk read mode to a scanned read mode
         val newContext = ec.getCurrentQueryContext()
@@ -100,9 +99,9 @@ object ItemSetUtils {
         ec.setQueryContext(newContext)
 
         for (i in 0 until matches.size) {
-            choices.addElement(
+            choices.add(
                 buildSelectChoice(
-                    matches.elementAt(i), itemset, formInstance,
+                    matches[i], itemset, formInstance,
                     mainInstance, ec, i
                 )
             )

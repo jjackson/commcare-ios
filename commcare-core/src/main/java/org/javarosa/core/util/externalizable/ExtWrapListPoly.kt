@@ -3,7 +3,6 @@ package org.javarosa.core.util.externalizable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 // list of objects of multiple types
 // if elements are compound types (i.e., need wrappers), they must be pre-wrapped before invoking
@@ -12,7 +11,7 @@ class ExtWrapListPoly : ExternalizableWrapper {
 
     /* serialization */
 
-    constructor(`val`: Vector<*>) {
+    constructor(`val`: ArrayList<*>) {
         requireNotNull(`val`)
         this.`val` = `val`
     }
@@ -23,15 +22,15 @@ class ExtWrapListPoly : ExternalizableWrapper {
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
-        return ExtWrapListPoly(`val` as Vector<*>)
+        return ExtWrapListPoly(`val` as ArrayList<*>)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
-        val v = Vector<Any?>(size.toInt())
+        val v = ArrayList<Any?>(size.toInt())
         for (i in 0 until size) {
-            v.addElement(ExtUtil.read(`in`, ExtWrapTagged(), pf))
+            v.add(ExtUtil.read(`in`, ExtWrapTagged(), pf))
         }
         `val` = v
     }
@@ -39,10 +38,10 @@ class ExtWrapListPoly : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val v = `val` as Vector<Any?>
+        val v = `val` as ArrayList<Any?>
         ExtUtil.writeNumeric(out, v.size.toLong())
         for (i in v.indices) {
-            ExtUtil.write(out, ExtWrapTagged(v.elementAt(i)!!))
+            ExtUtil.write(out, ExtWrapTagged(v[i]!!))
         }
     }
 

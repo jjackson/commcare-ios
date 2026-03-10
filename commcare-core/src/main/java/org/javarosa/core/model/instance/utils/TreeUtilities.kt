@@ -23,9 +23,7 @@ import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Hashtable
 import java.util.LinkedHashSet
-import java.util.Vector
 
 /**
  * Helper methods for procedures which are common to different Tree model
@@ -60,10 +58,10 @@ object TreeUtilities {
     @JvmStatic
     fun tryBatchChildFetch(
         parent: AbstractTreeElement,
-        childAttributeHintMap: Hashtable<XPathPathExpr, Hashtable<String, Array<TreeElement>>>?,
+        childAttributeHintMap: HashMap<XPathPathExpr, HashMap<String, Array<TreeElement>>>?,
         name: String?,
         mult: Int,
-        predicates: Vector<XPathExpression>?,
+        predicates: ArrayList<XPathExpression>?,
         evalContext: EvaluationContext?
     ): Collection<TreeReference>? {
         // This method builds a predictive model for quick queries that
@@ -82,21 +80,21 @@ object TreeUtilities {
             return null
         }
 
-        val toRemove = Vector<Int>()
+        val toRemove = ArrayList<Int>()
         var allSelectedChildren: Collection<TreeReference>? = null
 
         // Lazy init these until we've determined that our predicate is hintable
 
         // These two are basically a map, but we don't have a great datatype for this
-        var attributes: Vector<String>? = null
-        var indices: Vector<XPathPathExpr>? = null
+        var attributes: ArrayList<String>? = null
+        var indices: ArrayList<XPathPathExpr>? = null
 
-        var kids: Vector<TreeElement>? = null
+        var kids: ArrayList<TreeElement>? = null
 
         var i = 0
         while (i < predicates.size) {
             val predicateMatches = LinkedHashSet<TreeReference>()
-            val xpe = predicates.elementAt(i)
+            val xpe = predicates[i]
             // what we want here is a static evaluation of the expression to see if it consists of evaluating
             // something we index with something static.
             if (xpe is XPathEqExpr) {
@@ -165,32 +163,32 @@ object TreeUtilities {
                     // but we currently don't robustly track changes to the models, so would
                     // be too dangerous at the moment
                     if (attributes == null) {
-                        attributes = Vector()
-                        indices = Vector()
+                        attributes = ArrayList()
+                        indices = ArrayList()
                         @Suppress("UNCHECKED_CAST")
-                        kids = parent.getChildrenWithName(name) as Vector<TreeElement>
+                        kids = parent.getChildrenWithName(name) as ArrayList<TreeElement>
 
                         if (kids.size == 0) {
                             return null
                         }
 
                         // Anything that we're going to use across elements should be on all of them
-                        val kid = kids.elementAt(0)
+                        val kid = kids[0]
                         for (j in 0 until kid.getAttributeCount()) {
                             val attribute = kid.getAttributeName(j) ?: continue
                             val path = getXPathAttrExpression(attribute)
-                            attributes.addElement(attribute)
-                            indices.addElement(path)
+                            attributes.add(attribute)
+                            indices.add(path)
                         }
                     }
 
                     for (j in 0 until indices!!.size) {
-                        val expr = indices.elementAt(j)
+                        val expr = indices[j]
                         if (expr == left) {
-                            val attributeName = attributes.elementAt(j)
+                            val attributeName = attributes[j]
 
                             for (kidI in 0 until kids!!.size) {
-                                var attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName)
+                                var attrValue = kids[kidI].getAttributeValue(null, attributeName)
 
                                 if (attrValue == null) {
                                     attrValue = ""
@@ -204,7 +202,7 @@ object TreeUtilities {
                                 val value = FunctionUtils.InferType(attrValue)
 
                                 if (isEqOp == XPathEqExpr.testEquality(value, literalMatch)) {
-                                    predicateMatches.add(kids.elementAt(kidI).getRef())
+                                    predicateMatches.add(kids[kidI].getRef())
                                 }
                             }
 
@@ -230,7 +228,7 @@ object TreeUtilities {
 
         // otherwise, remove all of the predicates we've already evaluated
         for (i in toRemove.size - 1 downTo 0) {
-            predicates.removeElementAt(toRemove.elementAt(i))
+            predicates.removeAt(toRemove[i])
         }
 
         return allSelectedChildren
@@ -240,9 +238,9 @@ object TreeUtilities {
         allSelectedChildren: Collection<TreeReference>?,
         predicateMatches: Collection<TreeReference>,
         i: Int,
-        toRemove: Vector<Int>
+        toRemove: ArrayList<Int>
     ): Collection<TreeReference> {
-        toRemove.addElement(DataUtil.integer(i))
+        toRemove.add(DataUtil.integer(i))
         if (allSelectedChildren == null) {
             return predicateMatches
         }

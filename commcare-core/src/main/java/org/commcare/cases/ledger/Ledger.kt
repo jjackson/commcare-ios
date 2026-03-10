@@ -10,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * A Ledger is a data model which tracks numeric data organized into
@@ -31,13 +30,13 @@ class Ledger : Persistable, IMetaData {
 
     private var entityId: String? = null
     private var recordId: Int = -1
-    private var sections: Hashtable<String, Hashtable<String, Int>> = Hashtable()
+    private var sections: HashMap<String, HashMap<String, Int>> = HashMap()
 
     constructor()
 
     constructor(entityId: String) {
         this.entityId = entityId
-        this.sections = Hashtable()
+        this.sections = HashMap()
     }
 
     /**
@@ -69,9 +68,9 @@ class Ledger : Persistable, IMetaData {
     fun getSectionList(): Array<String> {
         val sectionList = arrayOfNulls<String>(sections.size)
         var i = 0
-        val e = sections.keys()
-        while (e.hasMoreElements()) {
-            sectionList[i] = e.nextElement()
+        val e = sections.keys.iterator()
+        while (e.hasNext()) {
+            sectionList[i] = e.next()
             ++i
         }
         @Suppress("UNCHECKED_CAST")
@@ -89,9 +88,9 @@ class Ledger : Persistable, IMetaData {
         val entries = sections[sectionId]!!
         val entryList = arrayOfNulls<String>(entries.size)
         var i = 0
-        val e = entries.keys()
-        while (e.hasMoreElements()) {
-            entryList[i] = e.nextElement()
+        val e = entries.keys.iterator()
+        while (e.hasNext()) {
+            entryList[i] = e.next()
             ++i
         }
         @Suppress("UNCHECKED_CAST")
@@ -103,7 +102,7 @@ class Ledger : Persistable, IMetaData {
         recordId = ExtUtil.readInt(`in`)
         entityId = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
-        sections = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapMap(String::class.java, Int::class.javaObjectType)), pf) as Hashtable<String, Hashtable<String, Int>>
+        sections = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapMap(String::class.java, Int::class.javaObjectType)), pf) as HashMap<String, HashMap<String, Int>>
     }
 
     @Throws(PlatformIOException::class)
@@ -126,7 +125,7 @@ class Ledger : Persistable, IMetaData {
      */
     fun setEntry(sectionId: String, entryId: String, quantity: Int) {
         if (!sections.containsKey(sectionId)) {
-            sections[sectionId] = Hashtable()
+            sections[sectionId] = HashMap()
         }
         sections[sectionId]!![entryId] = quantity
     }

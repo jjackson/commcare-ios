@@ -10,7 +10,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * A DataModelPullParser pulls together the parsing of
@@ -21,7 +21,7 @@ import java.util.Vector;
  */
 public class DataModelPullParser extends ElementParser<Boolean> {
 
-    private final Vector<String> errors;
+    private final ArrayList<String> errors;
     private final TransactionParserFactory factory;
     private final boolean failfast;
     private final boolean deep;
@@ -50,7 +50,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.is = is;
         this.failfast = failfast;
         this.factory = factory;
-        errors = new Vector<>();
+        errors = new ArrayList<>();
         this.deep = deep;
         this.rListener = rListener;
     }
@@ -151,7 +151,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     }
 
     private void deal(Exception e, String parentTag) throws XmlPullParserException, IOException {
-        errors.addElement(WrappedException.printException(e));
+        errors.add(WrappedException.printException(e));
         this.skipBlock(parentTag);
 
         if (failfast) {
@@ -162,7 +162,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     public String[] getParseErrors() {
         String[] errorBuf = new String[errors.size()];
         for (int i = 0; i < errorBuf.length; ++i) {
-            errorBuf[i] = errors.elementAt(i);
+            errorBuf[i] = errors.get(i);
         }
         return errorBuf;
     }

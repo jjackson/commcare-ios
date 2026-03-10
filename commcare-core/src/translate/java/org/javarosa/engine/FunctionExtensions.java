@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Custom functions to be used in form player debug tools.
@@ -51,9 +51,9 @@ public class FunctionExtensions {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList<Class[]> p = new ArrayList<>();
+            p.add(new Class[0]);
             return p;
         }
 
@@ -85,9 +85,9 @@ public class FunctionExtensions {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList<Class[]> p = new ArrayList<>();
+            p.add(new Class[0]);
             return p;
         }
 
@@ -98,7 +98,7 @@ public class FunctionExtensions {
 
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
-            Vector<TreeReference> refs = ((XPathLazyNodeset)args[0]).getReferences();
+            ArrayList<TreeReference> refs = ((XPathLazyNodeset)args[0]).getReferences();
 
             for (TreeReference ref : refs) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -125,9 +125,9 @@ public class FunctionExtensions {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList<Class[]> p = new ArrayList<>();
+            p.add(new Class[0]);
             return p;
         }
 
@@ -176,9 +176,9 @@ public class FunctionExtensions {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList<Class[]> p = new ArrayList<>();
+            p.add(new Class[0]);
             return p;
         }
 

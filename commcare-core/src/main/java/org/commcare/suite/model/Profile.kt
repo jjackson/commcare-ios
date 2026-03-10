@@ -13,8 +13,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Profile is a model which defines the operating profile
@@ -30,10 +28,10 @@ class Profile : Persistable {
     private var recordId: Int = -1
     private var version: Int = 0
     private var authRef: String? = null
-    private var properties: Vector<PropertySetter> = Vector()
-    private var roots: Vector<RootTranslator> = Vector()
-    private var dependencies: Vector<AndroidPackageDependency> = Vector()
-    private var featureStatus: Hashtable<String, Boolean> = Hashtable()
+    private var properties: ArrayList<PropertySetter> = ArrayList()
+    private var roots: ArrayList<RootTranslator> = ArrayList()
+    private var dependencies: ArrayList<AndroidPackageDependency> = ArrayList()
+    private var featureStatus: HashMap<String, Boolean> = HashMap()
 
     private var uniqueId: String? = null
     private var displayName: String? = null
@@ -44,7 +42,7 @@ class Profile : Persistable {
      * were added for multiple app seating functionality
      */
     private var fromOld: Boolean = false
-    private var credentials: Vector<Credential> = Vector()
+    private var credentials: ArrayList<Credential> = ArrayList()
 
     constructor()
 
@@ -70,11 +68,11 @@ class Profile : Persistable {
         this.displayName = displayName
         this.buildProfileId = buildProfileId
         this.fromOld = fromOld
-        properties = Vector()
-        roots = Vector()
-        dependencies = Vector()
-        credentials = Vector()
-        featureStatus = Hashtable()
+        properties = ArrayList()
+        roots = ArrayList()
+        dependencies = ArrayList()
+        credentials = ArrayList()
+        featureStatus = HashMap()
         // turn on default features
         featureStatus["users"] = true
     }
@@ -140,7 +138,7 @@ class Profile : Persistable {
     // or a change to how the profile parser works
 
     fun addRoot(r: RootTranslator) {
-        this.roots.addElement(r)
+        this.roots.add(r)
     }
 
     fun addPropertySetter(key: String, value: String) {
@@ -148,11 +146,11 @@ class Profile : Persistable {
     }
 
     fun addPropertySetter(key: String, value: String, force: Boolean) {
-        properties.addElement(PropertySetter(key, value, force))
+        properties.add(PropertySetter(key, value, force))
     }
 
     fun getPropertySetters(): Array<PropertySetter> {
-        val setters = Array(properties.size) { i -> properties.elementAt(i) }
+        val setters = Array(properties.size) { i -> properties[i] }
         return setters
     }
 
@@ -160,17 +158,17 @@ class Profile : Persistable {
         this.featureStatus[feature] = active
     }
 
-    fun getDependencies(): Vector<AndroidPackageDependency> = dependencies
+    fun getDependencies(): ArrayList<AndroidPackageDependency> = dependencies
 
-    fun setDependencies(dependencies: Vector<AndroidPackageDependency>) {
+    fun setDependencies(dependencies: ArrayList<AndroidPackageDependency>) {
         this.dependencies = dependencies
     }
 
-    fun setCredentials(credentials: Vector<Credential>) {
+    fun setCredentials(credentials: ArrayList<Credential>) {
         this.credentials = credentials
     }
 
-    fun getCredentials(): Vector<Credential> = credentials
+    fun getCredentials(): ArrayList<Credential> = credentials
 
     /**
      * A helper method which initializes the properties specified
@@ -203,12 +201,12 @@ class Profile : Persistable {
         displayName = ExtUtil.readString(`in`)
         fromOld = ExtUtil.readBool(`in`)
 
-        properties = ExtUtil.read(`in`, ExtWrapList(PropertySetter::class.java), pf) as Vector<PropertySetter>
-        roots = ExtUtil.read(`in`, ExtWrapList(RootTranslator::class.java), pf) as Vector<RootTranslator>
-        featureStatus = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), pf) as Hashtable<String, Boolean>
+        properties = ExtUtil.read(`in`, ExtWrapList(PropertySetter::class.java), pf) as ArrayList<PropertySetter>
+        roots = ExtUtil.read(`in`, ExtWrapList(RootTranslator::class.java), pf) as ArrayList<RootTranslator>
+        featureStatus = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), pf) as HashMap<String, Boolean>
         buildProfileId = ExtUtil.readString(`in`)
-        dependencies = ExtUtil.read(`in`, ExtWrapList(AndroidPackageDependency::class.java), pf) as Vector<AndroidPackageDependency>
-        credentials = ExtUtil.read(`in`, ExtWrapList(Credential::class.java), pf) as Vector<Credential>
+        dependencies = ExtUtil.read(`in`, ExtWrapList(AndroidPackageDependency::class.java), pf) as ArrayList<AndroidPackageDependency>
+        credentials = ExtUtil.read(`in`, ExtWrapList(Credential::class.java), pf) as ArrayList<Credential>
     }
 
     @Throws(PlatformIOException::class)

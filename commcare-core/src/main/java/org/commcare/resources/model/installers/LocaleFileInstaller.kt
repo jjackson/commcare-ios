@@ -28,8 +28,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -39,7 +37,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     private var locale: String? = null
     private var localReference: String? = null
 
-    private var cache: Hashtable<String, String>? = null
+    private var cache: HashMap<String, String>? = null
 
     companion object {
         private const val valid: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -280,8 +278,8 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
         localReference = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
         cache = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<*, *>
-        ) as Hashtable<String, String>?
+            ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<*, *>
+        ) as HashMap<String, String>?
     }
 
     @Throws(PlatformIOException::class)
@@ -292,12 +290,12 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     }
 
     override fun verifyInstallation(
-        r: Resource, problemList: Vector<MissingMediaException>,
+        r: Resource, problemList: ArrayList<MissingMediaException>,
         platform: CommCarePlatform
     ): Boolean {
         try {
             if (locale == null) {
-                problemList.addElement(
+                problemList.add(
                     MissingMediaException(
                         r, "Bad metadata, no locale",
                         MissingMediaException.MissingMediaExceptionType.NONE
@@ -328,7 +326,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                 }
             }
         } catch (ure: MissingMediaException) {
-            problemList.addElement(ure)
+            problemList.add(ure)
             return true
         }
         return false

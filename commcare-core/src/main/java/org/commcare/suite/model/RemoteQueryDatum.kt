@@ -14,7 +14,6 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.Hashtable
 
 /**
  * Entry config for querying a remote server with user and session provided
@@ -25,7 +24,7 @@ import java.util.Hashtable
 class RemoteQueryDatum : SessionDatum {
     private var hiddenQueryValues: List<QueryData>? = null
     private var userQueryPrompts: OrderedHashtable<String, QueryPrompt>? = null
-    private var userQueryGroupHeaders: Hashtable<String, QueryGroup>? = null
+    private var userQueryGroupHeaders: HashMap<String, QueryGroup>? = null
     private var useCaseTemplate: Boolean = false
     private var defaultSearch: Boolean = false
     private var dynamicSearch: Boolean = false
@@ -45,7 +44,7 @@ class RemoteQueryDatum : SessionDatum {
         hiddenQueryValues: List<QueryData>?,
         userQueryPrompts: OrderedHashtable<String, QueryPrompt>?, useCaseTemplate: Boolean,
         defaultSearch: Boolean, dynamicSearch: Boolean, title: Text?, description: Text?,
-        userQueryGroupHeaders: Hashtable<String, QueryGroup>?, searchOnClear: Boolean
+        userQueryGroupHeaders: HashMap<String, QueryGroup>?, searchOnClear: Boolean
     ) : super(storageInstance, url.toString()) {
         this.hiddenQueryValues = hiddenQueryValues
         this.userQueryPrompts = userQueryPrompts
@@ -60,7 +59,7 @@ class RemoteQueryDatum : SessionDatum {
 
     fun getUserQueryPrompts(): OrderedHashtable<String, QueryPrompt>? = userQueryPrompts
 
-    fun getUserQueryGroupHeaders(): Hashtable<String, QueryGroup>? = userQueryGroupHeaders
+    fun getUserQueryGroupHeaders(): HashMap<String, QueryGroup>? = userQueryGroupHeaders
 
     fun getHiddenQueryValues(): List<QueryData>? = hiddenQueryValues
 
@@ -101,7 +100,7 @@ class RemoteQueryDatum : SessionDatum {
             ExtUtil.read(
                 `in`,
                 ExtWrapMap(String::class.java, QueryGroup::class.java, ExtWrapMap.TYPE_ORDERED), pf
-            ) as Hashtable<String, QueryGroup>
+            ) as HashMap<String, QueryGroup>
         title = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         description = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         useCaseTemplate = ExtUtil.readBool(`in`)

@@ -15,14 +15,13 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
  */
 class AssertionSet : Externalizable {
-    private lateinit var xpathExpressions: Vector<String>
-    private lateinit var messages: Vector<Text>
+    private lateinit var xpathExpressions: ArrayList<String>
+    private lateinit var messages: ArrayList<Text>
 
     constructor()
 
@@ -32,7 +31,7 @@ class AssertionSet : Externalizable {
      * They should be tested _before_ being passed in (we don't do so here
      * to permit retaining the locality of which expression failed).
      */
-    constructor(xpathExpressions: Vector<String>, messages: Vector<Text>) {
+    constructor(xpathExpressions: ArrayList<String>, messages: ArrayList<Text>) {
         // First, make sure things are set up correctly
         if (xpathExpressions.size != messages.size) {
             throw IllegalArgumentException("Expression and message sets must be the same size")
@@ -45,14 +44,14 @@ class AssertionSet : Externalizable {
     fun getAssertionFailure(ec: EvaluationContext): Text? {
         try {
             for (i in 0 until xpathExpressions.size) {
-                val expression: XPathExpression = XPathParseTool.parseXPath(xpathExpressions.elementAt(i))!!
+                val expression: XPathExpression = XPathParseTool.parseXPath(xpathExpressions[i])!!
                 try {
                     val `val` = expression.eval(ec)
                     if (!FunctionUtils.toBoolean(`val`)) {
-                        return messages.elementAt(i)
+                        return messages[i]
                     }
                 } catch (e: Exception) {
-                    return messages.elementAt(i)
+                    return messages[i]
                 }
             }
             return null
@@ -61,16 +60,16 @@ class AssertionSet : Externalizable {
         }
     }
 
-    fun getAssertionsXPaths(): Vector<String> = this.xpathExpressions
+    fun getAssertionsXPaths(): ArrayList<String> = this.xpathExpressions
 
     fun evalAssertionAtIndex(i: Int, expression: XPathExpression, ec: EvaluationContext): Text? {
         try {
             val `val` = expression.eval(ec)
             if (!FunctionUtils.toBoolean(`val`)) {
-                return messages.elementAt(i)
+                return messages[i]
             }
         } catch (e: Exception) {
-            return messages.elementAt(i)
+            return messages[i]
         }
         return null
     }
@@ -78,8 +77,8 @@ class AssertionSet : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        this.xpathExpressions = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
-        this.messages = ExtUtil.read(`in`, ExtWrapList(Text::class.java), pf) as Vector<Text>
+        this.xpathExpressions = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
+        this.messages = ExtUtil.read(`in`, ExtWrapList(Text::class.java), pf) as ArrayList<Text>
     }
 
     @Throws(PlatformIOException::class)

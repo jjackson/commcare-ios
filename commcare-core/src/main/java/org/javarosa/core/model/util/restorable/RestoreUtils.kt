@@ -11,7 +11,6 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathConditional
 import org.javarosa.xpath.expr.XPathPathExpr
 import java.util.Date
-import java.util.Vector
 
 object RestoreUtils {
     @JvmField
@@ -70,9 +69,9 @@ object RestoreUtils {
         val dataType = getDataType(type)
         val ref = childRef(path, parent)
 
-        val v: Vector<TreeReference> = EvaluationContext(dm).expandReference(ref) ?: return
+        val v: ArrayList<TreeReference> = EvaluationContext(dm).expandReference(ref) ?: return
         for (i in 0 until v.size) {
-            val e = dm.resolveReference(v.elementAt(i)) ?: continue
+            val e = dm.resolveReference(v[i]) ?: continue
             e.setDataType(dataType)
         }
     }

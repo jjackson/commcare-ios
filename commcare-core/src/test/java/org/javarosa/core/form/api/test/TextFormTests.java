@@ -139,8 +139,8 @@ public class TextFormTests {
 
 
         //clean up
-        q.removeSelectChoice(q.getChoices().elementAt(0));
-        q.removeSelectChoice(q.getChoices().elementAt(0));
+        q.removeSelectChoice(q.getChoices().get(0));
+        q.removeSelectChoice(q.getChoices().get(0));
     }
 
     @Test

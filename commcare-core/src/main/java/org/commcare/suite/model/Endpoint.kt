@@ -10,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class Endpoint : Externalizable {
     @JvmField
@@ -18,17 +17,17 @@ class Endpoint : Externalizable {
     @JvmField
     internal var respectRelevancy: Boolean = false
     @JvmField
-    internal var arguments: Vector<EndpointArgument>? = null
+    internal var arguments: ArrayList<EndpointArgument>? = null
     @JvmField
-    internal var stackOperations: Vector<StackOperation>? = null
+    internal var stackOperations: ArrayList<StackOperation>? = null
 
     // for serialization
     constructor()
 
     constructor(
         id: String?,
-        arguments: Vector<EndpointArgument>?,
-        stackOperations: Vector<StackOperation>?,
+        arguments: ArrayList<EndpointArgument>?,
+        stackOperations: ArrayList<StackOperation>?,
         respectRelevancy: Boolean
     ) {
         this.id = id
@@ -41,8 +40,8 @@ class Endpoint : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.readString(`in`)
-        arguments = ExtUtil.read(`in`, ExtWrapList(EndpointArgument::class.java), pf) as Vector<EndpointArgument>
-        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as Vector<StackOperation>
+        arguments = ExtUtil.read(`in`, ExtWrapList(EndpointArgument::class.java), pf) as ArrayList<EndpointArgument>
+        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
         respectRelevancy = ExtUtil.readBool(`in`)
     }
 
@@ -56,9 +55,9 @@ class Endpoint : Externalizable {
 
     fun getId(): String? = id
 
-    fun getArguments(): Vector<EndpointArgument> = arguments!!
+    fun getArguments(): ArrayList<EndpointArgument> = arguments!!
 
-    fun getStackOperations(): Vector<StackOperation> = stackOperations!!
+    fun getStackOperations(): ArrayList<StackOperation> = stackOperations!!
 
     fun isRespectRelevancy(): Boolean = respectRelevancy
 
@@ -73,15 +72,15 @@ class Endpoint : Externalizable {
             val endpointArguments = endpoint.getArguments()
 
             if (endpointArguments.size > args.size) {
-                val missingArguments = Vector<String>()
+                val missingArguments = ArrayList<String>()
                 for (i in args.size until endpointArguments.size) {
-                    missingArguments.add(endpointArguments[i].getId())
+                    missingArguments.add(endpointArguments[i].getId()!!)
                 }
                 throw InvalidEndpointArgumentsException(missingArguments, null)
             }
 
             for (i in 0 until endpointArguments.size) {
-                val argumentName = endpointArguments.elementAt(i).getId()!!
+                val argumentName = endpointArguments[i].getId()!!
                 evaluationContext.setVariable(argumentName, args[i])
             }
         }
@@ -94,14 +93,14 @@ class Endpoint : Externalizable {
         ) {
             val endpointArguments = endpoint.getArguments()
             val argumentIds = args.keys
-            val missingArguments = Vector<String>()
+            val missingArguments = ArrayList<String>()
             for (endpointArgument in endpointArguments) {
                 if (!argumentIds.contains(endpointArgument.getId())) {
-                    missingArguments.add(endpointArgument.getId())
+                    missingArguments.add(endpointArgument.getId()!!)
                 }
             }
 
-            val unexpectedArguments = Vector<String>()
+            val unexpectedArguments = ArrayList<String>()
             for (argumentId in argumentIds) {
                 if (!isValidArgumentId(endpointArguments, argumentId)) {
                     unexpectedArguments.add(argumentId)
@@ -113,7 +112,7 @@ class Endpoint : Externalizable {
             }
 
             for (i in 0 until endpointArguments.size) {
-                val argumentName = endpointArguments.elementAt(i).getId()!!
+                val argumentName = endpointArguments[i].getId()!!
                 if (args.containsKey(argumentName)) {
                     evaluationContext.setVariable(argumentName, args[argumentName])
                 }
@@ -121,7 +120,7 @@ class Endpoint : Externalizable {
         }
 
         private fun isValidArgumentId(
-            endpointArguments: Vector<EndpointArgument>,
+            endpointArguments: ArrayList<EndpointArgument>,
             argumentId: String
         ): Boolean {
             for (endpointArgument in endpointArguments) {
@@ -134,16 +133,16 @@ class Endpoint : Externalizable {
     }
 
     class InvalidEndpointArgumentsException(
-        private val missingArguments: Vector<String>?,
-        private val unexpectedArguments: Vector<String>?
+        private val missingArguments: ArrayList<String>?,
+        private val unexpectedArguments: ArrayList<String>?
     ) : RuntimeException() {
 
         fun hasMissingArguments(): Boolean = missingArguments != null && missingArguments.size > 0
 
-        fun getMissingArguments(): Vector<String>? = missingArguments
+        fun getMissingArguments(): ArrayList<String>? = missingArguments
 
         fun hasUnexpectedArguments(): Boolean = unexpectedArguments != null && unexpectedArguments.size > 0
 
-        fun getUnexpectedArguments(): Vector<String>? = unexpectedArguments
+        fun getUnexpectedArguments(): ArrayList<String>? = unexpectedArguments
     }
 }

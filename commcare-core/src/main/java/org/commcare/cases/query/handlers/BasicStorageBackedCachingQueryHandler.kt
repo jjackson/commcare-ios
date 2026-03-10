@@ -8,7 +8,6 @@ import org.commcare.cases.util.LruCache
 import org.commcare.cases.util.QueryUtils
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * For generic StorageBacked tree root models, each time one is looked up, provide a small cache
@@ -25,7 +24,7 @@ class BasicStorageBackedCachingQueryHandler : QueryHandler<IndexedValueLookup> {
 
     override fun getExpectedRuntime(): Int = 10
 
-    override fun profileHandledQuerySet(profiles: Vector<PredicateProfile>): IndexedValueLookup? {
+    override fun profileHandledQuerySet(profiles: ArrayList<PredicateProfile>): IndexedValueLookup? {
         val ret = QueryUtils.getFirstKeyIndexedValue(profiles)
         if (ret != null) {
             if (caches.containsKey(ret.key)) {
@@ -40,12 +39,12 @@ class BasicStorageBackedCachingQueryHandler : QueryHandler<IndexedValueLookup> {
         return cache.get(querySet.value)
     }
 
-    override fun updateProfiles(querySet: IndexedValueLookup, profiles: Vector<PredicateProfile>) {
+    override fun updateProfiles(querySet: IndexedValueLookup, profiles: ArrayList<PredicateProfile>) {
         profiles.remove(querySet)
     }
 
     override fun collectPredicateProfiles(
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         context: QueryContext,
         evaluationContext: EvaluationContext
     ): Collection<PredicateProfile>? = null

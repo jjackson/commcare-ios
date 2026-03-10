@@ -18,7 +18,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Low level tests for query data parsing
@@ -101,7 +101,7 @@ public class QueryDataParserTest {
         QueryData queryData = parser.parse();
         assertEquals("case_id_list", queryData.getKey());
 
-        Hashtable<String, DataInstance<?>> instances = TestInstances.getInstances();
+        HashMap<String, DataInstance<?>> instances = TestInstances.getInstances();
         EvaluationContext evalContext = new EvaluationContext(null, instances);
         assertEquals(Arrays.asList("456", "789"), queryData.getValues(evalContext));
     }
@@ -116,7 +116,7 @@ public class QueryDataParserTest {
         QueryData queryData = parser.parse();
         assertEquals("case_id_list", queryData.getKey());
 
-        Hashtable<String, DataInstance<?>> instances = TestInstances.getInstances();
+        HashMap<String, DataInstance<?>> instances = TestInstances.getInstances();
         EvaluationContext evalContext = new EvaluationContext(null, instances);
         assertEquals(Arrays.asList("123", "456", "789"), queryData.getValues(evalContext));
     }

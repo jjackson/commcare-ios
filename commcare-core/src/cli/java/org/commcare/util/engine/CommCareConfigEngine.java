@@ -51,8 +51,8 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.zip.ZipFile;
 
 import datadog.trace.api.Trace;
@@ -255,18 +255,18 @@ public class CommCareConfigEngine {
 
         Localization.setDefaultLocale("default");
 
-        Vector<Menu> root = new Vector<>();
-        Hashtable<String, Vector<Menu>> mapping = new Hashtable<>();
-        mapping.put("root", new Vector<Menu>());
+        ArrayList<Menu> root = new ArrayList<>();
+        HashMap<String, ArrayList<Menu>> mapping = new HashMap<>();
+        mapping.put("root", new ArrayList<Menu>());
 
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 if (m.getId().equals("root")) {
                     root.add(m);
                 } else {
-                    Vector<Menu> menus = mapping.get(m.getRoot());
+                    ArrayList<Menu> menus = mapping.get(m.getRoot());
                     if (menus == null) {
-                        menus = new Vector<>();
+                        menus = new ArrayList<>();
                     }
                     menus.add(m);
                     mapping.put(m.getRoot(), menus);

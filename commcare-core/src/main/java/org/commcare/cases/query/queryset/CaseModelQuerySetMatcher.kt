@@ -6,7 +6,6 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Vector
 
 /**
  * Generates potential model query set lookups for references into the case database model.
@@ -28,7 +27,7 @@ class CaseModelQuerySetMatcher private constructor(
 
     private val membershipIndexes: Collection<XPathExpression>
     private val caseDbRoot: TreeReference
-    private val querySetTransforms: Vector<QuerySetTransform> = Vector()
+    private val querySetTransforms: ArrayList<QuerySetTransform> = ArrayList()
 
     constructor(multiplicityMap: Map<Int, Int>) : this("casedb", multiplicityMap)
 
@@ -39,7 +38,7 @@ class CaseModelQuerySetMatcher private constructor(
         // Later on we need this to refer to a real element at casedb, not a virtual one
         caseDbRoot.setMultiplicity(0, 0)
 
-        membershipIndexes = Vector<XPathExpression>().apply {
+        membershipIndexes = ArrayList<XPathExpression>().apply {
             add(CaseInstanceTreeElement.CASE_ID_EXPR)
             add(CaseInstanceTreeElement.CASE_ID_EXPR_TWO)
         }

@@ -10,7 +10,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Generally useful methods on CLI screens.
@@ -52,7 +52,7 @@ public class ScreenUtils {
             return null;
         }
 
-        Vector<StackFrameStep> v = session.getFrame().getSteps();
+        ArrayList<StackFrameStep> v = session.getFrame().getSteps();
 
         // So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
         // displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
@@ -61,7 +61,7 @@ public class ScreenUtils {
             if (bestTitle != null) {
                 break;
             }
-            StackFrameStep step = v.elementAt(i);
+            StackFrameStep step = v.get(i);
 
             if (!SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 bestTitle = stepTitles[i];
@@ -97,9 +97,9 @@ public class ScreenUtils {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector<Class[]> p = new Vector<>();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList<Class[]> p = new ArrayList<>();
+            p.add(new Class[0]);
             return p;
         }
 

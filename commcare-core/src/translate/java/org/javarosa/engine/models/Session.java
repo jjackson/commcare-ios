@@ -2,7 +2,7 @@ package org.javarosa.engine.models;
 
 import org.javarosa.core.util.PropertyUtils;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 
 /**
@@ -12,18 +12,18 @@ import java.util.Vector;
 public class Session {
 
     final String uuid;
-    final Vector<Step> steps;
+    final ArrayList<Step> steps;
 
     public Session() {
         uuid = PropertyUtils.genUUID();
-        steps = new Vector();
+        steps = new ArrayList();
     }
 
-    public Vector<Step> getSteps() {
+    public ArrayList<Step> getSteps() {
         return steps;
     }
 
     public void addStep(Step step) {
-        steps.addElement(step);
+        steps.add(step);
     }
 }

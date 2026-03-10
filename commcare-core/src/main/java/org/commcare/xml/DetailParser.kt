@@ -15,7 +15,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -55,13 +54,13 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
 
         var global: Global? = null
         var callout: Callout? = null
-        val actions = Vector<Action>()
+        val actions = ArrayList<Action>()
 
         //Now get the headers and templates.
         var noItemsText: Text? = null
         var selectText: Text? = null
-        val subdetails = Vector<Detail>()
-        val fields = Vector<DetailField>()
+        val subdetails = ArrayList<Detail>()
+        val fields = ArrayList<DetailField>()
         val variables = OrderedHashtable<String, String>()
         var focusFunction: String? = null
         var detailGroup: DetailGroup? = null
@@ -129,7 +128,7 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
                 continue
             }
             if (ActionParser.NAME_ACTION.equals(parser.name, ignoreCase = true)) {
-                actions.addElement(ActionParser(parser).parse())
+                actions.add(ActionParser(parser).parse())
                 continue
             }
             if (DetailGroupParser.NAME_GROUP.equals(parser.name, ignoreCase = true)) {
@@ -137,10 +136,10 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
                 continue
             }
             if (parser.name == "detail") {
-                subdetails.addElement(getDetailParser().parse())
+                subdetails.add(getDetailParser().parse())
             } else {
                 val detailField = DetailFieldParser(parser, getGraphParser(), id).parse()
-                fields.addElement(detailField)
+                fields.add(detailField)
             }
         }
 

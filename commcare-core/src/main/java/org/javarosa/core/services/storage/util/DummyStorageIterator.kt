@@ -2,14 +2,13 @@ package org.javarosa.core.services.storage.util
 
 import org.javarosa.core.services.storage.IStorageIterator
 import org.javarosa.core.services.storage.Persistable
-import java.util.Hashtable
 
 /**
  * @author ctsims
  */
 class DummyStorageIterator<T : Persistable>(
     private val dummyStorage: DummyIndexedStorageUtility<T>,
-    data: Hashtable<Int, T>
+    data: HashMap<Int, T>
 ) : IStorageIterator<T> {
 
     private var count: Int = 0
@@ -18,9 +17,9 @@ class DummyStorageIterator<T : Persistable>(
     init {
         keys = Array(data.size) { 0 }
         var i = 0
-        val en = data.keys()
-        while (en.hasMoreElements()) {
-            keys[i] = en.nextElement()
+        val en = data.keys.iterator()
+        while (en.hasNext()) {
+            keys[i] = en.next()
             ++i
         }
     }
