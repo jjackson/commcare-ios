@@ -11,7 +11,7 @@ import org.javarosa.xform.parse.QuestionExtensionParser;
 import org.javarosa.xform.util.XFormUtils;
 
 import java.io.InputStream;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * This class sets up everything you need to perform tests on the models and form elements found in JR (such
@@ -31,7 +31,7 @@ public class FormParseInit {
         initFormEntryObjects();
     }
 
-    public FormParseInit(String formPath, Vector<QuestionExtensionParser> extensionParsers) {
+    public FormParseInit(String formPath, ArrayList<QuestionExtensionParser> extensionParsers) {
         initFormDef(formPath, extensionParsers);
         initFormEntryObjects();
     }
@@ -41,7 +41,7 @@ public class FormParseInit {
         initFormEntryObjects();
     }
 
-    private void initFormDef(String formName, Vector<QuestionExtensionParser> extensionParsers) {
+    private void initFormDef(String formName, ArrayList<QuestionExtensionParser> extensionParsers) {
         InputStream is = this.getClass().getResourceAsStream(formName);
 
         if (is == null) {
@@ -141,7 +141,7 @@ public class FormParseInit {
 
             if (fep.getFormElement() instanceof QuestionDef) {
                 stuff += "\t[Type:QuestionDef, ";
-                Vector s = ((QuestionDef)fep.getFormElement()).getChoices();
+                ArrayList s = ((QuestionDef)fep.getFormElement()).getChoices();
                 stuff += "ContainsChoices: " + ((s != null && s.size() > 0) ? "true " : "false") + ", ";
                 if (s != null && s.size() > 0) choiceFlag = true;
             } else if (fep.getFormElement() instanceof FormDef) {

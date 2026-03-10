@@ -1,6 +1,5 @@
 package org.javarosa.core.util
 
-import java.util.Vector
 
 /**
  * @author Clayton Sims
@@ -39,7 +38,7 @@ object ArrayUtilities {
      * size of intersection is 0 or 1
      */
     @JvmStatic
-    fun <E> intersectSingle(a: Vector<E>, b: Vector<E>): E? {
+    fun <E> intersectSingle(a: ArrayList<E>, b: ArrayList<E>): E? {
         for (e in a) {
             if (b.indexOf(e) != -1) {
                 return e
@@ -49,19 +48,19 @@ object ArrayUtilities {
     }
 
     @JvmStatic
-    fun <E> vectorCopy(a: Vector<E>?): Vector<E>? {
+    fun <E> vectorCopy(a: ArrayList<E>?): ArrayList<E>? {
         if (a == null) {
             return null
         }
-        val b = Vector<E>()
+        val b = ArrayList<E>()
         for (e in a) {
-            b.addElement(e)
+            b.add(e)
         }
         return b
     }
 
     @JvmStatic
-    fun <E> copyIntoArray(v: Vector<E>, a: Array<E>): Array<E> {
+    fun <E> copyIntoArray(v: ArrayList<E>, a: Array<E>): Array<E> {
         var i = 0
         for (e in v) {
             a[i++] = e
@@ -70,10 +69,10 @@ object ArrayUtilities {
     }
 
     @JvmStatic
-    fun <E> toVector(a: Array<E>): Vector<E> {
-        val v = Vector<E>()
+    fun <E> toVector(a: Array<E>): ArrayList<E> {
+        val v = ArrayList<E>()
         for (e in a) {
-            v.addElement(e)
+            v.add(e)
         }
         return v
     }

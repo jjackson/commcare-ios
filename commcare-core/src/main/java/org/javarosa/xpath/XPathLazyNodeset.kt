@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Vector
 
 /**
  * Represents a set of XPath nodes returned from a path or other operation which acts on multiple
@@ -44,8 +43,8 @@ class XPathLazyNodeset(
             //to fix conditions based on non-relevant data, filter the nodeset by relevancy
             var i = 0
             while (i < nodes.size) {
-                if (!instance!!.resolveReference(nodes.elementAt(i), ec)!!.isRelevant) {
-                    nodes.removeElementAt(i)
+                if (!instance!!.resolveReference(nodes[i], ec)!!.isRelevant) {
+                    nodes.removeAt(i)
                     i--
                 }
                 i++
@@ -107,7 +106,7 @@ class XPathLazyNodeset(
         return super.toArgList()
     }
 
-    override fun getReferences(): Vector<TreeReference>? {
+    override fun getReferences(): ArrayList<TreeReference>? {
         performEvaluation()
         return super.getReferences()
     }

@@ -4,7 +4,6 @@ import org.javarosa.core.services.properties.IPropertyRules
 import org.javarosa.core.services.properties.Property
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import java.util.NoSuchElementException
-import java.util.Vector
 
 /**
  * PropertyManager is a class that is used to set and retrieve name/value pairs
@@ -38,7 +37,7 @@ class PropertyManager(
     override fun getSingularProperty(propertyName: String): String? {
         val value = getValue(propertyName)
         return if (value != null && value.size == 1) {
-            value.elementAt(0) as String
+            value[0] as String
         } else {
             null
         }
@@ -51,7 +50,7 @@ class PropertyManager(
      * @return The String value of the property specified if it exists, and is the current ruleset, if one exists.
      * null if the property is denied by the current ruleset.
      */
-    override fun getProperty(propertyName: String): Vector<Any?>? {
+    override fun getProperty(propertyName: String): ArrayList<Any?>? {
         return getValue(propertyName)
     }
 
@@ -62,8 +61,8 @@ class PropertyManager(
      * @param propertyValue The value that the property will be set to
      */
     override fun setProperty(propertyName: String, propertyValue: String) {
-        val wrapper = Vector<String>()
-        wrapper.addElement(propertyValue)
+        val wrapper = ArrayList<String>()
+        wrapper.add(propertyValue)
         setProperty(propertyName, wrapper)
     }
 
@@ -73,7 +72,7 @@ class PropertyManager(
      * @param propertyName  The property to be set
      * @param propertyValue The value that the property will be set to
      */
-    override fun setProperty(propertyName: String, propertyValue: Vector<String>) {
+    override fun setProperty(propertyName: String, propertyValue: ArrayList<String>) {
         val oldValue = getProperty(propertyName)
         if (oldValue != null && vectorEquals(oldValue, propertyValue)) {
             //No point in redundantly setting values!
@@ -82,12 +81,12 @@ class PropertyManager(
         writeValue(propertyName, propertyValue)
     }
 
-    private fun vectorEquals(v1: Vector<*>, v2: Vector<*>): Boolean {
+    private fun vectorEquals(v1: ArrayList<*>, v2: ArrayList<*>): Boolean {
         if (v1.size != v2.size) {
             return false
         } else {
             for (i in 0 until v1.size) {
-                if (v1.elementAt(i) != v2.elementAt(i)) {
+                if (v1[i] != v2[i]) {
                     return false
                 }
             }
@@ -100,7 +99,7 @@ class PropertyManager(
      *
      * @return The rulesets being used by this property manager
      */
-    override fun getRules(): Vector<Any?> {
+    override fun getRules(): ArrayList<Any?> {
         throw RuntimeException("PropertyManager rules not implemented")
     }
 
@@ -115,23 +114,23 @@ class PropertyManager(
         throw RuntimeException("PropertyManager rules not implemented")
     }
 
-    fun getValue(name: String): Vector<Any?>? {
+    fun getValue(name: String): ArrayList<Any?>? {
         return try {
             val p = properties.getRecordForValue("NAME", name) as Property
-            p.value as Vector<Any?>
+            p.value as ArrayList<Any?>
         } catch (nsee: NoSuchElementException) {
             null
         }
     }
 
-    private fun writeValue(propertyName: String, value: Vector<*>) {
+    private fun writeValue(propertyName: String, value: ArrayList<*>) {
         val theProp = Property()
         theProp.name = propertyName
-        theProp.value = value as Vector<String>
+        theProp.value = value as ArrayList<String>
 
         val ids = properties.getIDsForValue("NAME", propertyName)
         if (ids.size == 1) {
-            theProp.setID(ids.elementAt(0) as Int)
+            theProp.setID(ids[0] as Int)
         }
 
         properties.write(theProp)

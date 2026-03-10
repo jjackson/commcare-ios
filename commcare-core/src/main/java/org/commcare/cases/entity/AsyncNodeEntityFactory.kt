@@ -8,7 +8,6 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.utils.CacheHost
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Hashtable
 
 /**
  * @author ctsims
@@ -21,7 +20,7 @@ class AsyncNodeEntityFactory(
 ) : NodeEntityFactory(d, ec) {
 
     private val mVariableDeclarations: OrderedHashtable<String, XPathExpression> = detail.variableDeclarations
-    private val mEntitySet: Hashtable<String, AsyncEntity> = Hashtable()
+    private val mEntitySet: HashMap<String, AsyncEntity> = HashMap()
 
     private var mCacheHost: CacheHost? = null
     private var mTemplateIsCachable: Boolean? = null

@@ -4,7 +4,6 @@ import org.javarosa.core.util.OrderedHashtable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 // map of objects where key and data are all of single (non-polymorphic) type
 // (key and value can be of separate types)
@@ -18,11 +17,11 @@ class ExtWrapMap : ExternalizableWrapper {
     @JvmField
     var type: Int = 0
 
-    constructor(`val`: Hashtable<*, *>) : this(`val`, null, null)
+    constructor(`val`: HashMap<*, *>) : this(`val`, null, null)
 
-    constructor(`val`: Hashtable<*, *>, dataType: ExternalizableWrapper?) : this(`val`, null, dataType)
+    constructor(`val`: HashMap<*, *>, dataType: ExternalizableWrapper?) : this(`val`, null, dataType)
 
-    constructor(`val`: Hashtable<*, *>, keyType: ExternalizableWrapper?, dataType: ExternalizableWrapper?) {
+    constructor(`val`: HashMap<*, *>, keyType: ExternalizableWrapper?, dataType: ExternalizableWrapper?) {
         requireNotNull(`val`)
         this.`val` = `val`
         this.keyType = keyType
@@ -48,20 +47,20 @@ class ExtWrapMap : ExternalizableWrapper {
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
-        return ExtWrapMap(`val` as Hashtable<*, *>, keyType, dataType)
+        return ExtWrapMap(`val` as HashMap<*, *>, keyType, dataType)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
-        val h: Hashtable<Any, Any> = when (type) {
+        val h: HashMap<Any, Any> = when (type) {
             TYPE_ORDERED -> OrderedHashtable(size.toInt())
-            else -> Hashtable(size.toInt())
+            else -> HashMap(size.toInt())
         }
 
         for (i in 0 until size) {
-            val key = ExtUtil.read(`in`, keyType!!, pf)
-            val elem = ExtUtil.read(`in`, dataType!!, pf)
+            val key = ExtUtil.read(`in`, keyType!!, pf)!!
+            val elem = ExtUtil.read(`in`, dataType!!, pf)!!
             h[key] = elem
         }
         `val` = h
@@ -70,12 +69,12 @@ class ExtWrapMap : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as Hashtable<Any, Any>
+        val h = `val` as HashMap<Any, Any>
 
         ExtUtil.writeNumeric(out, h.size.toLong())
-        val e = h.keys()
-        while (e.hasMoreElements()) {
-            val key = e.nextElement()
+        val e = h.keys.iterator()
+        while (e.hasNext()) {
+            val key = e.next()
             val elem = h[key]!!
 
             ExtUtil.write(out, if (keyType == null) key else keyType!!.clone(key))
@@ -93,15 +92,15 @@ class ExtWrapMap : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as Hashtable<Any, Any>
+        val h = `val` as HashMap<Any, Any>
 
         val keyTagObj: Any = if (keyType == null) {
-            if (h.isEmpty()) Any() else h.keys().nextElement()
+            if (h.isEmpty()) Any() else h.keys.iterator().next()
         } else {
             keyType!!
         }
         val elemTagObj: Any = if (dataType == null) {
-            if (h.isEmpty()) Any() else h.elements().nextElement()
+            if (h.isEmpty()) Any() else h.values.iterator().next()
         } else {
             dataType!!
         }

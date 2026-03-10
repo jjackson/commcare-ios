@@ -8,7 +8,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -25,7 +25,7 @@ public class SelectOneDataTests {
         question.setID(57);
 
         OrderedHashtable oh = new OrderedHashtable();
-        Vector v = new Vector();
+        ArrayList v = new ArrayList();
         for (int i = 0; i < 3; i++) {
             question.addSelectChoice(new SelectChoice("", "Selection" + i, "Selection" + i, false));
         }

@@ -8,10 +8,8 @@ import org.commcare.core.graph.util.GraphException
 import org.commcare.core.graph.util.GraphUtil
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.Hashtable
 import java.util.SortedMap
 import java.util.TreeMap
-import java.util.Vector
 
 /**
  * Contains all of the fully-evaluated data to draw a graph: a type, set of series,
@@ -21,9 +19,9 @@ import java.util.Vector
  */
 class GraphData : ConfigurableData {
     private var mType: String? = null
-    private val mSeries = Vector<SeriesData>()
-    private val mConfiguration = Hashtable<String, String>()
-    private val mAnnotations = Vector<AnnotationData>()
+    private val mSeries = ArrayList<SeriesData>()
+    private val mConfiguration = HashMap<String, String>()
+    private val mAnnotations = ArrayList<AnnotationData>()
 
     fun getType(): String? = mType
 
@@ -31,17 +29,17 @@ class GraphData : ConfigurableData {
         mType = type
     }
 
-    fun getSeries(): Vector<SeriesData> = mSeries
+    fun getSeries(): ArrayList<SeriesData> = mSeries
 
     fun addSeries(s: SeriesData) {
-        mSeries.addElement(s)
+        mSeries.add(s)
     }
 
     fun addAnnotation(a: AnnotationData) {
-        mAnnotations.addElement(a)
+        mAnnotations.add(a)
     }
 
-    fun getAnnotations(): Vector<AnnotationData> = mAnnotations
+    fun getAnnotations(): ArrayList<AnnotationData> = mAnnotations
 
     override fun setConfiguration(key: String, value: String) {
         mConfiguration[key] = value

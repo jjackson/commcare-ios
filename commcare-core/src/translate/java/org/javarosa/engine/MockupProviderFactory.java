@@ -10,16 +10,16 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeElement;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * @author ctsims
  *
  */
 public class MockupProviderFactory extends InstanceInitializationFactory {
-    final Hashtable<String, FormInstance> instances;
+    final HashMap<String, FormInstance> instances;
 
-    public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
+    public MockupProviderFactory(HashMap<String, FormInstance> instances) {
         this.instances = instances;
     }
 

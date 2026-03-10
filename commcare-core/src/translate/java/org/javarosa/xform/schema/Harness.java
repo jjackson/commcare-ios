@@ -22,22 +22,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class Harness {
     // Track specification extension keywords so we know what to do during
     // parsing when they are encountered.
-    private static final Hashtable<String, Vector<String>> specExtensionKeywords =
-            new Hashtable<>();
+    private static final HashMap<String, ArrayList<String>> specExtensionKeywords =
+            new HashMap<>();
     // Namespace for which inner elements should be parsed.
-    private static final Vector<String> parseSpecExtensionsInnerElements =
-            new Vector<>();
+    private static final ArrayList<String> parseSpecExtensionsInnerElements =
+            new ArrayList<>();
     // Namespace for which we supress "unrecognized element" warnings
-    private static final Vector<String> suppressSpecExtensionWarnings =
-            new Vector<>();
+    private static final ArrayList<String> suppressSpecExtensionWarnings =
+            new ArrayList<>();
 
     public static void main(String[] args) {
         Options options = new Options();
@@ -137,12 +138,12 @@ public class Harness {
         // read in specification extension keywords from command-line options
         Properties extensions = argsParsedWithOptions.getOptionProperties("E");
         if (extensions != null) {
-            Enumeration<?> properties = extensions.propertyNames();
-            while (properties.hasMoreElements()) {
-                String namespace = (String)properties.nextElement();
+            Iterator<?> properties = Collections.list(extensions.propertyNames()).iterator();
+            while (properties.hasNext()) {
+                String namespace = (String)properties.next();
                 String tagString = extensions.getProperty(namespace);
                 String[] tagsArr = tagString.split(",");
-                Vector<String> tags = new Vector<>();
+                ArrayList<String> tags = new ArrayList<>();
                 for (int i = 0; i < tagsArr.length; i++) {
                     tags.add(tagsArr[i]);
                 }
@@ -154,9 +155,9 @@ public class Harness {
         // from command-line options
         Properties namespaceWarningSupression = argsParsedWithOptions.getOptionProperties("S");
         if (namespaceWarningSupression != null) {
-            Enumeration<?> properties = namespaceWarningSupression.propertyNames();
-            while (properties.hasMoreElements()) {
-                String namespace = (String)properties.nextElement();
+            Iterator<?> properties = Collections.list(namespaceWarningSupression.propertyNames()).iterator();
+            while (properties.hasNext()) {
+                String namespace = (String)properties.next();
                 suppressSpecExtensionWarnings.add(namespace);
             }
         }
@@ -165,9 +166,9 @@ public class Harness {
         // from command-line options
         Properties namespaceParseInner = argsParsedWithOptions.getOptionProperties("I");
         if (namespaceParseInner != null) {
-            Enumeration<?> properties = namespaceParseInner.propertyNames();
-            while (properties.hasMoreElements()) {
-                String namespace = (String)properties.nextElement();
+            Iterator<?> properties = Collections.list(namespaceParseInner.propertyNames()).iterator();
+            while (properties.hasNext()) {
+                String namespace = (String)properties.next();
                 parseSpecExtensionsInnerElements.add(namespace);
             }
         }

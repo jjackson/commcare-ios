@@ -164,7 +164,7 @@ public class ApplicationHost {
         }
 
         for (StackOperation op : endpoint.getStackOperations()) {
-            mSession.executeStackOperations(new Vector<>(Arrays.asList(op)), evalContext);
+            mSession.executeStackOperations(new ArrayList<>(Arrays.asList(op)), evalContext);
             Screen s = getNextScreen();
             if (s instanceof SyncScreen) {
                 try {

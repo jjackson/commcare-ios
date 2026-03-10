@@ -13,7 +13,6 @@ import org.javarosa.xpath.expr.XPathStringLiteral
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Represents entity selection requirement in the current session. The nodeset
@@ -68,8 +67,8 @@ open class EntityDatum : SessionDatum {
     fun getCurrentAutoselectableCase(ec: EvaluationContext): TreeReference? {
         if (isAutoSelectEnabled()) {
             val entityListElements = ec.expandReference(this.getNodeset()!!)
-            if (entityListElements?.size == 1) {
-                return entityListElements?.elementAt(0)
+            if (entityListElements != null && entityListElements.size == 1) {
+                return entityListElements[0]
             }
         }
         return null
@@ -120,7 +119,7 @@ open class EntityDatum : SessionDatum {
         val nodesetRef = this.getNodeset()!!.clone()
         var predicates = nodesetRef.getPredicate(nodesetRef.size() - 1)
         if (predicates == null) {
-            predicates = Vector()
+            predicates = ArrayList()
         }
         // For speed reasons, add a case id selection as the first predicate
         // This has potential to change outcomes if other predicates utilize 'position'
@@ -129,12 +128,12 @@ open class EntityDatum : SessionDatum {
             XPathReference.getPathExpr(this.getValue()!!),
             XPathStringLiteral(elementId)
         )
-        predicates.insertElementAt(caseIdSelection, 0)
+        predicates.add(0, caseIdSelection)
         nodesetRef.addPredicate(nodesetRef.size() - 1, predicates)
 
         val elements = ec.expandReference(nodesetRef)
         return if (elements?.size == 1) {
-            elements?.firstElement()
+            elements?.first()
         } else {
             null
         }

@@ -14,7 +14,6 @@ import org.javarosa.model.xform.XPathReference
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A data instance represents a tree structure of abstract tree

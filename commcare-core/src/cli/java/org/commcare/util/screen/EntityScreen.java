@@ -22,8 +22,8 @@ import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,12 +56,12 @@ public class EntityScreen extends CompoundScreenHost {
     private boolean readyToSkip = false;
     private EvaluationContext evalContext;
 
-    protected Hashtable<String, TreeReference> referenceMap;
+    protected HashMap<String, TreeReference> referenceMap;
 
     private boolean handleCaseIndex;
     private boolean needsFullInit = true;
 
-    protected Vector<TreeReference> references;
+    protected ArrayList<TreeReference> references;
 
     private boolean initialized = false;
     private Action autoLaunchAction;
@@ -101,7 +101,7 @@ public class EntityScreen extends CompoundScreenHost {
         for (Action action : mShortDetail.getCustomActions(evalContext)) {
             if (action.isAutoLaunchAction(subContext)) {
                 // Supply an empty case list so we can "select" from it later using getEntityFromID
-                mCurrentScreen = new EntityListSubscreen(mShortDetail, new Vector<>(), evalContext,
+                mCurrentScreen = new EntityListSubscreen(mShortDetail, new ArrayList<>(), evalContext,
                         handleCaseIndex, entityScreenContext);
                 this.autoLaunchAction = action;
             }
@@ -136,8 +136,8 @@ public class EntityScreen extends CompoundScreenHost {
         if (!readyToSkip) {
             // if isDetailScreen or needsFullInit is not set,
             // sub screen is needed to handle actions but we can skip eval refs
-            Vector<TreeReference> entityListReferences =
-                    !needsFullInit || isDetailScreen() ? new Vector<>() : references;
+            ArrayList<TreeReference> entityListReferences =
+                    !needsFullInit || isDetailScreen() ? new ArrayList<>() : references;
             mCurrentScreen = new EntityListSubscreen(mShortDetail, entityListReferences, evalContext,
                     handleCaseIndex, entityScreenContext);
         }
@@ -172,7 +172,7 @@ public class EntityScreen extends CompoundScreenHost {
         evalContext.setQueryContext(newContext);
 
         if (needsFullInit || references.size() == 1 || shouldAutoSelect()) {
-            referenceMap = new Hashtable<>();
+            referenceMap = new HashMap<>();
             EntityDatum needed = (EntityDatum)session.getNeededDatum();
             for (TreeReference reference : references) {
                 referenceMap.put(getReturnValueFromSelection(reference, needed, evalContext), reference);
@@ -205,7 +205,7 @@ public class EntityScreen extends CompoundScreenHost {
      * @throws CommCareSessionException errors while auto selecting entities
      */
     public boolean autoSelectEntities(SessionWrapper session) throws CommCareSessionException {
-        this.setSelectedEntity(references.firstElement());
+        this.setSelectedEntity(references.get(0));
         if (!setCurrentScreenToDetail()) {
             updateSession(session);
             return true;
@@ -241,7 +241,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Trace
-    private Vector<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
+    private ArrayList<TreeReference> expandEntityReferenceSet(EvaluationContext context) {
         return evalContext.expandReference(mNeededDatum.getNodeset());
     }
 
@@ -458,7 +458,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentSelection;
     }
 
-    public Vector<TreeReference> getReferences() {
+    public ArrayList<TreeReference> getReferences() {
         return references;
     }
 
@@ -473,7 +473,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     // Used by Formplayer
     @SuppressWarnings("unused")
-    public Hashtable<String, TreeReference> getReferenceMap() {
+    public HashMap<String, TreeReference> getReferenceMap() {
         return referenceMap;
     }
 

@@ -2,7 +2,6 @@ package org.javarosa.core.util
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Vector
 
 /**
  * MultiInputStream allows for concatenating multiple
@@ -18,12 +17,12 @@ import java.util.Vector
  */
 class MultiInputStream : InputStream() {
 
-    private val streams: Vector<InputStream> = Vector()
+    private val streams: ArrayList<InputStream> = ArrayList()
 
     private var currentStream: Int = -1
 
     fun addStream(stream: InputStream) {
-        streams.addElement(stream)
+        streams.add(stream)
     }
 
     /**
@@ -48,7 +47,7 @@ class MultiInputStream : InputStream() {
         if (currentStream == -1) {
             throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
-        var cur = streams.elementAt(currentStream)
+        var cur = streams[currentStream]
         var next = cur.read()
 
         if (next != -1) {
@@ -61,7 +60,7 @@ class MultiInputStream : InputStream() {
         // an end of stream
         while (next == -1 && currentStream + 1 < streams.size) {
             currentStream++
-            cur = streams.elementAt(currentStream)
+            cur = streams[currentStream]
             next = cur.read()
         }
 
@@ -74,7 +73,7 @@ class MultiInputStream : InputStream() {
         if (currentStream == -1) {
             throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
-        return streams.elementAt(currentStream).available()
+        return streams[currentStream].available()
     }
 
     @Throws(PlatformIOException::class)
@@ -82,9 +81,9 @@ class MultiInputStream : InputStream() {
         if (currentStream == -1) {
             throw PlatformIOException("Cannot read from unprepared MultiInputStream!")
         }
-        val en = streams.elements()
-        while (en.hasMoreElements()) {
-            en.nextElement().close()
+        val en = streams.iterator()
+        while (en.hasNext()) {
+            en.next().close()
         }
     }
 }

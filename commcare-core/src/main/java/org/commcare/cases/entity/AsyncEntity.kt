@@ -14,8 +14,6 @@ import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Enumeration
-import java.util.Hashtable
 
 /**
  * An AsyncEntity is an entity reference which is capable of building its
@@ -35,7 +33,7 @@ class AsyncEntity(
     detail: Detail,
     private val context: EvaluationContext,
     t: TreeReference,
-    private val mVariableDeclarations: Hashtable<String, XPathExpression>,
+    private val mVariableDeclarations: HashMap<String, XPathExpression>,
     private val mEntityStorageCache: EntityStorageCache?,
     private val mCacheIndex: String?,
     extraKey: String?
@@ -62,9 +60,9 @@ class AsyncEntity(
             if (!mVariableContextLoaded) {
                 // These are actually in an ordered hashtable, so we can't just get the keyset, since it's
                 // in a 1.3 hashtable equivalent
-                val en: Enumeration<String> = mVariableDeclarations.keys()
-                while (en.hasMoreElements()) {
-                    val key = en.nextElement()
+                val en: Iterator<String> = mVariableDeclarations.keys.iterator()
+                while (en.hasNext()) {
+                    val key = en.next()
                     context.setVariable(key, FunctionUtils.unpack(mVariableDeclarations[key]!!.eval(context)))
                 }
                 mVariableContextLoaded = true

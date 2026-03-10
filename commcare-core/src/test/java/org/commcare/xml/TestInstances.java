@@ -15,7 +15,7 @@ import org.javarosa.core.model.instance.TreeElement;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -27,8 +27,8 @@ public class TestInstances {
     private static final String SESSION = "session";
     public static final String CASEDB = "casedb";
 
-    public static Hashtable<String, DataInstance<?>> getInstances() {
-        Hashtable<String, DataInstance<?>> instances = new Hashtable<>();
+    public static HashMap<String, DataInstance<?>> getInstances() {
+        HashMap<String, DataInstance<?>> instances = new HashMap<>();
         instances.put(SESSION, buildSessionInstance());
         instances.put(SELECTED_CASES, buildSelectedEntities());
         instances.put(CASEDB, buildCaseDb());

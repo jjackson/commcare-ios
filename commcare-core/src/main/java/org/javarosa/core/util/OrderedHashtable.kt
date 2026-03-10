@@ -1,22 +1,23 @@
 package org.javarosa.core.util
 
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
-class OrderedHashtable<K, V> : Hashtable<K, V> {
-    private val orderedKeys: Vector<K>
+class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
+    private val orderedKeys: ArrayList<K>
 
     constructor() : super() {
-        orderedKeys = Vector()
+        orderedKeys = ArrayList()
     }
 
     constructor(initialCapacity: Int) : super(initialCapacity) {
-        orderedKeys = Vector(initialCapacity)
+        orderedKeys = ArrayList(initialCapacity)
     }
 
+    override fun get(key: K): V? = super.get(key)
+    override fun containsKey(key: K): Boolean = super.containsKey(key)
+    override fun containsValue(value: V): Boolean = super.containsValue(value)
+
     override fun clear() {
-        orderedKeys.removeAllElements()
+        orderedKeys.clear()
         super.clear()
     }
 
@@ -24,12 +25,12 @@ class OrderedHashtable<K, V> : Hashtable<K, V> {
         return get(keyAt(index))!!
     }
 
-    override fun elements(): Enumeration<V> {
-        val elements = Vector<V>()
+    fun elements(): MutableIterator<V> {
+        val elements = ArrayList<V>()
         for (i in 0 until size) {
-            elements.addElement(elementAt(i))
+            elements.add(elementAt(i))
         }
-        return elements.elements()
+        return elements.iterator()
     }
 
     fun indexOfKey(key: K): Int {
@@ -37,11 +38,11 @@ class OrderedHashtable<K, V> : Hashtable<K, V> {
     }
 
     fun keyAt(index: Int): K {
-        return orderedKeys.elementAt(index)
+        return orderedKeys[index]
     }
 
-    override fun keys(): Enumeration<K> {
-        return orderedKeys.elements()
+    fun orderedKeys(): MutableIterator<K> {
+        return orderedKeys.iterator()
     }
 
     override fun put(key: K, value: V): V? {
@@ -56,31 +57,31 @@ class OrderedHashtable<K, V> : Hashtable<K, V> {
         // (We can't check for much else because this call
         // can be repeated inside of the put).
         if (super.size > orderedKeys.size) {
-            orderedKeys.addElement(key)
+            orderedKeys.add(key)
         }
         return v
     }
 
     override fun remove(key: K): V? {
-        orderedKeys.removeElement(key)
+        orderedKeys.remove(key)
         return super.remove(key)
     }
 
     fun removeAt(i: Int) {
         remove(keyAt(i))
-        orderedKeys.removeElementAt(i)
+        orderedKeys.removeAt(i)
     }
 
     override fun toString(): String {
         val sb = StringBuffer()
         sb.append("[")
-        val e = keys()
-        while (e.hasMoreElements()) {
-            val key = e.nextElement()
+        val e = orderedKeys()
+        while (e.hasNext()) {
+            val key = e.next()
             sb.append(key.toString())
             sb.append(" => ")
             sb.append(get(key).toString())
-            if (e.hasMoreElements())
+            if (e.hasNext())
                 sb.append(", ")
         }
         sb.append("]")

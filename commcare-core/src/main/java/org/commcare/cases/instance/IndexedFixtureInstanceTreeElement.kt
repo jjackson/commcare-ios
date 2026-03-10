@@ -7,7 +7,6 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.Hashtable
 
 /**
  * The root element for the an indexed fixture data instance:
@@ -26,7 +25,7 @@ abstract class IndexedFixtureInstanceTreeElement(
     indexedFixtureIdentifier.fixtureChild
 ) {
 
-    private var storageIndexMap: Hashtable<XPathPathExpr, String>? = null
+    private var storageIndexMap: HashMap<XPathPathExpr, String>? = null
     private val cacheKey: String
 
     @JvmField
@@ -50,9 +49,9 @@ abstract class IndexedFixtureInstanceTreeElement(
         return IndexedFixtureChildElement.buildFixtureChildTemplate(this)
     }
 
-    override fun getStorageIndexMap(): Hashtable<XPathPathExpr, String> {
+    override fun getStorageIndexMap(): HashMap<XPathPathExpr, String> {
         if (storageIndexMap == null) {
-            storageIndexMap = Hashtable()
+            storageIndexMap = HashMap()
 
             val template = getModelTemplate()
             for (fieldName in template.getMetaDataFields()) {

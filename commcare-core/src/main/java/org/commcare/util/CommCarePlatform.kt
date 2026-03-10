@@ -17,8 +17,6 @@ import org.javarosa.core.services.PropertyManager
 import org.javarosa.core.services.properties.Property
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.services.storage.StorageManager
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * TODO: This isn't really a great candidate for a
@@ -50,7 +48,7 @@ open class CommCarePlatform {
     val majorVersion: Int
     val minorVersion: Int
     val minimalVersion: Int
-    private val installedSuites: Vector<Suite>
+    private val installedSuites: ArrayList<Suite>
 
     constructor(majorVersion: Int, minorVersion: Int, minimalVersion: Int, storageManager: StorageManager) :
             this(majorVersion, minorVersion, minimalVersion) {
@@ -63,7 +61,7 @@ open class CommCarePlatform {
         this.majorVersion = majorVersion
         this.minorVersion = minorVersion
         this.minimalVersion = minimalVersion
-        installedSuites = Vector()
+        installedSuites = ArrayList()
     }
 
     fun getCurrentProfile(): Profile {
@@ -73,14 +71,14 @@ open class CommCarePlatform {
         return cachedProfile!!
     }
 
-    fun getInstalledSuites(): Vector<Suite> {
+    fun getInstalledSuites(): ArrayList<Suite> {
         if (!installedSuites.isEmpty()) {
             return installedSuites
         }
         val utility = storageManager!!.getStorage(Suite.STORAGE_KEY)
         val iterator = utility.iterate()
         while (iterator.hasMore()) {
-            installedSuites.addElement(utility.read(iterator.nextID()) as Suite)
+            installedSuites.add(utility.read(iterator.nextID()) as Suite)
         }
         return installedSuites
     }
@@ -115,8 +113,8 @@ open class CommCarePlatform {
         return null
     }
 
-    fun getAllEndpoints(): Hashtable<String, Endpoint> {
-        val allEndpoints = Hashtable<String, Endpoint>()
+    fun getAllEndpoints(): HashMap<String, Endpoint> {
+        val allEndpoints = HashMap<String, Endpoint>()
         for (s in getInstalledSuites()) {
             allEndpoints.putAll(s.getEndpoints())
         }
@@ -129,7 +127,7 @@ open class CommCarePlatform {
     }
 
     fun registerSuite(s: Suite) {
-        installedSuites.addElement(s)
+        installedSuites.add(s)
     }
 
     /**
@@ -147,15 +145,15 @@ open class CommCarePlatform {
         profile = -1
     }
 
-    fun getCommandToEntryMap(): Hashtable<String, Entry> {
+    fun getCommandToEntryMap(): HashMap<String, Entry> {
         val installed = getInstalledSuites()
-        val merged = Hashtable<String, Entry>()
+        val merged = HashMap<String, Entry>()
 
         for (s in installed) {
             val entriesInSuite = s.getEntries()
-            val en = entriesInSuite.keys()
-            while (en.hasMoreElements()) {
-                val commandId = en.nextElement() as String
+            val en = entriesInSuite.keys.iterator()
+            while (en.hasNext()) {
+                val commandId = en.next() as String
                 merged.put(commandId, entriesInSuite.get(commandId)!!)
             }
         }
@@ -173,11 +171,11 @@ open class CommCarePlatform {
         val installed = getInstalledSuites()
 
         for (suite in installed) {
-            val e = suite.getEntries().elements()
-            while (e.hasMoreElements()) {
-                val suiteEntry = e.nextElement() as FormEntry
+            val e = suite.getEntries().iterator()
+            while (e.hasNext()) {
+                val suiteEntry = e.next() as FormEntry
                 if (suiteEntry.getCommandId() == formEntry.getCommandId()) {
-                    return suite.getMenus().firstElement().getId()
+                    return suite.getMenus().first().getId()
                 }
             }
         }

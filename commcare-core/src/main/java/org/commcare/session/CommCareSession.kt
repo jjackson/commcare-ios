@@ -33,9 +33,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Stack
-import java.util.Vector
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -72,7 +69,7 @@ open class CommCareSession {
     /**
      * The stack of pending Frames
      */
-    var frameStack: Stack<SessionFrame>
+    var frameStack: ArrayDeque<SessionFrame>
         protected set
 
     /**
@@ -85,7 +82,7 @@ open class CommCareSession {
         this.platform = platform
         this.collectedDatums = OrderedHashtable()
         this.frame = SessionFrame()
-        this.frameStack = Stack()
+        this.frameStack = ArrayDeque()
     }
 
     /**
@@ -105,16 +102,16 @@ open class CommCareSession {
         this.smartLinkRedirect = oldCommCareSession.smartLinkRedirect
 
         collectedDatums = OrderedHashtable()
-        val en = oldCommCareSession.collectedDatums.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement() as String
+        val en = oldCommCareSession.collectedDatums.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next() as String
             collectedDatums.put(key, oldCommCareSession.collectedDatums[key]!!)
         }
 
-        this.frameStack = Stack()
-        // NOTE: can't use for/each due to J2ME build issues w/ Stack
+        this.frameStack = ArrayDeque()
+        // NOTE: can't use for/each due to J2ME build issues w/ ArrayDeque
         for (i in 0 until oldCommCareSession.frameStack.size) {
-            frameStack.addElement(oldCommCareSession.frameStack.elementAt(i))
+            frameStack.add(oldCommCareSession.frameStack[i])
         }
     }
 
@@ -123,8 +120,8 @@ open class CommCareSession {
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    private fun getEntriesForCommand(commandId: String?): Vector<Entry> {
-        val entries = Vector<Entry>()
+    private fun getEntriesForCommand(commandId: String?): ArrayList<Entry> {
+        val entries = ArrayList<Entry>()
         if (commandId == null) {
             return entries
         }
@@ -137,14 +134,14 @@ open class CommCareSession {
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                entries.addElement(s.getEntries()[commandId])
+                entries.add(s.getEntries()[commandId]!!)
             }
         }
         return entries
     }
 
-    private fun getMenusForCommand(commandId: String?): Vector<Menu> {
-        val menusWithId = Vector<Menu>()
+    private fun getMenusForCommand(commandId: String?): ArrayList<Menu> {
+        val menusWithId = ArrayList<Menu>()
         for (s in platform!!.getInstalledSuites()) {
             val menus = s.getMenusWithId(commandId)
             if (menus != null && menus.size > 0) {
@@ -156,9 +153,9 @@ open class CommCareSession {
 
     fun getEntryForNameSpace(xmlns: String?): FormEntry? {
         for (suite in platform!!.getInstalledSuites()) {
-            val en = suite.getEntries().elements()
-            while (en.hasMoreElements()) {
-                val suiteEntry = en.nextElement()
+            val en = suite.getEntries().iterator()
+            while (en.hasNext()) {
+                val suiteEntry = en.next()
                 if (suiteEntry is FormEntry) {
                     if (suiteEntry.getXFormNamespace() == xmlns) {
                         return suiteEntry
@@ -178,13 +175,13 @@ open class CommCareSession {
         return if (commandID == null) null else getPlatform().getEntry(commandID)
     }
 
-    private fun getStillValidEntriesFromMenu(menu: Menu): Vector<Entry> {
+    private fun getStillValidEntriesFromMenu(menu: Menu): ArrayList<Entry> {
         val globalEntryMap = platform!!.getCommandToEntryMap()
-        val stillValid = Vector<Entry>()
+        val stillValid = ArrayList<Entry>()
         for (cmd in menu.getCommandIds()) {
             val e = globalEntryMap[cmd]
                 ?: throw RuntimeException("No entry found for menu command [$cmd]")
-            stillValid.addElement(e)
+            stillValid.add(e)
         }
         return stillValid
     }
@@ -242,7 +239,7 @@ open class CommCareSession {
      * and if so, returns the data's associated session state. Otherwise,
      * returns null.
      */
-    private fun getDataNeededByAllEntries(entries: Vector<Entry>): String? {
+    private fun getDataNeededByAllEntries(entries: ArrayList<Entry>): String? {
         var datumNeededByAllEntriesSoFar: String? = null
         var neededDatumId: String? = null
         for (e in entries) {
@@ -276,11 +273,11 @@ open class CommCareSession {
     }
 
     fun getHeaderTitles(): Array<String?> {
-        val menus = Hashtable<String, String>()
+        val menus = HashMap<String, String>()
 
         for (s in platform!!.getInstalledSuites()) {
             for (m in s.getMenus()) {
-                menus.put(m.getId(), m.getName()?.evaluate())
+                menus[m.getId()!!] = m.getName()?.evaluate() ?: ""
             }
         }
 
@@ -324,7 +321,7 @@ open class CommCareSession {
         if (entries.isEmpty()) {
             throw IllegalStateException("The current session has no valid entry")
         }
-        return getNeededDatum(entries.firstElement())
+        return getNeededDatum(entries.first())
     }
 
     /**
@@ -341,7 +338,7 @@ open class CommCareSession {
      */
     private fun getFirstMissingDatum(
         datumsCollectedSoFar: OrderedHashtable<*, *>,
-        allDatumsNeeded: Vector<SessionDatum>?
+        allDatumsNeeded: ArrayList<SessionDatum>?
     ): SessionDatum? {
         if (allDatumsNeeded == null) return null
         for (datum in allDatumsNeeded) {
@@ -444,7 +441,7 @@ open class CommCareSession {
 
     private fun topStepIsMark(): Boolean {
         return frame.getSteps().isNotEmpty()
-                && SessionFrame.STATE_MARK == frame.getSteps().lastElement().getType()
+                && SessionFrame.STATE_MARK == frame.getSteps().last().getType()
     }
 
     fun popStep(evalContext: EvaluationContext) {
@@ -598,7 +595,7 @@ open class CommCareSession {
      */
     fun clearAllState() {
         frame = SessionFrame()
-        frameStack.removeAllElements()
+        frameStack.clear()
         syncState()
     }
 
@@ -632,12 +629,12 @@ open class CommCareSession {
         val menus = getMenusForCommand(command)
 
         var entry: Entry? = null
-        val instancesInScope = Hashtable<String, DataInstance<*>>()
-        var menuInstances: Hashtable<String, DataInstance<*>>? = null
-        var entryInstances: Hashtable<String, DataInstance<*>>? = null
+        val instancesInScope = HashMap<String, DataInstance<*>>()
+        var menuInstances: HashMap<String, DataInstance<*>>? = null
+        var entryInstances: HashMap<String, DataInstance<*>>? = null
 
         if (entries.isNotEmpty()) {
-            entry = entries.elementAt(0)
+            entry = entries[0]
             if (entry != null) {
                 entryInstances = entry.getInstances(instancesToInclude)
             }
@@ -655,9 +652,9 @@ open class CommCareSession {
             }
         }
 
-        val en = instancesInScope.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement() as String
+        val en = instancesInScope.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next() as String
             instancesInScope.put(key, instancesInScope[key]!!.initialize(iif, key))
         }
         addInstancesFromFrame(instancesInScope, iif)
@@ -666,7 +663,7 @@ open class CommCareSession {
     }
 
     private fun addInstancesFromFrame(
-        instanceMap: Hashtable<String, DataInstance<*>>,
+        instanceMap: HashMap<String, DataInstance<*>>,
         iif: InstanceInitializationFactory
     ) {
         for (step in frame.getSteps()) {
@@ -698,12 +695,12 @@ open class CommCareSession {
      *
      * @return True if stack ops triggered a rewind, used for determining stack clean-up logic
      */
-    fun executeStackOperations(ops: Vector<StackOperation>, ec: EvaluationContext): Boolean {
+    fun executeStackOperations(ops: ArrayList<StackOperation>, ec: EvaluationContext): Boolean {
         return executeStackOperations(ops, ec, StackObserver())
     }
 
     fun executeStackOperations(
-        ops: Vector<StackOperation>, ec: EvaluationContext, observer: StackObserver
+        ops: ArrayList<StackOperation>, ec: EvaluationContext, observer: StackObserver
     ): Boolean {
         // The on deck frame is the frame that is the target of operations that execute
         // as part of this stack update. If at the end of the stack ops the frame on deck
@@ -814,7 +811,7 @@ open class CommCareSession {
         // somehow.
         cleanStack()
 
-        frameStack.push(matchingFrame)
+        frameStack.addLast(matchingFrame)
         observer.pushed(matchingFrame)
     }
 
@@ -823,7 +820,7 @@ open class CommCareSession {
         ec: EvaluationContext, observer: StackObserver
     ) {
         if (op.isOperationTriggered(ec)) {
-            frameStack.removeElement(frame)
+            frameStack.remove(frame)
             observer.dropped(frame)
         }
     }
@@ -855,7 +852,7 @@ open class CommCareSession {
         // state.
         if (frame.isSnapshotIncompatible()) {
             // If it is, our frames can no longer make sense.
-            frameStack.removeAllElements()
+            frameStack.clear()
             frame.clearSnapshot()
         }
     }
@@ -901,14 +898,14 @@ open class CommCareSession {
     private fun finishAndPop(didRewind: Boolean, observer: StackObserver): Boolean {
         cleanStack()
 
-        if (frameStack.empty()) {
+        if (frameStack.isEmpty()) {
             if (!didRewind) {
                 observer.dropped(frame)
             }
             return didRewind
         } else {
             observer.dropped(frame)
-            frame = frameStack.pop()
+            frame = frameStack.removeLast()
             // Ok, so if _after_ popping from the stack, we still have
             // stack members, we need to be careful about making sure
             // that they won't get triggered if we abandon the current
@@ -937,7 +934,7 @@ open class CommCareSession {
         if (e.isEmpty()) {
             throw IllegalStateException("The current session has no valid entry")
         }
-        return e.elementAt(0)
+        return e[0]
     }
 
     /**
@@ -961,7 +958,7 @@ open class CommCareSession {
         var stepId = -1
         // walk to our datum
         for (i in 0 until steps.size) {
-            val step = steps.elementAt(i)
+            val step = steps[i]
             if (step.getId() == datumId && stepIsOfType(step, SessionFrame.STATE_DATUM_VAL)) {
                 stepId = i
                 break
@@ -975,12 +972,12 @@ open class CommCareSession {
         // ok, so now we have our step, we want to walk backwards until we find the entity
         // associated with our ID
         for (i in stepId downTo 0) {
-            if (steps.elementAt(i).getType() == SessionFrame.STATE_COMMAND_ID) {
-                val entries = this.getEntriesForCommand(steps.elementAt(i).getId())
+            if (steps[i].getType() == SessionFrame.STATE_COMMAND_ID) {
+                val entries = this.getEntriesForCommand(steps[i].getId())
 
                 // TODO: Don't we know the right entry? What if our last command is an actual entry?
                 for (entry in entries) {
-                    for (datum in (entry.getSessionDataReqs() ?: Vector())) {
+                    for (datum in (entry.getSessionDataReqs() ?: ArrayList())) {
                         if (datum.getDataId() == datumId && datum is EntityDatum) {
                             return datum
                         }
@@ -1011,12 +1008,12 @@ open class CommCareSession {
      */
     fun isViewCommand(command: String?): Boolean {
         val entries = this.getEntriesForCommand(command)
-        return entries.size == 1 && entries.elementAt(0).isView()
+        return entries.size == 1 && entries[0].isView()
     }
 
     fun isRemoteRequestCommand(command: String?): Boolean {
         val entries = this.getEntriesForCommand(command)
-        return entries.size == 1 && entries.elementAt(0).isRemoteRequest()
+        return entries.size == 1 && entries[0].isRemoteRequest()
     }
 
     fun addExtraToCurrentFrameStep(key: String, value: Any) {
@@ -1071,12 +1068,12 @@ open class CommCareSession {
             val restoredSession = CommCareSession(ccPlatform)
             restoredSession.frame = restoredFrame
             @Suppress("UNCHECKED_CAST")
-            val frames = ExtUtil.read(inputStream, ExtWrapList(SessionFrame::class.java), null) as Vector<SessionFrame>
-            val stackFrames = Stack<SessionFrame>()
+            val frames = ExtUtil.read(inputStream, ExtWrapList(SessionFrame::class.java), null) as ArrayList<SessionFrame>
+            val stackFrames = ArrayDeque<SessionFrame>()
             while (frames.isNotEmpty()) {
-                val lastElement = frames.lastElement()
+                val lastElement = frames.last()
                 frames.remove(lastElement)
-                stackFrames.push(lastElement)
+                stackFrames.addLast(lastElement)
             }
             restoredSession.frameStack = stackFrames
             restoredSession.syncState()

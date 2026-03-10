@@ -11,7 +11,6 @@ import org.javarosa.xpath.XPathException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class Condition : Triggerable {
 
@@ -28,11 +27,11 @@ class Condition : Triggerable {
     constructor(
         expr: IConditionExpr?, trueAction: Int, falseAction: Int,
         contextRef: TreeReference?
-    ) : this(expr, trueAction, falseAction, contextRef, Vector<TreeReference>())
+    ) : this(expr, trueAction, falseAction, contextRef, ArrayList<TreeReference>())
 
     constructor(
         expr: IConditionExpr?, trueAction: Int, falseAction: Int,
-        contextRef: TreeReference?, targets: Vector<TreeReference>
+        contextRef: TreeReference?, targets: ArrayList<TreeReference>
     ) : super(expr, contextRef) {
         this.trueAction = trueAction
         this.falseAction = falseAction

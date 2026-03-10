@@ -191,7 +191,7 @@ object Parser {
                 if (node.isStep()) {
                     val step = parseStep(node)
                     val path = ASTNodeLocPath()
-                    path.clauses.addElement(step)
+                    path.clauses.add(step)
                     node.condenseFull(path)
                 } else {
                     //filter expr
@@ -212,7 +212,7 @@ object Parser {
                         val x = part.pieces[i]
                         if (x.isStep()) {
                             val step = parseStep(x)
-                            path.clauses.addElement(step)
+                            path.clauses.add(step)
                         } else {
                             if (i == 0) {
                                 if (x.size() == 0) {
@@ -222,9 +222,9 @@ object Parser {
                                     //filter expr
                                     val filt = parseFilterExp(x)
                                     if (filt != null)
-                                        path.clauses.addElement(filt)
+                                        path.clauses.add(filt)
                                     else
-                                        path.clauses.addElement(x)
+                                        path.clauses.add(x)
                                 }
                             } else {
                                 throw XPathSyntaxException("Unexpected beginning of path")
@@ -293,7 +293,7 @@ object Parser {
 
             while (i < node.size()) {
                 if (node.content[i] is ASTNodePredicate) {
-                    step.predicates.addElement(node.content[i] as ASTNodePredicate)
+                    step.predicates.add(node.content[i] as ASTNodePredicate)
                 } else {
                     throw XPathSyntaxException()
                 }
@@ -310,7 +310,7 @@ object Parser {
         var i = node.size() - 1
         while (i >= 0) {
             if (node.content[i] is ASTNodePredicate) {
-                filt.predicates.insertElementAt(node.content[i] as ASTNodePredicate, 0)
+                filt.predicates.add(0, node.content[i] as ASTNodePredicate)
             } else {
                 break
             }

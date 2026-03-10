@@ -1,7 +1,6 @@
 package org.javarosa.core.model.trace
 
 import org.javarosa.core.util.OrderedHashtable
-import java.util.Vector
 
 /**
  * A Cumulative trace reporter collects and "folds" traces which execute over multiple elements.
@@ -32,8 +31,8 @@ class ReducingTraceReporter(private val flat: Boolean) : EvaluationTraceReporter
         this.traceMap.clear()
     }
 
-    override fun getCollectedTraces(): Vector<EvaluationTrace> {
-        return Vector<EvaluationTrace>(traceMap.values)
+    override fun getCollectedTraces(): ArrayList<EvaluationTrace> {
+        return ArrayList<EvaluationTrace>(traceMap.values)
     }
 
     override fun reportAsFlat(): Boolean {

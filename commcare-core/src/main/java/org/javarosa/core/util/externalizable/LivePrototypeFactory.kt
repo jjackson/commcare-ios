@@ -1,7 +1,6 @@
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.api.ClassNameHasher
-import java.util.Hashtable
 
 /**
  * A prototype factory that is configured to keep track of all of the
@@ -17,7 +16,7 @@ import java.util.Hashtable
  * @author ctsims
  */
 class LivePrototypeFactory : PrototypeFactory {
-    private val factoryTable = Hashtable<String, Class<*>>()
+    private val factoryTable = HashMap<String, Class<*>>()
     private val mLiveHasher: LiveHasher
 
     constructor() : this(ClassNameHasher())

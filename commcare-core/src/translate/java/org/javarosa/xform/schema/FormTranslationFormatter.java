@@ -20,10 +20,10 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
@@ -39,8 +39,8 @@ public class FormTranslationFormatter {
     public static StringBuffer dumpTranslationsIntoCSV(FormDef f, StringBuffer messages) {
         f.getLocalizer().setToDefault();
 
-        Hashtable<String, Hashtable<String, String>> localeData = new Hashtable<>();
-        Hashtable<Integer, String[]> techStrings = new Hashtable<>();
+        HashMap<String, HashMap<String, String>> localeData = new HashMap<>();
+        HashMap<Integer, String[]> techStrings = new HashMap<>();
 
         StringWriter writer = new StringWriter();
 
@@ -60,11 +60,11 @@ public class FormTranslationFormatter {
             messages.append("Error!").append(e.getMessage());
         }
 
-        Hashtable<String, String> defaultLocales = localeData.get(f.getLocalizer().getLocale());
+        HashMap<String, String> defaultLocales = localeData.get(f.getLocalizer().getLocale());
         //Go through the keys for the default translation, there should be a one-to-one mapping between
         //each set of available keys.
-        for(Enumeration en = defaultLocales.keys(); en.hasMoreElements();) {
-            String key = (String) en.nextElement();
+        for(Iterator en = defaultLocales.keySet().iterator(); en.hasNext();) {
+            String key = (String) en.next();
             String[] rowOfTranslations = new String[locales.length + 1];
             rowOfTranslations[0] = key;
             int index = 1;
@@ -73,11 +73,11 @@ public class FormTranslationFormatter {
                 String translation = localeData.get(locale).get(key);
                 rowOfTranslations[index] = translation;
 
-                Vector<String> arguments = (Vector<String>) Localizer.getArgs(translation);
+                ArrayList<String> arguments = (ArrayList<String>) Localizer.getArgs(translation);
                 for (String arg : arguments) {
                     try {
                         int nArg = Integer.parseInt(arg);
-                        XPathConditional expr = (XPathConditional) f.getOutputFragments().elementAt((nArg));
+                        XPathConditional expr = (XPathConditional) f.getOutputFragments().get((nArg));
                         //println(sb, indent + 1, expr.xpath);
                         if(!techStrings.containsKey(Integer.valueOf(nArg))) {
                             techStrings.put(Integer.valueOf(nArg),new String[locales.length + 1]);
@@ -125,8 +125,8 @@ public class FormTranslationFormatter {
         //Lots of Dictionaries!
         //Treemap is important here to keep ordering constraints.
         TreeMap<String,Element> itexts = new TreeMap<>();
-        Hashtable<String,Hashtable<String,Element>> textValues = new Hashtable<>();
-        Hashtable<String, Hashtable<String,String>> args = new Hashtable<>();
+        HashMap<String,HashMap<String,Element>> textValues = new HashMap<>();
+        HashMap<String, HashMap<String,String>> args = new HashMap<>();
 
         CsvReader csv;
 
@@ -151,8 +151,8 @@ public class FormTranslationFormatter {
                 Element translation = doc.createElement(null,"translation");
                 translation.setAttribute(null, "lang",headers[i]);
                 itexts.put(headers[i], translation);
-                textValues.put(headers[i], new Hashtable<String,Element>());
-                args.put(headers[i], new Hashtable<String,String>());
+                textValues.put(headers[i], new HashMap<String,Element>());
+                args.put(headers[i], new HashMap<String,String>());
             }
             while(csv.readRecord()) {
                 String[] values = csv.getValues();
@@ -215,7 +215,7 @@ public class FormTranslationFormatter {
 
         //Now it's time to update all of the arguments!
         for(String localeID : textValues.keySet()) {
-            Hashtable<String,Element> localeValueElements = textValues.get(localeID);
+            HashMap<String,Element> localeValueElements = textValues.get(localeID);
             for(Element textElement : localeValueElements.values()) {
                 for(int i = 0 ; i < textElement.getChildCount(); ++i ){
                     if(textElement.getChild(i) instanceof Element) {

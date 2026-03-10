@@ -4,7 +4,6 @@ import org.commcare.cases.query.IndexedValueLookup
 import org.commcare.cases.query.PredicateProfile
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitive
-import java.util.Vector
 
 /**
  * Created by ctsims on 1/25/2017.
@@ -12,16 +11,16 @@ import java.util.Vector
 object QueryUtils {
 
     @JvmStatic
-    fun getFirstKeyIndexedValue(profiles: Vector<PredicateProfile>): IndexedValueLookup? {
-        if (profiles.elementAt(0) is IndexedValueLookup) {
-            return profiles.elementAt(0) as IndexedValueLookup
+    fun getFirstKeyIndexedValue(profiles: ArrayList<PredicateProfile>): IndexedValueLookup? {
+        if (profiles[0] is IndexedValueLookup) {
+            return profiles[0] as IndexedValueLookup
         }
         return null
     }
 
     @JvmStatic
-    fun wrapSingleResult(result: Int?): Vector<Int> {
-        val results = Vector<Int>()
+    fun wrapSingleResult(result: Int?): ArrayList<Int> {
+        val results = ArrayList<Int>()
         if (result != null) {
             results.add(result)
         }

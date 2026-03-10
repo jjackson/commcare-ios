@@ -11,7 +11,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -20,13 +19,13 @@ class TreeReferenceLevel : Externalizable {
 
     private var name: String? = null
     private var multiplicity: Int = MULT_UNINIT
-    private var predicates: Vector<XPathExpression>? = null
+    private var predicates: ArrayList<XPathExpression>? = null
 
     constructor() {
         // for externalization
     }
 
-    constructor(name: String?, multiplicity: Int, predicates: Vector<XPathExpression>?) {
+    constructor(name: String?, multiplicity: Int, predicates: ArrayList<XPathExpression>?) {
         this.name = name
         this.multiplicity = multiplicity
         this.predicates = predicates
@@ -50,11 +49,11 @@ class TreeReferenceLevel : Externalizable {
      * @return a (cached-)copy of this reference level with the predicates argument
      * attached.
      */
-    fun setPredicates(xpe: Vector<XPathExpression>?): TreeReferenceLevel {
+    fun setPredicates(xpe: ArrayList<XPathExpression>?): TreeReferenceLevel {
         return TreeReferenceLevel(name, multiplicity, xpe).intern()
     }
 
-    fun getPredicates(): Vector<XPathExpression>? = predicates
+    fun getPredicates(): ArrayList<XPathExpression>? = predicates
 
     fun shallowCopy(): TreeReferenceLevel {
         return TreeReferenceLevel(
@@ -73,7 +72,7 @@ class TreeReferenceLevel : Externalizable {
         multiplicity = ExtUtil.readInt(`in`)
         @Suppress("UNCHECKED_CAST")
         predicates = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<XPathExpression>
+            ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<XPathExpression>
         )
     }
 
@@ -130,7 +129,7 @@ class TreeReferenceLevel : Externalizable {
 
         // predicate elements are equal
         for (i in 0 until predicates!!.size) {
-            if (predicates!!.elementAt(i) != l.predicates!!.elementAt(i)) {
+            if (predicates!![i] != l.predicates!![i]) {
                 return false
             }
         }

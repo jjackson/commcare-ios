@@ -2,8 +2,6 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.instance.DataInstance
 
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * An entry action used for viewing data; main difference from an Entry is that
@@ -19,9 +17,9 @@ class ViewEntry : Entry {
 
     constructor(
         commandId: String?, display: DisplayUnit?,
-        data: Vector<SessionDatum>?,
-        instances: Hashtable<String, DataInstance<*>>?,
-        stackOperations: Vector<StackOperation>?,
+        data: ArrayList<SessionDatum>?,
+        instances: HashMap<String, DataInstance<*>>?,
+        stackOperations: ArrayList<StackOperation>?,
         assertions: AssertionSet?
     ) : super(commandId, display, data, instances, stackOperations, assertions)
 

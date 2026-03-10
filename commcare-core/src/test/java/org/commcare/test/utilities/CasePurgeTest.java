@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * A class for running tests on the case purge logic.
@@ -159,7 +159,7 @@ public class CasePurgeTest {
 
         initCaseStorage(storage, userId);
 
-        Vector<String> ownerIds = new Vector<>();
+        ArrayList<String> ownerIds = new ArrayList<>();
         ownerIds.add(userId);
 
 

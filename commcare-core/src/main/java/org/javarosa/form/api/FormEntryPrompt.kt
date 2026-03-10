@@ -21,7 +21,6 @@ import org.javarosa.core.util.NoLocalizedTextException
 import org.javarosa.core.util.UnregisteredLocaleException
 import org.javarosa.xform.parse.XFormParser
 
-import java.util.Vector
 
 import datadog.trace.api.Trace
 
@@ -34,7 +33,7 @@ import datadog.trace.api.Trace
 open class FormEntryPrompt : FormEntryCaption {
 
     private var mTreeElement: TreeElement? = null
-    private var populatedDynamicChoices: Vector<SelectChoice>? = null
+    private var populatedDynamicChoices: ArrayList<SelectChoice>? = null
 
     /**
      * This empty constructor exists for convenience of any supertypes of this prompt
@@ -67,42 +66,42 @@ open class FormEntryPrompt : FormEntryCaption {
         if (itemset != null) {
             if (itemset.valueRef != null) {
                 val choices = getSelectChoices()
-                val preselectedValues = Vector<String>()
+                val preselectedValues = ArrayList<String>()
 
                 //determine which selections are already present in the answer
                 if (itemset.copyMode) {
                     val destRef = itemset.getDestRef()!!.contextualize(mTreeElement!!.getRef())!!
                     val subNodes = form!!.getEvaluationContext()!!.expandReference(destRef)!!
                     for (i in 0 until subNodes.size) {
-                        val node = form!!.getMainInstance()!!.resolveReference(subNodes.elementAt(i))
+                        val node = form!!.getMainInstance()!!.resolveReference(subNodes[i])
                         val value = itemset.getRelativeValue()!!.evalReadable(
                             form!!.getMainInstance(),
                             EvaluationContext(form!!.getEvaluationContext(), node!!.getRef())
                         )
-                        preselectedValues.addElement(value)
+                        preselectedValues.add(value!!)
                     }
                 } else {
-                    var sels = Vector<Selection>()
+                    var sels = ArrayList<Selection>()
                     val data = mTreeElement!!.getValue()
                     if (data is SelectMultiData) {
                         @Suppress("UNCHECKED_CAST")
-                        sels = data.getValue() as Vector<Selection>
+                        sels = data.getValue() as ArrayList<Selection>
                     } else if (data is SelectOneData) {
-                        sels = Vector()
-                        sels.addElement(data.getValue() as Selection)
+                        sels = ArrayList()
+                        sels.add(data.getValue() as Selection)
                     }
                     for (i in 0 until sels.size) {
-                        preselectedValues.addElement(sels.elementAt(i).xmlValue)
+                        preselectedValues.add(sels[i].xmlValue!!)
                     }
                 }
 
                 //populate 'selection' with the corresponding choices (matching 'value') from the dynamic choiceset
-                val selection = Vector<Selection>()
+                val selection = ArrayList<Selection>()
                 for (i in 0 until preselectedValues.size) {
-                    val value = preselectedValues.elementAt(i)
+                    val value = preselectedValues[i]
                     var choice: SelectChoice? = null
                     for (j in 0 until choices!!.size) {
-                        val ch = choices.elementAt(j)
+                        val ch = choices[j]
                         if (value == ch.value) {
                             choice = ch
                             break
@@ -111,7 +110,7 @@ open class FormEntryPrompt : FormEntryCaption {
                     //if it's a dynamic question, then there's a good choice what they selected last time
                     //will no longer be an option this go around
                     if (choice != null) {
-                        selection.addElement(choice.selection())
+                        selection.add(choice.selection())
                     }
                 }
 
@@ -121,7 +120,7 @@ open class FormEntryPrompt : FormEntryCaption {
                 } else if (q.getControlType() == Constants.CONTROL_SELECT_MULTI) {
                     SelectMultiData(selection)
                 } else if (q.getControlType() == Constants.CONTROL_SELECT_ONE) {
-                    SelectOneData(selection.elementAt(0)) //do something if more than one selected?
+                    SelectOneData(selection[0]) //do something if more than one selected?
                 } else {
                     throw RuntimeException("can't happen")
                 }
@@ -149,7 +148,7 @@ open class FormEntryPrompt : FormEntryCaption {
             } else if (data is SelectMultiData) {
                 var returnValue = ""
                 @Suppress("UNCHECKED_CAST")
-                val values = data.getValue() as Vector<Selection>
+                val values = data.getValue() as ArrayList<Selection>
                 for (value in values) {
                     returnValue += this.getSelectItemText(value) + " "
                 }
@@ -201,12 +200,12 @@ open class FormEntryPrompt : FormEntryCaption {
         }
     }
 
-    fun getSelectChoices(): Vector<SelectChoice>? {
+    fun getSelectChoices(): ArrayList<SelectChoice>? {
         return getSelectChoices(true)
     }
 
     @Trace
-    open fun getSelectChoices(shouldAttemptDynamicPopulation: Boolean): Vector<SelectChoice>? {
+    open fun getSelectChoices(shouldAttemptDynamicPopulation: Boolean): ArrayList<SelectChoice>? {
         val q = getQuestion()
         val itemset = q.getDynamicChoices()
         if (itemset != null) {
@@ -221,7 +220,7 @@ open class FormEntryPrompt : FormEntryCaption {
         }
     }
 
-    fun getOldSelectChoices(): Vector<SelectChoice>? {
+    fun getOldSelectChoices(): ArrayList<SelectChoice>? {
         return getSelectChoices(false)
     }
 
@@ -231,13 +230,13 @@ open class FormEntryPrompt : FormEntryCaption {
      */
     fun hasSameDisplayContent(
         questionTextForOldPrompt: String?,
-        selectChoicesForOldPrompt: Vector<SelectChoice>?
+        selectChoicesForOldPrompt: ArrayList<SelectChoice>?
     ): Boolean {
         return questionTextIsUnchanged(questionTextForOldPrompt) &&
                 selectChoicesAreUnchanged(selectChoicesForOldPrompt)
     }
 
-    private fun selectChoicesAreUnchanged(choicesForOld: Vector<SelectChoice>?): Boolean {
+    private fun selectChoicesAreUnchanged(choicesForOld: ArrayList<SelectChoice>?): Boolean {
         val choicesForThis = getSelectChoices()
         return if (choicesForOld == null) {
             choicesForThis == null
@@ -290,10 +289,10 @@ open class FormEntryPrompt : FormEntryCaption {
             return true
         }
 
-        val forms = Vector<String>()
-        forms.addElement(TEXT_FORM_AUDIO)
-        forms.addElement(TEXT_FORM_IMAGE)
-        forms.addElement(TEXT_FORM_VIDEO)
+        val forms = ArrayList<String>()
+        forms.add(TEXT_FORM_AUDIO)
+        forms.add(TEXT_FORM_IMAGE)
+        forms.add(TEXT_FORM_VIDEO)
         for (formType in forms) {
             val media = getHelpMultimedia(formType)
             if (media != null && "" != media) {

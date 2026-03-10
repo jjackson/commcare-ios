@@ -9,7 +9,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A Form Index is an immutable index into a specific question definition that
@@ -341,18 +340,18 @@ class FormIndex : Externalizable {
     fun assignRefs(f: FormDef) {
         var cur: FormIndex? = this
 
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
         f.collapseIndex(this, indexes, multiplicities, elements)
 
-        val curMults = Vector<Int>()
-        val curElems = Vector<IFormElement>()
+        val curMults = ArrayList<Int>()
+        val curElems = ArrayList<IFormElement>()
 
         var i = 0
         while (cur != null) {
-            curMults.addElement(multiplicities.elementAt(i))
-            curElems.addElement(elements.elementAt(i))
+            curMults.add(multiplicities[i])
+            curElems.add(elements[i])
 
             cur.reference = f.getChildInstanceRef(curElems, curMults)
 

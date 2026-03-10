@@ -16,7 +16,6 @@ import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -239,8 +238,8 @@ class ProfileParser(
     }
 
     @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
-    private fun parseCredentials(): Vector<Credential> {
-        val appCredentials = Vector<Credential>()
+    private fun parseCredentials(): ArrayList<Credential> {
+        val appCredentials = ArrayList<Credential>()
         while (nextTagInBlock(NAME_CREDENTIALS)) {
             val tag = parser.name.lowercase()
             if (tag == NAME_CREDENTIAL) {
@@ -259,8 +258,8 @@ class ProfileParser(
     }
 
     @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
-    private fun parseDependencies(): Vector<AndroidPackageDependency> {
-        val appDependencies = Vector<AndroidPackageDependency>()
+    private fun parseDependencies(): ArrayList<AndroidPackageDependency> {
+        val appDependencies = ArrayList<AndroidPackageDependency>()
         while (nextTagInBlock(NAME_DEPENDENCIES)) {
             val tag = parser.name.lowercase()
             if (tag == NAME_ANDROID_PACKAGE) {

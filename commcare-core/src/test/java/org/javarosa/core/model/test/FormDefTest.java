@@ -32,7 +32,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -616,9 +616,9 @@ public class FormDefTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector<Class[]> p = new Vector<>();
-                p.addElement(new Class[0]);
+            public ArrayList getPrototypes() {
+                ArrayList<Class[]> p = new ArrayList<>();
+                p.add(new Class[0]);
                 return p;
             }
 

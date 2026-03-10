@@ -11,7 +11,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.utils.PreloadUtils
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -61,7 +60,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
         return "case"
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         //In order
         val cached = cache()
         val children = cached.getChildrenWithName(name)
@@ -70,7 +69,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
             val emptyNode = TreeElement(name)
             cached.addChild(emptyNode)
             emptyNode.setParent(cached)
-            children.addElement(emptyNode)
+            children.add(emptyNode)
         }
         return children
     }
@@ -88,7 +87,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
             //For now this seems impossible
             if (recordId == -1) {
                 val ids = parent.storage.getIDsForValue(nameId, entityId as Any)
-                recordId = ids.elementAt(0)
+                recordId = ids[0]
             }
 
             val c = parent.getElement(recordId, context)
@@ -153,9 +152,9 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
     }
 
     private fun setCaseProperties(c: Case, cacheBuilder: TreeElement) {
-        val en = c.getProperties().keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement() as String
+        val en = c.getProperties().keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next() as String
 
             //this is an unfortunate complication of our internal model
             if (LAST_MODIFIED_KEY == key) {
@@ -200,7 +199,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
                 return child
             }
 
-            override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+            override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
                 val children = super.getChildrenWithName(parentRef.intern(name))
 
                 //If we haven't finished caching yet, we can safely not return
@@ -216,7 +215,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
 
                     this.addChild(emptyNode)
                     emptyNode.setParent(this)
-                    children.addElement(emptyNode)
+                    children.add(emptyNode)
                 }
                 return children
             }

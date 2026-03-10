@@ -7,7 +7,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * @author ctsims
@@ -54,8 +54,8 @@ public class XmlComparator {
             throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
         }
 
-        Hashtable<String, String> leftAttr = attrTable(left);
-        Hashtable<String, String> rightAttr = attrTable(right);
+        HashMap<String, String> leftAttr = attrTable(left);
+        HashMap<String, String> rightAttr = attrTable(right);
 
         for (String key : leftAttr.keySet()) {
             if (!rightAttr.containsKey(key)) {
@@ -89,8 +89,8 @@ public class XmlComparator {
         }
     }
 
-    private static Hashtable<String, String> attrTable(Element element) {
-        Hashtable<String, String> attr = new Hashtable<>();
+    private static HashMap<String, String> attrTable(Element element) {
+        HashMap<String, String> attr = new HashMap<>();
         for(int i = 0 ; i < element.getAttributeCount() ; ++i ) {
             attr.put(element.getAttributeName(i), element.getAttributeValue(i));
         }

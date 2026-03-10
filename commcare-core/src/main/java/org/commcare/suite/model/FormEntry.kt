@@ -9,8 +9,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Describes a user-initiated form entry action. Includes information that
@@ -30,9 +28,9 @@ class FormEntry : Entry {
 
     constructor(
         commandId: String?, display: DisplayUnit?,
-        data: Vector<SessionDatum>?, formNamespace: String?,
-        instances: Hashtable<String, DataInstance<*>>?,
-        stackOperations: Vector<StackOperation>?, assertions: AssertionSet?, post: PostRequest?
+        data: ArrayList<SessionDatum>?, formNamespace: String?,
+        instances: HashMap<String, DataInstance<*>>?,
+        stackOperations: ArrayList<StackOperation>?, assertions: AssertionSet?, post: PostRequest?
     ) : super(commandId, display, data, instances, stackOperations, assertions) {
         this.xFormNamespace = formNamespace
         this.post = post

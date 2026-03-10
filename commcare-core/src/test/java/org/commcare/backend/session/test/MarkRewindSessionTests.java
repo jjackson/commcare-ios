@@ -33,7 +33,7 @@ public class MarkRewindSessionTests {
 
         // perform 'claim' action
         Detail shortDetail = session.getPlatform().getDetail("case-list");
-        Action action = shortDetail.getCustomActions(session.getEvaluationContext()).firstElement();
+        Action action = shortDetail.getCustomActions(session.getEvaluationContext()).get(0);
         // queue up action
         boolean didRewindOrNewFrame = session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());
         assertFalse(didRewindOrNewFrame);
@@ -41,7 +41,7 @@ public class MarkRewindSessionTests {
         // test backing out of action
         session.stepBack();
         assertEquals("child_case_1", session.getNeededDatum().getDataId());
-        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getFrame().getSteps().lastElement().getType());
+        assertEquals(SessionFrame.STATE_DATUM_VAL, session.getFrame().getSteps().get(session.getFrame().getSteps().size()-1).getType());
 
         // queue up action again
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext());

@@ -30,7 +30,7 @@ open class XPathPositionFunc : XPathFuncExpr {
             val expr = evaluatedArgs[0] as XPathNodeset
             try {
                 return position(expr.getRefAt(0))
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (e: IndexOutOfBoundsException) {
                 if (expr is XPathLazyNodeset) {
                     throw XPathTypeMismatchException("Unable to evaluate `position` on " + expr.getUnexpandedRefString() + ", which is empty.")
                 } else {

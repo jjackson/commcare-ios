@@ -107,7 +107,7 @@ class AxisConfiguration(data: GraphData) : Configuration(data) {
                     val labels = JSONObject(labelString)
                     val values = JSONArray()
                     var largestLabel = ""
-                    val i = labels.keys()
+                    val i = labels.keys().iterator()
                     while (i.hasNext()) {
                         val location = i.next() as String
                         if (isX && mData.getType() == GraphUtil.TYPE_TIME) {

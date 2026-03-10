@@ -7,8 +7,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Parser used in DetailParser to parse the defintions of callouts used in
@@ -26,8 +24,8 @@ class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
         val type = parser.getAttributeValue(null, "type")
         val isAutoLaunching = "true" == parser.getAttributeValue(null, "auto_launch")
 
-        val extras = Hashtable<String, String>()
-        val responses = Vector<String>()
+        val extras = HashMap<String, String>()
+        val responses = ArrayList<String>()
         var responseDetailField: DetailField? = null
 
         while (nextTagInBlock("lookup")) {
@@ -35,7 +33,7 @@ class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
             if ("extra" == tagName) {
                 extras[parser.getAttributeValue(null, "key")] = parser.getAttributeValue(null, "value")
             } else if ("response" == tagName) {
-                responses.addElement(parser.getAttributeValue(null, "key"))
+                responses.add(parser.getAttributeValue(null, "key"))
             } else if ("field" == tagName) {
                 responseDetailField = DetailFieldParser(parser, null, "'lookup callout detail field'").parse()
             }

@@ -10,7 +10,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
 
@@ -39,8 +38,8 @@ class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
         // we are defaulting to true by checking against "false"
         val respectReslevancy = "false" != respectRelevancyStr
 
-        val stackOperations = Vector<StackOperation>()
-        val arguments = Vector<EndpointArgument>()
+        val stackOperations = ArrayList<StackOperation>()
+        val arguments = ArrayList<EndpointArgument>()
 
         while (nextTagInBlock(NAME_ENDPOINT)) {
             val tagName = parser.name.lowercase()

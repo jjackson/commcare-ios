@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.Externalizable
-import java.util.Vector
 
 /**
  * A condition expression is an expression which is evaluated against the current
@@ -43,7 +42,7 @@ interface IConditionExpr : Externalizable {
     /**
      * Used for itemsets. Fill this documentation in.
      */
-    fun evalNodeset(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<TreeReference>
+    fun evalNodeset(model: DataInstance<*>?, evalContext: EvaluationContext?): ArrayList<TreeReference>
 
     /**
      * Provides a list of all of the references that this expression's value depends upon
@@ -54,7 +53,7 @@ interface IConditionExpr : Externalizable {
      *                           reference; used for expanding 'current()'
      * @return References that are dependant on this expression's value.
      */
-    fun getExprsTriggers(originalContextRef: TreeReference?): Vector<TreeReference>
+    fun getExprsTriggers(originalContextRef: TreeReference?): ArrayList<TreeReference>
 
     /**
      * Provide a list of Pivots around which this Condition Expression depends.
@@ -63,5 +62,5 @@ interface IConditionExpr : Externalizable {
      * to signal that the expression cannot be statically evaluated.
      */
     @Throws(UnpivotableExpressionException::class)
-    fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<Any>
+    fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext?): ArrayList<Any>
 }

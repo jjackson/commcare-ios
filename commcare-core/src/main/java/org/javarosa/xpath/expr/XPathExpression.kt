@@ -15,7 +15,6 @@ import org.kxml2.io.KXmlSerializer
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
-import java.util.Vector
 
 abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
@@ -61,9 +60,9 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
     protected abstract fun evalRaw(model: DataInstance<*>?, evalContext: EvaluationContext): Any
 
     @Throws(UnpivotableExpressionException::class)
-    fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext): Vector<Any> {
+    fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext): ArrayList<Any> {
         try {
-            val pivots = Vector<Any>()
+            val pivots = ArrayList<Any>()
             this.pivot(model, evalContext, pivots, evalContext.contextRef)
             return pivots
         } catch (uee: UnpivotableExpressionException) {
@@ -89,7 +88,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
      * @throws UnpivotableExpressionException If the expression is too complex to pivot
      */
     @Throws(UnpivotableExpressionException::class)
-    open fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: Vector<Any>, sentinal: Any?): Any? {
+    open fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: ArrayList<Any>, sentinal: Any?): Any? {
         return eval(model, evalContext)
     }
 

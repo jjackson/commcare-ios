@@ -21,7 +21,7 @@ public class StackObserverTest {
         session.setEntityDatum("mother_case_1", "nancy");
 
         Detail shortDetail = session.getPlatform().getDetail("case-list");
-        Action action = shortDetail.getCustomActions(session.getEvaluationContext()).firstElement();
+        Action action = shortDetail.getCustomActions(session.getEvaluationContext()).get(0);
 
         StackObserver observer = new StackObserver();
         session.executeStackOperations(action.getStackOperations(), session.getEvaluationContext(),

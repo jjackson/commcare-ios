@@ -6,7 +6,6 @@ import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Vector
 
 /**
  * An element of a FormInstance.
@@ -38,9 +37,9 @@ open class ConcreteTreeElement : AbstractTreeElement {
     // I made all of these null again because there are so many treeelements that they
     // take up a huuuge amount of space together.
     @JvmField
-    protected var attributes: Vector<AbstractTreeElement>? = null
+    protected var attributes: ArrayList<AbstractTreeElement>? = null
     @JvmField
-    protected var children: Vector<AbstractTreeElement>? = null
+    protected var children: ArrayList<AbstractTreeElement>? = null
 
     /* model properties */
     @JvmField
@@ -98,10 +97,10 @@ open class ConcreteTreeElement : AbstractTreeElement {
             if (multiplicity == TreeReference.INDEX_TEMPLATE || currentChildren.size < multiplicity + 1) {
                 return null
             }
-            return currentChildren.elementAt(multiplicity) // droos: i'm suspicious of this
+            return currentChildren[multiplicity] // droos: i'm suspicious of this
         } else {
             for (i in 0 until currentChildren.size) {
-                val child = currentChildren.elementAt(i)
+                val child = currentChildren[i]
                 if (name == child.getName() && child.getMult() == multiplicity) {
                     return child
                 }
@@ -111,20 +110,20 @@ open class ConcreteTreeElement : AbstractTreeElement {
         return null
     }
 
-    override fun getChildrenWithName(name: String): Vector<AbstractTreeElement> {
+    override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         return getChildrenWithName(name, false)
     }
 
-    private fun getChildrenWithName(name: String, includeTemplate: Boolean): Vector<AbstractTreeElement> {
-        val v = Vector<AbstractTreeElement>()
+    private fun getChildrenWithName(name: String, includeTemplate: Boolean): ArrayList<AbstractTreeElement> {
+        val v = ArrayList<AbstractTreeElement>()
         val currentChildren = children ?: return v
 
         for (i in 0 until currentChildren.size) {
-            val child = currentChildren.elementAt(i)
+            val child = currentChildren[i]
             if ((child.getName() == name || name == TreeReference.NAME_WILDCARD) &&
                 (includeTemplate || child.getMult() != TreeReference.INDEX_TEMPLATE)
             )
-                v.addElement(child)
+                v.add(child)
         }
 
         return v
@@ -134,7 +133,7 @@ open class ConcreteTreeElement : AbstractTreeElement {
 
     override fun hasChildren(): Boolean = getNumChildren() > 0
 
-    override fun getChildAt(i: Int): AbstractTreeElement? = children!!.elementAt(i)
+    override fun getChildAt(i: Int): AbstractTreeElement? = children!![i]
 
     fun setDataType(dataType: Int) {
         this.dataType = dataType
@@ -160,7 +159,7 @@ open class ConcreteTreeElement : AbstractTreeElement {
             }
         }
         if (children == null) {
-            children = Vector()
+            children = ArrayList()
         }
 
         // try to keep things in order
@@ -177,15 +176,15 @@ open class ConcreteTreeElement : AbstractTreeElement {
             if (anchor != null)
                 i = children!!.indexOf(anchor) + 1
         }
-        children!!.insertElementAt(child, i)
+        children!!.add(i, child)
     }
 
     fun removeChild(child: AbstractTreeElement) {
-        children?.removeElement(child)
+        children?.remove(child)
     }
 
     fun removeChildAt(i: Int) {
-        children!!.removeElementAt(i)
+        children!!.removeAt(i)
     }
 
     override fun getChildMultiplicity(name: String): Int {
@@ -211,9 +210,9 @@ open class ConcreteTreeElement : AbstractTreeElement {
         visitor.visit(this)
 
         val currentChildren = children ?: return
-        val en = currentChildren.elements()
-        while (en.hasMoreElements()) {
-            (en.nextElement() as ConcreteTreeElement).accept(visitor)
+        val en = currentChildren.iterator()
+        while (en.hasNext()) {
+            (en.next() as ConcreteTreeElement).accept(visitor)
         }
     }
 
@@ -222,15 +221,15 @@ open class ConcreteTreeElement : AbstractTreeElement {
     override fun getAttributeCount(): Int = attributes?.size ?: 0
 
     override fun getAttributeNamespace(index: Int): String? {
-        return attributes!!.elementAt(index).getNamespace()
+        return attributes!![index].getNamespace()
     }
 
     override fun getAttributeName(index: Int): String? {
-        return attributes!!.elementAt(index).getName()
+        return attributes!![index].getName()
     }
 
     override fun getAttributeValue(index: Int): String? {
-        return getAttributeValue(attributes!!.elementAt(index))
+        return getAttributeValue(attributes!![index])
     }
 
     /**
@@ -257,15 +256,15 @@ open class ConcreteTreeElement : AbstractTreeElement {
 
     fun setAttribute(namespace: String?, name: String, value: String?) {
         if (attributes == null) {
-            this.attributes = Vector()
+            this.attributes = ArrayList()
         }
         for (i in attributes!!.size - 1 downTo 0) {
-            val attribut = attributes!!.elementAt(i)
+            val attribut = attributes!![i]
             if (attribut.getName() == name && (namespace == null || namespace == attribut.getNamespace())) {
                 if (value == null) {
-                    attributes!!.removeElementAt(i)
+                    attributes!!.removeAt(i)
                 } else {
-                    attributes!!.removeElementAt(i)
+                    attributes!!.removeAt(i)
                     val attr = TreeElement.constructAttributeElement(namespace, name)
                     attr.setValue(UncastData(value))
                     attr.setParent(this)
@@ -280,7 +279,7 @@ open class ConcreteTreeElement : AbstractTreeElement {
         attr.setValue(UncastData(value!!))
         attr.setParent(this)
 
-        attributes!!.addElement(attr)
+        attributes!!.add(attr)
     }
 
     // return the tree reference that corresponds to this tree element
@@ -347,7 +346,7 @@ open class ConcreteTreeElement : AbstractTreeElement {
     override fun tryBatchChildFetch(
         name: String,
         mult: Int,
-        predicates: Vector<XPathExpression>,
+        predicates: ArrayList<XPathExpression>,
         evalContext: EvaluationContext
     ): Collection<TreeReference>? = null
 

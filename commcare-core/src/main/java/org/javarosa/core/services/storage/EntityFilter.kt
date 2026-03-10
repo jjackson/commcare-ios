@@ -1,6 +1,5 @@
 package org.javarosa.core.services.storage
 
-import java.util.Hashtable
 
 abstract class EntityFilter<E> {
 
@@ -17,7 +16,7 @@ abstract class EntityFilter<E> {
      * if PREFILTER_EXCLUDE, record will be excluded, matches() not called
      * if PREFILTER_FILTER, matches() will be called and record will be included or excluded based on return value
      */
-    open fun preFilter(id: Int, metaData: Hashtable<String, Any>?): Int {
+    open fun preFilter(id: Int, metaData: HashMap<String, Any>?): Int {
         return PREFILTER_FILTER
     }
 

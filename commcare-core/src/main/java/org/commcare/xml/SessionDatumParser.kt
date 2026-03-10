@@ -19,7 +19,6 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.Hashtable
 
 /**
  * @author ctsims
@@ -136,7 +135,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
         val searchOnClear = "true" == parser.getAttributeValue(null, "search_on_clear")
         var title: Text? = null
         var description: Text? = null
-        val groupPrompts = Hashtable<String, QueryGroup>()
+        val groupPrompts = HashMap<String, QueryGroup>()
         val hiddenQueryValues = ArrayList<QueryData>()
         while (nextTagInBlock("query")) {
             val tagName = parser.name
@@ -153,7 +152,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
                 description = TextParser(parser).parse()
             } else if (QueryGroupParser.NAME_GROUP == tagName) {
                 val queryGroup = QueryGroupParser(parser).parse()
-                groupPrompts[queryGroup.getKey()] = queryGroup
+                groupPrompts[queryGroup.getKey()!!] = queryGroup
             }
         }
         return RemoteQueryDatum(

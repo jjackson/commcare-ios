@@ -14,8 +14,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * NOTE: All new fields should be added to the case class using the "data" class,
@@ -45,10 +43,10 @@ open class Case : Persistable, IMetaData {
     protected var recordId: Int = 0
 
     @JvmField
-    protected var data: Hashtable<String, Any> = Hashtable()
+    protected var data: HashMap<String, Any> = LinkedHashMap()
 
     @JvmField
-    protected var indices: Vector<CaseIndex> = Vector()
+    protected var indices: ArrayList<CaseIndex> = ArrayList()
 
     /**
      * NOTE: This constructor is for serialization only.
@@ -154,9 +152,9 @@ open class Case : Persistable, IMetaData {
         dateOpened = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
         recordId = ExtUtil.readInt(`in`)
         @Suppress("UNCHECKED_CAST")
-        indices = ExtUtil.read(`in`, ExtWrapList(CaseIndex::class.java), pf) as Vector<CaseIndex>
+        indices = ExtUtil.read(`in`, ExtWrapList(CaseIndex::class.java), pf) as ArrayList<CaseIndex>
         @Suppress("UNCHECKED_CAST")
-        data = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as Hashtable<String, Any>
+        data = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Any>
     }
 
     @Throws(PlatformIOException::class)
@@ -195,7 +193,7 @@ open class Case : Persistable, IMetaData {
         }
     }
 
-    fun getProperties(): Hashtable<String, Any> = data
+    fun getProperties(): HashMap<String, Any> = data
 
     fun getRestorableType(): String = "case"
 
@@ -252,16 +250,16 @@ open class Case : Persistable, IMetaData {
         // remove existing indices at this name
         for (i in this.indices) {
             if (i.getName() == index.getName()) {
-                this.indices.removeElement(i)
+                this.indices.remove(i)
                 indexReplaced = true
                 break
             }
         }
-        this.indices.addElement(index)
+        this.indices.add(index)
         return indexReplaced
     }
 
-    fun getIndices(): Vector<CaseIndex> = indices
+    fun getIndices(): ArrayList<CaseIndex> = indices
 
     fun updateAttachment(attachmentName: String, reference: String?) {
         if (reference != null) {
@@ -274,13 +272,13 @@ open class Case : Persistable, IMetaData {
     }
 
     // this is so terrible it hurts. We'll be redoing this
-    fun getAttachments(): Vector<String> {
-        val attachments = Vector<String>()
-        val en = data.keys()
-        while (en.hasMoreElements()) {
-            val entryName = en.nextElement() as String
+    fun getAttachments(): ArrayList<String> {
+        val attachments = ArrayList<String>()
+        val en = data.keys.iterator()
+        while (en.hasNext()) {
+            val entryName = en.next() as String
             if (entryName.startsWith(ATTACHMENT_PREFIX)) {
-                attachments.addElement(entryName.substring(ATTACHMENT_PREFIX.length))
+                attachments.add(entryName.substring(ATTACHMENT_PREFIX.length))
             }
         }
         return attachments
@@ -322,7 +320,7 @@ open class Case : Persistable, IMetaData {
         }
 
         if (toRemove != null) {
-            indices.removeElement(toRemove)
+            indices.remove(toRemove)
             return true
         }
         return false

@@ -4,7 +4,6 @@ import java.io.BufferedReader
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.util.Hashtable
 
 /**
  * @author ctsims
@@ -16,8 +15,8 @@ object LocalizationUtils {
      */
     @JvmStatic
     @Throws(PlatformIOException::class)
-    fun parseLocaleInput(`is`: InputStream): Hashtable<String, String> {
-        val locale = Hashtable<String, String>()
+    fun parseLocaleInput(`is`: InputStream): HashMap<String, String> {
+        val locale = HashMap<String, String>()
         val isr = InputStreamReader(`is`, "UTF-8")
         val reader = BufferedReader(isr)
 
@@ -32,7 +31,7 @@ object LocalizationUtils {
     }
 
     @JvmStatic
-    fun parseAndAdd(locale: Hashtable<String, String>, line: String, curline: Int) {
+    fun parseAndAdd(locale: HashMap<String, String>, line: String, curline: Int) {
         var line = line.trim()
 
         var i: Int

@@ -6,7 +6,6 @@ import org.javarosa.core.util.externalizable.Externalizable
 import java.util.HashMap
 import java.util.LinkedHashSet
 import java.util.NoSuchElementException
-import java.util.Vector
 
 /**
  * IStorageUtilityIndexed
@@ -93,7 +92,7 @@ interface IStorageUtilityIndexed<E : Externalizable> {
 
     fun removeAll()
 
-    fun removeAll(ef: EntityFilter<*>): Vector<Int>
+    fun removeAll(ef: EntityFilter<*>): ArrayList<Int>
 
     /**
      * Return the number of records in the store
@@ -149,26 +148,26 @@ interface IStorageUtilityIndexed<E : Externalizable> {
     fun getAccessLock(): Any?
 
     /**
-     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * Retrieves a ArrayList of IDs of Externalizable objects in storage for which the field
      * specified contains the value specified.
      *
      * @param metaFieldName The name of a field which should be evaluated
      * @param value         The value which should be contained by the field specified
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * @return A ArrayList of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the field specified is equal
      * to the value provided.
      * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
      *                          meta data
      */
-    fun getIDsForValue(metaFieldName: String, value: Any): Vector<Int>
+    fun getIDsForValue(metaFieldName: String, value: Any): ArrayList<Int>
 
     /**
-     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * Retrieves a ArrayList of IDs of Externalizable objects in storage for which the field
      * specified contains the values specified.
      *
      * @param metaFieldNames A list of metadata field names to match
      * @param values         The values which must match the field names provided
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * @return A ArrayList of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the fields specified are equal
      * to the value provided.
      * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
@@ -177,13 +176,13 @@ interface IStorageUtilityIndexed<E : Externalizable> {
     fun getIDsForValues(metaFieldNames: Array<String>, values: Array<Any>): List<Int>
 
     /**
-     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * Retrieves a ArrayList of IDs of Externalizable objects in storage for which the field
      * specified contains the values specified.
      *
      * @param metaFieldNames A list of metadata field names to match
      * @param values         The values which must match the field names provided
      * @param returnSet      A LinkedHashSet of integers which match the return value
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * @return A ArrayList of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the fields specified are equal
      * to the value provided.
      * @throws RuntimeException (Fix this exception type) if the field is unrecognized by the
@@ -192,7 +191,7 @@ interface IStorageUtilityIndexed<E : Externalizable> {
     fun getIDsForValues(metaFieldNames: Array<String>, values: Array<Any>, returnSet: LinkedHashSet<Int>): List<Int>
 
     /**
-     * Retrieves a Vector of IDs of Externalizable objects in storage for which the field
+     * Retrieves a ArrayList of IDs of Externalizable objects in storage for which the field
      * specified contains the values specified and the fields specified in inverseFieldNames
      * do not contain the value specified in inverseValues. If no values are passed, all cases are returned
      *
@@ -201,7 +200,7 @@ interface IStorageUtilityIndexed<E : Externalizable> {
      * @param inverseFieldNames A list of field names to inverse match (!=)
      * @param inverseValues     The values which the field must not match
      * @param returnSet A LinkedHashSet of integers which match the return value
-     * @return A Vector of Integers such that retrieving the Externalizable object with any
+     * @return A ArrayList of Integers such that retrieving the Externalizable object with any
      * of those integer IDs will result in an object for which the fields specified are equal
      * to the value provided.
      * @throws RuntimeException (Fix this exception type) if any field in is unrecognized by the
@@ -231,14 +230,14 @@ interface IStorageUtilityIndexed<E : Externalizable> {
     fun getRecordForValue(metaFieldName: String, value: Any): E
 
     /**
-     * Retrieves a Vector of Externalizable objects from the storage for which, for each field in fieldNames,
+     * Retrieves a ArrayList of Externalizable objects from the storage for which, for each field in fieldNames,
      * the record has the correct corresponding value in values
      *
      * @param metaFieldNames A list of metadata field names to match
      * @param values         The values which must match the field names provided
-     * @return A Vector of Externalizable objects e, such that the fields specified are equal to the corresponding values provided.
+     * @return A ArrayList of Externalizable objects e, such that the fields specified are equal to the corresponding values provided.
      */
-    fun getRecordsForValues(metaFieldNames: Array<String>, values: Array<Any>): Vector<E>
+    fun getRecordsForValues(metaFieldNames: Array<String>, values: Array<Any>): ArrayList<E>
 
     /**
      * Load multiple record objects from storage at one time from a list of record ids.
@@ -275,18 +274,18 @@ interface IStorageUtilityIndexed<E : Externalizable> {
      * field for this storage
      * @param metaFieldName field we are matching against
      * @param matchingValues matching values for metaFieldName that we want to filter records against
-     * @return A Vector of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
+     * @return A ArrayList of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
      */
-    fun getBulkRecordsForIndex(metaFieldName: String, matchingValues: Collection<String>): Vector<E>
+    fun getBulkRecordsForIndex(metaFieldName: String, matchingValues: Collection<String>): ArrayList<E>
 
     /**
      * Bulk retrieves a set of the record ids in storage based on a list of values matching one of the
      * field for this storage
      * @param metaFieldName field we are matching against
      * @param matchingValues matching values for metaFieldName that we want to filter records against
-     * @return A Vector of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
+     * @return A ArrayList of Externalizable objects e, such that the field specified is equal to the corresponding value provided.
      */
-    fun getBulkIdsForIndex(metaFieldName: String, matchingValues: Collection<String>): Vector<Int>
+    fun getBulkIdsForIndex(metaFieldName: String, matchingValues: Collection<String>): ArrayList<Int>
 
     /**
      * Provide public accessor to the inner class that is stored

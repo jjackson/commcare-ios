@@ -28,11 +28,11 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 public class InstanceSchema {
-    private static Hashtable choiceTypeMapping;
+    private static HashMap choiceTypeMapping;
 
     public static Document generateInstanceSchema (FormDef f) {
         init();
@@ -66,7 +66,7 @@ public class InstanceSchema {
     }
 
     private static void init () {
-        choiceTypeMapping = new Hashtable();
+        choiceTypeMapping = new HashMap();
     }
 
     private static Element schemizeInstance (TreeElement node) {
@@ -147,13 +147,13 @@ public class InstanceSchema {
             if (controlType == Constants.CONTROL_SELECT_ONE || controlType == Constants.CONTROL_SELECT_MULTI) {
                 String choiceTypeName = getChoiceTypeName(ref);
 
-                Vector<SelectChoice> choices;
+                ArrayList<SelectChoice> choices;
                 //Figure out the choices involved if they are complex
                 ItemsetBinding itemset = q.getDynamicChoices();
                 if (itemset != null) {
                     if(itemset.nodesetRef.getInstanceName() != null)  {
                         //CTS: We can't really do this right for external instance references right now.
-                        choices = new Vector();
+                        choices = new ArrayList();
                     } else {
                         form.populateDynamicChoices(itemset, ref);
                         choices = itemset.getChoices();
@@ -184,7 +184,7 @@ public class InstanceSchema {
         return ref.toString(false).replace('/', '_');
     }
 
-    private static void writeChoices (Element e, String typeName, Vector<SelectChoice> choices) {
+    private static void writeChoices (Element e, String typeName, ArrayList<SelectChoice> choices) {
         Element st = new Element();
         st.setName("simpleType");
         st.setAttribute(null, "name", typeName);
@@ -196,7 +196,7 @@ public class InstanceSchema {
         st.addChild(Node.ELEMENT, restr);
 
         for (int i = 0; i < choices.size(); i++) {
-            String value = choices.elementAt(i).getValue();
+            String value = choices.get(i).getValue();
 
             Element choice = new Element();
             choice.setName("enumeration");

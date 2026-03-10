@@ -8,7 +8,7 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,9 +20,9 @@ public class SelectMultiDataTests {
     private static Selection two;
     private static Selection three;
 
-    private static Vector<Selection> firstTwo;
-    private static Vector<Selection> lastTwo;
-    private static Vector invalid;
+    private static ArrayList<Selection> firstTwo;
+    private static ArrayList<Selection> lastTwo;
+    private static ArrayList invalid;
 
     @BeforeClass
     public static void setUp() {
@@ -39,18 +39,18 @@ public class SelectMultiDataTests {
         three = new Selection("Selection 3");
         three.attachChoice(question);
 
-        firstTwo = new Vector<>();
-        firstTwo.addElement(one);
-        firstTwo.addElement(two);
+        firstTwo = new ArrayList<>();
+        firstTwo.add(one);
+        firstTwo.add(two);
 
-        lastTwo = new Vector<>();
-        lastTwo.addElement(two);
-        lastTwo.addElement(three);
+        lastTwo = new ArrayList<>();
+        lastTwo.add(two);
+        lastTwo.add(three);
 
-        invalid = new Vector();
-        invalid.addElement(three);
-        invalid.addElement(12);
-        invalid.addElement(one);
+        invalid = new ArrayList();
+        invalid.add(three);
+        invalid.add(12);
+        invalid.add(one);
     }
 
     @Test
@@ -90,31 +90,31 @@ public class SelectMultiDataTests {
     public void testVectorImmutability() {
         SelectMultiData data = new SelectMultiData(firstTwo);
         Selection[] copy = new Selection[firstTwo.size()];
-        firstTwo.copyInto(copy);
-        firstTwo.setElementAt(two, 0);
-        firstTwo.removeElementAt(1);
+        firstTwo.toArray(copy);
+        firstTwo.set(0, two);
+        firstTwo.remove(1);
 
-        Vector internal = data.getValue();
+        ArrayList internal = data.getValue();
 
         assertVectorIdentity("External Reference: ", internal, copy);
 
         data.setValue(lastTwo);
-        Vector<Selection> start = data.getValue();
+        ArrayList<Selection> start = data.getValue();
 
         Selection[] external = new Selection[start.size()];
-        start.copyInto(external);
+        start.toArray(external);
 
-        start.removeElementAt(1);
-        start.setElementAt(one, 0);
+        start.remove(1);
+        start.set(0, one);
 
         assertVectorIdentity("Internal Reference: ", data.getValue(), external);
     }
 
-    private void assertVectorIdentity(String messageHeader, Vector v, Selection[] a) {
-        assertEquals(messageHeader + "SelectMultiData's internal representation was violated. Vector size changed.", v.size(), a.length);
+    private void assertVectorIdentity(String messageHeader, ArrayList v, Selection[] a) {
+        assertEquals(messageHeader + "SelectMultiData's internal representation was violated. ArrayList size changed.", v.size(), a.length);
 
         for (int i = 0; i < v.size(); ++i) {
-            Selection internalValue = (Selection)v.elementAt(i);
+            Selection internalValue = (Selection)v.get(i);
             Selection copyValue = a[i];
 
             assertEquals(messageHeader + "SelectMultiData's internal representation was violated. Element " + i + "changed.", internalValue, copyValue);
@@ -134,7 +134,7 @@ public class SelectMultiDataTests {
         assertTrue("SelectMultiData did not throw a proper exception while being set to invalid data.", failure);
 
         Selection[] values = new Selection[firstTwo.size()];
-        firstTwo.copyInto(values);
+        firstTwo.toArray(values);
         assertVectorIdentity("Ensure not overwritten: ", data.getValue(), values);
     }
 }

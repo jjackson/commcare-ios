@@ -11,7 +11,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Records form entry actions, associating question references with user (string)
@@ -21,7 +20,7 @@ import java.util.Vector
  */
 class FormEntrySession : FormEntrySessionRecorder, Externalizable {
 
-    private var actions: Vector<FormEntryAction> = Vector()
+    private var actions: ArrayList<FormEntryAction> = ArrayList()
     private var sessionStopRef: String? = null
     private var stopRefWasReplayed: Boolean = false
 
@@ -33,13 +32,13 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
     override fun addNewRepeat(formIndex: FormIndex) {
         val questionRefString = formIndex.getReference().toString()
         val insertIndex = removeDuplicateAction(questionRefString)
-        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(questionRefString), insertIndex)
+        actions.add(insertIndex, FormEntryAction.buildNewRepeatAction(questionRefString))
     }
 
     private fun removeDuplicateAction(questionRefString: String): Int {
         for (i in actions.size - 1 downTo 0) {
-            if (actions.elementAt(i).getQuestionRefString() == questionRefString) {
-                actions.removeElementAt(i)
+            if (actions[i].getQuestionRefString() == questionRefString) {
+                actions.removeAt(i)
                 return i
             }
         }
@@ -49,18 +48,18 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
     override fun addValueSet(formIndex: FormIndex, value: String) {
         val questionRefString = formIndex.getReference().toString()
         val insertIndex = removeDuplicateAction(questionRefString)
-        actions.insertElementAt(FormEntryAction.buildValueSetAction(questionRefString, value), insertIndex)
+        actions.add(insertIndex, FormEntryAction.buildValueSetAction(questionRefString, value))
     }
 
     override fun addQuestionSkip(formIndex: FormIndex) {
         val questionRefString = formIndex.getReference().toString()
         val insertIndex = removeDuplicateAction(questionRefString)
-        actions.insertElementAt(FormEntryAction.buildSkipAction(questionRefString), insertIndex)
+        actions.add(insertIndex, FormEntryAction.buildSkipAction(questionRefString))
     }
 
     fun peekAction(): FormEntryAction {
         return if (actions.size > 0) {
-            actions.elementAt(0)
+            actions[0]
         } else {
             FormEntryAction.buildNullAction()
         }
@@ -84,12 +83,12 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
      */
     fun getAndRemoveActionForRef(questionRef: TreeReference): FormEntryAction? {
         for (i in 0 until actions.size) {
-            val action = actions.elementAt(i)
+            val action = actions[i]
             if (action.getQuestionRefString() == questionRef.toString()) {
                 if (sessionStopRef == action.getQuestionRefString()) {
                     stopRefWasReplayed = true
                 }
-                actions.removeElementAt(i)
+                actions.removeAt(i)
                 return action
             }
         }
@@ -104,7 +103,7 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
             if (action.isNewRepeatAction() &&
                 action.getQuestionRefString() == questionRef.toString()
             ) {
-                return actions.removeElement(action)
+                return actions.remove(action)
             }
         }
         return false
@@ -127,7 +126,7 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        actions = ExtUtil.read(`in`, ExtWrapList(FormEntryAction::class.java), pf) as Vector<FormEntryAction>
+        actions = ExtUtil.read(`in`, ExtWrapList(FormEntryAction::class.java), pf) as ArrayList<FormEntryAction>
         sessionStopRef = computeStopRef(actions)
     }
 
@@ -141,7 +140,7 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
         fun fromString(sessionString: String): FormEntrySession {
             val formEntrySession = FormEntrySession()
             for (actionString in splitTopParens(sessionString)) {
-                formEntrySession.actions.addElement(FormEntryAction.fromString(actionString))
+                formEntrySession.actions.add(FormEntryAction.fromString(actionString))
             }
 
             formEntrySession.sessionStopRef = computeStopRef(formEntrySession.actions)
@@ -149,11 +148,11 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
         }
 
         @JvmStatic
-        fun splitTopParens(sessionString: String): Vector<String> {
+        fun splitTopParens(sessionString: String): ArrayList<String> {
             var wasEscapeChar = false
             var parenDepth = 0
             var topParenStart = 0
-            val tokens = Vector<String>()
+            val tokens = ArrayList<String>()
 
             for (i in 0 until sessionString.length) {
                 val c = sessionString[i]
@@ -168,7 +167,7 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
                     }
                 } else if (c == ')') {
                     if (parenDepth == 1) {
-                        tokens.addElement(sessionString.substring(topParenStart, i + 1))
+                        tokens.add(sessionString.substring(topParenStart, i + 1))
                     }
                     parenDepth--
                 }
@@ -177,8 +176,8 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
             return tokens
         }
 
-        private fun computeStopRef(actions: Vector<FormEntryAction>): String {
-            return actions.elementAt(actions.size - 1).getQuestionRefString()
+        private fun computeStopRef(actions: ArrayList<FormEntryAction>): String {
+            return actions[actions.size - 1].getQuestionRefString()
         }
     }
 }

@@ -25,8 +25,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Calendar
 import java.util.Collections
 import java.util.Date
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Text objects are a model for holding strings which
@@ -49,7 +47,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     private var argument: String? = null
 
     // Will this maintain order? I don't think so....
-    private var arguments: Hashtable<String, Text>? = null
+    private var arguments: HashMap<String, Text>? = null
 
     private var cacheParse: XPathExpression? = null
 
@@ -118,13 +116,13 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
 
                         override fun getName(): String = "format_date"
 
-                        override fun getPrototypes(): Vector<Any> {
-                            val format = Vector<Any>()
+                        override fun getPrototypes(): ArrayList<Any> {
+                            val format = ArrayList<Any>()
                             val prototypes = arrayOf<Class<*>>(
                                 Date::class.java,
                                 String::class.java
                             )
-                            format.addElement(prototypes)
+                            format.add(prototypes)
                             return format
                         }
 
@@ -140,19 +138,19 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
 
                         override fun getName(): String = "dow"
 
-                        override fun getPrototypes(): Vector<Any> {
-                            val format = Vector<Any>()
+                        override fun getPrototypes(): ArrayList<Any> {
+                            val format = ArrayList<Any>()
                             val prototypes = arrayOf<Class<*>>()
-                            format.addElement(prototypes)
+                            format.add(prototypes)
                             return format
                         }
 
                         override fun rawArgs(): Boolean = false
                     })
 
-                    val en = arguments!!.keys()
-                    while (en.hasMoreElements()) {
-                        val key = en.nextElement()
+                    val en = arguments!!.keys.iterator()
+                    while (en.hasNext()) {
+                        val key = en.next()
                         val value = arguments!![key]!!.evaluate(context)
                         temp.setVariable(key, value)
                     }
@@ -180,7 +178,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     }
 
     private fun generateOrderedParameterListForLocalization(
-        arguments: Hashtable<String, Text>?,
+        arguments: HashMap<String, Text>?,
         context: EvaluationContext?
     ): Array<String> {
         if (arguments == null) {
@@ -200,7 +198,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
         return parameters
     }
 
-    private fun getOrderedKeys(arguments: Hashtable<String, Text>): List<String> {
+    private fun getOrderedKeys(arguments: HashMap<String, Text>): List<String> {
         val keys = ArrayList<String>()
         for (key in arguments.keys) {
             if (key == "id") {
@@ -225,14 +223,14 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtUtil.readInt(`in`)
         argument = ExtUtil.readString(`in`)
-        arguments = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as Hashtable<String, Text>
+        arguments = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, type.toLong())
         ExtUtil.writeString(out, argument)
-        ExtUtil.write(out, ExtWrapMap(arguments ?: Hashtable<String, Text>()))
+        ExtUtil.write(out, ExtWrapMap(arguments ?: HashMap<String, Text>()))
     }
 
     fun getArgument(): String? = argument
@@ -297,7 +295,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
             val t = Text()
             t.type = -1
             t.argument = ""
-            t.arguments = Hashtable()
+            t.arguments = HashMap()
             return t
         }
 
@@ -318,7 +316,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
          * localized value of the ID provided.
          */
         @JvmStatic
-        fun LocaleText(id: String?, arguments: Hashtable<String, Text>?): Text {
+        fun LocaleText(id: String?, arguments: HashMap<String, Text>?): Text {
             val t = TextFactory()
             t.argument = id
             t.type = TEXT_TYPE_LOCALE
@@ -335,7 +333,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
          */
         @JvmStatic
         fun LocaleText(localeText: Text): Text {
-            val arguments = Hashtable<String, Text>()
+            val arguments = HashMap<String, Text>()
             arguments["id"] = localeText
             return LocaleText(arguments)
         }
@@ -346,7 +344,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
          * localeText
          */
         @JvmStatic
-        fun LocaleText(arguments: Hashtable<String, Text>): Text {
+        fun LocaleText(arguments: HashMap<String, Text>): Text {
             val t = TextFactory()
 
             // ensure there is an id text argument
@@ -387,7 +385,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
          */
         @JvmStatic
         @Throws(XPathSyntaxException::class)
-        fun XPathText(function: String?, arguments: Hashtable<String, Text>?): Text {
+        fun XPathText(function: String?, arguments: HashMap<String, Text>?): Text {
             val t = TextFactory()
             t.argument = function
             // Test parse real fast to make sure it's valid text.
@@ -403,7 +401,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
          * value of each member of the text vector.
          */
         @JvmStatic
-        fun CompositeText(text: Vector<Text>): Text {
+        fun CompositeText(text: ArrayList<Text>): Text {
             val t = TextFactory()
             var i = 0
             for (txt in text) {

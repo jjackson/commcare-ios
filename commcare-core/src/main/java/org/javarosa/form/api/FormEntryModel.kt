@@ -14,9 +14,6 @@ import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.model.trace.TraceSerialization
 import org.javarosa.xpath.XPathTypeMismatchException
 
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * The data model used during form entry. Represents the current state of the
@@ -151,7 +148,7 @@ class FormEntryModel {
      * @return an array of Strings of the current languages. Null if there are
      * none.
      */
-    fun getLanguages(): Array<String?>? {
+    fun getLanguages(): Array<String>? {
         if (form.getLocalizer() != null) {
             return form.getLocalizer()!!.availableLocales
         }
@@ -207,7 +204,7 @@ class FormEntryModel {
      * @return list of FormEntryCaptions in hierarchical order
      */
     fun getCaptionHierarchy(index: FormIndex): Array<FormEntryCaption> {
-        val captions = Vector<FormEntryCaption>()
+        val captions = ArrayList<FormEntryCaption>()
         var remaining: FormIndex? = index
         while (remaining != null) {
             remaining = remaining.nextLevel
@@ -221,14 +218,11 @@ class FormEntryModel {
                     caption = FormEntryPrompt(getForm(), localIndex)
 
                 if (caption != null) {
-                    captions.addElement(caption)
+                    captions.add(caption)
                 }
             }
         }
-        val captionArray = arrayOfNulls<FormEntryCaption>(captions.size)
-        captions.copyInto(captionArray)
-        @Suppress("UNCHECKED_CAST")
-        return captionArray as Array<FormEntryCaption>
+        return captions.toTypedArray()
     }
 
     /**
@@ -305,9 +299,9 @@ class FormEntryModel {
     }
 
     fun incrementIndex(index: FormIndex, descend: Boolean): FormIndex {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
 
         if (index.isEndOfFormIndex()) {
             return index
@@ -329,21 +323,21 @@ class FormEntryModel {
     }
 
     private fun incrementHelper(
-        indexes: Vector<Int>,
-        multiplicities: Vector<Int>,
-        elements: Vector<IFormElement>,
+        indexes: ArrayList<Int>,
+        multiplicities: ArrayList<Int>,
+        elements: ArrayList<IFormElement>,
         descend: Boolean
     ) {
         val i = indexes.size - 1
         var exitRepeat = false
         var shouldDescend = descend
 
-        if (i == -1 || elements.elementAt(i) is GroupDef) {
+        if (i == -1 || elements[i] is GroupDef) {
             if (i >= 0) {
-                val group = elements.elementAt(i) as GroupDef
+                val group = elements[i] as GroupDef
                 if (group.isRepeat()) {
                     if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                        if (multiplicities.lastElement() == TreeReference.INDEX_REPEAT_JUNCTURE) {
+                        if (multiplicities.last() == TreeReference.INDEX_REPEAT_JUNCTURE) {
                             shouldDescend = false
                             exitRepeat = true
                         }
@@ -356,14 +350,14 @@ class FormEntryModel {
                 }
             }
 
-            if (shouldDescend && (i == -1 || elements.elementAt(i).getChildren()!!.size > 0)) {
-                indexes.addElement(0)
-                multiplicities.addElement(0)
-                elements.addElement((if (i == -1) form else elements.elementAt(i)).getChild(0)!!)
+            if (shouldDescend && (i == -1 || elements[i].getChildren()!!.size > 0)) {
+                indexes.add(0)
+                multiplicities.add(0)
+                elements.add((if (i == -1) form else elements[i]).getChild(0)!!)
 
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() is GroupDef && (elements.lastElement() as GroupDef).isRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size - 1)
+                    if (elements.last() is GroupDef && (elements.last() as GroupDef).isRepeat()) {
+                        multiplicities.set(multiplicities.size - 1, TreeReference.INDEX_REPEAT_JUNCTURE)
                     }
                 }
 
@@ -373,32 +367,32 @@ class FormEntryModel {
 
         var j = i
         while (j >= 0) {
-            if (!exitRepeat && elements.elementAt(j) is GroupDef && (elements.elementAt(j) as GroupDef).isRepeat()) {
+            if (!exitRepeat && elements[j] is GroupDef && (elements[j] as GroupDef).isRepeat()) {
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, j)
+                    multiplicities.set(j, TreeReference.INDEX_REPEAT_JUNCTURE)
                 } else {
-                    multiplicities.setElementAt(multiplicities.elementAt(j) + 1, j)
+                    multiplicities.set(j, multiplicities[j] + 1)
                 }
                 return
             }
 
-            val parent: IFormElement = if (j == 0) form else elements.elementAt(j - 1)
-            val curIndex = indexes.elementAt(j)
+            val parent: IFormElement = if (j == 0) form else elements[j - 1]
+            val curIndex = indexes[j]
 
             if (curIndex + 1 >= parent.getChildren()!!.size) {
-                indexes.removeElementAt(j)
-                multiplicities.removeElementAt(j)
-                elements.removeElementAt(j)
+                indexes.removeAt(j)
+                multiplicities.removeAt(j)
+                elements.removeAt(j)
                 j--
                 exitRepeat = false
             } else {
-                indexes.setElementAt(curIndex + 1, j)
-                multiplicities.setElementAt(0, j)
-                elements.setElementAt(parent.getChild(curIndex + 1)!!, j)
+                indexes.set(j, curIndex + 1)
+                multiplicities.set(j, 0)
+                elements.set(j, parent.getChild(curIndex + 1)!!)
 
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-                    if (elements.lastElement() is GroupDef && (elements.lastElement() as GroupDef).isRepeat()) {
-                        multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, multiplicities.size - 1)
+                    if (elements.last() is GroupDef && (elements.last() as GroupDef).isRepeat()) {
+                        multiplicities.set(multiplicities.size - 1, TreeReference.INDEX_REPEAT_JUNCTURE)
                     }
                 }
 
@@ -408,9 +402,9 @@ class FormEntryModel {
     }
 
     fun decrementIndex(index: FormIndex): FormIndex {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
 
         if (index.isBeginningOfFormIndex()) {
             return index
@@ -432,40 +426,40 @@ class FormEntryModel {
     }
 
     private fun decrementHelper(
-        indexes: Vector<Int>,
-        multiplicities: Vector<Int>,
-        elements: Vector<IFormElement>
+        indexes: ArrayList<Int>,
+        multiplicities: ArrayList<Int>,
+        elements: ArrayList<IFormElement>
     ) {
         var i = indexes.size - 1
 
         if (i != -1) {
-            val curIndex = indexes.elementAt(i)
-            val curMult = multiplicities.elementAt(i)
+            val curIndex = indexes[i]
+            val curMult = multiplicities[i]
 
             if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR &&
-                elements.lastElement() is GroupDef && (elements.lastElement() as GroupDef).isRepeat() &&
-                multiplicities.lastElement() != TreeReference.INDEX_REPEAT_JUNCTURE
+                elements.last() is GroupDef && (elements.last() as GroupDef).isRepeat() &&
+                multiplicities.last() != TreeReference.INDEX_REPEAT_JUNCTURE
             ) {
-                multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i)
+                multiplicities.set(i, TreeReference.INDEX_REPEAT_JUNCTURE)
                 return
             } else if (repeatStructure != REPEAT_STRUCTURE_NON_LINEAR && curMult > 0) {
-                multiplicities.setElementAt(curMult - 1, i)
+                multiplicities.set(i, curMult - 1)
             } else if (curIndex > 0) {
-                indexes.setElementAt(curIndex - 1, i)
-                multiplicities.setElementAt(0, i)
-                elements.setElementAt((if (i == 0) form else elements.elementAt(i - 1)).getChild(curIndex - 1)!!, i)
+                indexes.set(i, curIndex - 1)
+                multiplicities.set(i, 0)
+                elements.set(i, (if (i == 0) form else elements[i - 1]).getChild(curIndex - 1)!!)
 
                 if (setRepeatNextMultiplicity(elements, multiplicities))
                     return
             } else {
-                indexes.removeElementAt(i)
-                multiplicities.removeElementAt(i)
-                elements.removeElementAt(i)
+                indexes.removeAt(i)
+                multiplicities.removeAt(i)
+                elements.removeAt(i)
                 return
             }
         }
 
-        var element: IFormElement = if (i < 0) form else elements.elementAt(i)
+        var element: IFormElement = if (i < 0) form else elements[i]
         while (element !is QuestionDef) {
             if (element.getChildren() == null || element.getChildren()!!.size == 0) {
                 return
@@ -473,16 +467,16 @@ class FormEntryModel {
             val subIndex = element.getChildren()!!.size - 1
             element = element.getChild(subIndex)!!
 
-            indexes.addElement(subIndex)
-            multiplicities.addElement(0)
-            elements.addElement(element)
+            indexes.add(subIndex)
+            multiplicities.add(0)
+            elements.add(element)
 
             if (setRepeatNextMultiplicity(elements, multiplicities))
                 return
         }
     }
 
-    private fun setRepeatNextMultiplicity(elements: Vector<IFormElement>, multiplicities: Vector<Int>): Boolean {
+    private fun setRepeatNextMultiplicity(elements: ArrayList<IFormElement>, multiplicities: ArrayList<Int>): Boolean {
         val nodeRef = form.getChildInstanceRef(elements, multiplicities)
         val node = if (nodeRef != null) form.getMainInstance()!!.resolveReference(nodeRef) else null
         if (node == null || node.isRepeatable) {
@@ -494,13 +488,10 @@ class FormEntryModel {
                 val parentNode = form.getMainInstance()!!.resolveReference(nodeRef!!.getParentRef()!!)
                 mult = parentNode!!.getChildMultiplicity(name)
             }
-            multiplicities.setElementAt(
-                if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR)
+            multiplicities.set(multiplicities.size - 1, if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR)
                     TreeReference.INDEX_REPEAT_JUNCTURE
                 else
-                    mult,
-                multiplicities.size - 1
-            )
+                    mult)
             return true
         } else {
             return false
@@ -524,9 +515,9 @@ class FormEntryModel {
         }
 
         val children = parent.getChildren() ?: return false
-        val en: Enumeration<*> = children.elements()
-        while (en.hasMoreElements()) {
-            if (containsRepeatGuesses(en.nextElement() as IFormElement)) {
+        val en: Iterator<*> = children.iterator()
+        while (en.hasNext()) {
+            if (containsRepeatGuesses(en.next() as IFormElement)) {
                 return true
             }
         }
@@ -548,7 +539,7 @@ class FormEntryModel {
     fun getDebugInfo(index: FormIndex, category: String): String? {
         this.getForm().enableDebugTraces()
 
-        val indexDebug: Hashtable<String, EvaluationTrace>? =
+        val indexDebug: HashMap<String, EvaluationTrace>? =
             this.getForm().getDebugTraceMap()[index.getReference()!!]
         if (indexDebug == null || indexDebug[category] == null) {
             return null

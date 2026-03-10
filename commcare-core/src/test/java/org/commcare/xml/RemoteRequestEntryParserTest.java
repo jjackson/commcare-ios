@@ -21,7 +21,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -52,7 +52,7 @@ public class RemoteRequestEntryParserTest {
         assertEquals("case_id", params.get(0).getKey());
         assertEquals("case_id_list", params.get(1).getKey());
 
-        Hashtable<String, DataInstance<?>> instances = TestInstances.getInstances();
+        HashMap<String, DataInstance<?>> instances = TestInstances.getInstances();
         instances.put(TestInstances.CASEDB, TestInstances.buildCaseDb(ImmutableList.of("123", "456", "789")));
         EvaluationContext evalContext = new EvaluationContext(null, instances);
 

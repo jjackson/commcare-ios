@@ -31,10 +31,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Enumeration
 import java.util.HashMap
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * A Detail model defines the structure in which
@@ -69,7 +66,7 @@ class Detail : Externalizable {
     internal var callout: Callout? = null
     private var variables: OrderedHashtable<String, String> = OrderedHashtable()
     private var variablesCompiled: OrderedHashtable<String, XPathExpression>? = null
-    private var actions: Vector<Action> = Vector()
+    private var actions: ArrayList<Action> = ArrayList()
 
     // Force the activity that is showing this detail to show itself in landscape view only
     private var forceLandscapeView: Boolean = false
@@ -98,8 +95,8 @@ class Detail : Externalizable {
 
     constructor(
         id: String?, title: DisplayUnit?, noItemsText: Text?, nodeset: String?,
-        detailsVector: Vector<Detail>, fieldsVector: Vector<DetailField>,
-        variables: OrderedHashtable<String, String>, actions: Vector<Action>,
+        detailsVector: ArrayList<Detail>, fieldsVector: ArrayList<DetailField>,
+        variables: OrderedHashtable<String, String>, actions: ArrayList<Action>,
         callout: Callout?, fitAcross: String?, uniformUnitsString: String?,
         forceLandscape: String?, focusFunction: String?, printPathProvided: String?,
         relevancy: String?, global: Global?, group: DetailGroup?,
@@ -213,14 +210,14 @@ class Detail : Externalizable {
         noItemsText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         titleForm = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         nodeset = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        val theDetails = ExtUtil.read(`in`, ExtWrapList(Detail::class.java), pf) as Vector<Detail>
+        val theDetails = ExtUtil.read(`in`, ExtWrapList(Detail::class.java), pf) as ArrayList<Detail>
         details = arrayOfNulls<Detail>(theDetails.size) as Array<Detail>
         ArrayUtilities.copyIntoArray(theDetails, details)
-        val theFields = ExtUtil.read(`in`, ExtWrapList(DetailField::class.java), pf) as Vector<DetailField>
+        val theFields = ExtUtil.read(`in`, ExtWrapList(DetailField::class.java), pf) as ArrayList<DetailField>
         fields = arrayOfNulls<DetailField>(theFields.size) as Array<DetailField>
         ArrayUtilities.copyIntoArray(theFields, fields)
         variables = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java, ExtWrapMap.TYPE_ORDERED), pf) as OrderedHashtable<String, String>
-        actions = ExtUtil.read(`in`, ExtWrapList(Action::class.java), pf) as Vector<Action>
+        actions = ExtUtil.read(`in`, ExtWrapList(Action::class.java), pf) as ArrayList<Action>
         callout = ExtUtil.read(`in`, ExtWrapNullable(Callout::class.java), pf) as Callout?
         forceLandscapeView = ExtUtil.readBool(`in`)
         focusFunction = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
@@ -264,9 +261,9 @@ class Detail : Externalizable {
     val variableDeclarations: OrderedHashtable<String, XPathExpression> get() {
         if (variablesCompiled == null) {
             variablesCompiled = OrderedHashtable()
-            val en: Enumeration<*> = variables.keys()
-            while (en.hasMoreElements()) {
-                val key = en.nextElement() as String
+            val en: Iterator<*> = variables.keys.iterator()
+            while (en.hasNext()) {
+                val key = en.next() as String
                 // TODO: This is stupid, parse this stuff at XML Parse time.
                 try {
                     variablesCompiled!!.put(key, XPathParseTool.parseXPath(variables[key]!!)!!)
@@ -279,38 +276,38 @@ class Detail : Externalizable {
         return variablesCompiled!!
     }
 
-    fun getCustomActions(evaluationContext: EvaluationContext): Vector<Action> {
-        val relevantActions = Vector<Action>()
+    fun getCustomActions(evaluationContext: EvaluationContext): ArrayList<Action> {
+        val relevantActions = ArrayList<Action>()
         for (action in actions) {
             if (action.isRelevant(evaluationContext)) {
-                relevantActions.addElement(action)
+                relevantActions.add(action)
             }
         }
         return relevantActions
     }
 
     val orderedFieldIndicesForSorting: IntArray get() {
-        val indices = Vector<Int>()
-        val cacheAndIndexedIndices = Vector<Int>()
+        val indices = ArrayList<Int>()
+        val cacheAndIndexedIndices = ArrayList<Int>()
         var i = 0
         outer@ while (i < fields.size) {
             val order = fields[i].getSortOrder()
             if (order == -2) {
-                cacheAndIndexedIndices.addElement(i)
+                cacheAndIndexedIndices.add(i)
             }
             if (order < 1) {
                 i++
                 continue
             }
             for (j in 0 until indices.size) {
-                if (order < fields[indices.elementAt(j)].getSortOrder()) {
-                    indices.insertElementAt(i, j)
+                if (order < fields[indices[j]].getSortOrder()) {
+                    indices.add(j, i)
                     i++
                     continue@outer
                 }
             }
             // otherwise it's larger than all of the other fields.
-            indices.addElement(i)
+            indices.add(i)
             i++
         }
         return CollectionUtils.mergeIntegerVectorsInArray(indices, cacheAndIndexedIndices)
@@ -434,9 +431,9 @@ class Detail : Externalizable {
         val variables = variableDeclarations
         // These are actually in an ordered hashtable, so we can't just get the keyset, since it's
         // in a 1.3 hashtable equivalent
-        val en: Enumeration<*> = variables.keys()
-        while (en.hasMoreElements()) {
-            val key = en.nextElement() as String
+        val en: Iterator<*> = variables.keys.iterator()
+        while (en.hasNext()) {
+            val key = en.next() as String
             ec.setVariable(key, FunctionUtils.unpack(variables[key]!!.eval(ec)))
         }
     }
@@ -515,7 +512,7 @@ class Detail : Externalizable {
     }
 
     fun getDisplayableChildDetails(ec: EvaluationContext): Array<Detail> {
-        val displayableDetails = Vector<Detail>()
+        val displayableDetails = ArrayList<Detail>()
         for (d in this.details) {
             if (d.isRelevant(ec)) {
                 displayableDetails.add(d)

@@ -1,6 +1,5 @@
 package org.javarosa.core.util
 
-import java.util.Vector
 
 /**
  * Only use for J2ME Compatible Vectors
@@ -9,7 +8,7 @@ import java.util.Vector
  */
 open class SizeBoundVector<E>(
     @JvmField protected var limit: Int
-) : Vector<E>() {
+) : ArrayList<E>() {
 
     @JvmField
     protected var additional: Int = 0
@@ -24,11 +23,12 @@ open class SizeBoundVector<E>(
     var badVideoReferenceCount: Int = 0
 
     @Synchronized
-    override fun addElement(obj: E) {
+    override fun add(element: E): Boolean {
         if (this.size == limit) {
             additional++
+            return false
         } else {
-            super.addElement(obj)
+            return super.add(element)
         }
     }
 

@@ -9,7 +9,7 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Quick test to be able to restore a set of user data
@@ -21,7 +21,7 @@ import java.util.Vector;
 public class CasePurgeIntegrationTest {
 
     private MockUserDataSandbox sandbox;
-    private Vector<String> owners;
+    private ArrayList<String> owners;
 
     @Before
     public void setUp() throws Exception {

@@ -25,7 +25,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashMap
-import java.util.Hashtable
 import java.util.NoSuchElementException
 import java.util.Objects
 
@@ -45,7 +44,7 @@ class StackFrameStep : Externalizable {
      * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
-    private var dataInstanceSources: Hashtable<String, ExternalDataInstanceSource> = Hashtable()
+    private var dataInstanceSources: HashMap<String, ExternalDataInstanceSource> = HashMap()
 
     /**
      * Serialization Only
@@ -96,15 +95,15 @@ class StackFrameStep : Externalizable {
         if (dataInstanceSources.containsKey(reference)) {
             throw RuntimeException(
                 String.format(
-                    "Stack frame step '%s' already contains an instance with the reference '%s'",
+                    "ArrayDeque frame step '%s' already contains an instance with the reference '%s'",
                     getId(), reference
                 )
             )
         }
-        dataInstanceSources[reference] = source
+        dataInstanceSources[reference!!] = source
     }
 
-    fun getDataInstanceSources(): Hashtable<String, ExternalDataInstanceSource> = dataInstanceSources
+    fun getDataInstanceSources(): HashMap<String, ExternalDataInstanceSource> = dataInstanceSources
 
     fun hasDataInstanceSource(reference: String?): Boolean = dataInstanceSources.containsKey(reference)
 
@@ -140,7 +139,7 @@ class StackFrameStep : Externalizable {
     }
 
     /**
-     * @param value Must extend Externalizable or be a basic data type (String, Vector, etc)
+     * @param value Must extend Externalizable or be a basic data type (String, ArrayList, etc)
      */
     fun addExtra(key: String, value: Any?) {
         if (value != null) {
@@ -240,7 +239,7 @@ class StackFrameStep : Externalizable {
         this._value = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this.valueIsXpath = ExtUtil.readBool(`in`)
         this.extras = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, Any>
-        this.dataInstanceSources = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExternalDataInstanceSource::class.java), pf) as Hashtable<String, ExternalDataInstanceSource>
+        this.dataInstanceSources = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExternalDataInstanceSource::class.java), pf) as HashMap<String, ExternalDataInstanceSource>
     }
 
     @Throws(PlatformIOException::class)

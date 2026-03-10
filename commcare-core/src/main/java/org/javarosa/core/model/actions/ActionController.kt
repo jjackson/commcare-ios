@@ -11,8 +11,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Registers actions that should be triggered by certain events, and handles the triggering
@@ -23,25 +21,25 @@ import java.util.Vector
 class ActionController : Externalizable {
 
     // map from an event to the actions it should trigger
-    private var eventListeners: Hashtable<String, Vector<Action>> = Hashtable()
+    private var eventListeners: HashMap<String, ArrayList<Action>> = HashMap()
 
-    private fun getListenersForEvent(event: String): Vector<Action> {
+    private fun getListenersForEvent(event: String): ArrayList<Action> {
         return if (eventListeners.containsKey(event)) {
             eventListeners[event]!!
         } else {
-            Vector()
+            ArrayList()
         }
     }
 
     fun registerEventListener(event: String, action: Action) {
-        val actions: Vector<Action> = if (eventListeners.containsKey(event)) {
+        val actions: ArrayList<Action> = if (eventListeners.containsKey(event)) {
             eventListeners[event]!!
         } else {
-            val newActions = Vector<Action>()
+            val newActions = ArrayList<Action>()
             eventListeners[event] = newActions
             newActions
         }
-        actions.addElement(action)
+        actions.add(action)
     }
 
     fun triggerActionsFromEvent(event: String, model: FormDef) {
@@ -68,7 +66,7 @@ class ActionController : Externalizable {
         eventListeners = ExtUtil.read(
             inStream,
             ExtWrapMap(String::class.java, ExtWrapListPoly()), pf
-        ) as Hashtable<String, Vector<Action>>
+        ) as HashMap<String, ArrayList<Action>>
     }
 
     @Throws(PlatformIOException::class)

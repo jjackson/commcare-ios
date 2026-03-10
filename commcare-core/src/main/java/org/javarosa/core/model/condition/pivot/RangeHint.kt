@@ -5,7 +5,6 @@ import org.javarosa.core.model.condition.IConditionExpr
 import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.xpath.expr.FunctionUtils
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -27,12 +26,12 @@ abstract class RangeHint<T : IAnswerData> : ConstraintHint {
     override fun init(c: EvaluationContext?, conditional: IConditionExpr?, instance: FormInstance?) {
         val pivots = conditional!!.pivot(instance, c)
 
-        val internalPivots = Vector<CmpPivot>()
+        val internalPivots = ArrayList<CmpPivot>()
         for (p in pivots) {
             if (p !is CmpPivot) {
                 throw UnpivotableExpressionException()
             }
-            internalPivots.addElement(p)
+            internalPivots.add(p)
         }
 
         if (internalPivots.size > 1) {

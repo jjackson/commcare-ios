@@ -3,7 +3,6 @@ package org.commcare.cases.query.queryset
 import org.commcare.cases.query.QueryContext
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
-import java.util.Vector
 
 /**
  * A derived query lookup is the result of an operation which translates one set of cases to another.
@@ -45,7 +44,7 @@ abstract class DerivedCaseQueryLookup(
         val rootResult = rootLookup.performSetLookup(lookupIdKey, queryContext) ?: return null
         val set = getOrLoadCachedQuerySet(queryContext) ?: return null
 
-        val returnSet: MutableList<Int> = Vector()
+        val returnSet: MutableList<Int> = ArrayList()
         for (i in rootResult) {
             val matching = set.getMatchingValues(i) ?: return null
             returnSet.addAll(matching)

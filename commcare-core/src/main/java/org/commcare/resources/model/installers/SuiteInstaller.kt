@@ -20,7 +20,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -96,7 +95,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
     }
 
     override fun verifyInstallation(
-        r: Resource, problemList: Vector<MissingMediaException>,
+        r: Resource, problemList: ArrayList<MissingMediaException>,
         platform: CommCarePlatform
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
@@ -111,7 +110,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
             suite = storage(platform).read(cacheLocation)
         } catch (e: Exception) {
             e.printStackTrace()
-            sizeBoundProblems.addElement(
+            sizeBoundProblems.add(
                 MissingMediaException(
                     r, "Suite did not properly save into persistent storage",
                     MissingMediaException.MissingMediaExceptionType.NONE

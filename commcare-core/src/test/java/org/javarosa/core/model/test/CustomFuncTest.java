@@ -10,7 +10,7 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.junit.Test;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -73,10 +73,10 @@ public class CustomFuncTest {
             }
 
             @Override
-            public Vector getPrototypes() {
+            public ArrayList getPrototypes() {
                 Class[] proto = {Double.class};
-                Vector<Class[]> v = new Vector<>();
-                v.addElement(proto);
+                ArrayList<Class[]> v = new ArrayList<>();
+                v.add(proto);
                 return v;
             }
 

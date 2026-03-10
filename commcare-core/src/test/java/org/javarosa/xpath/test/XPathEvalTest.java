@@ -34,7 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -847,9 +847,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector<Class[]> p = new Vector<>();
-                p.addElement(new Class[0]);
+            public ArrayList getPrototypes() {
+                ArrayList<Class[]> p = new ArrayList<>();
+                p.add(new Class[0]);
                 return p;
             }
 
@@ -947,17 +947,17 @@ public class XPathEvalTest {
     private TreeReference inlinePositionArgs(TreeReference treeRef) {
         //find/replace position predicates
         for (int i = 0; i < treeRef.size(); ++i) {
-            Vector<XPathExpression> predicates = treeRef.getPredicate(i);
+            ArrayList<XPathExpression> predicates = treeRef.getPredicate(i);
             if (predicates == null || predicates.size() == 0) {
                 continue;
             }
             if (predicates.size() > 1) {
                 throw new IllegalArgumentException("only position [] predicates allowed");
             }
-            if (!(predicates.elementAt(0) instanceof XPathNumericLiteral)) {
+            if (!(predicates.get(0) instanceof XPathNumericLiteral)) {
                 throw new IllegalArgumentException("only position [] predicates allowed");
             }
-            double d = ((XPathNumericLiteral)predicates.elementAt(0)).d;
+            double d = ((XPathNumericLiteral)predicates.get(0)).d;
             if (d != (double)((int)d)) {
                 throw new IllegalArgumentException("invalid position: " + d);
             }
@@ -1013,9 +1013,9 @@ public class XPathEvalTest {
                 return "testfunc";
             }
 
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(new Class[0]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(new Class[0]);
                 return p;
             }
 
@@ -1035,9 +1035,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[0]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(allPrototypes[0]);
                 return p;
             }
 
@@ -1059,12 +1059,12 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[0]);
-                p.addElement(allPrototypes[1]);
-                p.addElement(allPrototypes[2]);
-                p.addElement(allPrototypes[3]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(allPrototypes[0]);
+                p.add(allPrototypes[1]);
+                p.add(allPrototypes[2]);
+                p.add(allPrototypes[3]);
                 return p;
             }
 
@@ -1086,9 +1086,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[3]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(allPrototypes[3]);
                 return p;
             }
 
@@ -1110,7 +1110,7 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
+            public ArrayList getPrototypes() {
                 return null;
             }
 
@@ -1132,9 +1132,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(new Class[0]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(new Class[0]);
                 return p;
             }
 
@@ -1171,9 +1171,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(new Class[0]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(new Class[0]);
                 return p;
             }
 
@@ -1195,9 +1195,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[4]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(allPrototypes[4]);
                 return p;
             }
 
@@ -1219,9 +1219,9 @@ public class XPathEvalTest {
             }
 
             @Override
-            public Vector getPrototypes() {
-                Vector p = new Vector();
-                p.addElement(allPrototypes[5]);
+            public ArrayList getPrototypes() {
+                ArrayList p = new ArrayList();
+                p.add(allPrototypes[5]);
                 return p;
             }
 
@@ -1310,9 +1310,9 @@ public class XPathEvalTest {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector p = new Vector();
-            p.addElement(new Class[0]);
+        public ArrayList getPrototypes() {
+            ArrayList p = new ArrayList();
+            p.add(new Class[0]);
             return p;
         }
 
@@ -1329,10 +1329,10 @@ public class XPathEvalTest {
         }
 
         @Override
-        public Vector getPrototypes() {
-            Vector p = new Vector();
+        public ArrayList getPrototypes() {
+            ArrayList p = new ArrayList();
             Class[] proto = {String.class};
-            p.addElement(proto);
+            p.add(proto);
             return p;
         }
 

@@ -26,9 +26,6 @@ import org.javarosa.xpath.expr.ExpressionCacher
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 import java.util.ArrayList
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -66,8 +63,8 @@ class EvaluationContext {
     // Unambiguous anchor reference for relative paths
     val contextRef: TreeReference?
 
-    private val functionHandlers: Hashtable<String, IFunctionHandler>
-    private val variables: Hashtable<String, Any?>
+    private val functionHandlers: HashMap<String, IFunctionHandler>
+    private val variables: HashMap<String, Any?>
 
     // Do we want to evaluate constraints?
     @JvmField
@@ -80,7 +77,7 @@ class EvaluationContext {
     // Responsible for informing itext what form is requested if relevant
     private var outputTextForm: String? = null
 
-    private val formInstances: Hashtable<String, DataInstance<*>>
+    private val formInstances: HashMap<String, DataInstance<*>>
 
     // original context reference used for evaluating current()
     private var original: TreeReference? = null
@@ -98,32 +95,32 @@ class EvaluationContext {
 
     private val instance: DataInstance<*>?
 
-    constructor(instance: DataInstance<*>?) : this(instance, Hashtable())
+    constructor(instance: DataInstance<*>?) : this(instance, HashMap())
 
     constructor(base: EvaluationContext?, context: TreeReference?) :
-            this(base, base?.instance, context, base?.formInstances ?: Hashtable())
+            this(base, base?.instance, context, base?.formInstances ?: HashMap())
 
     constructor(
         base: EvaluationContext?,
-        formInstances: Hashtable<String, DataInstance<*>>,
+        formInstances: HashMap<String, DataInstance<*>>,
         context: TreeReference?
     ) : this(base, base?.instance, context, formInstances)
 
     constructor(
         instance: FormInstance?,
-        formInstances: Hashtable<String, DataInstance<*>>,
+        formInstances: HashMap<String, DataInstance<*>>,
         base: EvaluationContext?
     ) : this(base, instance, base?.contextRef, formInstances)
 
     constructor(
         instance: DataInstance<*>?,
-        formInstances: Hashtable<String, DataInstance<*>>
+        formInstances: HashMap<String, DataInstance<*>>
     ) {
         this.formInstances = formInstances
         this.instance = instance
         this.contextRef = TreeReference.rootRef()
-        functionHandlers = Hashtable()
-        variables = Hashtable()
+        functionHandlers = HashMap()
+        variables = HashMap()
         this.setQueryContext(QueryContext())
     }
 
@@ -134,15 +131,15 @@ class EvaluationContext {
         base: EvaluationContext?,
         instance: DataInstance<*>?,
         contextNode: TreeReference?,
-        formInstances: Hashtable<String, DataInstance<*>>
+        formInstances: HashMap<String, DataInstance<*>>
     ) {
         // TODO: These should be deep, not shallow
-        this.functionHandlers = base?.functionHandlers ?: Hashtable()
+        this.functionHandlers = base?.functionHandlers ?: HashMap()
 
-        this.formInstances = Hashtable()
+        this.formInstances = HashMap()
         this.copyInstances(formInstances)
 
-        this.variables = Hashtable()
+        this.variables = HashMap()
         // TODO: this is actually potentially much slower than
         // our old strategy (but is needed for this object to
         // be threadsafe). We should evaluate the potential impact.
@@ -205,7 +202,7 @@ class EvaluationContext {
         functionHandlers[fh.getName()] = fh
     }
 
-    fun getFunctionHandlers(): Hashtable<String, IFunctionHandler> {
+    fun getFunctionHandlers(): HashMap<String, IFunctionHandler> {
         return functionHandlers
     }
 
@@ -217,10 +214,10 @@ class EvaluationContext {
         return outputTextForm
     }
 
-    private fun shallowVariablesCopy(variablesToCopy: Hashtable<String, Any?>) {
-        val e: Enumeration<*> = variablesToCopy.keys()
-        while (e.hasMoreElements()) {
-            val key = e.nextElement() as String
+    private fun shallowVariablesCopy(variablesToCopy: HashMap<String, Any?>) {
+        val e: Iterator<*> = variablesToCopy.keys.iterator()
+        while (e.hasNext()) {
+            val key = e.next() as String
             variables[key] = variablesToCopy[key]
         }
     }
@@ -230,7 +227,7 @@ class EvaluationContext {
      * but it does isolate some changes to the instances which happen when spawning new contexts
      * e.g. replacing the root.
      */
-    private fun copyInstances(formInstances: Hashtable<String, DataInstance<*>>?) {
+    private fun copyInstances(formInstances: HashMap<String, DataInstance<*>>?) {
         if (formInstances != null) {
             for ((key, value) in formInstances) {
                 var inst = value
@@ -242,10 +239,10 @@ class EvaluationContext {
         }
     }
 
-    fun setVariables(variables: Hashtable<String, *>) {
-        val e: Enumeration<*> = variables.keys()
-        while (e.hasMoreElements()) {
-            val key = e.nextElement() as String
+    fun setVariables(variables: HashMap<String, *>) {
+        val e: Iterator<*> = variables.keys.iterator()
+        while (e.hasNext()) {
+            val key = e.next() as String
             setVariable(key, variables[key])
         }
     }
@@ -296,7 +293,7 @@ class EvaluationContext {
         queryContext.setTraceRoot(this)
     }
 
-    fun expandReference(ref: TreeReference): Vector<TreeReference>? {
+    fun expandReference(ref: TreeReference): ArrayList<TreeReference>? {
         return expandReference(ref, false)
     }
 
@@ -314,13 +311,13 @@ class EvaluationContext {
      * nodes won't be included when matching INDEX_UNBOUND, but will be when
      * INDEX_TEMPLATE is explicitly set.
      */
-    fun expandReference(ref: TreeReference, includeTemplates: Boolean): Vector<TreeReference>? {
+    fun expandReference(ref: TreeReference, includeTemplates: Boolean): ArrayList<TreeReference>? {
         if (!ref.isAbsolute) {
             return null
         }
 
         val baseInstance = retrieveInstance(ref)
-        val v = Vector<TreeReference>()
+        val v = ArrayList<TreeReference>()
 
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot()!!.getRef(), v, includeTemplates)
         return v
@@ -340,7 +337,7 @@ class EvaluationContext {
      */
     private fun expandReferenceAccumulator(
         sourceRef: TreeReference, sourceInstance: DataInstance<*>,
-        workingRef: TreeReference?, refs: Vector<TreeReference>,
+        workingRef: TreeReference?, refs: ArrayList<TreeReference>,
         includeTemplates: Boolean
     ) {
         if (workingRef == null) {
@@ -355,7 +352,7 @@ class EvaluationContext {
         if (depth == sourceRef.size()) {
             // We've matched fully
             // TODO: Should this reference be cloned?
-            refs.addElement(workingRef)
+            refs.add(workingRef)
             return
         }
         // Get the next set of matching references
@@ -366,9 +363,9 @@ class EvaluationContext {
 
         // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
-            val predCopy = Vector<XPathExpression>(predicates.size)
+            val predCopy = ArrayList<XPathExpression>(predicates.size)
             for (xpe in predicates) {
-                predCopy.addElement(xpe)
+                predCopy.add(xpe)
             }
             predicates = predCopy
         }
@@ -468,8 +465,8 @@ class EvaluationContext {
         childName: String,
         childMult: Int,
         includeTemplates: Boolean
-    ): Vector<TreeReference> {
-        val childSet = Vector<TreeReference>()
+    ): ArrayList<TreeReference> {
+        val childSet = ArrayList<TreeReference>()
         QueryUtils.prepareSensitiveObjectForUseInCurrentContext(node, getCurrentQueryContext())
 
         @Suppress("NAME_SHADOWING")
@@ -482,7 +479,7 @@ class EvaluationContext {
                 for (i in 0 until count) {
                     val child = node.getChild(childName, i)
                     if (child != null) {
-                        childSet.addElement(child.getRef())
+                        childSet.add(child.getRef())
                     } else {
                         throw IllegalStateException("Missing or non-sequential nodes expanding a reference: " + node.getRef())
                     }
@@ -490,7 +487,7 @@ class EvaluationContext {
                 if (includeTemplates) {
                     val template = node.getChild(childName, TreeReference.INDEX_TEMPLATE)
                     if (template != null) {
-                        childSet.addElement(template.getRef())
+                        childSet.add(template.getRef())
                     }
                 }
             } else if (childMult != TreeReference.INDEX_ATTRIBUTE) {
@@ -499,7 +496,7 @@ class EvaluationContext {
                 // appropriate child
                 val child = node.getChild(childName, childMult)
                 if (child != null) {
-                    childSet.addElement(child.getRef())
+                    childSet.add(child.getRef())
                 }
             }
         }
@@ -509,7 +506,7 @@ class EvaluationContext {
         if (childMult == TreeReference.INDEX_ATTRIBUTE) {
             val attribute = node.getAttribute(null, childName)
             if (attribute != null) {
-                childSet.addElement(attribute.getRef())
+                childSet.add(attribute.getRef())
             }
         }
         return childSet
@@ -684,8 +681,8 @@ class EvaluationContext {
      * Creates a record that we are going to attempt to expand a set of bulk lookup predicates
      */
     private fun reportBulkTraceResults(
-        startingSet: Vector<XPathExpression>?,
-        finalSet: Vector<XPathExpression>?,
+        startingSet: ArrayList<XPathExpression>?,
+        finalSet: ArrayList<XPathExpression>?,
         childSet: Collection<TreeReference>?
     ) {
         if (mAccumulateExprs) {

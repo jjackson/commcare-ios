@@ -14,7 +14,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
-import java.util.Hashtable
 
 /**
  * This class represents the xform model instance
@@ -33,7 +32,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     @JvmField
     var uiVersion: String? = null
 
-    private var namespaces = Hashtable<String, String>()
+    private var namespaces = HashMap<String, String>()
 
     /**
      * The root of this tree
@@ -133,9 +132,9 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     fun getNamespacePrefixes(): Array<String?> {
         val prefixes = arrayOfNulls<String>(namespaces.size)
         var i = 0
-        val en = namespaces.keys()
-        while (en.hasMoreElements()) {
-            prefixes[i] = en.nextElement() as String
+        val en = namespaces.keys.iterator()
+        while (en.hasNext()) {
+            prefixes[i] = en.next() as String
             ++i
         }
         return prefixes
@@ -155,7 +154,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         cloned.schema = this.schema
         cloned.formVersion = this.formVersion
         cloned.uiVersion = this.uiVersion
-        cloned.namespaces = Hashtable(namespaces)
+        cloned.namespaces = HashMap(namespaces)
 
         return cloned
     }
@@ -167,7 +166,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         dateSaved = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
 
         @Suppress("UNCHECKED_CAST")
-        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<String, String>
+        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
         setRoot(ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement)
     }
 
@@ -211,8 +210,8 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
      * used by TouchForms
      */
     @Suppress("unused")
-    fun getMetaData(): Hashtable<String, Any> {
-        val data = Hashtable<String, Any>()
+    fun getMetaData(): HashMap<String, Any> {
+        val data = HashMap<String, Any>()
         for (key in getMetaDataFields()) {
             data[key] = getMetaData(key)
         }
@@ -248,7 +247,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         dateSaved = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
 
         @Suppress("UNCHECKED_CAST")
-        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as Hashtable<String, String>
+        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
         val newRoot: TreeElement
         try {
             newRoot = TreeElement::class.java.newInstance()

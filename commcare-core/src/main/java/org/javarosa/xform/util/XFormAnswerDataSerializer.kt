@@ -36,7 +36,6 @@ import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.model.utils.DateUtils
 
 import java.util.Date
-import java.util.Vector
 
 /**
  * The XFormAnswerDataSerializer takes in AnswerData objects, and provides
@@ -51,7 +50,7 @@ import java.util.Vector
  */
 class XFormAnswerDataSerializer : IAnswerDataSerializer {
 
-    val additionalSerializers = Vector<IAnswerDataSerializer>()
+    val additionalSerializers = ArrayList<IAnswerDataSerializer>()
 
     override fun canSerialize(data: IAnswerData?): Boolean {
         return data is StringData || data is DateData || data is TimeData ||
@@ -124,12 +123,12 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
      */
     fun serializeAnswerData(data: SelectMultiData): Any {
         @Suppress("UNCHECKED_CAST")
-        val selections = data.getValue() as Vector<Selection>
-        val en = selections.elements()
+        val selections = data.getValue() as ArrayList<Selection>
+        val en = selections.iterator()
         val selectString = StringBuffer()
 
-        while (en.hasMoreElements()) {
-            val selection = en.nextElement()
+        while (en.hasNext()) {
+            val selection = en.next()
             if (selectString.isNotEmpty())
                 selectString.append(DELIMITER)
             selectString.append(selection.getValue())
@@ -174,9 +173,9 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
     override fun serializeAnswerData(data: IAnswerData?, dataType: Int): Any? {
         // First, we want to go through the additional serializers, as they should
         // take priority to the default serializations
-        val en = additionalSerializers.elements()
-        while (en.hasMoreElements()) {
-            val serializer = en.nextElement()
+        val en = additionalSerializers.iterator()
+        while (en.hasNext()) {
+            val serializer = en.next()
             if (serializer.canSerialize(data)) {
                 return serializer.serializeAnswerData(data, dataType)
             }
@@ -220,9 +219,9 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
     override fun containsExternalData(data: IAnswerData?): Boolean? {
         //First check for registered serializers to identify whether
         //they override this one.
-        val en = additionalSerializers.elements()
-        while (en.hasMoreElements()) {
-            val serializer = en.nextElement()
+        val en = additionalSerializers.iterator()
+        while (en.hasNext()) {
+            val serializer = en.next()
             val contains = serializer.containsExternalData(data)
             if (contains != null) {
                 return contains
@@ -235,9 +234,9 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
     }
 
     override fun retrieveExternalDataPointer(data: IAnswerData?): Array<IDataPointer>? {
-        val en = additionalSerializers.elements()
-        while (en.hasMoreElements()) {
-            val serializer = en.nextElement()
+        val en = additionalSerializers.iterator()
+        while (en.hasNext()) {
+            val serializer = en.next()
             val contains = serializer.containsExternalData(data)
             if (contains != null) {
                 return serializer.retrieveExternalDataPointer(data)

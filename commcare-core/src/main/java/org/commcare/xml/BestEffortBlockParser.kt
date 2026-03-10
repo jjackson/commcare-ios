@@ -6,7 +6,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * This parser is for scanning through a block making a best-effort to identify a few
@@ -19,18 +18,18 @@ import java.util.Hashtable
 abstract class BestEffortBlockParser(
     parser: KXmlParser,
     private val elements: Array<String>
-) : TransactionParser<Hashtable<String, String>>(parser) {
+) : TransactionParser<HashMap<String, String>>(parser) {
 
     @Throws(PlatformIOException::class)
-    abstract override fun commit(parsed: Hashtable<String, String>)
+    abstract override fun commit(parsed: HashMap<String, String>)
 
     @Throws(
         InvalidStructureException::class, PlatformIOException::class,
         PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
-    override fun parse(): Hashtable<String, String> {
+    override fun parse(): HashMap<String, String> {
         val name = parser.name
-        val ret = Hashtable<String, String>()
+        val ret = HashMap<String, String>()
 
         var expecting = false
         var expected: String? = null

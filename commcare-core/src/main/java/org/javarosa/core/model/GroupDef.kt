@@ -14,7 +14,6 @@ import org.javarosa.model.xform.XPathReference
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * The definition of a group in a form or questionaire.
@@ -23,7 +22,7 @@ import java.util.Vector
  */
 class GroupDef : IFormElement {
     // A list of questions on a group.
-    private var children: Vector<IFormElement> = Vector()
+    private var children: ArrayList<IFormElement> = ArrayList()
     // True if this is a "repeat", false if it is a "group"
     private var mIsRepeat: Boolean = false
     // The group number.
@@ -74,23 +73,23 @@ class GroupDef : IFormElement {
         this.binding = binding
     }
 
-    override fun getChildren(): Vector<IFormElement> {
+    override fun getChildren(): ArrayList<IFormElement> {
         return children
     }
 
-    override fun setChildren(children: Vector<IFormElement>?) {
-        this.children = children ?: Vector()
+    override fun setChildren(children: ArrayList<IFormElement>?) {
+        this.children = children ?: ArrayList()
     }
 
     override fun addChild(fe: IFormElement?) {
-        children.addElement(fe)
+        children.add(fe!!)
     }
 
     override fun getChild(i: Int): IFormElement? {
         return if (children == null || i >= children.size) {
             null
         } else {
-            children.elementAt(i)
+            children[i]
         }
     }
 
@@ -154,9 +153,9 @@ class GroupDef : IFormElement {
 
     override fun getDeepChildCount(): Int {
         var total = 0
-        val e = children.elements()
-        while (e.hasMoreElements()) {
-            total += (e.nextElement() as IFormElement).getDeepChildCount()
+        val e = children.iterator()
+        while (e.hasNext()) {
+            total += (e.next() as IFormElement).getDeepChildCount()
         }
         return total
     }
@@ -173,7 +172,7 @@ class GroupDef : IFormElement {
         setLabelInnerText(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         setIsRepeat(ExtUtil.readBool(dis))
         @Suppress("UNCHECKED_CAST")
-        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as Vector<IFormElement>)
+        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<IFormElement>)
 
         noAddRemove = ExtUtil.readBool(dis)
         count = ExtUtil.read(dis, ExtWrapNullable(ExtWrapTagged()), pf) as XPathReference?

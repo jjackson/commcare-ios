@@ -20,7 +20,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 class XPathConditional : IConditionExpr {
 
@@ -69,7 +68,7 @@ class XPathConditional : IConditionExpr {
         return FunctionUtils.toString(evalRaw(model, evalContext))
     }
 
-    override fun evalNodeset(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<TreeReference> {
+    override fun evalNodeset(model: DataInstance<*>?, evalContext: EvaluationContext?): ArrayList<TreeReference> {
         if (expr is XPathPathExpr) {
             val evaluated = expr!!.eval(model, evalContext!!) as XPathNodeset
             return evaluated.getReferences()!!
@@ -88,8 +87,8 @@ class XPathConditional : IConditionExpr {
      * for retriggering the expression's evaluation if any of these references
      * value or relevancy calculations once.
      */
-    override fun getExprsTriggers(originalContextRef: TreeReference?): Vector<TreeReference> {
-        val triggers = Vector<TreeReference>()
+    override fun getExprsTriggers(originalContextRef: TreeReference?): ArrayList<TreeReference> {
+        val triggers = ArrayList<TreeReference>()
         getExprsTriggersAccumulator(expr!!, triggers, null, originalContextRef)
         return triggers
     }
@@ -122,7 +121,7 @@ class XPathConditional : IConditionExpr {
     }
 
     @Throws(UnpivotableExpressionException::class)
-    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext?): Vector<Any> {
+    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext?): ArrayList<Any> {
         return expr!!.pivot(model, evalContext!!)
     }
 
@@ -141,7 +140,7 @@ class XPathConditional : IConditionExpr {
         @JvmStatic
         private fun getExprsTriggersAccumulator(
             expr: XPathExpression,
-            triggers: Vector<TreeReference>,
+            triggers: ArrayList<TreeReference>,
             contextRef: TreeReference?,
             originalContextRef: TreeReference?
         ) {
@@ -177,7 +176,7 @@ class XPathConditional : IConditionExpr {
                     }
                 }
                 if (!triggers.contains(contextualized)) {
-                    triggers.addElement(contextualized)
+                    triggers.add(contextualized)
                 }
             } else if (expr is XPathBinaryOpExpr) {
                 getExprsTriggersAccumulator(

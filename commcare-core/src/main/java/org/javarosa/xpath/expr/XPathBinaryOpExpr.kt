@@ -13,7 +13,6 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 abstract class XPathBinaryOpExpr : XPathOpExpr {
     @JvmField
@@ -72,7 +71,7 @@ abstract class XPathBinaryOpExpr : XPathOpExpr {
     }
 
     @Throws(UnpivotableExpressionException::class)
-    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: Vector<Any>, sentinal: Any?): Any? {
+    override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext, pivots: ArrayList<Any>, sentinal: Any?): Any? {
         //Pivot both args
         val aval = a!!.pivot(model, evalContext, pivots, sentinal)
         val bval = b!!.pivot(model, evalContext, pivots, sentinal)

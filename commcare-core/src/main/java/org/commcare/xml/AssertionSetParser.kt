@@ -9,7 +9,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -20,8 +19,8 @@ class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parse
     override fun parse(): AssertionSet {
         this.checkNode("assertions")
 
-        val tests = Vector<String>()
-        val messages = Vector<Text>()
+        val tests = ArrayList<String>()
+        val messages = ArrayList<Text>()
 
         while (nextTagInBlock("assertions")) {
             if (parser.name == "assert") {
@@ -35,8 +34,8 @@ class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parse
                 parser.nextTag()
                 checkNode("text")
                 val message = TextParser(parser).parse()
-                tests.addElement(test)
-                messages.addElement(message)
+                tests.add(test)
+                messages.add(message)
             } else {
                 throw InvalidStructureException("Unknown test : ${parser.name}", parser)
             }

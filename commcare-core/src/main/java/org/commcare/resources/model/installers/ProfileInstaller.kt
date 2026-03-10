@@ -22,7 +22,6 @@ import org.javarosa.xml.PlatformXmlParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 
 /**
  * @author ctsims
@@ -41,12 +40,12 @@ class ProfileInstaller : CacheInstaller<Profile> {
     }
 
     companion object {
-        private var localTable: Hashtable<String, Profile>? = null
+        private var localTable: HashMap<String, Profile>? = null
     }
 
-    private fun getlocal(): Hashtable<String, Profile> {
+    private fun getlocal(): HashMap<String, Profile> {
         if (localTable == null) {
-            localTable = Hashtable()
+            localTable = HashMap()
         }
         return localTable!!
     }

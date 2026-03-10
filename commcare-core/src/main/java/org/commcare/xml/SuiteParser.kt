@@ -17,8 +17,6 @@ import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Parses a suite file resource and creates the associated object
@@ -85,11 +83,11 @@ open class SuiteParser : ElementParser<Suite> {
 
         val sVersion = parser.getAttributeValue(null, "version")
         val version = Integer.parseInt(sVersion)
-        val details = Hashtable<String, Detail>()
-        val entries = Hashtable<String, Entry>()
+        val details = HashMap<String, Detail>()
+        val entries = HashMap<String, Entry>()
 
-        val menus = Vector<Menu>()
-        val endpoints = Hashtable<String, Endpoint>()
+        val menus = ArrayList<Menu>()
+        val endpoints = HashMap<String, Endpoint>()
 
         try {
             parser.next()
@@ -101,15 +99,15 @@ open class SuiteParser : ElementParser<Suite> {
                     when (tagName) {
                         "entry" -> {
                             val entry = EntryParser.buildEntryParser(parser).parse()
-                            entries[entry.commandId] = entry
+                            entries[entry.commandId!!] = entry
                         }
                         "view" -> {
                             val viewEntry = EntryParser.buildViewParser(parser).parse()
-                            entries[viewEntry.commandId] = viewEntry
+                            entries[viewEntry.commandId!!] = viewEntry
                         }
                         EntryParser.REMOTE_REQUEST_TAG -> {
                             val remoteRequestEntry = EntryParser.buildRemoteSyncParser(parser).parse()
-                            entries[remoteRequestEntry.commandId] = remoteRequestEntry
+                            entries[remoteRequestEntry.commandId!!] = remoteRequestEntry
                         }
                         "locale" -> {
                             val localeKey = parser.getAttributeValue(null, "language")
@@ -161,11 +159,11 @@ open class SuiteParser : ElementParser<Suite> {
                         }
                         "detail" -> {
                             val d = getDetailParser().parse()
-                            details[d.id] = d
+                            details[d.id!!] = d
                         }
                         "menu" -> {
                             val m = MenuParser(parser).parse()
-                            menus.addElement(m)
+                            menus.add(m)
                         }
                         "fixture" -> {
                             if (!isValidationPass) {
@@ -174,7 +172,7 @@ open class SuiteParser : ElementParser<Suite> {
                         }
                         EndpointParser.NAME_ENDPOINT -> {
                             val endpoint = EndpointParser(parser).parse()
-                            endpoints[endpoint.id] = endpoint
+                            endpoints[endpoint.id!!] = endpoint
                         }
                         else -> System.out.println("Unrecognized Tag: ${parser.name}")
                     }

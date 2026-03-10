@@ -11,8 +11,6 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.ArrayUtilities
 import org.javarosa.model.xform.XPathReference
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Created by wpride1 on 8/11/15.
@@ -29,7 +27,7 @@ object SandboxUtils {
     fun getInstanceContexts(sandbox: UserSandbox, instanceId: String, instanceRef: String): EvaluationContext {
         val iif: InstanceInitializationFactory = CommCareInstanceInitializer(sandbox)
 
-        val instances = Hashtable<String, DataInstance<*>>()
+        val instances = HashMap<String, DataInstance<*>>()
         val edi = ExternalDataInstance(instanceRef, instanceId)
         edi.initialize(iif, instanceId)
         instances[instanceId] = edi
@@ -58,7 +56,7 @@ object SandboxUtils {
 
         val userFixtures = userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId)
         if (userFixtures.size == 1) {
-            return userFixtureStorage.read(userFixtures.elementAt(0))
+            return userFixtureStorage.read(userFixtures[0])
             // TODO: Userid check anyway?
         } else if (userFixtures.size > 1) {
             val result = intersectFixtureSets(userFixtureStorage, userId, userFixtures)
@@ -79,7 +77,7 @@ object SandboxUtils {
     private fun intersectFixtureSets(
         userFixtureStorage: IStorageUtilityIndexed<FormInstance>,
         userId: String,
-        userFixtures: Vector<Int>
+        userFixtures: ArrayList<Int>
     ): FormInstance? {
         val relevantUserFixtures =
             userFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId)
@@ -130,15 +128,15 @@ object SandboxUtils {
      * of valid "owners" for entities (cases, ledgers, etc) in the universe.
      */
     @JvmStatic
-    fun extractEntityOwners(sandbox: UserSandbox): Vector<String> {
-        val owners = Vector<String>()
-        val users = Vector<String>()
+    fun extractEntityOwners(sandbox: UserSandbox): ArrayList<String> {
+        val owners = ArrayList<String>()
+        val users = ArrayList<String>()
 
         val userIterator = sandbox.getUserStorage().iterate()
         while (userIterator.hasMore()) {
-            val id = userIterator.nextRecord().getUniqueId()
-            owners.addElement(id)
-            users.addElement(id)
+            val id = userIterator.nextRecord().getUniqueId()!!
+            owners.add(id)
+            users.add(id)
         }
 
         // Now add all of the relevant groups
@@ -154,7 +152,7 @@ object SandboxUtils {
                 for (ref in refs) {
                     val idElement = ec.resolveReference(ref)
                     if (idElement != null && idElement.getValue() != null) {
-                        owners.addElement(idElement.getValue()!!.uncast().getString())
+                        owners.add(idElement.getValue()!!.uncast().getString()!!)
                     }
                 }
             }

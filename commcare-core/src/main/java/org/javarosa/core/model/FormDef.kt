@@ -47,9 +47,7 @@ import org.javarosa.xpath.XPathTypeMismatchException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
 import java.util.NoSuchElementException
-import java.util.Vector
 import datadog.trace.api.Trace
 import io.opentracing.util.GlobalTracer
 
@@ -61,11 +59,11 @@ import io.opentracing.util.GlobalTracer
  */
 class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor {
 
-    private var children: Vector<IFormElement> = Vector()
+    private var children: ArrayList<IFormElement> = ArrayList()
     private var id: Int = 0
     private var title: String? = null
     private var name: String? = null
-    private var extensions: Vector<XFormExtension> = Vector()
+    private var extensions: ArrayList<XFormExtension> = ArrayList()
     private var localizer: Localizer? = null
 
     // This list is topologically ordered, meaning for any tA
@@ -75,14 +73,14 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
     // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
-    private var outputFragments: Vector<Any?> = Vector()
+    private var outputFragments: ArrayList<Any?> = ArrayList()
 
     /**
      * Map references to the calculate/relevancy conditions that depend on that
      * reference's value. Used to trigger re-evaluation of those conditionals
      * when the reference is updated.
      */
-    private var triggerIndex: HashMap<TreeReference, Vector<Triggerable>>? = null
+    private var triggerIndex: HashMap<TreeReference, ArrayList<Triggerable>>? = null
 
     /**
      * Associates repeatable nodes with the Condition that determines their
@@ -93,18 +91,18 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     @JvmField
     var exprEvalContext: EvaluationContext? = null
 
-    private var submissionProfiles: Hashtable<String, SubmissionProfile> = Hashtable()
+    private var submissionProfiles: HashMap<String, SubmissionProfile> = HashMap()
 
     /**
      * Secondary and external instance pointers
      */
-    private var formInstances: Hashtable<String, DataInstance<*>> = Hashtable()
+    private var formInstances: HashMap<String, DataInstance<*>> = HashMap()
 
     private var mainInstance: FormInstance? = null
 
     private var mDebugModeEnabled: Boolean = false
 
-    private val triggeredDuringInsert: Vector<Triggerable> = Vector()
+    private val triggeredDuringInsert: ArrayList<Triggerable> = ArrayList()
 
     private var actionController: ActionController = ActionController()
     // If this instance is just being edited, don't fire end of form events
@@ -133,10 +131,10 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         triggerIndex = HashMap()
         // This is kind of a wreck...
         setEvaluationContext(EvaluationContext(null))
-        outputFragments = Vector()
-        submissionProfiles = Hashtable()
-        formInstances = Hashtable()
-        extensions = Vector()
+        outputFragments = ArrayList()
+        submissionProfiles = HashMap()
+        formInstances = HashMap()
+        extensions = ArrayList()
         actionController = ActionController()
         this.useExpressionCaching = useExpressionCaching
     }
@@ -145,7 +143,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Getters and setters for the vectors
      */
     fun addNonMainInstance(instance: DataInstance<*>) {
-        formInstances[instance.getInstanceId()] = instance
+        formInstances[instance.getInstanceId()!!] = instance
         this.setEvaluationContext(EvaluationContext(null))
     }
 
@@ -159,8 +157,8 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         return formInstances[name]
     }
 
-    fun getNonMainInstances(): java.util.Enumeration<DataInstance<*>> {
-        return formInstances.elements()
+    fun getNonMainInstances(): MutableIterator<DataInstance<*>> {
+        return formInstances.values.iterator()
     }
 
     /**
@@ -186,12 +184,12 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
     // ---------- child elements
     override fun addChild(fe: IFormElement?) {
-        this.children.addElement(fe)
+        this.children.add(fe!!)
     }
 
     override fun getChild(i: Int): IFormElement {
         if (i < this.children.size)
-            return this.children.elementAt(i)
+            return this.children[i]
 
         throw ArrayIndexOutOfBoundsException(
             "FormDef: invalid child index: $i only ${children.size} children"
@@ -209,16 +207,16 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     }
 
     /**
-     * Dereference the form index and return a Vector of all interstitial nodes
+     * Dereference the form index and return a ArrayList of all interstitial nodes
      * (top-level parent first; index target last)
      *
      * Ignore 'new-repeat' node for now; just return/stop at ref to
      * yet-to-be-created repeat node (similar to repeats that already exist)
      */
-    fun explodeIndex(index: FormIndex): Vector<*> {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+    fun explodeIndex(index: FormIndex): ArrayList<*> {
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
 
         collapseIndex(index, indexes, multiplicities, elements)
         return elements
@@ -227,9 +225,9 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     // take a reference, find the instance node it refers to (factoring in
     // multiplicities)
     fun getChildInstanceRef(index: FormIndex): TreeReference? {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
 
         collapseIndex(index, indexes, multiplicities, elements)
         return getChildInstanceRef(elements, multiplicities)
@@ -240,15 +238,15 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * along with the multiplicities provided.
      */
     fun getChildInstanceRef(
-        elements: Vector<IFormElement>,
-        multiplicities: Vector<Int>
+        elements: ArrayList<IFormElement>,
+        multiplicities: ArrayList<Int>
     ): TreeReference? {
         if (elements.size == 0) {
             return null
         }
 
         // get reference for target element
-        val ref = DataInstance.unpackReference(elements.lastElement().getBind()!!).clone()
+        val ref = DataInstance.unpackReference(elements.last().getBind()!!).clone()
         for (i in 0 until ref.size()) {
             // There has to be a better way to encapsulate this
             if (ref.getMultiplicity(i) != TreeReference.INDEX_ATTRIBUTE) {
@@ -258,11 +256,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
         // fill in multiplicities for repeats along the way
         for (i in 0 until elements.size) {
-            val temp = elements.elementAt(i)
+            val temp = elements[i]
             if (temp is GroupDef && temp.isRepeat()) {
                 val repRef = DataInstance.unpackReference(temp.getBind()!!)
                 if (repRef.isParentOf(ref, false)) {
-                    val repMult = multiplicities.elementAt(i)
+                    val repMult = multiplicities[i]
                     ref.setMultiplicity(repRef.size() - 1, repMult)
                 } else {
                     // question/repeat hierarchy is not consistent with
@@ -308,22 +306,22 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * method on a node that is not contained within a repeat.
      */
     fun deleteRepeat(index: FormIndex): FormIndex {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
         collapseIndex(index, indexes, multiplicities, elements)
 
         // loop backwards through the elements, removing objects from each
         // vector, until we find a repeat
         // TODO: should probably check to make sure size > 0
         for (i in elements.size - 1 downTo 0) {
-            val e = elements.elementAt(i)
+            val e = elements[i]
             if (e is GroupDef && e.isRepeat()) {
                 break
             } else {
-                indexes.removeElementAt(i)
-                multiplicities.removeElementAt(i)
-                elements.removeElementAt(i)
+                indexes.removeAt(i)
+                multiplicities.removeAt(i)
+                elements.removeAt(i)
             }
         }
 
@@ -371,7 +369,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         mainInstance!!.copyNode(template, repeatContextRef)
 
         // Fire jr-insert events before "calculate"s
-        triggeredDuringInsert.removeAllElements()
+        triggeredDuringInsert.clear()
         actionController.triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this)
 
         // trigger conditions that depend on the creation of this new node
@@ -387,7 +385,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                 triggerIndex!![refSetByAction.genericize()]
             if (triggerables != null) {
                 for (elem in triggerables) {
-                    triggeredDuringInsert.addElement(elem)
+                    triggeredDuringInsert.add(elem)
                 }
             }
         }
@@ -472,32 +470,32 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         val targetRef = targetNode.getRef()
         val destRef = itemset.getDestRef()!!.contextualize(targetRef)!!
 
-        var selections: Vector<Selection>? = null
-        val selectedValues = Vector<String>()
+        var selections: ArrayList<Selection>? = null
+        val selectedValues = ArrayList<String>()
         if (data is SelectMultiData) {
             @Suppress("UNCHECKED_CAST")
-            selections = data.getValue() as Vector<Selection>
+            selections = data.getValue() as ArrayList<Selection>
         } else if (data is SelectOneData) {
-            selections = Vector()
-            selections.addElement(data.getValue() as Selection)
+            selections = ArrayList()
+            selections.add(data.getValue() as Selection)
         }
         if (itemset.valueRef != null) {
             for (i in 0 until selections!!.size) {
-                selectedValues.addElement(selections.elementAt(i).choice!!.value)
+                selectedValues.add(selections[i].choice!!.value!!)
             }
         }
 
         // delete existing dest nodes that are not in the answer selection
-        val existingValues = Hashtable<String, TreeElement>()
+        val existingValues = HashMap<String, TreeElement>()
         val existingNodes = exprEvalContext!!.expandReference(destRef)!!
         for (i in 0 until existingNodes.size) {
-            val node = getMainInstance()!!.resolveReference(existingNodes.elementAt(i))!!
+            val node = getMainInstance()!!.resolveReference(existingNodes[i])!!
 
             if (itemset.valueRef != null) {
                 val value = itemset.getRelativeValue()!!.evalReadable(
                     this.getMainInstance(),
                     EvaluationContext(exprEvalContext, node.getRef())
-                )
+                )!!
                 if (selectedValues.contains(value)) {
                     existingValues[value] = node // cache node if in selection and already exists
                 }
@@ -509,7 +507,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
         // copy in nodes for new answer; preserve ordering in answer
         for (i in 0 until selections!!.size) {
-            val s = selections.elementAt(i)
+            val s = selections[i]
             val ch = s.choice!!
 
             var cachedNode: TreeElement? = null
@@ -532,7 +530,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         triggerTriggerables(destRef)
 
         // initialize conditions for the node (and sub-nodes)
-        initTriggerablesRootedBy(destRef, Vector())
+        initTriggerablesRootedBy(destRef, ArrayList())
     }
 
     /**
@@ -563,11 +561,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
             for (trigger in t.getTriggers()) {
                 val predicatelessTrigger = t.widenContextToAndClearPredicates(trigger)
                 if (!triggerIndex!!.containsKey(predicatelessTrigger)) {
-                    triggerIndex!![predicatelessTrigger.clone()] = Vector()
+                    triggerIndex!![predicatelessTrigger.clone()] = ArrayList()
                 }
                 val triggered = triggerIndex!![predicatelessTrigger]!!
                 if (!triggered.contains(t)) {
-                    triggered.addElement(t)
+                    triggered.add(t)
                 }
             }
 
@@ -594,7 +592,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Get the triggerable conditions, like relevancy/calculate, that depend on
      * the given reference.
      */
-    fun conditionsTriggeredByRef(ref: TreeReference): Vector<Triggerable>? {
+    fun conditionsTriggeredByRef(ref: TreeReference): ArrayList<Triggerable>? {
         return triggerIndex!![ref]
     }
 
@@ -645,14 +643,14 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     }
 
     private fun throwGraphCyclesException(vertices: List<Triggerable>) {
-        val edges = Vector<Array<TreeReference>>()
+        val edges = ArrayList<Array<TreeReference>>()
         for (outerTriggerables in vertices) {
             for (outerReference in outerTriggerables.targets) {
                 // Get child refs because children are affected by parents
                 val updatedNodes = getTreeReferenceAndChildren(outerReference)
                 for (innerReference in updatedNodes) {
                     @Suppress("UNCHECKED_CAST")
-                    val triggered = conditionsTriggeredByRef(innerReference) as? Vector<Triggerable>
+                    val triggered = conditionsTriggeredByRef(innerReference) as? ArrayList<Triggerable>
                     if (triggered != null) {
                         for (trig in triggered) {
                             if (innerReference != outerReference) {
@@ -833,25 +831,25 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * triggerables.
      */
     @Throws(IllegalStateException::class)
-    fun getDebugTraceMap(): Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> {
+    fun getDebugTraceMap(): HashMap<TreeReference, HashMap<String, EvaluationTrace>> {
         if (!mDebugModeEnabled) {
             throw IllegalStateException("Debugging is not enabled")
         }
 
-        val debugInfo = Hashtable<TreeReference, Hashtable<String, EvaluationTrace>>()
+        val debugInfo = HashMap<TreeReference, HashMap<String, EvaluationTrace>>()
 
         for (t in triggerables!!) {
             val triggerOutputs = t.getEvaluationTraces()
 
-            val e = triggerOutputs.keys()
-            while (e.hasMoreElements()) {
-                val elementRef = e.nextElement() as TreeReference
+            val e = triggerOutputs.keys.iterator()
+            while (e.hasNext()) {
+                val elementRef = e.next() as TreeReference
                 val label = t.getDebugLabel()
                 var traces = debugInfo[elementRef]
                 if (traces == null) {
-                    traces = Hashtable()
+                    traces = HashMap()
                 }
-                traces[label] = triggerOutputs[elementRef]
+                traces[label] = triggerOutputs[elementRef]!!
                 debugInfo[elementRef] = traces
             }
         }
@@ -864,9 +862,9 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         // Use all triggerables because we can assume they are rooted by rootRef
         val rootRef = TreeReference.rootRef()
 
-        val applicable = Vector<Triggerable>()
+        val applicable = ArrayList<Triggerable>()
         for (triggerable in triggerables!!) {
-            applicable.addElement(triggerable)
+            applicable.add(triggerable)
         }
 
         evaluateTriggerables(applicable, rootRef, false)
@@ -879,16 +877,16 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     @Trace
     private fun initTriggerablesRootedBy(
         rootRef: TreeReference,
-        triggeredDuringInsert: Vector<Triggerable>
+        triggeredDuringInsert: ArrayList<Triggerable>
     ) {
         val genericRoot = rootRef.genericize()
 
-        val applicable = Vector<Triggerable>()
+        val applicable = ArrayList<Triggerable>()
         for (triggerable in triggerables!!) {
             for (target in triggerable.targets) {
                 if (genericRoot.isParentOf(target, false)) {
                     if (!triggeredDuringInsert.contains(triggerable)) {
-                        applicable.addElement(triggerable)
+                        applicable.add(triggerable)
                         break
                     }
                 }
@@ -910,7 +908,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         // get triggerables which are activated by the generic reference
         val triggered = triggerIndex!![genericRef]
         if (triggered != null) {
-            val triggeredCopy = Vector(triggered)
+            val triggeredCopy = ArrayList(triggered)
 
             evaluateTriggerables(triggeredCopy, ref, false)
         }
@@ -1023,10 +1021,10 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                     }
                 }
 
-                override fun getPrototypes(): Vector<Any> {
+                override fun getPrototypes(): ArrayList<Any> {
                     val proto = arrayOf<Class<*>>(String::class.java)
-                    val v = Vector<Any>()
-                    v.addElement(proto)
+                    val v = ArrayList<Any>()
+                    v.add(proto)
                     return v
                 }
 
@@ -1077,10 +1075,10 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                     }
                 }
 
-                override fun getPrototypes(): Vector<Any> {
+                override fun getPrototypes(): ArrayList<Any> {
                     val proto = arrayOf<Class<*>>(String::class.java, String::class.java)
-                    val v = Vector<Any>()
-                    v.addElement(proto)
+                    val v = ArrayList<Any>()
+                    v.add(proto)
                     return v
                 }
 
@@ -1096,7 +1094,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     }
 
     fun fillTemplateString(template: String, contextRef: TreeReference): String {
-        return fillTemplateString(template, contextRef, Hashtable<String, Any?>())
+        return fillTemplateString(template, contextRef, HashMap<String, Any?>())
     }
 
     /**
@@ -1106,11 +1104,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     fun fillTemplateString(
         template: String,
         contextRef: TreeReference,
-        variables: Hashtable<String, *>
+        variables: HashMap<String, *>
     ): String {
         var currentTemplate = template
         // argument to value mapping
-        val args = Hashtable<String, String>()
+        val args = HashMap<String, String>()
 
         var depth = 0
         // grab all template arguments that need to have substitutions performed
@@ -1122,7 +1120,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         // Then perform substitutions over the template until a fixpoint is found
         while (outstandingArgs.size > 0) {
             for (i in 0 until outstandingArgs.size) {
-                val argName = outstandingArgs.elementAt(i) as String
+                val argName = outstandingArgs[i] as String
                 // lookup value an arg points to if it isn't in our local mapping
                 if (!args.containsKey(argName)) {
                     var ix = -1
@@ -1136,11 +1134,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                         continue
                     }
 
-                    val expr = outputFragments.elementAt(ix) as IConditionExpr
+                    val expr = outputFragments[ix] as IConditionExpr
                     val ec = EvaluationContext(exprEvalContext, contextRef)
                     ec.setOriginalContext(contextRef)
                     ec.setVariables(variables)
-                    val value = expr.evalReadable(this.getMainInstance(), ec)
+                    val value = expr.evalReadable(this.getMainInstance(), ec) ?: ""
                     args[argName] = value
                 }
             }
@@ -1203,40 +1201,40 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)))
         setTitle(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         @Suppress("UNCHECKED_CAST")
-        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as Vector<IFormElement>?)
+        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<IFormElement>?)
         setInstance(ExtUtil.read(dis, FormInstance::class.java, pf) as FormInstance)
 
         setLocalizer(ExtUtil.read(dis, ExtWrapNullable(Localizer::class.java), pf) as Localizer?)
 
         @Suppress("UNCHECKED_CAST")
-        val vcond = ExtUtil.read(dis, ExtWrapList(Condition::class.java), pf) as Vector<Any?>
-        val econd = vcond.elements()
-        while (econd.hasMoreElements()) {
-            addTriggerable(econd.nextElement() as Condition)
+        val vcond = ExtUtil.read(dis, ExtWrapList(Condition::class.java), pf) as ArrayList<Any?>
+        val econd = vcond.iterator()
+        while (econd.hasNext()) {
+            addTriggerable(econd.next() as Condition)
         }
         @Suppress("UNCHECKED_CAST")
-        val vcalc = ExtUtil.read(dis, ExtWrapList(Recalculate::class.java), pf) as Vector<Any?>
-        val ecalc = vcalc.elements()
-        while (ecalc.hasMoreElements()) {
-            addTriggerable(ecalc.nextElement() as Recalculate)
+        val vcalc = ExtUtil.read(dis, ExtWrapList(Recalculate::class.java), pf) as ArrayList<Any?>
+        val ecalc = vcalc.iterator()
+        while (ecalc.hasNext()) {
+            addTriggerable(ecalc.next() as Recalculate)
         }
         finalizeTriggerables()
 
         @Suppress("UNCHECKED_CAST")
-        outputFragments = ExtUtil.read(dis, ExtWrapListPoly(), pf) as Vector<Any?>
+        outputFragments = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<Any?>
 
         @Suppress("UNCHECKED_CAST")
         submissionProfiles = ExtUtil.read(
             dis, ExtWrapMap(String::class.java, SubmissionProfile::class.java), pf
-        ) as Hashtable<String, SubmissionProfile>
+        ) as HashMap<String, SubmissionProfile>
 
         @Suppress("UNCHECKED_CAST")
         formInstances = ExtUtil.read(
             dis, ExtWrapMap(String::class.java, ExtWrapTagged()), pf
-        ) as Hashtable<String, DataInstance<*>>
+        ) as HashMap<String, DataInstance<*>>
 
         @Suppress("UNCHECKED_CAST")
-        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as Vector<XFormExtension>
+        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<XFormExtension>
 
         setEvaluationContext(EvaluationContext(null))
         actionController = ExtUtil.read(dis, ActionController::class.java, pf) as ActionController
@@ -1272,9 +1270,9 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         factory: InstanceInitializationFactory?,
         locale: String?, isReadOnly: Boolean
     ) {
-        val en = formInstances.keys()
-        while (en.hasMoreElements()) {
-            val instanceId = en.nextElement()
+        val en = formInstances.keys.iterator()
+        while (en.hasNext()) {
+            val instanceId = en.next()
             val instance = formInstances[instanceId]!!
             formInstances[instanceId] = instance.initialize(factory, instanceId)
         }
@@ -1317,13 +1315,13 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         ExtUtil.write(dos, getMainInstance()!!)
         ExtUtil.write(dos, ExtWrapNullable(localizer))
 
-        val conditions = Vector<Condition>()
-        val recalcs = Vector<Recalculate>()
+        val conditions = ArrayList<Condition>()
+        val recalcs = ArrayList<Recalculate>()
         for (t in triggerables!!) {
             if (t is Condition) {
-                conditions.addElement(t)
+                conditions.add(t)
             } else if (t is Recalculate) {
-                recalcs.addElement(t)
+                recalcs.add(t)
             }
         }
         ExtUtil.write(dos, ExtWrapList(conditions as List<*>))
@@ -1340,9 +1338,9 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
     fun collapseIndex(
         index: FormIndex,
-        indexes: Vector<Int>,
-        multiplicities: Vector<Int>,
-        elements: Vector<IFormElement>
+        indexes: ArrayList<Int>,
+        multiplicities: ArrayList<Int>,
+        elements: ArrayList<IFormElement>
     ) {
         if (!index.isInForm()) {
             return
@@ -1354,51 +1352,51 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
             val i = currentIndex.getLocalIndex()
             element = element.getChild(i)!!
 
-            indexes.addElement(DataUtil.integer(i))
-            multiplicities.addElement(
+            indexes.add(DataUtil.integer(i))
+            multiplicities.add(
                 DataUtil.integer(if (currentIndex.getInstanceIndex() == -1) 0 else currentIndex.getInstanceIndex())
             )
-            elements.addElement(element)
+            elements.add(element)
 
             currentIndex = currentIndex.nextLevel
         }
     }
 
     fun buildIndex(
-        indexes: Vector<Int>,
-        multiplicities: Vector<Int>,
-        elements: Vector<IFormElement>
+        indexes: ArrayList<Int>,
+        multiplicities: ArrayList<Int>,
+        elements: ArrayList<IFormElement>
     ): FormIndex {
         var cur: FormIndex? = null
-        val curMultiplicities = Vector<Int>()
+        val curMultiplicities = ArrayList<Int>()
         for (j in 0 until multiplicities.size) {
-            curMultiplicities.addElement(multiplicities.elementAt(j))
+            curMultiplicities.add(multiplicities[j])
         }
 
-        val curElements = Vector<IFormElement>()
+        val curElements = ArrayList<IFormElement>()
         for (j in 0 until elements.size) {
-            curElements.addElement(elements.elementAt(j))
+            curElements.add(elements[j])
         }
 
         for (i in indexes.size - 1 downTo 0) {
-            val ix = indexes.elementAt(i)
-            var mult = multiplicities.elementAt(i)
+            val ix = indexes[i]
+            var mult = multiplicities[i]
 
-            if (!(elements.elementAt(i) is GroupDef && (elements.elementAt(i) as GroupDef).isRepeat())) {
+            if (!(elements[i] is GroupDef && (elements[i] as GroupDef).isRepeat())) {
                 mult = -1
             }
 
             cur = FormIndex(cur, ix, mult, getChildInstanceRef(curElements, curMultiplicities))
-            curMultiplicities.removeElementAt(curMultiplicities.size - 1)
-            curElements.removeElementAt(curElements.size - 1)
+            curMultiplicities.removeAt(curMultiplicities.size - 1)
+            curElements.removeAt(curElements.size - 1)
         }
         return cur!!
     }
 
     fun getNumRepetitions(index: FormIndex): Int {
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
 
         if (!index.isInForm()) {
             throw RuntimeException("not an in-form index")
@@ -1406,7 +1404,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
 
         collapseIndex(index, indexes, multiplicities, elements)
 
-        if (elements.lastElement() !is GroupDef || !(elements.lastElement() as GroupDef).isRepeat()) {
+        if (elements.last() !is GroupDef || !(elements.last() as GroupDef).isRepeat()) {
             throw RuntimeException("current element not a repeat")
         }
 
@@ -1422,9 +1420,9 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         var actualRepIndex = repIndex
         val numRepetitions = getNumRepetitions(index)
 
-        val indexes = Vector<Int>()
-        val multiplicities = Vector<Int>()
-        val elements = Vector<IFormElement>()
+        val indexes = ArrayList<Int>()
+        val multiplicities = ArrayList<Int>()
+        val elements = ArrayList<IFormElement>()
         collapseIndex(index, indexes, multiplicities, elements)
 
         if (actualRepIndex == -1) {
@@ -1435,26 +1433,26 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
             }
         }
 
-        multiplicities.setElementAt(DataUtil.integer(actualRepIndex), multiplicities.size - 1)
+        multiplicities.set(multiplicities.size - 1, DataUtil.integer(actualRepIndex))
 
         return buildIndex(indexes, multiplicities, elements)
     }
 
     override fun getDeepChildCount(): Int {
         var total = 0
-        val e = children.elements()
-        while (e.hasMoreElements()) {
-            total += (e.nextElement() as IFormElement).getDeepChildCount()
+        val e = children.iterator()
+        while (e.hasNext()) {
+            total += (e.next() as IFormElement).getDeepChildCount()
         }
         return total
     }
 
-    override fun getChildren(): Vector<IFormElement> {
+    override fun getChildren(): ArrayList<IFormElement> {
         return children
     }
 
-    override fun setChildren(children: Vector<IFormElement>?) {
-        this.children = children ?: Vector()
+    override fun setChildren(children: ArrayList<IFormElement>?) {
+        this.children = children ?: ArrayList()
     }
 
     fun getTitle(): String? {
@@ -1485,11 +1483,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         return localizer
     }
 
-    fun getOutputFragments(): Vector<Any?> {
+    fun getOutputFragments(): ArrayList<Any?> {
         return outputFragments
     }
 
-    fun setOutputFragments(outputFragments: Vector<Any?>) {
+    fun setOutputFragments(outputFragments: ArrayList<Any?>) {
         this.outputFragments = outputFragments
     }
 
@@ -1521,13 +1519,13 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         }
 
         val `val` = node.getValue()
-        var selections: Vector<Any?>? = null
+        var selections: ArrayList<Any?>? = null
         if (`val` is SelectOneData) {
-            selections = Vector()
-            selections.addElement(`val`.getValue())
+            selections = ArrayList()
+            selections.add(`val`.getValue())
         } else if (`val` is SelectMultiData) {
             @Suppress("UNCHECKED_CAST")
-            selections = `val`.getValue() as Vector<Any?>
+            selections = `val`.getValue() as ArrayList<Any?>
         }
 
         if (selections != null) {
@@ -1541,7 +1539,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
             }
 
             for (i in 0 until selections.size) {
-                val s = selections.elementAt(i) as Selection
+                val s = selections[i] as Selection
                 s.attachChoice(q)
             }
         }
@@ -1619,7 +1617,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         } catch (e: IllegalAccessException) {
             throw RuntimeException("Illegally Structured XForm Extension " + extension.name)
         }
-        extensions.addElement(newEx)
+        extensions.add(newEx)
         return newEx
     }
 

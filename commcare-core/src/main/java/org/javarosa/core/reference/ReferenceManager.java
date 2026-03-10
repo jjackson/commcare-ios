@@ -1,6 +1,6 @@
 package org.javarosa.core.reference;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * <p>The reference manager is a singleton class which
@@ -28,14 +28,14 @@ import java.util.Vector;
  */
 public class ReferenceManager {
 
-    private final Vector<RootTranslator> translators;
-    private final Vector<ReferenceFactory> factories;
-    private final Vector<RootTranslator> sessionTranslators;
+    private final ArrayList<RootTranslator> translators;
+    private final ArrayList<ReferenceFactory> factories;
+    private final ArrayList<RootTranslator> sessionTranslators;
 
     public ReferenceManager() {
-        translators = new Vector<>();
-        factories = new Vector<>();
-        sessionTranslators = new Vector<>();
+        translators = new ArrayList<>();
+        factories = new ArrayList<>();
+        sessionTranslators = new ArrayList<>();
     }
 
     public static ReferenceManager instance() {
@@ -47,8 +47,7 @@ public class ReferenceManager {
      */
     public ReferenceFactory[] getFactories() {
         ReferenceFactory[] roots = new ReferenceFactory[translators.size()];
-        translators.copyInto(roots);
-        return roots;
+        return translators.toArray(roots);
     }
 
     /**
@@ -56,7 +55,7 @@ public class ReferenceManager {
      */
     public void addRootTranslator(RootTranslator translator) {
         if (!translators.contains(translator)) {
-            translators.addElement(translator);
+            translators.add(translator);
         }
     }
 
@@ -68,12 +67,12 @@ public class ReferenceManager {
      */
     public void addReferenceFactory(ReferenceFactory factory) {
         if (!factories.contains(factory)) {
-            factories.addElement(factory);
+            factories.add(factory);
         }
     }
 
     public boolean removeReferenceFactory(ReferenceFactory factory) {
-        return factories.removeElement(factory);
+        return factories.remove(factory);
     }
 
     /**
@@ -142,7 +141,7 @@ public class ReferenceManager {
      * @param translator A Root Translator that will be added to the current session
      */
     public void addSessionRootTranslator(RootTranslator translator) {
-        sessionTranslators.addElement(translator);
+        sessionTranslators.add(translator);
     }
 
     /**
@@ -151,7 +150,7 @@ public class ReferenceManager {
      * amount of time.
      */
     public void clearSession() {
-        sessionTranslators.removeAllElements();
+        sessionTranslators.clear();
     }
 
     private ReferenceFactory derivingRoot(String uri) throws InvalidReferenceException {

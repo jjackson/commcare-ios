@@ -240,7 +240,7 @@ class DataConfiguration(data: GraphData) : Configuration(data) {
         if (mData.getType() == GraphUtil.TYPE_BAR &&
             java.lang.Boolean.valueOf(mData.getConfiguration("stack", "false"))
         ) {
-            val i = mTypes.keys()
+            val i = mTypes.keys().iterator()
             while (i.hasNext()) {
                 val key = i.next()
                 if (mTypes.get(key) == "bar") {
@@ -248,7 +248,7 @@ class DataConfiguration(data: GraphData) : Configuration(data) {
                 }
             }
         } else {
-            val i = mTypes.keys()
+            val i = mTypes.keys().iterator()
             while (i.hasNext()) {
                 val yID = i.next()
                 if (mTypes.getString(yID) == "area") {

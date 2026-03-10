@@ -3,7 +3,6 @@ package org.commcare.cases.query
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.xpath.expr.XPathExpression
 import java.util.Collections
-import java.util.Vector
 
 /**
  * Class that loads, runs, and manages the QueryHandlers during storage lookups
@@ -12,7 +11,7 @@ import java.util.Vector
  */
 open class QueryPlanner {
 
-    private val handlers: MutableList<QueryHandler<*>> = Vector()
+    private val handlers: MutableList<QueryHandler<*>> = ArrayList()
 
     /**
      * @param profiles the predicate profiles to be attempted to run
@@ -22,7 +21,7 @@ open class QueryPlanner {
      * Note: Profiles that have been run should be removed by the handler
      */
     fun attemptProfiledQuery(
-        profiles: Vector<PredicateProfile>,
+        profiles: ArrayList<PredicateProfile>,
         currentQueryContext: QueryContext
     ): List<Int>? {
         for (i in 0 until handlers.size) {
@@ -48,14 +47,14 @@ open class QueryPlanner {
     }
 
     fun collectPredicateProfiles(
-        predicates: Vector<XPathExpression>?,
+        predicates: ArrayList<XPathExpression>?,
         queryContext: QueryContext,
         evalContext: EvaluationContext
     ): Collection<PredicateProfile>? {
         if (predicates == null) {
             return null
         }
-        val returnProfile = Vector<PredicateProfile>()
+        val returnProfile = ArrayList<PredicateProfile>()
         for (i in 0 until handlers.size) {
             val profile = handlers[i].collectPredicateProfiles(predicates, queryContext, evalContext)
             if (profile != null) {

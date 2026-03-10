@@ -63,13 +63,13 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
         fun evalCustomFunction(handler: IFunctionHandler, args: Array<Any?>,
                                ec: EvaluationContext): Any {
             val prototypes = handler.getPrototypes()
-            val e = prototypes.elements()
+            val e = prototypes.iterator()
             var typedArgs: Array<Any?>? = null
 
             var argPrototypeArityMatch = false
-            while (typedArgs == null && e.hasMoreElements()) {
+            while (typedArgs == null && e.hasNext()) {
                 // try to coerce args into prototype, stopping on first success
-                val proto = e.nextElement() as Array<Class<*>>
+                val proto = e.next() as Array<Class<*>>
                 typedArgs = matchPrototype(args, proto)
                 argPrototypeArityMatch = argPrototypeArityMatch ||
                         (proto.size == args.size)

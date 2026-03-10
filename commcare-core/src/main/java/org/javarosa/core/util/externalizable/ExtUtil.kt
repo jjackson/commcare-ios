@@ -10,9 +10,6 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.UTFDataFormatException
 import java.util.Date
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 class ExtUtil {
     companion object {
@@ -294,12 +291,12 @@ class ExtUtil {
 
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
-        fun <T> nullIfEmpty(v: Vector<T>?): Vector<T>? {
+        fun <T> nullIfEmpty(v: ArrayList<T>?): ArrayList<T>? {
             return if (v == null) null else if (v.size == 0) null else v
         }
 
         @JvmStatic
-        fun nullIfEmpty(h: Hashtable<*, *>?): Hashtable<*, *>? {
+        fun nullIfEmpty(h: HashMap<*, *>?): HashMap<*, *>? {
             return if (h == null) null else if (h.size == 0) null else h
         }
 
@@ -314,13 +311,13 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun emptyIfNull(v: Vector<*>?): Vector<*> {
-            return v ?: Vector<Any?>()
+        fun emptyIfNull(v: ArrayList<*>?): ArrayList<*> {
+            return v ?: ArrayList<Any?>()
         }
 
         @JvmStatic
-        fun emptyIfNull(h: Hashtable<*, *>?): Hashtable<*, *> {
-            return h ?: Hashtable<Any?, Any?>()
+        fun emptyIfNull(h: HashMap<*, *>?): HashMap<*, *> {
+            return h ?: HashMap<Any?, Any?>()
         }
 
         @JvmStatic
@@ -343,10 +340,10 @@ class ExtUtil {
                 return b == null
             } else {
                 if (unwrap) {
-                    if (a is Vector<*>) {
-                        return (b is Vector<*> && vectorEquals(a, b, unwrap))
-                    } else if (a is Hashtable<*, *>) {
-                        return (b is Hashtable<*, *> && hashtableEquals(a, b, unwrap))
+                    if (a is ArrayList<*>) {
+                        return (b is ArrayList<*> && vectorEquals(a, b, unwrap))
+                    } else if (a is HashMap<*, *>) {
+                        return (b is HashMap<*, *> && hashtableEquals(a, b, unwrap))
                     }
                 }
                 return a == b
@@ -354,12 +351,12 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun vectorEquals(a: Vector<*>, b: Vector<*>, unwrap: Boolean): Boolean {
+        fun vectorEquals(a: ArrayList<*>, b: ArrayList<*>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
             } else {
                 for (i in 0 until a.size) {
-                    if (!equals(a.elementAt(i), b.elementAt(i), unwrap)) {
+                    if (!equals(a[i], b[i], unwrap)) {
                         return false
                     }
                 }
@@ -382,27 +379,27 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun hashtableEquals(a: Hashtable<*, *>, b: Hashtable<*, *>, unwrap: Boolean): Boolean {
+        fun hashtableEquals(a: HashMap<*, *>, b: HashMap<*, *>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
             } else if ((a is OrderedHashtable<*, *>) != (b is OrderedHashtable<*, *>)) {
                 return false
             } else {
-                val ea: Enumeration<*> = a.keys()
-                while (ea.hasMoreElements()) {
-                    val keyA = ea.nextElement()
+                val ea: Iterator<*> = a.keys.iterator()
+                while (ea.hasNext()) {
+                    val keyA = ea.next()
                     if (!equals(a[keyA], b[keyA], unwrap)) {
                         return false
                     }
                 }
 
                 if (a is OrderedHashtable<*, *> && b is OrderedHashtable<*, *>) {
-                    val eaOrdered: Enumeration<*> = a.keys()
-                    val ebOrdered: Enumeration<*> = b.keys()
+                    val eaOrdered: Iterator<*> = a.keys.iterator()
+                    val ebOrdered: Iterator<*> = b.keys.iterator()
 
-                    while (eaOrdered.hasMoreElements()) {
-                        val keyA = eaOrdered.nextElement()
-                        val keyB = ebOrdered.nextElement()
+                    while (eaOrdered.hasNext()) {
+                        val keyA = eaOrdered.next()
+                        val keyB = ebOrdered.next()
 
                         if (keyA != keyB) { // must use built-in equals for keys, as that's what hashtable uses
                             return false

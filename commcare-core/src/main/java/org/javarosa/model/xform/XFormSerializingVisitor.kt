@@ -17,7 +17,6 @@ import org.kxml2.kdom.Document
 import org.kxml2.kdom.Element
 import org.kxml2.kdom.Node
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A visitor-esque class which walks a FormInstance and constructs an XML document
@@ -45,7 +44,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
      */
     private var rootRef: TreeReference? = null
 
-    private var dataPointers: Vector<IDataPointer> = Vector()
+    private var dataPointers: ArrayList<IDataPointer> = ArrayList()
 
     private val respectRelevance: Boolean
 
@@ -57,7 +56,7 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
 
     private fun init() {
         theXmlDoc = null
-        dataPointers = Vector()
+        dataPointers = ArrayList()
     }
 
     @Throws(PlatformIOException::class)
@@ -97,9 +96,9 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
         }
         val payload = MultiMessagePayload()
         payload.addPayload(ByteArrayPayload(form, "xml_submission_file", IDataPayload.PAYLOAD_TYPE_XML))
-        val en = dataPointers.elements()
-        while (en.hasMoreElements()) {
-            val pointer = en.nextElement()
+        val en = dataPointers.iterator()
+        while (en.hasNext()) {
+            val pointer = en.next()
             payload.addPayload(DataPointerPayload(pointer))
         }
         return payload
@@ -160,22 +159,22 @@ class XFormSerializingVisitor : IInstanceSerializingVisitor {
                 val pointers = serializer!!.retrieveExternalDataPointer(instanceNode.getValue())
                 if (pointers != null) {
                     for (pointer in pointers) {
-                        dataPointers.addElement(pointer)
+                        dataPointers.add(pointer)
                     }
                 }
             }
         } else {
             // make sure all children of the same tag name are written en bloc
-            val childNames = Vector<String>()
+            val childNames = ArrayList<String>()
             for (i in 0 until instanceNode.getNumChildren()) {
-                val childName = instanceNode.getChildAt(i)!!.getName()
+                val childName = instanceNode.getChildAt(i)!!.getName()!!
                 if (!childNames.contains(childName)) {
-                    childNames.addElement(childName)
+                    childNames.add(childName)
                 }
             }
 
             for (i in 0 until childNames.size) {
-                val childName = childNames.elementAt(i)
+                val childName = childNames[i]
                 val mult = instanceNode.getChildMultiplicity(childName)
                 for (j in 0 until mult) {
                     val child = serializeNode(instanceNode.getChild(childName, j)!!)

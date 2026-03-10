@@ -10,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * A Session Frame contains the actions that a user has taken while
@@ -21,8 +20,8 @@ import java.util.Vector
  */
 open class SessionFrame : Externalizable {
 
-    private var steps: Vector<StackFrameStep> = Vector()
-    private var snapshot: Vector<StackFrameStep> = Vector()
+    private var steps: ArrayList<StackFrameStep> = ArrayList()
+    private var snapshot: ArrayList<StackFrameStep> = ArrayList()
 
     /**
      * A Frame is dead if its execution path has finished and it shouldn't
@@ -40,15 +39,15 @@ open class SessionFrame : Externalizable {
      */
     constructor(oldSessionFrame: SessionFrame) {
         for (step in oldSessionFrame.steps) {
-            steps.addElement(StackFrameStep(step))
+            steps.add(StackFrameStep(step))
         }
         for (snapshotStep in oldSessionFrame.snapshot) {
-            snapshot.addElement(StackFrameStep(snapshotStep))
+            snapshot.add(StackFrameStep(snapshotStep))
         }
         this.dead = oldSessionFrame.dead
     }
 
-    fun getSteps(): Vector<StackFrameStep> {
+    fun getSteps(): ArrayList<StackFrameStep> {
         return steps
     }
 
@@ -56,8 +55,8 @@ open class SessionFrame : Externalizable {
         var recentPop: StackFrameStep? = null
 
         if (steps.size > 0) {
-            recentPop = steps.elementAt(steps.size - 1)
-            steps.removeElementAt(steps.size - 1)
+            recentPop = steps[steps.size - 1]
+            steps.removeAt(steps.size - 1)
         }
         return recentPop
     }
@@ -71,11 +70,11 @@ open class SessionFrame : Externalizable {
         if (markIndex >= 0) {
             val markDatumId = steps[markIndex].getId()
             observer.dropped(steps.subList(markIndex, steps.size))
-            steps = Vector(steps.subList(0, markIndex))
+            steps = ArrayList(steps.subList(0, markIndex))
             if (step.getValue() != null) {
                 val evaluatedStepValue = step.evaluateValue(evalContext)
                 val rewindStep = StackFrameStep(STATE_UNKNOWN, markDatumId, evaluatedStepValue)
-                steps.addElement(rewindStep)
+                steps.add(rewindStep)
                 observer.pushed(rewindStep)
             }
             return true
@@ -85,7 +84,7 @@ open class SessionFrame : Externalizable {
     }
 
     fun pushStep(step: StackFrameStep) {
-        steps.addElement(step)
+        steps.add(step)
     }
 
     /**
@@ -95,9 +94,9 @@ open class SessionFrame : Externalizable {
      */
     @Synchronized
     fun captureSnapshot() {
-        snapshot.removeAllElements()
+        snapshot.clear()
         for (s in steps) {
-            snapshot.addElement(s)
+            snapshot.add(s)
         }
     }
 
@@ -122,7 +121,7 @@ open class SessionFrame : Externalizable {
 
         // Go through each step in the snapshot
         for (i in 0 until snapshot.size) {
-            if (snapshot.elementAt(i) != steps.elementAt(i)) {
+            if (snapshot[i] != steps[i]) {
                 return true
             }
         }
@@ -133,7 +132,7 @@ open class SessionFrame : Externalizable {
 
     @Synchronized
     fun clearSnapshot() {
-        this.snapshot.removeAllElements()
+        this.snapshot.clear()
     }
 
     /**
@@ -154,7 +153,7 @@ open class SessionFrame : Externalizable {
     @Synchronized
     fun addExtraTopStep(key: String, value: Any) {
         if (steps.isNotEmpty()) {
-            val topStep = steps.elementAt(steps.size - 1)
+            val topStep = steps[steps.size - 1]
             topStep.addExtra(key, value)
         }
     }
@@ -162,7 +161,7 @@ open class SessionFrame : Externalizable {
     @Synchronized
     fun removeExtraTopStep(key: String) {
         if (steps.isNotEmpty()) {
-            val topStep = steps.elementAt(steps.size - 1)
+            val topStep = steps[steps.size - 1]
             topStep.removeExtra(key)
         }
     }
@@ -170,7 +169,7 @@ open class SessionFrame : Externalizable {
     @Synchronized
     fun getTopStep(): StackFrameStep? {
         if (steps.isNotEmpty()) {
-            return steps.elementAt(steps.size - 1)
+            return steps[steps.size - 1]
         }
         return null
     }
@@ -178,9 +177,9 @@ open class SessionFrame : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        steps = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as Vector<StackFrameStep>
+        steps = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
         @Suppress("UNCHECKED_CAST")
-        snapshot = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as Vector<StackFrameStep>
+        snapshot = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
         dead = ExtUtil.readBool(`in`)
     }
 
@@ -212,17 +211,17 @@ open class SessionFrame : Externalizable {
     }
 
     private fun prettyPrintSteps(
-        stepsToPrint: Vector<StackFrameStep>,
+        stepsToPrint: ArrayList<StackFrameStep>,
         stringBuilder: StringBuilder
     ) {
         if (stepsToPrint.isNotEmpty()) {
             // prevent trailing '/' by intercalating all but last element
             for (i in 0 until stepsToPrint.size - 1) {
-                val step = stepsToPrint.elementAt(i)
+                val step = stepsToPrint[i]
                 stringBuilder.append(step.toString()).append(" \\ ")
             }
             // add the last elem
-            stringBuilder.append(stepsToPrint.lastElement())
+            stringBuilder.append(stepsToPrint.last())
         }
     }
 
@@ -296,7 +295,7 @@ open class SessionFrame : Externalizable {
             return STATE_DATUM_VAL == datum || STATE_MULTIPLE_DATUM_VAL == datum
         }
 
-        private fun getLatestMarkPosition(steps: Vector<StackFrameStep>): Int {
+        private fun getLatestMarkPosition(steps: ArrayList<StackFrameStep>): Int {
             for (index in steps.size - 1 downTo 0) {
                 if (STATE_MARK == steps[index].getType()) {
                     return index

@@ -17,8 +17,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Describes a user-initiated action, what information needs to be collected
@@ -29,16 +27,16 @@ import java.util.Vector
  */
 abstract class Entry : Externalizable, MenuDisplayable {
     @JvmField
-    internal var data: Vector<SessionDatum>? = null
+    internal var data: ArrayList<SessionDatum>? = null
     @JvmField
     internal var display: DisplayUnit? = null
     // internal for same-package Kotlin callers (SuiteParser uses .commandId)
     internal var commandId: String? = null
         private set
     @JvmField
-    internal var instances: Hashtable<String, DataInstance<*>>? = null
+    internal var instances: HashMap<String, DataInstance<*>>? = null
     @JvmField
-    internal var stackOperations: Vector<StackOperation>? = null
+    internal var stackOperations: ArrayList<StackOperation>? = null
     @JvmField
     internal var assertions: AssertionSet? = null
 
@@ -49,9 +47,9 @@ abstract class Entry : Externalizable, MenuDisplayable {
 
     constructor(
         commandId: String?, display: DisplayUnit?,
-        data: Vector<SessionDatum>?,
-        instances: Hashtable<String, DataInstance<*>>?,
-        stackOperations: Vector<StackOperation>?,
+        data: ArrayList<SessionDatum>?,
+        instances: HashMap<String, DataInstance<*>>?,
+        stackOperations: ArrayList<StackOperation>?,
         assertions: AssertionSet?
     ) {
         this.commandId = if (commandId == null) "" else commandId
@@ -86,23 +84,23 @@ abstract class Entry : Externalizable, MenuDisplayable {
      */
     fun getText(): Text? = display?.getText()
 
-    fun getSessionDataReqs(): Vector<SessionDatum>? = data
+    fun getSessionDataReqs(): ArrayList<SessionDatum>? = data
 
-    fun getInstances(instancesToInclude: Set<String>?): Hashtable<String, DataInstance<*>> {
+    fun getInstances(instancesToInclude: Set<String>?): HashMap<String, DataInstance<*>> {
         return InstanceUtils.getLimitedInstances(instancesToInclude, instances)
     }
 
     fun getAssertions(): AssertionSet {
-        return if (assertions == null) AssertionSet(Vector<String>(), Vector<Text>()) else assertions!!
+        return if (assertions == null) AssertionSet(ArrayList<String>(), ArrayList<Text>()) else assertions!!
     }
 
     /**
      * Retrieve the stack operations that should be processed after this entry
      * session has successfully completed.
      *
-     * @return a Vector of Stack Operation models.
+     * @return a ArrayList of ArrayDeque Operation models.
      */
-    fun getPostEntrySessionOperations(): Vector<StackOperation>? = stackOperations
+    fun getPostEntrySessionOperations(): ArrayList<StackOperation>? = stackOperations
 
     override fun getImageURI(): String? {
         val imageUri = display?.getImageURI() ?: return null
@@ -136,9 +134,9 @@ abstract class Entry : Externalizable, MenuDisplayable {
         this.commandId = ExtUtil.readString(`in`)
         this.display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
 
-        data = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<SessionDatum>
-        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as Hashtable<String, DataInstance<*>>
-        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as Vector<StackOperation>
+        data = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<SessionDatum>
+        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>
+        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
         assertions = ExtUtil.read(`in`, ExtWrapNullable(AssertionSet::class.java), pf) as AssertionSet?
     }
 

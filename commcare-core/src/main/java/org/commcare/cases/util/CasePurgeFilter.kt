@@ -7,9 +7,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DAG
 import org.javarosa.core.util.DAG.Edge
 import org.javarosa.core.util.DataUtil
-import java.util.Hashtable
-import java.util.Stack
-import java.util.Vector
 
 /**
  * @author ctsims
@@ -56,10 +53,10 @@ open class CasePurgeFilter : EntityFilter<Case> {
         @JvmStatic
         fun getFullCaseGraph(
             caseStorage: IStorageUtilityIndexed<Case>,
-            owners: Vector<String>?
+            owners: ArrayList<String>?
         ): DAG<String, IntArray, String> {
             val caseGraph = DAG<String, IntArray, String>()
-            val indexHolder = Vector<CaseIndex>()
+            val indexHolder = ArrayList<CaseIndex>()
 
             // Pass 1: Create a DAG which contains all of the cases on the phone as nodes, and has a
             // directed edge for each index (from the 'child' case pointing to the 'parent' case) with
@@ -88,10 +85,10 @@ open class CasePurgeFilter : EntityFilter<Case> {
                         }
                     }
                     if (toReplace != null) {
-                        indexHolder.removeElement(toReplace)
+                        indexHolder.remove(toReplace)
                     }
                     if (!skip) {
-                        indexHolder.addElement(index)
+                        indexHolder.add(index)
                     }
                 }
                 var nodeStatus = 0
@@ -112,7 +109,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
                 for (index in indexHolder) {
                     caseGraph.setEdge(c.getCaseId()!!, index.getTarget()!!, index.getRelationship()!!)
                 }
-                indexHolder.removeAllElements()
+                indexHolder.clear()
             }
 
             return caseGraph
@@ -128,8 +125,8 @@ open class CasePurgeFilter : EntityFilter<Case> {
 
         private fun propagateAvailabile(g: DAG<String, IntArray, String>) {
             val e = g.getIndices()
-            while (e.hasMoreElements()) {
-                val index = e.nextElement() as String
+            while (e.hasNext()) {
+                val index = e.next() as String
                 val node = g.getNode(index)
                 if (caseStatusIs(node!![0], STATUS_OPEN or STATUS_RELEVANT) &&
                     !hasOutgoingExtension(g, index)
@@ -154,8 +151,8 @@ open class CasePurgeFilter : EntityFilter<Case> {
 
         private fun propagateLive(g: DAG<String, IntArray, String>) {
             val e = g.getIndices()
-            while (e.hasMoreElements()) {
-                val index = e.nextElement() as String
+            while (e.hasNext()) {
+                val index = e.next() as String
                 val node = g.getNode(index)
                 if (caseStatusIs(node!![0], STATUS_OWNED or STATUS_RELEVANT or STATUS_AVAILABLE)) {
                     node[0] = node[0] or STATUS_ALIVE
@@ -208,14 +205,14 @@ open class CasePurgeFilter : EntityFilter<Case> {
             relationship: String?,
             requireOpenDestination: Boolean
         ) {
-            val toProcess: Stack<String> =
+            val toProcess: ArrayDeque<String> =
                 if (walkFromSourceToSink) dag.getSources() else dag.getSinks()
             while (!toProcess.isEmpty()) {
                 // current node
-                val index = toProcess.pop()
+                val index = toProcess.removeLast()
                 val node = dag.getNode(index)
 
-                val edgeSet: Vector<Edge<String, String>> =
+                val edgeSet: ArrayList<Edge<String, String>> =
                     if (walkFromSourceToSink) dag.getChildren(index) else dag.getParents(index)
 
                 for (edge in edgeSet) {
@@ -228,7 +225,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
                             dag.getNode(edge.i)!![0] = dag.getNode(edge.i)!![0] or markToApply
                         }
                     }
-                    toProcess.addElement(edge.i)
+                    toProcess.add(edge.i)
                 }
             }
         }
@@ -237,7 +234,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
             return (status and flag) == flag
         }
 
-        private fun flattenVectorOfStrings(v: Vector<String>): String {
+        private fun flattenVectorOfStrings(v: ArrayList<String>): String {
             val builder = StringBuilder()
             for (caseId in v) {
                 builder.append(caseId).append(" ")
@@ -246,7 +243,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
         }
     }
 
-    private val idsToRemove = Vector<Int>()
+    private val idsToRemove = ArrayList<Int>()
 
     // The index is a string containing the case GUID. The Nodes will be a int array containing
     // [STATUS_FLAGS, storageid]. Edges are a string representing the relationship between the
@@ -258,10 +255,10 @@ open class CasePurgeFilter : EntityFilter<Case> {
 
     // List of case ids for cases that were indexed and expected to be on the phone, but were
     // actually not present
-    private val missingCases = Vector<String>()
+    private val missingCases = ArrayList<String>()
 
     // List of case ids for cases that were deleted off of the device as a result missing cases
-    private val casesRemovedDueToMissingCases = Vector<String>()
+    private val casesRemovedDueToMissingCases = ArrayList<String>()
 
     @Throws(InvalidCaseGraphException::class)
     constructor(caseStorage: IStorageUtilityIndexed<Case>) : this(caseStorage, null)
@@ -278,7 +275,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
      *                    this behavior
      */
     @Throws(InvalidCaseGraphException::class)
-    constructor(caseStorage: IStorageUtilityIndexed<Case>, owners: Vector<String>?) :
+    constructor(caseStorage: IStorageUtilityIndexed<Case>, owners: ArrayList<String>?) :
             this(getFullCaseGraph(caseStorage, owners))
 
     @Throws(InvalidCaseGraphException::class)
@@ -308,10 +305,10 @@ open class CasePurgeFilter : EntityFilter<Case> {
         // Ok, so now just go through all nodes and signal that we need to remove anything
         // that isn't live!
         val iterator = internalCaseDAG!!.getNodes()
-        while (iterator.hasMoreElements()) {
-            val node = iterator.nextElement() as IntArray
+        while (iterator.hasNext()) {
+            val node = iterator.next().value as IntArray
             if (!caseStatusIs(node[0], STATUS_ALIVE)) {
-                idsToRemove.addElement(node[1])
+                idsToRemove.add(node[1])
             }
         }
     }
@@ -326,20 +323,20 @@ open class CasePurgeFilter : EntityFilter<Case> {
      *
      * @return Whether or not this method invocation removed any invalid edges from the DAG
      */
-    private fun getInvalidEdges(): Vector<Array<String>> {
+    private fun getInvalidEdges(): ArrayList<Array<String>> {
         val allEdges = internalCaseDAG!!.getEdges()
-        val childOfNonexistentParent = Vector<String>()
-        val edgesToRemove = Vector<Array<String>>()
-        val edgeOriginIndices = allEdges.keys()
-        while (edgeOriginIndices.hasMoreElements()) {
-            val originIndex = edgeOriginIndices.nextElement() as String
+        val childOfNonexistentParent = ArrayList<String>()
+        val edgesToRemove = ArrayList<Array<String>>()
+        val edgeOriginIndices = allEdges.keys.iterator()
+        while (edgeOriginIndices.hasNext()) {
+            val originIndex = edgeOriginIndices.next() as String
             val edgeListForOrigin = allEdges[originIndex]!!
             for (edge in edgeListForOrigin) {
                 val targetIndex = edge.i
                 if (internalCaseDAG!!.getNode(targetIndex) == null) {
-                    missingCases.addElement(targetIndex)
-                    edgesToRemove.addElement(arrayOf(originIndex, targetIndex))
-                    childOfNonexistentParent.addElement(originIndex)
+                    missingCases.add(targetIndex)
+                    edgesToRemove.add(arrayOf(originIndex, targetIndex))
+                    childOfNonexistentParent.add(originIndex)
                 }
             }
         }
@@ -363,14 +360,14 @@ open class CasePurgeFilter : EntityFilter<Case> {
      */
     private fun removeNodeAndPropagate(
         indexOfRemovedNode: String,
-        accumulatedEdgesToRemove: Vector<Array<String>>
+        accumulatedEdgesToRemove: ArrayList<Array<String>>
     ) {
         // Wording is confusing here -- because all edges in this graph are from a child case to
         // a parent case, calling getParents() for a node returns all of its child/extension cases
         val childCases = internalCaseDAG!!.getParents(indexOfRemovedNode)
         for (child in childCases) {
             // Want to remove the edge from child case to parent case
-            accumulatedEdgesToRemove.addElement(arrayOf(child.i, indexOfRemovedNode))
+            accumulatedEdgesToRemove.add(arrayOf(child.i, indexOfRemovedNode))
 
             // Recurse on child case
             removeNodeAndPropagate(child.i, accumulatedEdgesToRemove)
@@ -380,15 +377,15 @@ open class CasePurgeFilter : EntityFilter<Case> {
         // parents because they are still valid)
         val parentCases = internalCaseDAG!!.getChildren(indexOfRemovedNode)
         for (parent in parentCases) {
-            accumulatedEdgesToRemove.addElement(arrayOf(indexOfRemovedNode, parent.i))
+            accumulatedEdgesToRemove.add(arrayOf(indexOfRemovedNode, parent.i))
         }
 
         // Once all edges to/from this node have been removed, delete the node itself from the
         // DAG, and add it to the list of cases to be purged
         if (casesRemovedDueToMissingCases.indexOf(indexOfRemovedNode) == -1) {
             val storageIdOfRemovedNode = internalCaseDAG!!.removeNode(indexOfRemovedNode)!![1]
-            idsToRemove.addElement(storageIdOfRemovedNode)
-            casesRemovedDueToMissingCases.addElement(indexOfRemovedNode)
+            idsToRemove.add(storageIdOfRemovedNode)
+            casesRemovedDueToMissingCases.add(indexOfRemovedNode)
         }
     }
 
@@ -410,7 +407,7 @@ open class CasePurgeFilter : EntityFilter<Case> {
     val removedCasesString: String
         get() = flattenVectorOfStrings(this.casesRemovedDueToMissingCases)
 
-    override fun preFilter(id: Int, metaData: Hashtable<String, Any>?): Int {
+    override fun preFilter(id: Int, metaData: HashMap<String, Any>?): Int {
         return if (idsToRemove.contains(DataUtil.integer(id))) {
             PREFILTER_INCLUDE
         } else {
@@ -423,6 +420,6 @@ open class CasePurgeFilter : EntityFilter<Case> {
         return false
     }
 
-    val casesToRemove: Vector<Int>
+    val casesToRemove: ArrayList<Int>
         get() = idsToRemove
 }

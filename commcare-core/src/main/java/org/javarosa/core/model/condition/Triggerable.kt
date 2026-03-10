@@ -14,8 +14,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * A triggerable represents an action that should be processed based
@@ -41,7 +39,7 @@ abstract class Triggerable : Externalizable {
      * updated by the result of this triggerable
      */
     @JvmField
-    var targets: Vector<TreeReference> = Vector()
+    var targets: ArrayList<TreeReference> = ArrayList()
 
     /**
      * Current reference which is the "Basis" of the triggerables being
@@ -67,7 +65,7 @@ abstract class Triggerable : Externalizable {
      * Debug traces collecting during trigger execution. See the
      * getTriggerTraces method for details.
      */
-    private var mTriggerDebugs: Hashtable<TreeReference, EvaluationTrace>? = null
+    private var mTriggerDebugs: HashMap<TreeReference, EvaluationTrace>? = null
 
     constructor()
 
@@ -75,7 +73,7 @@ abstract class Triggerable : Externalizable {
         this.expr = expr
         this.contextRef = contextRef
         this.originalContextRef = contextRef
-        this.targets = Vector()
+        this.targets = ArrayList()
         this.stopContextualizingAt = -1
     }
 
@@ -98,7 +96,7 @@ abstract class Triggerable : Externalizable {
     fun setDebug(mDebugMode: Boolean) {
         this.mIsDebugOn = mDebugMode
         if (mIsDebugOn) {
-            mTriggerDebugs = Hashtable()
+            mTriggerDebugs = HashMap()
         } else {
             mTriggerDebugs = null
         }
@@ -113,12 +111,12 @@ abstract class Triggerable : Externalizable {
      * @throws IllegalStateException If debugging has not been enabled.
      */
     @Throws(IllegalStateException::class)
-    fun getEvaluationTraces(): Hashtable<TreeReference, EvaluationTrace> {
+    fun getEvaluationTraces(): HashMap<TreeReference, EvaluationTrace> {
         if (!mIsDebugOn) {
             throw IllegalStateException("Evaluation traces requested from triggerable not in debug mode.")
         }
         val debugs = mTriggerDebugs
-        return debugs ?: Hashtable()
+        return debugs ?: HashMap()
     }
 
     /**
@@ -146,7 +144,7 @@ abstract class Triggerable : Externalizable {
 
             for (affectedRef in expandedReferences) {
                 if (mIsDebugOn) {
-                    mTriggerDebugs!!.put(affectedRef, triggerEval.getEvaluationTrace())
+                    mTriggerDebugs!![affectedRef] = triggerEval.getEvaluationTrace()!!
                 }
                 apply(affectedRef, result, instance, f)
             }
@@ -155,11 +153,11 @@ abstract class Triggerable : Externalizable {
 
     fun addTarget(target: TreeReference) {
         if (targets.indexOf(target) == -1) {
-            targets.addElement(target)
+            targets.add(target)
         }
     }
 
-    fun getTargets(): Vector<TreeReference> {
+    fun getTargets(): ArrayList<TreeReference> {
         return targets
     }
 
@@ -175,15 +173,15 @@ abstract class Triggerable : Externalizable {
         return false
     }
 
-    fun getTriggers(): Vector<TreeReference> {
+    fun getTriggers(): ArrayList<TreeReference> {
         // grab the relative trigger references from expression
         val relTriggers = expr!!.getExprsTriggers(originalContextRef)
 
         // construct absolute references by anchoring against the original context reference
-        val absTriggers = Vector<TreeReference>()
+        val absTriggers = ArrayList<TreeReference>()
         for (i in 0 until relTriggers.size) {
-            val ref = relTriggers.elementAt(i).anchor(originalContextRef!!)!!
-            absTriggers.addElement(ref)
+            val ref = relTriggers[i].anchor(originalContextRef!!)!!
+            absTriggers.add(ref)
         }
         return absTriggers
     }
@@ -213,8 +211,8 @@ abstract class Triggerable : Externalizable {
      * @return True if all elements in the potential set are absolute and in
      * the master set.
      */
-    private fun subsetOfAndAbsolute(potentialSubset: Vector<TreeReference>,
-                                     masterSet: Vector<TreeReference>): Boolean {
+    private fun subsetOfAndAbsolute(potentialSubset: ArrayList<TreeReference>,
+                                     masterSet: ArrayList<TreeReference>): Boolean {
         for (ref in potentialSubset) {
             // csims@dimagi.com - 2012-04-17
             // Added last condition here. We can't actually say whether two triggers
@@ -240,7 +238,7 @@ abstract class Triggerable : Externalizable {
         contextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
         originalContextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
         @Suppress("UNCHECKED_CAST")
-        targets = ExtUtil.read(input, ExtWrapList(TreeReference::class.java), pf) as Vector<TreeReference>
+        targets = ExtUtil.read(input, ExtWrapList(TreeReference::class.java), pf) as ArrayList<TreeReference>
         stopContextualizingAt = ExtUtil.readInt(input)
     }
 
@@ -256,7 +254,7 @@ abstract class Triggerable : Externalizable {
     override fun toString(): String {
         val sb = StringBuilder("(")
         for (i in 0 until targets.size) {
-            sb.append(targets.elementAt(i).toString())
+            sb.append(targets[i].toString())
             if (i < targets.size - 1)
                 sb.append(") (")
         }

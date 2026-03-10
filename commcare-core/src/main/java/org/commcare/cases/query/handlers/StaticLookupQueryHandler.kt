@@ -6,7 +6,6 @@ import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QueryHandler
 import org.commcare.cases.util.QueryUtils
 import org.javarosa.xpath.expr.FunctionUtils
-import java.util.Vector
 
 /**
  * A static lookup handler is useful when a storage root keeps track of some data internally,
@@ -17,11 +16,11 @@ import java.util.Vector
 abstract class StaticLookupQueryHandler : QueryHandler<IndexedValueLookup> {
 
     protected abstract fun canHandle(key: String): Boolean
-    protected abstract fun getMatches(key: String, valueToMatch: String): Vector<Int>
+    protected abstract fun getMatches(key: String, valueToMatch: String): ArrayList<Int>
 
     override fun getExpectedRuntime(): Int = 1
 
-    override fun profileHandledQuerySet(profiles: Vector<PredicateProfile>): IndexedValueLookup? {
+    override fun profileHandledQuerySet(profiles: ArrayList<PredicateProfile>): IndexedValueLookup? {
         val ret = QueryUtils.getFirstKeyIndexedValue(profiles)
         if (ret != null) {
             if (canHandle(ret.key)) {
@@ -35,7 +34,7 @@ abstract class StaticLookupQueryHandler : QueryHandler<IndexedValueLookup> {
         return getMatches(querySet.key, FunctionUtils.toString(querySet.value))
     }
 
-    override fun updateProfiles(querySet: IndexedValueLookup, profiles: Vector<PredicateProfile>) {
+    override fun updateProfiles(querySet: IndexedValueLookup, profiles: ArrayList<PredicateProfile>) {
         profiles.remove(querySet)
     }
 }

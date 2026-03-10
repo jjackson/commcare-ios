@@ -2,7 +2,6 @@ package org.commcare.cases.entity
 
 import org.commcare.suite.model.Detail
 import java.io.Closeable
-import java.util.Hashtable
 
 /**
  * Interface for evaluated entity fields cache
@@ -23,5 +22,5 @@ interface EntityStorageCache {
 
     fun getFieldIdFromCacheKey(detailId: String, cacheKey: String): Int
 
-    fun primeCache(entitySet: Hashtable<String, AsyncEntity>, cachePrimeKeys: Array<Array<String>>, detail: Detail)
+    fun primeCache(entitySet: HashMap<String, AsyncEntity>, cachePrimeKeys: Array<Array<String>>, detail: Detail)
 }

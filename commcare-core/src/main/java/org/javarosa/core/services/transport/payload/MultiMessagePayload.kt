@@ -9,7 +9,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
-import java.util.Vector
 
 /**
  * @author Clayton Sims
@@ -18,7 +17,7 @@ import java.util.Vector
 class MultiMessagePayload : IDataPayload {
     /** IDataPayload  */
     @JvmField
-    var payloads: Vector<Any?> = Vector()
+    var payloads: ArrayList<Any?> = ArrayList()
 
     /**
      * Note: Only useful for serialization.
@@ -35,22 +34,22 @@ class MultiMessagePayload : IDataPayload {
      *                after all previously added payloads.
      */
     fun addPayload(payload: IDataPayload) {
-        payloads.addElement(payload)
+        payloads.add(payload)
     }
 
     /**
      * @return A vector object containing each IDataPayload in this payload.
      */
-    fun getPayloads(): Vector<Any?> {
+    fun getPayloads(): ArrayList<Any?> {
         return payloads
     }
 
     @Throws(PlatformIOException::class)
     override fun getPayloadStream(): InputStream {
         val bigStream = MultiInputStream()
-        val en = payloads.elements()
-        while (en.hasMoreElements()) {
-            val payload = en.nextElement() as IDataPayload
+        val en = payloads.iterator()
+        while (en.hasNext()) {
+            val payload = en.next() as IDataPayload
             bigStream.addStream(payload.getPayloadStream())
         }
         bigStream.prepare()
@@ -60,7 +59,7 @@ class MultiMessagePayload : IDataPayload {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        payloads = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<Any?>
+        payloads = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<Any?>
     }
 
     @Throws(PlatformIOException::class)
@@ -82,9 +81,9 @@ class MultiMessagePayload : IDataPayload {
 
     override fun getLength(): Long {
         var len = 0L
-        val en = payloads.elements()
-        while (en.hasMoreElements()) {
-            val payload = en.nextElement() as IDataPayload
+        val en = payloads.iterator()
+        while (en.hasNext()) {
+            val payload = en.next() as IDataPayload
             len += payload.getLength()
         }
         return len

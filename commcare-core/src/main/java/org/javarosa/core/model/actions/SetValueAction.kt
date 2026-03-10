@@ -86,7 +86,7 @@ class SetValueAction : Action {
                     "XPath nodeset has more than one node [${XPathNodeset.printNodeContents(references)}]; Actions can only target a single node reference. Refine path expression to match only one node."
                 )
             } else {
-                targetReference = references.elementAt(0)
+                targetReference = references[0]
             }
         }
 

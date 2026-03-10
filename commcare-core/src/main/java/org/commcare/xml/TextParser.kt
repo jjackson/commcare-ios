@@ -7,14 +7,12 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Text {
-        val texts = Vector<Text>()
+        val texts = ArrayList<Text>()
 
         checkNode("text")
         val entryLevel = parser.depth
@@ -31,11 +29,11 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         while (parser.depth > entryLevel || parser.eventType == KXmlParser.TEXT) {
             val t = parseBody()
             if (t != null) {
-                texts.addElement(t)
+                texts.add(t)
             }
         }
         return if (texts.size == 1) {
-            texts.elementAt(0)
+            texts[0]
         } else {
             Text.CompositeText(texts)
         }
@@ -44,7 +42,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     internal fun parseBody(): Text? {
         //TODO: Should prevent compositing text and xpath/locales
-        val texts = Vector<Text>()
+        val texts = ArrayList<Text>()
 
         var eventType = parser.eventType
         var text = ""
@@ -53,17 +51,17 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
                 //If we were parsing text, commit that up first.
                 if (text.trim() != "") {
                     val t = Text.PlainText(text)
-                    texts.addElement(t)
+                    texts.add(t)
                     text = ""
                 }
 
                 //now parse out the next tag.
                 if (parser.name.lowercase() == "xpath") {
                     val xpathText = parseXPath()
-                    texts.addElement(xpathText)
+                    texts.add(xpathText)
                 } else if (parser.name.lowercase() == "locale") {
                     val localeText = parseLocale()
-                    texts.addElement(localeText)
+                    texts.add(localeText)
                 }
             } else if (eventType == KXmlParser.TEXT) {
                 text += parser.text.trim()
@@ -76,14 +74,14 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
 
         if (text.trim() != "") {
             val t = Text.PlainText(text)
-            texts.addElement(t)
+            texts.add(t)
         }
         if (texts.size == 0) {
             return null
         }
 
         return if (texts.size == 1) {
-            texts.elementAt(0)
+            texts[0]
         } else {
             Text.CompositeText(texts)
         }
@@ -94,7 +92,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         checkNode("locale")
         val id = parser.getAttributeValue(null, "id")
 
-        val arguments = Hashtable<String, Text>()
+        val arguments = HashMap<String, Text>()
 
         if (id == null) {
             //Get ID Node, throw exception if there isn't a tag
@@ -102,7 +100,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
             checkNode("id")
             val idText = TextParser(parser).parseBody()
 
-            arguments["id"] = idText
+            arguments["id"] = idText!!
         }
 
         var count = 0
@@ -110,7 +108,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
             checkNode("argument")
             val argumentText = TextParser(parser).parseBody()
 
-            arguments[count.toString()] = argumentText
+            arguments[count.toString()] = argumentText!!
             count++
         }
         return if (id == null) {
@@ -124,14 +122,14 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
     private fun parseXPath(): Text {
         checkNode("xpath")
         val function = parser.getAttributeValue(null, "function")
-        val arguments = Hashtable<String, Text>()
+        val arguments = HashMap<String, Text>()
 
         //Now get all of the variables which might be used
         while (nextTagInBlock("xpath")) {
             checkNode("variable")
             val name = parser.getAttributeValue(null, "name")
             val variableText = TextParser(parser).parseBody()
-            arguments[name] = variableText
+            arguments[name!!] = variableText!!
         }
         try {
             return Text.XPathText(function, arguments)

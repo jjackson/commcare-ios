@@ -14,9 +14,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Single series (line) on an xy graph.
@@ -26,13 +23,13 @@ import java.util.Vector
 open class XYSeries : Externalizable, Configurable {
 
     private var mNodeSet: String? = null
-    private var mConfiguration: Hashtable<String, Text>? = null
+    private var mConfiguration: HashMap<String, Text>? = null
 
     // List of keys that configure individual points. For these keys, the Text stored in
     // mConfiguration is an XPath expression, which during evaluation will be applied to
     // each point in turn to produce a list of one value for each point. As the "expanded",
     // point-level values are set, keys will be removed from this list.
-    private var mPointConfiguration: Vector<String>? = null
+    private var mPointConfiguration: ArrayList<String>? = null
 
     private var mX: String? = null
     private var mY: String? = null
@@ -47,9 +44,9 @@ open class XYSeries : Externalizable, Configurable {
 
     constructor(nodeSet: String?) {
         mNodeSet = nodeSet
-        mConfiguration = Hashtable()
-        mPointConfiguration = Vector()
-        mPointConfiguration!!.addElement("bar-color")
+        mConfiguration = HashMap()
+        mPointConfiguration = ArrayList()
+        mPointConfiguration!!.add("bar-color")
     }
 
     fun getNodeSet(): String? = mNodeSet
@@ -73,20 +70,20 @@ open class XYSeries : Externalizable, Configurable {
     }
 
     fun setExpandedConfiguration(key: String, value: Text) {
-        mPointConfiguration?.removeElement(key)
+        mPointConfiguration?.remove(key)
         setConfiguration(key, value)
     }
 
-    fun getPointConfigurationKeys(): Enumeration<*> {
-        return mPointConfiguration!!.elements()
+    fun getPointConfigurationKeys(): Iterator<*> {
+        return mPointConfiguration!!.iterator()
     }
 
     override fun getConfiguration(key: String): Text? {
         return mConfiguration?.get(key)
     }
 
-    override fun getConfigurationKeys(): Enumeration<*> {
-        return mConfiguration!!.keys()
+    override fun getConfigurationKeys(): Iterator<*> {
+        return mConfiguration!!.keys.iterator()
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
@@ -95,9 +92,9 @@ open class XYSeries : Externalizable, Configurable {
         mY = ExtUtil.readString(`in`)
         mNodeSet = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
-        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as Hashtable<String, Text>
+        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
         @Suppress("UNCHECKED_CAST")
-        mPointConfiguration = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as Vector<String>
+        mPointConfiguration = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
     }
 
     @Throws(PlatformIOException::class)

@@ -26,9 +26,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Enumeration
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Defines a graph: type, set of series, set of text annotations, and key-value-based configuration.
@@ -37,9 +34,9 @@ import java.util.Vector
  */
 class Graph : Externalizable, DetailTemplate, Configurable {
     private var mType: String? = null
-    private var mSeries = Vector<XYSeries>()
-    private var mConfiguration = Hashtable<String, Text>()
-    private var mAnnotations = Vector<Annotation>()
+    private var mSeries = ArrayList<XYSeries>()
+    private var mConfiguration = HashMap<String, Text>()
+    private var mAnnotations = ArrayList<Annotation>()
 
     constructor() {
         // defaults initialized above
@@ -52,11 +49,11 @@ class Graph : Externalizable, DetailTemplate, Configurable {
     }
 
     fun addSeries(s: XYSeries) {
-        mSeries.addElement(s)
+        mSeries.add(s)
     }
 
     fun addAnnotation(a: Annotation) {
-        mAnnotations.addElement(a)
+        mAnnotations.add(a)
     }
 
     override fun getConfiguration(key: String): Text? = mConfiguration[key]
@@ -65,17 +62,17 @@ class Graph : Externalizable, DetailTemplate, Configurable {
         mConfiguration[key] = value
     }
 
-    override fun getConfigurationKeys(): Enumeration<*> = mConfiguration.keys()
+    override fun getConfigurationKeys(): Iterator<*> = mConfiguration.keys.iterator()
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         mType = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
-        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as Hashtable<String, Text>
+        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
         @Suppress("UNCHECKED_CAST")
-        mSeries = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<XYSeries>
+        mSeries = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<XYSeries>
         @Suppress("UNCHECKED_CAST")
-        mAnnotations = ExtUtil.read(`in`, ExtWrapList(Annotation::class.java), pf) as Vector<Annotation>
+        mAnnotations = ExtUtil.read(`in`, ExtWrapList(Annotation::class.java), pf) as ArrayList<Annotation>
     }
 
     @Throws(PlatformIOException::class)
@@ -115,15 +112,15 @@ class Graph : Externalizable, DetailTemplate, Configurable {
      */
     private fun evaluateConfiguration(template: Configurable, data: ConfigurableData, context: EvaluationContext) {
         val e = template.getConfigurationKeys()
-        val nonvariables = Vector<String>()
+        val nonvariables = ArrayList<String>()
         val prefix = "var-"
-        while (e.hasMoreElements()) {
-            val key = e.nextElement() as String
+        while (e.hasNext()) {
+            val key = e.next() as String
             if (key.startsWith(prefix)) {
                 val value = template.getConfiguration(key)!!.evaluate(context)
                 context.setVariable(key.substring(prefix.length), value)
             } else {
-                nonvariables.addElement(key)
+                nonvariables.add(key)
             }
         }
         for (key in nonvariables) {
@@ -138,10 +135,10 @@ class Graph : Externalizable, DetailTemplate, Configurable {
     private fun evaluateSeries(graphData: GraphData, context: EvaluationContext) {
         try {
             for (s in mSeries) {
-                val pointConfiguration = Hashtable<String, Text>()
+                val pointConfiguration = HashMap<String, Text>()
                 val e = s.getPointConfigurationKeys()
-                while (e.hasMoreElements()) {
-                    val key = e.nextElement() as String
+                while (e.hasNext()) {
+                    val key = e.next() as String
                     val value = s.getConfiguration(key)
                     if (value != null) {
                         pointConfiguration[key] = value
@@ -152,19 +149,19 @@ class Graph : Externalizable, DetailTemplate, Configurable {
                 val seriesContext = EvaluationContext(context, context.contextRef)
 
                 val refList = expandNodeSet(s, context)
-                val expandedConfiguration = Hashtable<String, Vector<String>>()
-                val eKeys = pointConfiguration.keys()
-                while (eKeys.hasMoreElements()) {
-                    expandedConfiguration[eKeys.nextElement() as String] = Vector()
+                val expandedConfiguration = HashMap<String, ArrayList<String>>()
+                val eKeys = pointConfiguration.keys.iterator()
+                while (eKeys.hasNext()) {
+                    expandedConfiguration[eKeys.next() as String] = ArrayList()
                 }
 
                 for (ref in refList) {
                     val refContext = EvaluationContext(seriesContext, ref)
-                    val eKeys2 = pointConfiguration.keys()
-                    while (eKeys2.hasMoreElements()) {
-                        val key = eKeys2.nextElement() as String
+                    val eKeys2 = pointConfiguration.keys.iterator()
+                    while (eKeys2.hasNext()) {
+                        val key = eKeys2.next() as String
                         val value = pointConfiguration[key]!!.evaluate(refContext)
-                        expandedConfiguration[key]!!.addElement(value)
+                        expandedConfiguration[key]!!.add(value)
                     }
                     val x = s.evaluateX(refContext)
                     val y = s.evaluateY(refContext)
@@ -179,9 +176,9 @@ class Graph : Externalizable, DetailTemplate, Configurable {
                 }
                 graphData.addSeries(seriesData)
 
-                val eExpanded = expandedConfiguration.keys()
-                while (eExpanded.hasMoreElements()) {
-                    val key = eExpanded.nextElement() as String
+                val eExpanded = expandedConfiguration.keys.iterator()
+                while (eExpanded.hasNext()) {
+                    val key = eExpanded.next() as String
                     val json = StringBuffer()
                     for (pointValue in expandedConfiguration[key]!!) {
                         json.append(",'")
@@ -215,7 +212,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
     companion object {
         @JvmStatic
         @Throws(XPathSyntaxException::class)
-        fun expandNodeSet(series: XYSeries, context: EvaluationContext): Vector<TreeReference> {
+        fun expandNodeSet(series: XYSeries, context: EvaluationContext): ArrayList<TreeReference> {
             return try {
                 // Attempt to evaluate the nodeSet, which will succeed if this is just a path expression
                 context.expandReference(XPathReference.getPathExpr(series.getNodeSet()!!).getReference())
@@ -224,7 +221,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
                 val xpe: XPathExpression = XPathParseTool.parseXPath(series.getNodeSet()!!)!!
                 val nodeSet = xpe.eval(context) as String
                 context.expandReference(XPathReference.getPathExpr(nodeSet).getReference())
-            } ?: Vector()
+            } ?: ArrayList()
         }
     }
 }

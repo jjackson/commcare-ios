@@ -2,22 +2,20 @@ package org.javarosa.core.util
 
 import org.commcare.util.CollectionUtils
 import org.javarosa.core.model.instance.TreeReference
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * Modeled after algorithm here https://stackoverflow.com/a/549312
  *
- * Given a Vector of TreeReference pairs where edges[0] references edges[1]
+ * Given a ArrayList of TreeReference pairs where edges[0] references edges[1]
  * that we assume to contain a cycle, find the smallest cycle in the set.
  *
  * Created by willpride on 11/17/17.
  */
-class ShortestCycleAlgorithm(private val edges: Vector<Array<TreeReference>>) {
+class ShortestCycleAlgorithm(private val edges: ArrayList<Array<TreeReference>>) {
     private val nodes = ArrayList<String>()
-    private val childrenMap: Hashtable<String, ArrayList<String>> = OrderedHashtable()
+    private val childrenMap: HashMap<String, ArrayList<String>> = OrderedHashtable()
     private var shortestCycle: ArrayList<String>? = null
-    private val reachableMap: Hashtable<String, ArrayList<String>> = OrderedHashtable()
+    private val reachableMap: HashMap<String, ArrayList<String>> = OrderedHashtable()
     private val walked = ArrayList<String>()
 
     init {

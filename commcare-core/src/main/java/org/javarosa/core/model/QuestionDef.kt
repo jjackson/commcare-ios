@@ -15,8 +15,6 @@ import org.javarosa.xform.parse.XFormParser
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Hashtable
-import java.util.Vector
 
 /**
  * The definition of a Question to be presented to users when
@@ -40,12 +38,12 @@ class QuestionDef : IFormElement {
     private var controlType: Int = 0
     private var appearanceAttr: String? = null
 
-    private var choices: Vector<SelectChoice>? = null
+    private var choices: ArrayList<SelectChoice>? = null
     private var dynamicChoices: ItemsetBinding? = null
 
-    private var mQuestionStrings: Hashtable<String, QuestionString> = Hashtable()
+    private var mQuestionStrings: HashMap<String, QuestionString> = HashMap()
 
-    var extensions: Vector<QuestionDataExtension> = Vector()
+    var extensions: ArrayList<QuestionDataExtension> = ArrayList()
 
     private var actionController: ActionController = ActionController()
 
@@ -54,8 +52,8 @@ class QuestionDef : IFormElement {
     constructor(id: Int, controlType: Int) {
         setID(id)
         setControlType(controlType)
-        mQuestionStrings = Hashtable()
-        extensions = Vector()
+        mQuestionStrings = HashMap()
+        extensions = ArrayList()
 
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
@@ -114,10 +112,10 @@ class QuestionDef : IFormElement {
 
     fun addSelectChoice(choice: SelectChoice) {
         if (choices == null) {
-            choices = Vector()
+            choices = ArrayList()
         }
         choice.setIndex(choices!!.size)
-        choices!!.addElement(choice)
+        choices!!.add(choice)
     }
 
     fun removeSelectChoice(choice: SelectChoice) {
@@ -128,16 +126,16 @@ class QuestionDef : IFormElement {
         }
 
         if (currentChoices.contains(choice)) {
-            currentChoices.removeElement(choice)
+            currentChoices.remove(choice)
         }
     }
 
-    fun getChoices(): Vector<SelectChoice>? {
+    fun getChoices(): ArrayList<SelectChoice>? {
         return choices
     }
 
     fun getChoice(i: Int): SelectChoice {
-        return choices!!.elementAt(i)
+        return choices!![i]
     }
 
     fun getNumChoices(): Int {
@@ -171,11 +169,11 @@ class QuestionDef : IFormElement {
         return dynamicChoices != null && dynamicChoices!!.copyMode
     }
 
-    override fun getChildren(): Vector<IFormElement>? {
+    override fun getChildren(): ArrayList<IFormElement>? {
         return null
     }
 
-    override fun setChildren(v: Vector<IFormElement>?) {
+    override fun setChildren(v: ArrayList<IFormElement>?) {
         throw IllegalStateException("Can't add children to question def")
     }
 
@@ -194,15 +192,15 @@ class QuestionDef : IFormElement {
         setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         setControlType(ExtUtil.readInt(dis))
         @Suppress("UNCHECKED_CAST")
-        choices = ExtUtil.nullIfEmpty(ExtUtil.read(dis, ExtWrapList(SelectChoice::class.java), pf) as Vector<SelectChoice>)
+        choices = ExtUtil.nullIfEmpty(ExtUtil.read(dis, ExtWrapList(SelectChoice::class.java), pf) as ArrayList<SelectChoice>)
         for (i in 0 until getNumChoices()) {
-            choices!!.elementAt(i).setIndex(i)
+            choices!![i].setIndex(i)
         }
         setDynamicChoices(ExtUtil.read(dis, ExtWrapNullable(ItemsetBinding::class.java), pf) as ItemsetBinding?)
         @Suppress("UNCHECKED_CAST")
-        mQuestionStrings = ExtUtil.read(dis, ExtWrapMap(String::class.java, QuestionString::class.java), pf) as Hashtable<String, QuestionString>
+        mQuestionStrings = ExtUtil.read(dis, ExtWrapMap(String::class.java, QuestionString::class.java), pf) as HashMap<String, QuestionString>
         @Suppress("UNCHECKED_CAST")
-        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as Vector<QuestionDataExtension>
+        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<QuestionDataExtension>
         actionController = ExtUtil.read(dis, ExtWrapNullable(ActionController::class.java), pf) as ActionController? ?: ActionController()
     }
 
@@ -242,7 +240,7 @@ class QuestionDef : IFormElement {
     }
 
     fun addExtension(extension: QuestionDataExtension) {
-        extensions.addElement(extension)
+        extensions.add(extension)
     }
 
 }

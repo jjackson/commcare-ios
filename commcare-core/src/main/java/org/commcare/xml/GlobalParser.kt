@@ -7,7 +7,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Parser used in DetailParser to parse the defintion of Global element used in case-select and case-detail views
@@ -21,7 +20,7 @@ internal class GlobalParser(parser: KXmlParser) : ElementParser<Global>(parser) 
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Global {
-        val geoOverlays = Vector<GeoOverlay>()
+        val geoOverlays = ArrayList<GeoOverlay>()
         while (nextTagInBlock(NAME_GLOBAL)) {
             if (GeoOverlayParser.NAME_GEO_OVERLAY == parser.name.lowercase()) {
                 val geoOverlay = GeoOverlayParser(parser).parse()

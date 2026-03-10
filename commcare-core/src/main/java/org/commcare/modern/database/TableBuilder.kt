@@ -12,7 +12,6 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashMap
 import java.util.HashSet
-import java.util.Vector
 
 /**
  * Functions for generating CommCare SQL statements based on classes
@@ -27,21 +26,21 @@ open class TableBuilder {
 
     private val name: String
 
-    private val cols: Vector<String>
-    private val rawCols: Vector<String>
+    private val cols: ArrayList<String>
+    private val rawCols: ArrayList<String>
     val unique: HashSet<String> = HashSet()
 
     constructor(c: Class<*>, name: String) {
         this.name = name
-        cols = Vector()
-        rawCols = Vector()
+        cols = ArrayList()
+        rawCols = ArrayList()
         this.addData(c)
     }
 
     constructor(name: String) {
         this.name = name
-        cols = Vector()
-        rawCols = Vector()
+        cols = ArrayList()
+        rawCols = ArrayList()
     }
 
     constructor(c: Class<*>) : this(c, (c.getAnnotation(Table::class.java) as Table).value)
@@ -135,7 +134,7 @@ open class TableBuilder {
     fun getTableCreateString(): String {
         var built = "CREATE TABLE IF NOT EXISTS ${scrubName(name)} ("
         for (i in cols.indices) {
-            built += cols.elementAt(i)
+            built += cols[i]
             if (i < cols.size - 1) {
                 built += ", "
             }
@@ -153,7 +152,7 @@ open class TableBuilder {
         val params = ArrayList<Any?>()
 
         for (i in rawCols.indices) {
-            stringBuilder.append(rawCols.elementAt(i))
+            stringBuilder.append(rawCols[i])
             if (i < rawCols.size - 1) {
                 stringBuilder.append(", ")
             }
@@ -162,7 +161,7 @@ open class TableBuilder {
         stringBuilder.append(") VALUES (")
 
         for (i in rawCols.indices) {
-            val currentValue = contentValues[rawCols.elementAt(i)]
+            val currentValue = contentValues[rawCols[i]]
             stringBuilder.append("?")
             params.add(currentValue)
             if (i < rawCols.size - 1) {

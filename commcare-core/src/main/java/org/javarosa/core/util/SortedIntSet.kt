@@ -9,16 +9,15 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Vector
 
 /**
  * Maintain an array of integers in sorted order. No duplicates allowed.
  */
 class SortedIntSet : Externalizable {
-    private var v: Vector<Int>
+    private var v: ArrayList<Int>
 
     constructor() {
-        v = Vector()
+        v = ArrayList()
     }
 
     /**
@@ -29,7 +28,7 @@ class SortedIntSet : Externalizable {
         return if (i != -1 && get(i) == n) {
             -1
         } else {
-            v.insertElementAt(n, i + 1)
+            v.add(i + 1, n)
             i + 1
         }
     }
@@ -40,7 +39,7 @@ class SortedIntSet : Externalizable {
     fun remove(n: Int): Int {
         val i = indexOf(n, true)
         if (i != -1) {
-            v.removeElementAt(i)
+            v.removeAt(i)
         }
         return i
     }
@@ -49,7 +48,7 @@ class SortedIntSet : Externalizable {
      * Return value at index
      */
     operator fun get(i: Int): Int {
-        return v.elementAt(i)
+        return v[i]
     }
 
     /**
@@ -92,14 +91,14 @@ class SortedIntSet : Externalizable {
     /**
      * Return underlying vector (outside modification may corrupt the datastructure)
      */
-    fun getVector(): Vector<*> {
+    fun getVector(): ArrayList<*> {
         return v
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        v = ExtUtil.read(`in`, ExtWrapList(Integer::class.java), pf) as Vector<Int>
+        v = ExtUtil.read(`in`, ExtWrapList(Integer::class.java), pf) as ArrayList<Int>
     }
 
     @Throws(PlatformIOException::class)

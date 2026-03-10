@@ -36,7 +36,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.text.MessageFormat
-import java.util.Vector
 
 class XPathPathExpr : XPathExpression {
     private var templatePathChecked = false
@@ -157,9 +156,9 @@ class XPathPathExpr : XPathExpression {
             }
 
             if (step.predicates.isNotEmpty()) {
-                val v = Vector<XPathExpression>()
+                val v = ArrayList<XPathExpression>()
                 for (predicate in step.predicates) {
-                    v.addElement(predicate)
+                    v.add(predicate)
                 }
                 // add the predicate vector to the last step in the ref
                 ref.addPredicate(ref.size() - 1, v)
@@ -316,8 +315,8 @@ class XPathPathExpr : XPathExpression {
             filtExpr = ExtUtil.read(`in`, XPathFilterExpr::class.java, pf) as XPathFilterExpr
         }
 
-        val v = ExtUtil.read(`in`, ExtWrapList(XPathStep::class.java), pf) as Vector<*>
-        steps = Array(v.size) { i -> (v.elementAt(i) as XPathStep).intern() }
+        val v = ExtUtil.read(`in`, ExtWrapList(XPathStep::class.java), pf) as ArrayList<*>
+        steps = Array(v.size) { i -> (v[i] as XPathStep).intern() }
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
@@ -328,9 +327,9 @@ class XPathPathExpr : XPathExpression {
             ExtUtil.write(out, filtExpr!!)
         }
 
-        val v = Vector<XPathStep>()
+        val v = ArrayList<XPathStep>()
         for (step in steps) {
-            v.addElement(step)
+            v.add(step)
         }
         ExtUtil.write(out, ExtWrapList(v))
         ExtUtil.write(out, cacheState)
@@ -338,7 +337,7 @@ class XPathPathExpr : XPathExpression {
 
     @Throws(UnpivotableExpressionException::class)
     override fun pivot(model: DataInstance<*>?, evalContext: EvaluationContext,
-                       pivots: Vector<Any>, sentinal: Any?): Any? {
+                       pivots: ArrayList<Any>, sentinal: Any?): Any? {
         val ref = this.getReference()
         //Either concretely the sentinal, or "."
         if (ref == sentinal || (ref.getRefLevel() == 0)) {

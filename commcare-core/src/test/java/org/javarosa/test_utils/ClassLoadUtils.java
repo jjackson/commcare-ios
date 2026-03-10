@@ -7,7 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,10 +42,10 @@ public class ClassLoadUtils {
             throws ClassNotFoundException, IOException, URISyntaxException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
+        Iterator<URL> resources = Collections.list(classLoader.getResources(path)).iterator();
         List<File> dirs = new ArrayList<>();
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
+        while (resources.hasNext()) {
+            URL resource = resources.next();
             URI uri = new URI(resource.toString());
             if (uri.getPath() != null) {
                 dirs.add(new File(uri.getPath()));

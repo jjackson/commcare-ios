@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -316,7 +316,7 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
         remoteQuerySessionManager.refreshInputDependentState();
-        Hashtable<String, String> errors = remoteQuerySessionManager.getErrors();
+        HashMap<String, String> errors = remoteQuerySessionManager.getErrors();
 
         if (expectedErrors.isEmpty()) {
             Assert.assertTrue(errors.isEmpty());
@@ -373,7 +373,7 @@ public class CaseClaimModelTests {
 
         userInput.forEach(remoteQuerySessionManager::answerUserPrompt);
         remoteQuerySessionManager.refreshInputDependentState();
-        Hashtable<String, Boolean> requiredPrompts = remoteQuerySessionManager.getRequiredPrompts();
+        HashMap<String, Boolean> requiredPrompts = remoteQuerySessionManager.getRequiredPrompts();
 
         if (expectedRequired.isEmpty()) {
             Assert.assertTrue(requiredPrompts.isEmpty());

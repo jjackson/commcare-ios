@@ -1,11 +1,7 @@
 package org.javarosa.core.util
 
-import java.util.Enumeration
 import java.util.HashSet
-import java.util.Hashtable
 import java.util.LinkedList
-import java.util.Stack
-import java.util.Vector
 
 /**
  * Directed A-cyclic (NOT ENFORCED) graph datatype.
@@ -20,9 +16,9 @@ class DAG<I, N, E> {
     // TODO: This is a really unsafe datatype. Needs an absurd amount of updating for representation
     // invariance, synchronicity, cycle detection, etc.
 
-    private val nodes: Hashtable<I, N> = Hashtable()
-    private val edges: Hashtable<I, Vector<Edge<I, E>>> = Hashtable()
-    private val inverseEdges: Hashtable<I, Vector<Edge<I, E>>> = Hashtable()
+    private val nodes: HashMap<I, N> = HashMap()
+    private val edges: HashMap<I, ArrayList<Edge<I, E>>> = HashMap()
+    private val inverseEdges: HashMap<I, ArrayList<Edge<I, E>>> = HashMap()
 
     fun addNode(i: I, n: N) {
         nodes[i] = n
@@ -41,17 +37,17 @@ class DAG<I, N, E> {
     }
 
     private fun addToEdges(
-        edgeList: Hashtable<I, Vector<Edge<I, E>>>,
+        edgeList: HashMap<I, ArrayList<Edge<I, E>>>,
         source: I,
         dest: I,
         edgeData: E
     ) {
-        val edge: Vector<Edge<I, E>> = if (edgeList.containsKey(source)) {
+        val edge: ArrayList<Edge<I, E>> = if (edgeList.containsKey(source)) {
             edgeList[source]!!
         } else {
-            Vector()
+            ArrayList()
         }
-        edge.addElement(Edge(dest, edgeData))
+        edge.add(Edge(dest, edgeData))
         edgeList[source] = edge
     }
 
@@ -67,7 +63,7 @@ class DAG<I, N, E> {
      * If an edge from sourceIndex to destinationIndex exists in the given edge list, remove it
      */
     private fun removeEdge(
-        edgeList: Hashtable<I, Vector<Edge<I, E>>>,
+        edgeList: HashMap<I, ArrayList<Edge<I, E>>>,
         sourceIndex: I,
         destinationIndex: I
     ) {
@@ -76,7 +72,7 @@ class DAG<I, N, E> {
             for (edge in edgesFromSource) {
                 if (edge.i == destinationIndex) {
                     // Remove the edge
-                    edgesFromSource.removeElement(edge)
+                    edgesFromSource.remove(edge)
 
                     // If removing this edge has made it such that this source index no longer has
                     // any edges from it, remove that entire index from the edges hashtable
@@ -90,17 +86,17 @@ class DAG<I, N, E> {
         }
     }
 
-    fun getParents(index: I): Vector<Edge<I, E>> {
+    fun getParents(index: I): ArrayList<Edge<I, E>> {
         return if (inverseEdges.containsKey(index)) {
             inverseEdges[index]!!
         } else {
-            Vector()
+            ArrayList()
         }
     }
 
-    fun getChildren(index: I): Vector<Edge<I, E>> {
+    fun getChildren(index: I): ArrayList<Edge<I, E>> {
         return if (!edges.containsKey(index)) {
-            Vector()
+            ArrayList()
         } else {
             edges[index]!!
         }
@@ -114,13 +110,13 @@ class DAG<I, N, E> {
      * @return Indices for all nodes in the graph which are not the target of
      * any edges in the graph
      */
-    fun getSources(): Stack<I> {
-        val sources = Stack<I>()
-        val en: Enumeration<I> = nodes.keys()
-        while (en.hasMoreElements()) {
-            val i = en.nextElement()
+    fun getSources(): ArrayDeque<I> {
+        val sources = ArrayDeque<I>()
+        val en: MutableIterator<I> = nodes.keys.iterator()
+        while (en.hasNext()) {
+            val i = en.next()
             if (!inverseEdges.containsKey(i)) {
-                sources.addElement(i)
+                sources.add(i)
             }
         }
         return sources
@@ -129,13 +125,13 @@ class DAG<I, N, E> {
     /**
      * @return Indices for all nodes that do not have any outgoing edges
      */
-    fun getSinks(): Stack<I> {
-        val roots = Stack<I>()
-        val en: Enumeration<I> = nodes.keys()
-        while (en.hasMoreElements()) {
-            val i = en.nextElement()
+    fun getSinks(): ArrayDeque<I> {
+        val roots = ArrayDeque<I>()
+        val en: MutableIterator<I> = nodes.keys.iterator()
+        while (en.hasNext()) {
+            val i = en.next()
             if (!edges.containsKey(i)) {
-                roots.addElement(i)
+                roots.add(i)
             }
         }
         return roots
@@ -164,7 +160,7 @@ class DAG<I, N, E> {
 
     // Adds unvisited neighboring nodes of the given record to the queue for further traversal
     private fun enqueueUnvisitedNeighbors(
-        edges: Hashtable<I, Vector<Edge<I, E>>>,
+        edges: HashMap<I, ArrayList<Edge<I, E>>>,
         current: I,
         queue: LinkedList<I>,
         visited: Set<I>
@@ -184,19 +180,19 @@ class DAG<I, N, E> {
         @JvmField val e: E
     )
 
-    fun getNodes(): Enumeration<N> {
-        return nodes.elements()
+    fun getNodes(): MutableIterator<MutableMap.MutableEntry<I, N>> {
+        return nodes.iterator()
     }
 
     fun getNodesCount(): Int {
         return nodes.size
     }
 
-    fun getIndices(): Enumeration<I> {
-        return nodes.keys()
+    fun getIndices(): MutableIterator<I> {
+        return nodes.keys.iterator()
     }
 
-    fun getEdges(): Hashtable<I, Vector<Edge<I, E>>> {
+    fun getEdges(): HashMap<I, ArrayList<Edge<I, E>>> {
         return this.edges
     }
 

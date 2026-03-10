@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Test interplay between ledgers and cases.
@@ -46,7 +46,7 @@ public class LedgerAndCaseQueryTest {
         config.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
-        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        HashMap<String, String> instanceRefToId = new HashMap<>();
         instanceRefToId.put(CaseTestUtils.LEDGER_INSTANCE, "ledger");
         instanceRefToId.put(CaseTestUtils.CASE_INSTANCE, "casedb");
         evalContext =
@@ -120,7 +120,7 @@ public class LedgerAndCaseQueryTest {
         config.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
-        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        HashMap<String, String> instanceRefToId = new HashMap<>();
         instanceRefToId.put(CaseTestUtils.LEDGER_INSTANCE, "ledger");
         instanceRefToId.put(CaseTestUtils.CASE_INSTANCE, "casedb");
         return MockDataUtils.buildContextWithInstances(sandbox, instanceRefToId);

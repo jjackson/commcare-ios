@@ -5,7 +5,6 @@ import org.javarosa.xpath.expr.XPathQName
 import org.javarosa.xpath.expr.XPathStep
 import org.javarosa.xpath.parser.Token
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Vector
 
 class ASTNodePathStep : ASTNode() {
 
@@ -28,9 +27,9 @@ class ASTNodePathStep : ASTNode() {
     var nodeTestNamespace: String? = null
 
     @JvmField
-    val predicates: Vector<ASTNode> = Vector()
+    val predicates: ArrayList<ASTNode> = ArrayList()
 
-    override fun getChildren(): Vector<ASTNode> {
+    override fun getChildren(): ArrayList<ASTNode> {
         return predicates
     }
 
@@ -76,7 +75,7 @@ class ASTNodePathStep : ASTNode() {
             }
 
             val preds = Array(predicates.size) { i ->
-                predicates.elementAt(i).build()!!
+                predicates[i].build()!!
             }
             step.predicates = preds
 
