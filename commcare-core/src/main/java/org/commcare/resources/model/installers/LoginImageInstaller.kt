@@ -5,7 +5,7 @@ import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * TODO: This should possibly just be replaced by a basic file installer along
@@ -16,7 +16,7 @@ import java.io.IOException
 class LoginImageInstaller : BasicInstaller() {
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,

@@ -14,7 +14,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -71,7 +71,7 @@ class XPathFilterExpr : XPathExpression {
         return x.hashCode() xor predHash
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         x = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<*>
@@ -80,7 +80,7 @@ class XPathFilterExpr : XPathExpression {
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         val v = Vector<XPathExpression>()
         for (predicate in predicates) {

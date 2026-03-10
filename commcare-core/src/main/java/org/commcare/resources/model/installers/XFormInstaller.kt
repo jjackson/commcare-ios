@@ -14,7 +14,7 @@ import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.form.api.FormEntryCaption
 import org.javarosa.xform.parse.XFormParseException
 import org.javarosa.xform.util.XFormUtils
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStreamReader
 import java.util.Vector
 
@@ -72,7 +72,7 @@ class XFormInstaller : CacheInstaller<FormDef>() {
                 }
                 return true
             }
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             val exception = UnreliableSourceException(r, e.message)
             exception.initCause(e)
             throw exception
@@ -81,7 +81,7 @@ class XFormInstaller : CacheInstaller<FormDef>() {
         } finally {
             try {
                 incoming?.close()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
             }
         }
     }

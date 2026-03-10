@@ -1,5 +1,7 @@
 package org.javarosa.core.util
 
+import kotlin.jvm.JvmStatic
+
 import kotlin.math.floor
 import kotlin.math.log
 import kotlin.math.pow

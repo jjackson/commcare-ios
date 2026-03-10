@@ -12,7 +12,7 @@ import org.javarosa.model.xform.DataModelSerializer
 import org.javarosa.xpath.XPathNodeset
 import org.kxml2.io.KXmlSerializer
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.Vector
@@ -267,7 +267,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
     companion object {
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun serializeResult(value: Any?, output: OutputStream) {
             if (value is XPathNodeset && !isLeafNode(value)) {
                 serializeElements(value, output)
@@ -287,13 +287,13 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
             return treeElement.getNumChildren() == 0
         }
 
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         private fun serializeElements(nodeset: XPathNodeset, output: OutputStream) {
             val serializer = KXmlSerializer()
 
             try {
                 serializer.setOutput(output, "UTF-8")
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw RuntimeException(e)
             }
 

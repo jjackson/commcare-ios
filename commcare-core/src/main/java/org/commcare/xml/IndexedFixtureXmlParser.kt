@@ -13,7 +13,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Creates a table for the indexed fixture and parses each element into a
@@ -51,7 +51,7 @@ class IndexedFixtureXmlParser(
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): StorageIndexedTreeElementModel? {
@@ -80,7 +80,7 @@ class IndexedFixtureXmlParser(
         return null
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun processRoot(root: TreeElement) {
         if (root.hasChildren()) {
             val entryName = root.getChildAt(0)!!.getName()
@@ -95,18 +95,18 @@ class IndexedFixtureXmlParser(
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun processEntry(child: TreeElement, indices: Set<String>) {
         val model = StorageIndexedTreeElementModel(indices, child)
         commit(model)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun commit(parsed: StorageIndexedTreeElementModel) {
         getIndexedFixtureStorage(parsed).write(parsed)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun commitToNormalStorage(instance: FormInstance) {
         getNormalFixtureStorage().write(instance)
     }

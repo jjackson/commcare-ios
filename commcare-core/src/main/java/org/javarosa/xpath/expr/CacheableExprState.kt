@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Holder object for all of the state values an InFormCacheableExpr needs to keep track of
@@ -25,7 +25,7 @@ open class CacheableExprState : Externalizable {
     @JvmField
     var originalContextRefIsRelevant: Boolean = false
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         computedCacheability = ExtUtil.readBool(`in`)
         exprIsCacheable = ExtUtil.readBool(`in`)
@@ -34,7 +34,7 @@ open class CacheableExprState : Externalizable {
         originalContextRefIsRelevant = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeBool(out, computedCacheability)
         ExtUtil.writeBool(out, exprIsCacheable)

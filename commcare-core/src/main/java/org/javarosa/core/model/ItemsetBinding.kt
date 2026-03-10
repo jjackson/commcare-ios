@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Collections
 import java.util.Vector
 
@@ -113,7 +113,7 @@ class ItemsetBinding : Externalizable {
         return if (relRef != null) RestoreUtils.refToPathExpr(relRef) else null
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         nodesetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         nodesetExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
@@ -129,7 +129,7 @@ class ItemsetBinding : Externalizable {
         sortExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IConditionExpr?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, nodesetRef!!)
         ExtUtil.write(out, ExtWrapTagged(nodesetExpr!!))

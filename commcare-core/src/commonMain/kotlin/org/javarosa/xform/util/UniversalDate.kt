@@ -1,5 +1,7 @@
 package org.javarosa.xform.util
 
+import kotlin.jvm.JvmField
+
 /**
  * Created by willpride on 7/15/16.
  */

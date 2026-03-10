@@ -27,7 +27,7 @@ import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.net.URL
 import java.text.ParseException
@@ -316,7 +316,7 @@ class RemoteQuerySessionManager private constructor(
             return Pair(instance, "")
         } catch (e: InvalidStructureException) {
             return Pair(null, e.message)
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             return Pair(null, e.message)
         } catch (e: XmlPullParserException) {
             return Pair(null, e.message)

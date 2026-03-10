@@ -1,5 +1,7 @@
 package org.commcare.core.services
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Wiring to allow access to Android preferences in commcare-core, but can potentially be used for any temporary key value storage
  */

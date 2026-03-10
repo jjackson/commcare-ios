@@ -15,7 +15,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.LinkedHashSet
 import java.util.NoSuchElementException
@@ -219,7 +219,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         } catch (e: InstantiationException) {
             e.printStackTrace()
             throw RuntimeException(e.message)
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             e.printStackTrace()
             throw RuntimeException(e.message)
         } catch (e: DeserializationException) {
@@ -238,7 +238,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
             } else {
                 throw NoSuchElementException("No record for ID $id")
             }
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             throw RuntimeException("Couldn't serialize data to return to readBytes")
         }
     }

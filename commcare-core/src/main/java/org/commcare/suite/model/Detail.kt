@@ -30,7 +30,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Enumeration
 import java.util.HashMap
 import java.util.Hashtable
@@ -206,7 +206,7 @@ class Detail : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         title = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
@@ -234,7 +234,7 @@ class Detail : Externalizable {
         _cacheEnabled = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(id))
         ExtUtil.write(out, title as Any)

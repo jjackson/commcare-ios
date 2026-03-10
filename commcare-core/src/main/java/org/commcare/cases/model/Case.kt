@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
 import java.util.Hashtable
 import java.util.Vector
@@ -145,7 +145,7 @@ open class Case : Persistable, IMetaData {
         this.dateOpened = dateOpened
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         typeId = ExtUtil.readString(`in`)
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -159,7 +159,7 @@ open class Case : Persistable, IMetaData {
         data = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as Hashtable<String, Any>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, typeId ?: "")
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id))

@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * An XPathQName is string literal that meets the requirements to be an element or attribute
@@ -70,14 +70,14 @@ class XPathQName : Externalizable {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         namespace = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         name = ExtUtil.readString(`in`)
         cacheCode()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(namespace))
         ExtUtil.writeString(out, name!!)

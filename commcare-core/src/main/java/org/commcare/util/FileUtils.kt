@@ -6,7 +6,7 @@ import org.javarosa.core.util.ArrayUtilities
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -25,7 +25,7 @@ object FileUtils {
      * @param dstFile     destination File where we need to copy the inputStream
      */
     @JvmStatic
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun copyFile(inputStream: InputStream?, dstFile: File) {
         if (inputStream == null) {
             return
@@ -53,7 +53,7 @@ object FileUtils {
             if (!StringUtils.isEmpty(contentType)) {
                 return contentType
             }
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             e.printStackTrace()
         }
         return java.net.URLConnection.guessContentTypeFromName(file.name)
@@ -81,7 +81,7 @@ object FileUtils {
      * @return number of files deleted
      */
     @JvmStatic
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun deleteFiles(folder: File, cutOff: Instant): Int {
         val files = folder.listFiles()
         var count = 0
@@ -103,7 +103,7 @@ object FileUtils {
      * @param cutOff cutOff time before which we want to delete the file
      */
     @JvmStatic
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun deleteFile(file: File, cutOff: Instant) {
         val attr = Files.readAttributes(Paths.get(file.path), BasicFileAttributes::class.java)
         val lastAccessTime = attr.lastAccessTime()

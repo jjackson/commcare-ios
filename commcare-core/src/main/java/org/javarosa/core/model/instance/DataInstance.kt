@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -259,7 +259,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
                 '}'
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         recordid = ExtUtil.readInt(`in`)
         formId = ExtUtil.readInt(`in`)
@@ -267,7 +267,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
         instanceid = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, recordid.toLong())
         ExtUtil.writeNumeric(out, formId.toLong())

@@ -27,7 +27,7 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class Constraint : Externalizable {
     @JvmField
@@ -78,14 +78,14 @@ class Constraint : Externalizable {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
         constraint = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
         constraintMsg = ExtUtil.nullIfEmpty(ExtUtil.readString(input))
         attemptConstraintCompile()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(constraint!!))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(constraintMsg))

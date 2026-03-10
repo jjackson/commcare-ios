@@ -10,7 +10,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 class XPathStep : Externalizable {
@@ -185,7 +185,7 @@ class XPathStep : Externalizable {
         return code
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         axis = ExtUtil.readInt(`in`)
         test = ExtUtil.readInt(`in`)
@@ -201,7 +201,7 @@ class XPathStep : Externalizable {
         predicates = Array(v.size) { i -> v.elementAt(i) as XPathExpression }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, axis.toLong())
         ExtUtil.writeNumeric(out, test.toLong())

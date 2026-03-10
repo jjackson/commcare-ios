@@ -10,7 +10,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathVariableReference : XPathExpression {
     @JvmField
@@ -43,13 +43,13 @@ class XPathVariableReference : XPathExpression {
         return id.hashCode()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.read(`in`, XPathQName::class.java, pf) as XPathQName
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, id!!)
         ExtUtil.write(out, cacheState)

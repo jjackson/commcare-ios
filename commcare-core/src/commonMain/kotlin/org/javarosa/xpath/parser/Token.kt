@@ -1,5 +1,8 @@
 package org.javarosa.xpath.parser
 
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
+
 class Token @JvmOverloads constructor(
     @JvmField val type: Int,
     @JvmField val `val`: Any? = null

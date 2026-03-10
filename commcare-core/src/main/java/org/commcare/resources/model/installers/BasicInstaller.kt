@@ -17,7 +17,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -28,7 +28,7 @@ import java.util.Vector
 open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,
@@ -54,7 +54,7 @@ open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
             try {
                 //If the file isn't there, not much we can do about it.
                 return ref.doesBinaryExist()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 e.printStackTrace()
                 return false
             }
@@ -63,7 +63,7 @@ open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
             //(if no resource location is available) or in a local reference if one exists.
             val incoming = try {
                 ref.getStream()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 e.printStackTrace()
                 return false
             }
@@ -102,11 +102,11 @@ open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
     override fun cleanup() {
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
     }
 

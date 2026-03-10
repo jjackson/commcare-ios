@@ -7,7 +7,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -19,7 +19,7 @@ class StackOpParser(parser: KXmlParser) : ElementParser<StackOperation>(parser) 
         const val NAME_STACK: String = "stack"
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): StackOperation {
         val operation = parser.name
 
@@ -50,7 +50,7 @@ class StackOpParser(parser: KXmlParser) : ElementParser<StackOperation>(parser) 
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun getChildren(operation: String): Vector<StackFrameStep> {
         val elements = Vector<StackFrameStep>()
         val sfep = StackFrameStepParser(parser)

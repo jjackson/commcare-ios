@@ -26,7 +26,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Hashtable
 import java.util.Vector
@@ -57,7 +57,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     }
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,
@@ -96,7 +96,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                     //If the file isn't there, not much we can do about it.
                     return false
                 }
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 e.printStackTrace()
                 return false
             }
@@ -175,18 +175,18 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                 } catch (e: InvalidReferenceException) {
                     //Local location doesn't exist, put this in the cache
                     return cache(ref.getStream(), r, table, upgrade)
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     //This is a catch-all for local references failing in unexpected ways.
                     return cache(ref.getStream(), r, table, upgrade)
                 }
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 val exception = UnreliableSourceException(r, e.message)
                 exception.initCause(e)
                 throw exception
             } finally {
                 try {
                     incoming?.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                 }
             }
 
@@ -211,12 +211,12 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                 if (upgrade) Resource.RESOURCE_STATUS_UPGRADE else Resource.RESOURCE_STATUS_INSTALLED
             )
             return true
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             throw UnreliableSourceException(r, e.message)
         } finally {
             try {
                 incoming.close()
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
             }
         }
     }
@@ -262,7 +262,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                 r,
                 "Could not resolve locally installed reference at$localReference"
             )
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             e.printStackTrace()
             throw UnresolvedResourceException(
                 r,
@@ -274,7 +274,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     override fun cleanup() {
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         locale = ExtUtil.readString(`in`)
         localReference = ExtUtil.readString(`in`)
@@ -284,7 +284,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
         ) as Hashtable<String, String>?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, locale)
         ExtUtil.writeString(out, localReference)
@@ -315,7 +315,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                             MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND
                         )
                     }
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     throw MissingMediaException(
                         r, "Problem reading locale data from: $localReference", localReference,
                         MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE

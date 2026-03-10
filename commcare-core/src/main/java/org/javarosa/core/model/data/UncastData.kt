@@ -6,7 +6,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Uncast data values are those which are not assigned a particular
@@ -58,12 +58,12 @@ class UncastData : IAnswerData {
         return value
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         value = ExtUtil.readString(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, value!!)
     }

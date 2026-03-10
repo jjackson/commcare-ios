@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * issues
@@ -29,17 +29,17 @@ abstract class ExternalizableWrapper : Externalizable {
     abstract fun clone(`val`: Any?): ExternalizableWrapper
 
     /* deserialize the state of the externalizable wrapper */
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     abstract fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory)
 
     /* serialize the state of the externalizable wrapper (type information only, not value) */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     abstract fun metaWriteExternal(out: DataOutputStream)
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     abstract override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory)
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     abstract override fun writeExternal(out: DataOutputStream)
 
     fun baseValue(): Any? {

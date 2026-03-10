@@ -8,7 +8,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
@@ -25,7 +25,7 @@ open class UserXmlParser : TransactionParser<User> {
 
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         XmlPullParserException::class,
         UnfullfilledRequirementsException::class
     )
@@ -93,7 +93,7 @@ open class UserXmlParser : TransactionParser<User> {
         // Don't do anything in base class
     }
 
-    @Throws(IOException::class, InvalidStructureException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     override fun commit(parsed: User) {
         storage()!!.write(parsed)
     }

@@ -1,7 +1,7 @@
 package org.javarosa.core.services.transport.payload
 
 import org.javarosa.core.util.externalizable.Externalizable
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -17,9 +17,9 @@ interface IDataPayload : Externalizable {
      * Gets the stream for this payload.
      *
      * @return A stream for the data in this payload.
-     * @throws IOException
+     * @throws PlatformIOException
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getPayloadStream(): InputStream
 
     /**

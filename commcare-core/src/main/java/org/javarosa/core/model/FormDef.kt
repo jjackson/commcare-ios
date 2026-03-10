@@ -46,7 +46,7 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathTypeMismatchException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.NoSuchElementException
 import java.util.Vector
@@ -1197,7 +1197,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Reads the form definition object from the supplied stream.
      */
     @Trace
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)))
@@ -1308,7 +1308,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     /**
      * Writes the form definition object to the supplied stream.
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(dos: DataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()))

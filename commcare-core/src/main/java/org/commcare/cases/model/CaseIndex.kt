@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * A case index represents a link between one case and another. Depending
@@ -55,7 +55,7 @@ open class CaseIndex : Externalizable {
         this.mRelationship = relationship
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         mName = ExtUtil.readString(`in`)
         mTargetId = ExtUtil.readString(`in`)
@@ -63,7 +63,7 @@ open class CaseIndex : Externalizable {
         mRelationship = ExtUtil.readString(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, mName ?: "")
         ExtUtil.writeString(out, mTargetId ?: "")

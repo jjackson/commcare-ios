@@ -21,7 +21,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Calendar
 import java.util.Collections
 import java.util.Date
@@ -221,14 +221,14 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtUtil.readInt(`in`)
         argument = ExtUtil.readString(`in`)
         arguments = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as Hashtable<String, Text>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, type.toLong())
         ExtUtil.writeString(out, argument)

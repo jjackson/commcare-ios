@@ -10,7 +10,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 class Condition : Triggerable {
@@ -97,14 +97,14 @@ class Condition : Triggerable {
         return trueAction xor falseAction xor super.hashCode()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(input, pf)
         trueAction = ExtUtil.readInt(input)
         falseAction = ExtUtil.readInt(input)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeNumeric(out, trueAction.toLong())

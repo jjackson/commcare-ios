@@ -9,7 +9,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
@@ -25,7 +25,7 @@ class EndpointParser(parser: KXmlParser) : ElementParser<Endpoint>(parser) {
     }
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Endpoint {

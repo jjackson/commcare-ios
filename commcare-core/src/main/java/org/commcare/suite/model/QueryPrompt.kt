@@ -14,7 +14,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 // Model for <prompt> node
 class QueryPrompt : Externalizable {
@@ -56,7 +56,7 @@ class QueryPrompt : Externalizable {
         this.groupKey = groupKey
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.read(`in`, String::class.java, pf) as String
         appearance = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -73,7 +73,7 @@ class QueryPrompt : Externalizable {
         groupKey = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, _key)
         ExtUtil.write(out, ExtWrapNullable(appearance))

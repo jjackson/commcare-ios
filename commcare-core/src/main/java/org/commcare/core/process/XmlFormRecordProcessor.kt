@@ -8,7 +8,7 @@ import org.commcare.xml.LedgerXmlParsers
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -25,7 +25,7 @@ object XmlFormRecordProcessor {
     @JvmStatic
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         XmlPullParserException::class,
         UnfullfilledRequirementsException::class
     )
@@ -44,7 +44,7 @@ object XmlFormRecordProcessor {
     @JvmStatic
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         XmlPullParserException::class,
         UnfullfilledRequirementsException::class
     )

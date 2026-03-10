@@ -6,13 +6,13 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
 class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): Text {
         val texts = Vector<Text>()
 
@@ -23,7 +23,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         } catch (e: XmlPullParserException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
         }
@@ -41,7 +41,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     internal fun parseBody(): Text? {
         //TODO: Should prevent compositing text and xpath/locales
         val texts = Vector<Text>()
@@ -89,7 +89,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseLocale(): Text {
         checkNode("locale")
         val id = parser.getAttributeValue(null, "id")
@@ -120,7 +120,7 @@ class TextParser(parser: KXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseXPath(): Text {
         checkNode("xpath")
         val function = parser.getAttributeValue(null, "function")

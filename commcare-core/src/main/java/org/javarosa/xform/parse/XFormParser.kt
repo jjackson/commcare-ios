@@ -49,7 +49,7 @@ import org.kxml2.kdom.Element
 import org.kxml2.kdom.Node
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Reader
@@ -619,7 +619,7 @@ class XFormParser {
                 System.err.println(errorMsg)
                 e.printStackTrace()
                 throw XFormParseException(errorMsg)
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 // CTS - 12/09/2012 - Stop swallowing IO Exceptions
                 throw e
             } catch (e: Exception) {
@@ -630,7 +630,7 @@ class XFormParser {
             } finally {
                 try {
                     reader.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                     System.out.println("Error closing reader")
                     e.printStackTrace()
                 }
@@ -944,7 +944,7 @@ class XFormParser {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun parse(): FormDef {
         if (_f == null) {
             if (_xmldoc == null) {

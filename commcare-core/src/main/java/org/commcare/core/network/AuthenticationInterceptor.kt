@@ -2,14 +2,14 @@ package org.commcare.core.network
 
 import okhttp3.Interceptor
 import okhttp3.Response
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class AuthenticationInterceptor : Interceptor {
 
     private var credential: String? = null
     var enforceSecureEndpoint: Boolean = false
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
 
@@ -34,5 +34,5 @@ class AuthenticationInterceptor : Interceptor {
         this.credential = credential
     }
 
-    class PlainTextPasswordException : IOException()
+    class PlainTextPasswordException : PlatformIOException()
 }

@@ -1,5 +1,7 @@
 package org.commcare.core.graph.util
 
+import kotlin.jvm.JvmStatic
+
 /**
  * Constants used by graphing
  *

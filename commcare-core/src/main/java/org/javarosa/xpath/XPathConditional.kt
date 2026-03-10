@@ -19,7 +19,7 @@ import org.javarosa.xpath.expr.XPathUnaryOpExpr
 import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 class XPathConditional : IConditionExpr {
@@ -105,13 +105,13 @@ class XPathConditional : IConditionExpr {
         return false
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         expr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         hasNow = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(expr!!))
         ExtUtil.writeBool(out, hasNow)

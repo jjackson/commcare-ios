@@ -10,7 +10,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -67,7 +67,7 @@ class TreeReferenceLevel : Externalizable {
         return TreeReferenceLevel(name, multiplicity, predicates).intern()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)
@@ -77,7 +77,7 @@ class TreeReferenceLevel : Externalizable {
         )
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
         ExtUtil.writeNumeric(out, multiplicity.toLong())

@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 class ExtWrapTagged : ExternalizableWrapper {
@@ -22,13 +22,13 @@ class ExtWrapTagged : ExternalizableWrapper {
         return ExtWrapTagged(`val`!!)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val type = readTag(`in`, pf)
         `val` = ExtUtil.read(`in`, type, pf)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         val localVal = `val`!!
         writeTag(out, localVal)
@@ -56,7 +56,7 @@ class ExtWrapTagged : ExternalizableWrapper {
         }
 
         @JvmStatic
-        @Throws(IOException::class, DeserializationException::class)
+        @Throws(PlatformIOException::class, DeserializationException::class)
         fun readTag(`in`: DataInputStream, pf: PrototypeFactory): ExternalizableWrapper {
             val tag = ByteArray(PrototypeFactory.getClassHashSize())
             `in`.read(tag, 0, tag.size)
@@ -98,7 +98,7 @@ class ExtWrapTagged : ExternalizableWrapper {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeTag(out: DataOutputStream, o: Any) {
             var obj = o
             if (obj is ExternalizableWrapper && obj !is ExtWrapBase) {

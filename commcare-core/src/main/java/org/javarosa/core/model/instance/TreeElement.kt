@@ -20,7 +20,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -470,7 +470,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         attributes!!.addElement(attr)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)
@@ -491,7 +491,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         readAttributesFromExternal(`in`, pf)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     private fun readChildrenFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             children = null
@@ -507,7 +507,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     private fun readAttributesFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             attributes = null
@@ -523,7 +523,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
         ExtUtil.writeNumeric(out, multiplicity.toLong())
@@ -543,7 +543,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         writeAttributesToExternal(out)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun writeChildrenToExternal(out: DataOutputStream) {
         if (children == null) {
             ExtUtil.writeBool(out, false)
@@ -558,7 +558,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun writeAttributesToExternal(out: DataOutputStream) {
         if (attributes == null) {
             ExtUtil.writeBool(out, false)
@@ -898,7 +898,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      *
      * This can be removed once we are certain no devices will be migrated up from 2.24
      */
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     fun readExternalMigration(`in`: DataInputStream, pf: PrototypeFactory?) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)

@@ -10,7 +10,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.UnrecognisedInstanceRootException
 import org.javarosa.core.model.instance.utils.TreeUtilities.xmlToTreeElement
 import org.javarosa.xml.util.InvalidStructureException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 /**
@@ -21,7 +21,7 @@ import java.util.Hashtable
 object InstanceUtils {
 
     @JvmStatic
-    @Throws(InvalidStructureException::class, IOException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
     fun loadFormInstance(formFilepath: String): FormInstance {
         val root = xmlToTreeElement(formFilepath)
         return FormInstance(root, null)

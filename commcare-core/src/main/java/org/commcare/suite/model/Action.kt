@@ -13,7 +13,7 @@ import org.javarosa.xpath.expr.XPathExpression
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -89,7 +89,7 @@ class Action : Externalizable {
     fun getActionBarIconReference(): String? = iconReferenceForActionBar
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
         stackOps = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as Vector<StackOperation>
@@ -99,7 +99,7 @@ class Action : Externalizable {
         redoLast = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, display as Any)
         ExtUtil.write(out, ExtWrapList(stackOps!!))

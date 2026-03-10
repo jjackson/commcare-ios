@@ -1,5 +1,7 @@
 package org.javarosa.xpath.analysis
 
+import kotlin.jvm.JvmField
+
 /**
  * Thrown when an XPathAnalyzer comes across an expression for which it may not be able to do a
  * complete/accurate analysis, to indicate that the results of the analysis should not be used.

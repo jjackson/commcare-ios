@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
@@ -34,7 +34,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
         return ExtWrapIntEncodingSmall(ExtUtil.toLong(`val`!!), bias)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val b = `in`.readByte()
         val l: Long
@@ -54,7 +54,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
      * chunk is serialized as a single byte, where the most-significant bit is set to 1 to indicate
      * there are more bytes to follow, or 0 to indicate the last byte
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         val n = ExtUtil.toInt(`val` as Long)
 
@@ -67,12 +67,12 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         bias = `in`.readUnsignedByte()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         out.writeByte(bias)
     }

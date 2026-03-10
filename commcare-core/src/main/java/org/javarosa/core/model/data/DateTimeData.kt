@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
 
 /**
@@ -48,12 +48,12 @@ class DateTimeData : IAnswerData {
         return DateUtils.formatDateTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         setValue(ExtUtil.readDate(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeDate(out, d!!)
     }

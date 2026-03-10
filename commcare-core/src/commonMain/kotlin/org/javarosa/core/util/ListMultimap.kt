@@ -1,5 +1,7 @@
 package org.javarosa.core.util
 
+import kotlin.jvm.JvmStatic
+
 /**
  * A simple multimap that maps keys to lists of values.
  * Replaces Guava's ArrayListMultimap/Multimap for KMP compatibility.

@@ -3,7 +3,7 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.util.OrderedHashtable
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 // map of objects where elements are multiple types, keys are still assumed to be of a single
@@ -49,7 +49,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
         return ExtWrapMapPoly(`val` as Hashtable<*, *>, keyType)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: Hashtable<Any, Any> =
@@ -62,7 +62,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
         `val` = h
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as Hashtable<Any, Any>
@@ -78,13 +78,13 @@ class ExtWrapMapPoly : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         ordered = ExtUtil.readBool(`in`)
         keyType = ExtWrapTagged.readTag(`in`, pf)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         @Suppress("UNCHECKED_CAST")
         val h = `val` as Hashtable<Any, Any>

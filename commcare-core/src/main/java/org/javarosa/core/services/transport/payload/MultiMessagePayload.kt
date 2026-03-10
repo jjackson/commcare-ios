@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.util.Vector
 
@@ -45,7 +45,7 @@ class MultiMessagePayload : IDataPayload {
         return payloads
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getPayloadStream(): InputStream {
         val bigStream = MultiInputStream()
         val en = payloads.elements()
@@ -57,13 +57,13 @@ class MultiMessagePayload : IDataPayload {
         return bigStream
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         payloads = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as Vector<Any?>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapListPoly(payloads))
     }

@@ -4,7 +4,7 @@ import org.javarosa.core.model.IAnswerDataSerializer
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.services.transport.payload.IDataPayload
 import org.javarosa.model.xform.XPathReference
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * An IInstanceSerializingVisitor serializes a DataModel
@@ -13,16 +13,16 @@ import java.io.IOException
  */
 interface IInstanceSerializingVisitor : IInstanceVisitor {
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serializeInstance(model: FormInstance, ref: XPathReference): ByteArray
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serializeInstance(model: FormInstance): ByteArray
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun createSerializedPayload(model: FormInstance, ref: XPathReference): IDataPayload
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun createSerializedPayload(model: FormInstance): IDataPayload
 
     fun setAnswerDataSerializer(ads: IAnswerDataSerializer)

@@ -15,7 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Detail Fields represent the `<field>` elements of a suite's detail
@@ -126,7 +126,7 @@ class DetailField : Externalizable {
         return gridX > -1 && gridY > -1 && gridWidth > -1 && gridHeight > -1
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         header = ExtUtil.read(`in`, Text::class.java, pf) as Text
         template = ExtUtil.read(`in`, ExtWrapTagged(DetailTemplate::class.java), pf) as DetailTemplate
@@ -160,7 +160,7 @@ class DetailField : Externalizable {
         _lazyLoading = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, header)
         ExtUtil.write(out, ExtWrapTagged(template!!))

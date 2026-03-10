@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapNullable : ExternalizableWrapper {
 
@@ -42,7 +42,7 @@ class ExtWrapNullable : ExternalizableWrapper {
         return ExtWrapNullable(`val`)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (`in`.readBoolean()) {
             `val` = ExtUtil.read(`in`, type!!, pf)
@@ -51,7 +51,7 @@ class ExtWrapNullable : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         val localVal = `val`
         if (localVal != null) {
@@ -62,12 +62,12 @@ class ExtWrapNullable : ExternalizableWrapper {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         type = ExtWrapTagged.readTag(`in`, pf)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: DataOutputStream) {
         ExtWrapTagged.writeTag(out, if (`val` == null) Any() else `val`!!)
     }

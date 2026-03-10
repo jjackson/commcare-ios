@@ -16,7 +16,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -131,7 +131,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
     override fun getCommandID(): String? = commandId
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.commandId = ExtUtil.readString(`in`)
         this.display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
@@ -142,7 +142,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
         assertions = ExtUtil.read(`in`, ExtWrapNullable(AssertionSet::class.java), pf) as AssertionSet?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, commandId)
         ExtUtil.write(out, display)

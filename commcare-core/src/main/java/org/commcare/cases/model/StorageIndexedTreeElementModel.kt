@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -96,7 +96,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
         return indexColumnNames
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         recordId = ExtUtil.readInt(`in`)
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -106,7 +106,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
         metaDataFields = buildMetadataFields(indices!!)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(entityId))

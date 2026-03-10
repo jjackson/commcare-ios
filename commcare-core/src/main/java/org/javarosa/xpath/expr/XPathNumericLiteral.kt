@@ -10,7 +10,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathNumericLiteral : XPathExpression {
     @JvmField
@@ -43,7 +43,7 @@ class XPathNumericLiteral : XPathExpression {
         return java.lang.Long.valueOf(java.lang.Double.doubleToLongBits(d)).hashCode()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         if (`in`.readByte() == 0x00.toByte()) {
             d = ExtUtil.readNumeric(`in`).toDouble()
@@ -53,7 +53,7 @@ class XPathNumericLiteral : XPathExpression {
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         if (d == d.toInt().toDouble()) {
             out.writeByte(0x00)

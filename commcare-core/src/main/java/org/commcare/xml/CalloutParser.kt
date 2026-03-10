@@ -6,7 +6,7 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Vector
 
@@ -18,7 +18,7 @@ import java.util.Vector
  */
 class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): Callout {
         val actionName = parser.getAttributeValue(null, "action")
         val image = parser.getAttributeValue(null, "image")

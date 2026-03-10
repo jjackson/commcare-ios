@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -44,7 +44,7 @@ interface ResourceInstaller<T : CommCarePlatform> : Externalizable {
      * a problem occurred.
      */
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,

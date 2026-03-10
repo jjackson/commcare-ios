@@ -15,7 +15,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
 import java.io.FileNotFoundException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 import java.util.Stack
 import java.util.Vector
@@ -943,7 +943,7 @@ open class ResourceTable {
             r.getInstaller().initialize(platform, isUpgrade)
         } catch (e: FileNotFoundException) {
             missingResources.add(r)
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             throw ResourceInitializationException(r, e)
         } catch (e: InvalidStructureException) {
             throw ResourceInitializationException(r, e)

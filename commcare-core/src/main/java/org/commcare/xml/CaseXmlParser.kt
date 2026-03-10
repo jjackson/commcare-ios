@@ -33,7 +33,7 @@ import org.javarosa.xml.util.ActionableInvalidStructureException
 import org.javarosa.xml.util.InvalidStructureException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
 
 /**
@@ -71,7 +71,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         this.storage = storage
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): Case? {
         checkNode(CASE_NODE)
 
@@ -136,7 +136,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return null
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun createCase(caseId: String, modified: java.util.Date, userId: String?): Case {
         val data = arrayOfNulls<String>(3)
         var caseForBlock: Case? = null
@@ -192,7 +192,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return caseForBlock
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun updateCase(caseForBlock: Case, caseId: String) {
         while (nextTagInBlock(CASE_UPDATE_NODE)) {
             val key = parser.name
@@ -232,14 +232,14 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return result
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun closeCase(caseForBlock: Case, caseId: String) {
         caseForBlock.setClosed(true)
         commit(caseForBlock)
         onIndexDisrupted(caseId)
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun indexCase(caseForBlock: Case, caseId: String) {
         while (nextTagInBlock(CASE_INDEX_NODE)) {
             val indexName = parser.name
@@ -279,7 +279,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         }
     }
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun processCaseAttachment(caseForBlock: Case) {
         while (nextTagInBlock(CASE_ATTACHMENT_NODE)) {
             val attachmentName = parser.name
@@ -312,7 +312,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return Case(name, typeId)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun commit(parsed: Case) {
         storage().write(parsed)
     }

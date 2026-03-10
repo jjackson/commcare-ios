@@ -20,7 +20,7 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.UnsupportedEncodingException
 
@@ -40,7 +40,7 @@ class OfflineUserRestore : Persistable {
     constructor()
 
     @Throws(
-        UnfullfilledRequirementsException::class, IOException::class, InvalidStructureException::class,
+        UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
         XmlPullParserException::class, InvalidReferenceException::class
     )
     constructor(reference: String?) {
@@ -48,7 +48,7 @@ class OfflineUserRestore : Persistable {
         checkThatRestoreIsValidAndSetUsername()
     }
 
-    @Throws(IOException::class, InvalidReferenceException::class)
+    @Throws(PlatformIOException::class, InvalidReferenceException::class)
     fun getRestoreStream(): InputStream {
         return if (reference != null) {
             // user restore xml was installed to a file
@@ -67,7 +67,7 @@ class OfflineUserRestore : Persistable {
         }
     }
 
-    @Throws(InvalidReferenceException::class, IOException::class)
+    @Throws(InvalidReferenceException::class, PlatformIOException::class)
     private fun getStreamFromReference(): InputStream {
         val local = ReferenceManager.instance().DeriveReference(reference)
         return local.getStream()
@@ -77,7 +77,7 @@ class OfflineUserRestore : Persistable {
 
     fun getUsername(): String? = username
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -85,7 +85,7 @@ class OfflineUserRestore : Persistable {
         this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))
@@ -100,7 +100,7 @@ class OfflineUserRestore : Persistable {
     override fun getID(): Int = recordId
 
     @Throws(
-        UnfullfilledRequirementsException::class, IOException::class, InvalidStructureException::class,
+        UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
         XmlPullParserException::class, InvalidReferenceException::class
     )
     private fun checkThatRestoreIsValidAndSetUsername() {
@@ -118,7 +118,7 @@ class OfflineUserRestore : Persistable {
 
     private fun buildUserParser(parser: KXmlParser): TransactionParser<*> {
         return object : UserXmlParser(parser) {
-            @Throws(IOException::class, InvalidStructureException::class)
+            @Throws(PlatformIOException::class, InvalidStructureException::class)
             override fun commit(parsed: User) {
                 if (parsed.getUserType() != User.TYPE_DEMO) {
                     throw InvalidStructureException(
@@ -144,7 +144,7 @@ class OfflineUserRestore : Persistable {
 
         @JvmStatic
         @Throws(
-            UnfullfilledRequirementsException::class, IOException::class, InvalidStructureException::class,
+            UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
             XmlPullParserException::class, InvalidReferenceException::class
         )
         fun buildInMemoryUserRestore(restoreStream: InputStream): OfflineUserRestore {

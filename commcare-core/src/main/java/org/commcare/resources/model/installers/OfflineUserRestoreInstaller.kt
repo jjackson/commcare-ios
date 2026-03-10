@@ -12,7 +12,7 @@ import org.javarosa.core.reference.Reference
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Install user restore xml file present in app for use in offline logins.
@@ -27,7 +27,7 @@ class OfflineUserRestoreInstaller : CacheInstaller<OfflineUserRestore>() {
     }
 
     @Throws(
-        IOException::class,
+        PlatformIOException::class,
         InvalidReferenceException::class,
         InvalidStructureException::class,
         XmlPullParserException::class,
@@ -58,7 +58,7 @@ class OfflineUserRestoreInstaller : CacheInstaller<OfflineUserRestore>() {
                 table.commit(r, Resource.RESOURCE_STATUS_UPGRADE)
             }
             cacheLocation = offlineUserRestore.getID()
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             throw UnresolvedResourceException(r, e.message)
         } catch (e: XmlPullParserException) {
             throw UnresolvedResourceException(r, e.message)

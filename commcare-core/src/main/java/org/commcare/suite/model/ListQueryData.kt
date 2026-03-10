@@ -13,7 +13,7 @@ import org.javarosa.xpath.expr.XPathPathExpr
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Data class for list query data elements
@@ -58,7 +58,7 @@ class ListQueryData : QueryData {
         return values
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
@@ -66,7 +66,7 @@ class ListQueryData : QueryData {
         excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.write(out, nodeset)

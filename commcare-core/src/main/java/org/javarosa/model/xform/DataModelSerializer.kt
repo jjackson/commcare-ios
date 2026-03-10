@@ -6,7 +6,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance
 import org.javarosa.core.model.instance.InstanceInitializationFactory
 import org.javarosa.core.model.instance.TreeReference
 import org.kxml2.io.KXmlSerializer
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStream
 
 /**
@@ -20,7 +20,7 @@ class DataModelSerializer {
     private val serializer: KXmlSerializer
     private val factory: InstanceInitializationFactory?
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     constructor(stream: OutputStream, factory: InstanceInitializationFactory?) {
         serializer = KXmlSerializer()
         serializer.setOutput(stream, "UTF-8")
@@ -32,13 +32,13 @@ class DataModelSerializer {
         this.factory = null
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serialize(instance: ExternalDataInstance, base: TreeReference?) {
         val specializedInstance = instance.initialize(factory, instance.getInstanceId())
         serialize(specializedInstance, base)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serialize(instance: DataInstance<*>, base: TreeReference?) {
         // TODO: Namespaces?
         val root: AbstractTreeElement? = if (base == null) {
@@ -49,7 +49,7 @@ class DataModelSerializer {
         serialize(root!!)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serialize(root: AbstractTreeElement) {
         serializer.startTag(root.getNamespace(), root.getName())
 
@@ -63,7 +63,7 @@ class DataModelSerializer {
         serializer.flush()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun serializeNode(instanceNode: AbstractTreeElement) {
         // don't serialize template nodes or non-relevant nodes
         if (!instanceNode.isRelevant || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
@@ -84,7 +84,7 @@ class DataModelSerializer {
         serializer.endTag(instanceNode.getNamespace(), instanceNode.getName())
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     private fun serializeAttributes(instanceNode: AbstractTreeElement) {
         for (i in 0 until instanceNode.getAttributeCount()) {
             var value = instanceNode.getAttributeValue(i)

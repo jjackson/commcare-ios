@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 /**
@@ -55,7 +55,7 @@ class User : Persistable, Restorable, IMetaData {
     }
 
     // fetch the value for the default user and password from the RMS
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         this.username = ExtUtil.readString(`in`)
         this.passwordHash = ExtUtil.readString(`in`)
@@ -68,7 +68,7 @@ class User : Persistable, Restorable, IMetaData {
         this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(username))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(passwordHash))

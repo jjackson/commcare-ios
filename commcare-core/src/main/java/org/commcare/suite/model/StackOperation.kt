@@ -13,7 +13,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -83,14 +83,14 @@ class StackOperation : Externalizable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         opType = ExtUtil.readInt(`in`)
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         elements = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as Vector<StackFrameStep>
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, opType.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition))

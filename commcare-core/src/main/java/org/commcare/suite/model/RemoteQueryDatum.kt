@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Hashtable
@@ -87,7 +87,7 @@ class RemoteQueryDatum : SessionDatum {
     fun getDescriptionText(): Text? = description
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         hiddenQueryValues =
@@ -110,7 +110,7 @@ class RemoteQueryDatum : SessionDatum {
         searchOnClear = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.write(out, ExtWrapList(hiddenQueryValues!!, ExtWrapTagged()))

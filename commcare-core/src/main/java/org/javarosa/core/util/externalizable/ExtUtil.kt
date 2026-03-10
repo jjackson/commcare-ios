@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.UTFDataFormatException
 import java.util.Date
 import java.util.Enumeration
@@ -24,8 +24,8 @@ class ExtUtil {
             val baos = ByteArrayOutputStream()
             try {
                 write(DataOutputStream(baos), o)
-            } catch (ioe: IOException) {
-                throw RuntimeException("IOException writing to ByteArrayOutputStream; shouldn't happen!")
+            } catch (ioe: PlatformIOException) {
+                throw RuntimeException("PlatformIOException writing to ByteArrayOutputStream; shouldn't happen!")
             }
             return baos.toByteArray()
         }
@@ -41,7 +41,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun write(out: DataOutputStream, data: Any?) {
             if (data == null) throw NullPointerException("Cannot serialize null data")
             @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
@@ -63,37 +63,37 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeNumeric(out: DataOutputStream, `val`: Long) {
             writeNumeric(out, `val`, ExtWrapIntEncodingUniform())
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeNumeric(out: DataOutputStream, `val`: Long, encoding: ExtWrapIntEncoding) {
             write(out, encoding.clone(`val`))
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeChar(out: DataOutputStream, `val`: Char) {
             out.writeChar(`val`.code)
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeDecimal(out: DataOutputStream, `val`: Double) {
             out.writeDouble(`val`)
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeBool(out: DataOutputStream, `val`: Boolean) {
             out.writeBoolean(`val`)
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeString(out: DataOutputStream, `val`: String?) {
             try {
                 out.writeUTF(`val`!!)
@@ -110,14 +110,14 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeDate(out: DataOutputStream, `val`: Date) {
             writeNumeric(out, `val`.time)
             // time zone?
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun writeBytes(out: DataOutputStream, bytes: ByteArray) {
             writeNumeric(out, bytes.size.toLong())
             if (bytes.isNotEmpty()) // i think writing zero-length array might close the stream
@@ -125,7 +125,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class, DeserializationException::class)
+        @Throws(PlatformIOException::class, DeserializationException::class)
         fun read(
             `in`: DataInputStream,
             type: Class<*>,
@@ -153,7 +153,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class, DeserializationException::class)
+        @Throws(PlatformIOException::class, DeserializationException::class)
         fun read(
             `in`: DataInputStream,
             ew: ExternalizableWrapper,
@@ -164,13 +164,13 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readNumeric(`in`: DataInputStream): Long {
             return readNumeric(`in`, ExtWrapIntEncodingUniform())
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readNumeric(`in`: DataInputStream, encoding: ExtWrapIntEncoding): Long {
             try {
                 return read(`in`, encoding, null) as Long
@@ -180,63 +180,63 @@ class ExtUtil {
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readInt(`in`: DataInputStream): Int {
             return toInt(readNumeric(`in`))
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readLong(`in`: DataInputStream): Long {
             return readNumeric(`in`)
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readShort(`in`: DataInputStream): Short {
             return toShort(readNumeric(`in`))
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readByte(`in`: DataInputStream): Byte {
             return toByte(readNumeric(`in`))
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readChar(`in`: DataInputStream): Char {
             return `in`.readChar()
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readDecimal(`in`: DataInputStream): Double {
             return `in`.readDouble()
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readBool(`in`: DataInputStream): Boolean {
             return `in`.readBoolean()
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readString(`in`: DataInputStream): String {
             val s = `in`.readUTF()
             return if (interning && stringCache != null) stringCache!!.intern(s) else s
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readDate(`in`: DataInputStream): Date {
             return Date(readNumeric(`in`))
             // time zone?
         }
 
         @JvmStatic
-        @Throws(IOException::class)
+        @Throws(PlatformIOException::class)
         fun readBytes(`in`: DataInputStream): ByteArray {
             val size = readNumeric(`in`).toInt()
             val bytes = ByteArray(size)
@@ -441,7 +441,7 @@ class ExtUtil {
         // **REMOVE THIS FUNCTION**
         // original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
         @JvmStatic
-        @Throws(IOException::class, DeserializationException::class)
+        @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
             return read(DataInputStream(ByteArrayInputStream(data)), type, pf)
         }

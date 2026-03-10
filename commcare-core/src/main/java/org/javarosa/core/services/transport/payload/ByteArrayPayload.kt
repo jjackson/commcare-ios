@@ -6,7 +6,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -50,7 +50,7 @@ class ByteArrayPayload : IDataPayload {
         return ByteArrayInputStream(payload)
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         val length = `in`.readInt()
         if (length > 0) {
@@ -60,7 +60,7 @@ class ByteArrayPayload : IDataPayload {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         out.writeInt(payload.size)
         if (payload.isNotEmpty()) {

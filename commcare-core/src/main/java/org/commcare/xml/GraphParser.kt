@@ -14,14 +14,14 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Created by jschweers on 1/28/2016.
  */
 open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parser) {
 
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     override fun parse(): Graph {
         val graph = Graph()
         val type = parser.getAttributeValue(null, "type")
@@ -54,7 +54,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
      * (which contains a single <text>), y (also contains a single <text>),
      * and then another <text> for the annotation's actual text.
      */
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseAnnotation(graph: Graph) {
         checkNode("annotation")
 
@@ -81,7 +81,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
     /*
      * Helper for parse; handles a configuration element, which is a set of <text> elements, each with an id.
      */
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseConfiguration(data: Configurable) {
         checkNode("configuration")
 
@@ -100,7 +100,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
      * Helper for parse; handles a single series, which is an optional <configuration> followed by an <x>, a <y>,
      * and, if this graph is a bubble graph, a <radius>.
      */
-    @Throws(InvalidStructureException::class, IOException::class, XmlPullParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, XmlPullParserException::class)
     private fun parseSeries(type: String): XYSeries {
         checkNode("series")
         val nodeSet = parser.getAttributeValue(null, "nodeset")
@@ -155,7 +155,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
     /*
      * Move parser along until it hits a start tag.
      */
-    @Throws(IOException::class, XmlPullParserException::class)
+    @Throws(PlatformIOException::class, XmlPullParserException::class)
     private fun nextStartTag() {
         do {
             parser.nextTag()

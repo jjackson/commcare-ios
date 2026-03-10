@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
@@ -91,7 +91,7 @@ open class ExternalDataInstance : DataInstance<AbstractTreeElement> {
         }
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         reference = ExtUtil.readString(`in`)
@@ -101,7 +101,7 @@ open class ExternalDataInstance : DataInstance<AbstractTreeElement> {
         ) as ExternalDataInstanceSource?
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))

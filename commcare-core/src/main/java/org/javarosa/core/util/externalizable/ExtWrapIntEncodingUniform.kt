@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
 
@@ -20,7 +20,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
         return ExtWrapIntEncodingUniform(ExtUtil.toLong(`val`!!))
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         var l: Long = 0
         var b: Byte
@@ -46,7 +46,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
      * chunk is serialized as a single byte, where the most-significant bit is set to 1 to indicate
      * there are more bytes to follow, or 0 to indicate the last byte
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         val l = `val` as Long
 

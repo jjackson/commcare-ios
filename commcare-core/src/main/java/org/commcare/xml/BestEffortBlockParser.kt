@@ -5,7 +5,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Hashtable
 
 /**
@@ -21,11 +21,11 @@ abstract class BestEffortBlockParser(
     private val elements: Array<String>
 ) : TransactionParser<Hashtable<String, String>>(parser) {
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     abstract override fun commit(parsed: Hashtable<String, String>)
 
     @Throws(
-        InvalidStructureException::class, IOException::class,
+        InvalidStructureException::class, PlatformIOException::class,
         XmlPullParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): Hashtable<String, String> {

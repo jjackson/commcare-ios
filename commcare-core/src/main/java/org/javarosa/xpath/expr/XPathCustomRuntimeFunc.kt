@@ -13,7 +13,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Date
 
 /**
@@ -34,14 +34,14 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
         throw XPathUnhandledException("function '$name'")
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         name = ExtUtil.readString(`in`)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeString(out, name)

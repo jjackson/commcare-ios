@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashMap
 import java.util.HashSet
 import java.util.Vector
@@ -188,7 +188,7 @@ open class TableBuilder {
             val bos = ByteArrayOutputStream()
             try {
                 externalizable.writeExternal(DataOutputStream(bos))
-            } catch (e: IOException) {
+            } catch (e: PlatformIOException) {
                 throw RuntimeException("Failed to serialize externalizable $externalizable for content values wth exception $e")
             }
             return bos.toByteArray()

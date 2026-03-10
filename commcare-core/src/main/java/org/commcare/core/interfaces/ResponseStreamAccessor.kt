@@ -1,13 +1,13 @@
 package org.commcare.core.interfaces
 
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 interface ResponseStreamAccessor {
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getResponseStream(): InputStream
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getErrorResponseStream(): InputStream?
 
     fun getApiVersion(): String?

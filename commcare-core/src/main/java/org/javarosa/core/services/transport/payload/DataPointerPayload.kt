@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
 /**
@@ -41,7 +41,7 @@ class DataPointerPayload : IDataPayload {
         return pointer.getDisplayText()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getPayloadStream(): InputStream {
         return pointer.getDataStream()
     }
@@ -62,12 +62,12 @@ class DataPointerPayload : IDataPayload {
         return IDataPayload.PAYLOAD_TYPE_JPG
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         pointer = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IDataPointer
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(pointer))
     }

@@ -12,7 +12,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 abstract class XPathBinaryOpExpr : XPathOpExpr {
@@ -45,27 +45,27 @@ abstract class XPathBinaryOpExpr : XPathOpExpr {
         return op xor a.hashCode() xor b.hashCode()
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         op = ExtUtil.readInt(`in`)
         readExpressions(`in`, pf)
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     protected open fun readExpressions(`in`: DataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         b = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.writeNumeric(out, op.toLong())
         writeExpressions(out)
         ExtUtil.write(out, cacheState)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     protected open fun writeExpressions(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(a!!))
         ExtUtil.write(out, ExtWrapTagged(b!!))

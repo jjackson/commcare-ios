@@ -5,7 +5,7 @@ import org.javarosa.core.reference.Reference
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -18,22 +18,22 @@ open class JavaFileReference @JvmOverloads constructor(
     @JvmField val authority: String = "file"
 ) : Reference {
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun doesBinaryExist(): Boolean {
         return file().exists()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getOutputStream(): OutputStream {
         return FileOutputStream(file())
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun getStream(): InputStream {
         val file = file()
         if (!file.exists()) {
             if (!file.createNewFile()) {
-                throw IOException("Could not create file at URI " + file.absolutePath)
+                throw PlatformIOException("Could not create file at URI " + file.absolutePath)
             }
         }
         return FileInputStream(file)
@@ -47,11 +47,11 @@ open class JavaFileReference @JvmOverloads constructor(
         return false
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun remove() {
         val file = file()
         if (!file.delete()) {
-            throw IOException("Could not delete file at URI " + file.absolutePath)
+            throw PlatformIOException("Could not delete file at URI " + file.absolutePath)
         }
     }
 

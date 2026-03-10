@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -175,7 +175,7 @@ open class SessionFrame : Externalizable {
         return null
     }
 
-    @Throws(IOException::class, DeserializationException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         steps = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as Vector<StackFrameStep>
@@ -184,7 +184,7 @@ open class SessionFrame : Externalizable {
         dead = ExtUtil.readBool(`in`)
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         ExtUtil.write(out, ExtWrapList(steps))
         ExtUtil.write(out, ExtWrapList(snapshot))

@@ -5,7 +5,7 @@ import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Vector
 
 /**
@@ -25,7 +25,7 @@ class Property : Persistable, IMetaData {
     @JvmField
     var recordId: Int = -1
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         var fullString = ""
 
@@ -59,7 +59,7 @@ class Property : Persistable, IMetaData {
         `in`.close()
     }
 
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     override fun writeExternal(out: DataOutputStream) {
         var outputString = name
         // Note that this enumeration should contain at least one element, otherwise the
