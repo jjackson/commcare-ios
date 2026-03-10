@@ -1,23 +1,19 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.services.PrototypeManager
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.OrderedHashtable
-
-
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
-
 import org.javarosa.core.model.utils.PlatformDate
 
-class ExtUtil {
-    companion object {
+actual class ExtUtil {
+    actual companion object {
         private const val interning = true
         private var stringCache: Interner<String>? = null
 
         @JvmStatic
-        fun serialize(o: Any): ByteArray {
+        actual fun serialize(o: Any): ByteArray {
             val pdos = PlatformDataOutputStream()
             try {
                 write(pdos, o)
@@ -28,18 +24,18 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun getSize(o: Any): Int {
+        actual fun getSize(o: Any): Int {
             return serialize(o).size
         }
 
         @JvmStatic
-        fun defaultPrototypes(): PrototypeFactory {
+        actual fun defaultPrototypes(): PrototypeFactory {
             return PrototypeManager.getDefault()!!
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun write(out: PlatformDataOutputStream, data: Any?) {
+        actual fun write(out: PlatformDataOutputStream, data: Any?) {
             if (data == null) throw NullPointerException("Cannot serialize null data")
             @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
             when (data) {
@@ -61,7 +57,7 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeNumeric(out: PlatformDataOutputStream, `val`: Long) {
+        actual fun writeNumeric(out: PlatformDataOutputStream, `val`: Long) {
             writeNumeric(out, `val`, ExtWrapIntEncodingUniform())
         }
 
@@ -73,25 +69,25 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeChar(out: PlatformDataOutputStream, `val`: Char) {
+        actual fun writeChar(out: PlatformDataOutputStream, `val`: Char) {
             out.writeChar(`val`.code)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeDecimal(out: PlatformDataOutputStream, `val`: Double) {
+        actual fun writeDecimal(out: PlatformDataOutputStream, `val`: Double) {
             out.writeDouble(`val`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeBool(out: PlatformDataOutputStream, `val`: Boolean) {
+        actual fun writeBool(out: PlatformDataOutputStream, `val`: Boolean) {
             out.writeBoolean(`val`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeString(out: PlatformDataOutputStream, `val`: String?) {
+        actual fun writeString(out: PlatformDataOutputStream, `val`: String?) {
             try {
                 out.writeUTF(`val`!!)
             } catch (e: PlatformIOException) {
@@ -103,21 +99,19 @@ class ExtUtil {
                     "Error while trying to write $`val` percentOversized: $percentOversized"
                 )
             }
-            // we could easily come up with more efficient default encoding for string
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeDate(out: PlatformDataOutputStream, `val`: PlatformDate) {
-            writeNumeric(out, `val`.time)
-            // time zone?
+        actual fun writeDate(out: PlatformDataOutputStream, `val`: PlatformDate) {
+            writeNumeric(out, `val`.getTime())
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
+        actual fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
             writeNumeric(out, bytes.size.toLong())
-            if (bytes.isNotEmpty()) // i think writing zero-length array might close the stream
+            if (bytes.isNotEmpty())
                 out.write(bytes)
         }
 
@@ -162,7 +156,7 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readNumeric(`in`: PlatformDataInputStream): Long {
+        actual fun readNumeric(`in`: PlatformDataInputStream): Long {
             return readNumeric(`in`, ExtWrapIntEncodingUniform())
         }
 
@@ -178,63 +172,62 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readInt(`in`: PlatformDataInputStream): Int {
+        actual fun readInt(`in`: PlatformDataInputStream): Int {
             return toInt(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readLong(`in`: PlatformDataInputStream): Long {
+        actual fun readLong(`in`: PlatformDataInputStream): Long {
             return readNumeric(`in`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readShort(`in`: PlatformDataInputStream): Short {
+        actual fun readShort(`in`: PlatformDataInputStream): Short {
             return toShort(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readByte(`in`: PlatformDataInputStream): Byte {
+        actual fun readByte(`in`: PlatformDataInputStream): Byte {
             return toByte(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readChar(`in`: PlatformDataInputStream): Char {
+        actual fun readChar(`in`: PlatformDataInputStream): Char {
             return `in`.readChar()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readDecimal(`in`: PlatformDataInputStream): Double {
+        actual fun readDecimal(`in`: PlatformDataInputStream): Double {
             return `in`.readDouble()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readBool(`in`: PlatformDataInputStream): Boolean {
+        actual fun readBool(`in`: PlatformDataInputStream): Boolean {
             return `in`.readBoolean()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readString(`in`: PlatformDataInputStream): String {
+        actual fun readString(`in`: PlatformDataInputStream): String {
             val s = `in`.readUTF()
             return if (interning && stringCache != null) stringCache!!.intern(s) else s
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readDate(`in`: PlatformDataInputStream): PlatformDate {
+        actual fun readDate(`in`: PlatformDataInputStream): PlatformDate {
             return PlatformDate(readNumeric(`in`))
-            // time zone?
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readBytes(`in`: PlatformDataInputStream): ByteArray {
+        actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
             val size = readNumeric(`in`).toInt()
             val bytes = ByteArray(size)
             var read = 0
@@ -247,28 +240,28 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun toInt(l: Long): Int {
+        actual fun toInt(l: Long): Int {
             if (l < Int.MIN_VALUE || l > Int.MAX_VALUE)
                 throw ArithmeticException("Value ($l) cannot fit into int")
             return l.toInt()
         }
 
         @JvmStatic
-        fun toShort(l: Long): Short {
+        actual fun toShort(l: Long): Short {
             if (l < Short.MIN_VALUE || l > Short.MAX_VALUE)
                 throw ArithmeticException("Value ($l) cannot fit into short")
             return l.toShort()
         }
 
         @JvmStatic
-        fun toByte(l: Long): Byte {
+        actual fun toByte(l: Long): Byte {
             if (l < Byte.MIN_VALUE || l > Byte.MAX_VALUE)
                 throw ArithmeticException("Value ($l) cannot fit into byte")
             return l.toByte()
         }
 
         @JvmStatic
-        fun toLong(o: Any): Long {
+        actual fun toLong(o: Any): Long {
             return when (o) {
                 is Byte -> o.toLong()
                 is Short -> o.toLong()
@@ -280,53 +273,53 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun nullIfEmpty(ba: ByteArray?): ByteArray? {
+        actual fun nullIfEmpty(ba: ByteArray?): ByteArray? {
             return if (ba == null) null else if (ba.isEmpty()) null else ba
         }
 
         @JvmStatic
-        fun nullIfEmpty(s: String?): String? {
+        actual fun nullIfEmpty(s: String?): String? {
             return if (s == null) null else if (s.isEmpty()) null else s
         }
 
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
-        fun <T> nullIfEmpty(v: ArrayList<T>?): ArrayList<T>? {
+        actual fun <T> nullIfEmpty(v: ArrayList<T>?): ArrayList<T>? {
             return if (v == null) null else if (v.size == 0) null else v
         }
 
         @JvmStatic
-        fun nullIfEmpty(h: HashMap<*, *>?): HashMap<*, *>? {
+        actual fun nullIfEmpty(h: HashMap<*, *>?): HashMap<*, *>? {
             return if (h == null) null else if (h.size == 0) null else h
         }
 
         @JvmStatic
-        fun emptyIfNull(ba: ByteArray?): ByteArray {
+        actual fun emptyIfNull(ba: ByteArray?): ByteArray {
             return ba ?: ByteArray(0)
         }
 
         @JvmStatic
-        fun emptyIfNull(s: String?): String {
+        actual fun emptyIfNull(s: String?): String {
             return s ?: ""
         }
 
         @JvmStatic
-        fun emptyIfNull(v: ArrayList<*>?): ArrayList<*> {
+        actual fun emptyIfNull(v: ArrayList<*>?): ArrayList<*> {
             return v ?: ArrayList<Any?>()
         }
 
         @JvmStatic
-        fun emptyIfNull(h: HashMap<*, *>?): HashMap<*, *> {
+        actual fun emptyIfNull(h: HashMap<*, *>?): HashMap<*, *> {
             return h ?: HashMap<Any?, Any?>()
         }
 
         @JvmStatic
-        fun unwrap(o: Any?): Any? {
+        actual fun unwrap(o: Any?): Any? {
             return if (o is ExternalizableWrapper) o.baseValue() else o
         }
 
         @JvmStatic
-        fun equals(a: Any?, b: Any?, unwrap: Boolean): Boolean {
+        actual fun equals(a: Any?, b: Any?, unwrap: Boolean): Boolean {
             @Suppress("NAME_SHADOWING")
             var a = a
             @Suppress("NAME_SHADOWING")
@@ -351,7 +344,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun vectorEquals(a: ArrayList<*>, b: ArrayList<*>, unwrap: Boolean): Boolean {
+        actual fun vectorEquals(a: ArrayList<*>, b: ArrayList<*>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
             } else {
@@ -365,7 +358,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
+        actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
             } else {
@@ -401,7 +394,7 @@ class ExtUtil {
                         val keyA = eaOrdered.next()
                         val keyB = ebOrdered.next()
 
-                        if (keyA != keyB) { // must use built-in equals for keys, as that's what hashtable uses
+                        if (keyA != keyB) {
                             return false
                         }
                     }
@@ -412,7 +405,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun printBytes(data: ByteArray): String {
+        actual fun printBytes(data: ByteArray): String {
             val sb = StringBuffer()
             sb.append("[")
             for (i in data.indices) {
@@ -435,8 +428,6 @@ class ExtUtil {
             return sb.toString()
         }
 
-        // **REMOVE THIS FUNCTION**
-        // original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
@@ -445,7 +436,7 @@ class ExtUtil {
 
         @Suppress("unused")
         @JvmStatic
-        fun attachCacheTable(stringCache: Interner<String>) {
+        actual fun attachCacheTable(stringCache: Interner<String>) {
             ExtUtil.stringCache = stringCache
         }
     }

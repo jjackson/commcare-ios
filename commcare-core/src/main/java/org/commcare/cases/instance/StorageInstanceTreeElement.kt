@@ -14,6 +14,7 @@ import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.services.storage.IStorageIterator
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
+import org.javarosa.core.util.CacheInterner
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.Externalizable
 
@@ -33,9 +34,9 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
     internal var elements: ArrayList<T>? = null
 
     @JvmField
-    internal val treeCache: Interner<TreeElement> = Interner()
+    internal val treeCache: CacheInterner<TreeElement> = CacheInterner()
 
-    private var stringCache: Interner<String> = Interner()
+    private var stringCache: Interner<String> = CacheInterner()
 
     private var numRecords = -1
     private var cachedRef: TreeReference? = null

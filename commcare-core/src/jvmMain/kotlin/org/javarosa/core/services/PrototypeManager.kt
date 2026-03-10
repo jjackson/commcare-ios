@@ -1,10 +1,12 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.services
 
 import org.javarosa.core.util.externalizable.CannotCreateObjectException
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.util.HashSet
 
-object PrototypeManager {
+actual object PrototypeManager {
     private val globalPrototypes: HashSet<String> = HashSet()
 
     private val threadLocalPrototypeFactory: ThreadLocal<PrototypeFactory?> =
@@ -51,7 +53,7 @@ object PrototypeManager {
     }
 
     @JvmStatic
-    fun getDefault(): PrototypeFactory? {
+    actual fun getDefault(): PrototypeFactory? {
         if (getCurrentStaticFactory() == null) {
             rebuild()
         }

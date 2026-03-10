@@ -1,13 +1,15 @@
 package org.javarosa.core.util
 
 /**
- * An Interner is a special case of a cache table that is used to intern objects
+ * A CacheInterner is a special case of a cache table that is used to intern objects
  * which will exist in multiple contexts at runtime. All of the keys in an interner
  * are integer values.
  *
+ * This is the JVM implementation of [Interner] using WeakReference-based [CacheTable].
+ *
  * @author ctsims
  */
-class Interner<K> : CacheTable<Int, K>() {
+class CacheInterner<K> : CacheTable<Int, K>(), Interner<K> {
 
     /**
      * Intern the provided value in this cache table
@@ -18,9 +20,10 @@ class Interner<K> : CacheTable<Int, K>() {
      * methods of the object type need to be correctly implemented for interning to function
      * as expected.
      */
-    fun intern(k: K & Any): K {
+    override fun intern(k: K): K {
+        val nonNullK = k ?: throw NullPointerException("Cannot intern null")
         synchronized(this) {
-            val hash = k.hashCode()
+            val hash = nonNullK.hashCode()
             val nk = retrieve(hash)
             if (nk == null) {
                 register(hash, k)
