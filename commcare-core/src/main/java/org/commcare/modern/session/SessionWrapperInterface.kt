@@ -13,7 +13,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzable
 interface SessionWrapperInterface {
     fun getIIF(): CommCareInstanceInitializer
     fun getNeededData(): String?
-    fun getNeededDatum(entry: Entry): SessionDatum
+    fun getNeededDatum(entry: Entry): SessionDatum?
     fun getEvaluationContext(commandId: String): EvaluationContext
     fun getEvaluationContext(): EvaluationContext
     fun getRestrictedEvaluationContext(commandId: String, instancesToInclude: Set<String>): EvaluationContext

@@ -42,7 +42,9 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun write(out: DataOutputStream, data: Any) {
+        fun write(out: DataOutputStream, data: Any?) {
+            if (data == null) throw NullPointerException("Cannot serialize null data")
+            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
             when (data) {
                 is Externalizable -> data.writeExternal(out)
                 is Byte -> writeNumeric(out, data.toLong())
@@ -92,12 +94,12 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun writeString(out: DataOutputStream, `val`: String) {
+        fun writeString(out: DataOutputStream, `val`: String?) {
             try {
-                out.writeUTF(`val`)
+                out.writeUTF(`val`!!)
             } catch (e: UTFDataFormatException) {
                 val percentOversized =
-                    ((`val`.toByteArray(Charsets.UTF_8).size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
+                    ((`val`!!.toByteArray(Charsets.UTF_8).size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
                 throw SerializationLimitationException(
                     percentOversized,
                     e,
