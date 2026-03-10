@@ -1,5 +1,7 @@
 package org.commcare.util
 
+import kotlin.jvm.JvmStatic
+
 // Portions copyright 2002, Google, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

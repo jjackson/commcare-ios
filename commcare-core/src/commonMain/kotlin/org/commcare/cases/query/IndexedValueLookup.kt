@@ -1,5 +1,7 @@
 package org.commcare.cases.query
 
+import kotlin.jvm.JvmField
+
 /**
  * An indexed value lookup is a singular key/value comparison where the key being checked is
  * indexed by the current platform

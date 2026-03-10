@@ -1,5 +1,7 @@
 package org.javarosa.core.util.externalizable
 
+import kotlin.jvm.JvmField
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */

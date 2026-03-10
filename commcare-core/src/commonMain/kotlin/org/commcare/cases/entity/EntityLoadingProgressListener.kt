@@ -1,5 +1,8 @@
 package org.commcare.cases.entity
 
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+
 /**
  * Listener to track progress of loading an entity list
  */

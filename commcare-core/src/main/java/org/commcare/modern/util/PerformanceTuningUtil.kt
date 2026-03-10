@@ -1,5 +1,7 @@
 package org.commcare.modern.util
 
+import kotlin.jvm.JvmStatic
+
 /**
  * A catch-all for centralizing hooks and state for tuning on performance optimizations which may
  * need to shift constants or boundaries based on the current platform

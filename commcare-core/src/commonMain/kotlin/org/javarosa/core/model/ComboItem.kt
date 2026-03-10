@@ -1,5 +1,7 @@
 package org.javarosa.core.model
 
+import kotlin.jvm.JvmField
+
 /**
  * Class to represent a combo box item for ComboboxAdapters
  */

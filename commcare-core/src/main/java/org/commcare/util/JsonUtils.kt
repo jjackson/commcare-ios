@@ -1,5 +1,7 @@
 package org.commcare.util
 
+import kotlin.jvm.JvmStatic
+
 import org.json.JSONArray
 
 object JsonUtils {

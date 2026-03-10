@@ -1,5 +1,8 @@
 package org.javarosa.core.util
 
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+
 /**
  * Fast implementation of RSA's MD5 hash generator in Java JDK Beta-2 or higher.
  *

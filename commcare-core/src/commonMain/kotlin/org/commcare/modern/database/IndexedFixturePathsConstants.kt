@@ -1,5 +1,7 @@
 package org.commcare.modern.database
 
+import kotlin.jvm.JvmField
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
