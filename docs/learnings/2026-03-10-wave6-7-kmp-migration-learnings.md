@@ -44,3 +44,19 @@
 Of 184 files with no direct JVM imports after IOException replacement, only 2 could actually compile in commonMain. The bottleneck is that most files reference types (TreeReference, EvaluationContext, Detail, ExtUtil, etc.) that are deeply JVM-dependent and remain in jvmMain.
 
 The serialization framework (Externalizable, PrototypeFactory, ExtUtil) is the key blocker — it uses `Class<*>` reflection throughout and is referenced by 131+ classes.
+
+## PrototypeFactory reflection is the root cause of the serialization blocker
+
+**Problem:** `PrototypeFactory.getInstance()` uses `Class.forName(className).newInstance()` to create objects from stored class names at deserialization time. This JVM reflection pattern has no equivalent in Kotlin/Native (iOS). Because `ExtUtil` (455 lines of serialization dispatch) depends on `PrototypeFactory`, and 131+ model classes depend on `ExtUtil`, the entire engine's data model is transitively locked to jvmMain.
+
+**Dependency chain:**
+```
+TreeReference → Externalizable → ExtUtil → PrototypeFactory → Class.forName()
+FormDef       → Externalizable → ExtUtil → PrototypeFactory → Class.forName()
+CaseIndex     → Externalizable → ExtUtil → PrototypeFactory → Class.forName()
+... (131+ classes)
+```
+
+**Fix:** Replace with expect/actual where JVM keeps reflection and iOS uses a registration-based factory (`Map<String, () -> Externalizable>`). All serializable types must be explicitly registered on iOS at app startup. The registration list can be generated from JVM's PrototypeFactory class scanning.
+
+**Tradeoff:** Missing registrations on iOS fail at runtime, not compile time. But the set of serializable types is finite and well-known.
