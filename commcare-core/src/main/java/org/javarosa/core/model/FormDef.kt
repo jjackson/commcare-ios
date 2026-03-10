@@ -1,6 +1,6 @@
 package org.javarosa.core.model
 
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.modern.util.Pair
 import org.javarosa.core.log.WrappedException
 import org.javarosa.core.model.actions.Action
@@ -1641,7 +1641,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         this.sendCalloutHandler = sendCalloutHandler
     }
 
-    fun dispatchSendCallout(url: String, paramMap: Multimap<String, String>?): String? {
+    fun dispatchSendCallout(url: String, paramMap: ListMultimap<String, String>?): String? {
         return if (sendCalloutHandler == null) {
             null
         } else {

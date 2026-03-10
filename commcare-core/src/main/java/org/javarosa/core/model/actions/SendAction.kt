@@ -1,7 +1,6 @@
 package org.javarosa.core.model.actions
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.IFormElement
 import org.javarosa.core.model.data.UncastData
@@ -40,7 +39,7 @@ class SendAction : Action {
         val url = profile.resource
 
         val ref = profile.ref
-        var map: Multimap<String, String>? = null
+        var map: ListMultimap<String, String>? = null
         if (ref != null) {
             map = getKeyValueMapping(model, ref)
         }
@@ -60,8 +59,8 @@ class SendAction : Action {
         }
     }
 
-    private fun getKeyValueMapping(model: FormDef, ref: TreeReference): Multimap<String, String> {
-        val map: Multimap<String, String> = ArrayListMultimap.create()
+    private fun getKeyValueMapping(model: FormDef, ref: TreeReference): ListMultimap<String, String> {
+        val map: ListMultimap<String, String> = ListMultimap()
         val element = model.getEvaluationContext()!!.resolveReference(ref)
         for (i in 0 until element!!.getNumChildren()) {
             val child = element.getChildAt(i)

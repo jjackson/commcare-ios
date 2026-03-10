@@ -1,6 +1,6 @@
 package org.javarosa.core.model.actions
 
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 
 /**
  * A platform-specific handler attached to a FormDef which provides the form with
@@ -19,5 +19,5 @@ interface FormSendCalloutHandler {
      *
      * note: Neither input is specifically scrubbed for url encoding
      */
-    fun performHttpCalloutForResponse(url: String, paramMap: Multimap<String, String>?): String?
+    fun performHttpCalloutForResponse(url: String, paramMap: ListMultimap<String, String>?): String?
 }

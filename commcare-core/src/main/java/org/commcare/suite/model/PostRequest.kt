@@ -1,7 +1,6 @@
 package org.commcare.suite.model
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 
 import org.commcare.session.RemoteQuerySessionManager
 import org.javarosa.core.model.condition.EvaluationContext
@@ -47,8 +46,8 @@ class PostRequest : Externalizable {
      * @param includeBlankValues whether to include blank values in the return map
      * @return Evaluated params
      */
-    fun getEvaluatedParams(evalContext: EvaluationContext, includeBlankValues: Boolean): Multimap<String, String> {
-        val evaluatedParams: Multimap<String, String> = ArrayListMultimap.create()
+    fun getEvaluatedParams(evalContext: EvaluationContext, includeBlankValues: Boolean): ListMultimap<String, String> {
+        val evaluatedParams: ListMultimap<String, String> = ListMultimap()
         for (queryData in params!!) {
             val `val` = queryData.getValues(evalContext)
             if (`val`.iterator().hasNext()) {

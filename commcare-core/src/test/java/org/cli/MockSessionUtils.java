@@ -1,6 +1,6 @@
 package org.cli;
 
-import com.google.common.collect.Multimap;
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.modern.session.SessionWrapper;
@@ -43,7 +43,7 @@ public class MockSessionUtils extends SessionUtils {
     }
 
     @Override
-    public InputStream makeQueryRequest(URL url, Multimap<String, String> requestData, String username,
+    public InputStream makeQueryRequest(URL url, ListMultimap<String, String> requestData, String username,
             String password) {
         return this.mockQueryResponse;
     }

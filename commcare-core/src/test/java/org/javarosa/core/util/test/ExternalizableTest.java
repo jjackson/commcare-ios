@@ -1,10 +1,7 @@
 package org.javarosa.core.util.test;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.cases.model.Case;
+import org.javarosa.core.util.ListMultimap;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.OrderedHashtable;
@@ -273,8 +270,8 @@ public class ExternalizableTest {
         m.put("e", new ExtWrapList(vs));
         testExternalizable(new ExtWrapMapPoly(m), new ExtWrapMapPoly(String.class, true), pf);
 
-        //MultiMap ArrayList
-        Multimap<String, SampleExtz> multimap = ArrayListMultimap.create();
+        //MultiMap
+        ListMultimap<String, SampleExtz> multimap = ListMultimap.create();
         testExternalizable(new ExtWrapMultiMap(multimap), new ExtWrapMultiMap(String.class));
         testExternalizable(new ExtWrapTagged(new ExtWrapMultiMap(multimap)), new ExtWrapTagged());
         multimap.put("key1", new SampleExtz("a", "b"));
@@ -282,8 +279,8 @@ public class ExternalizableTest {
         multimap.put("key2", new SampleExtz("e", "f"));
         testExternalizable(new ExtWrapMultiMap(multimap), new ExtWrapMultiMap(String.class), pf);
 
-        // Any other MultiMap
-        Multimap<String, SampleExtz> hashMultimap = LinkedListMultimap.create();
+        // Second MultiMap instance
+        ListMultimap<String, SampleExtz> hashMultimap = ListMultimap.create();
         testExternalizable(new ExtWrapMultiMap(hashMultimap), new ExtWrapMultiMap(String.class));
         testExternalizable(new ExtWrapTagged(new ExtWrapMultiMap(hashMultimap)), new ExtWrapTagged());
         hashMultimap.put("key1", new SampleExtz("a", "b"));

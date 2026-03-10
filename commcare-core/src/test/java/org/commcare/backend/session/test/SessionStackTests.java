@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.ArrayListMultimap;
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.Pair;
@@ -374,7 +374,7 @@ public class SessionStackTests {
                         sessionWrapper.getEvaluationContext(), new ArrayList<>());
         InputStream is = cls.getResourceAsStream(resourcePath);
         Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
-                is, resourcePath, ArrayListMultimap.create());
+                is, resourcePath, ListMultimap.create());
         assertNotNull(instanceOrError.first);
         return instanceOrError.first;
     }

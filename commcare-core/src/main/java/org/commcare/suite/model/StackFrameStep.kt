@@ -1,7 +1,6 @@
 package org.commcare.suite.model
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 
 import org.commcare.core.interfaces.RemoteInstanceFetcher
 import org.commcare.session.SessionFrame
@@ -39,7 +38,7 @@ class StackFrameStep : Externalizable {
     private var _id: String? = null
     private var _value: String? = null
     private var valueIsXpath: Boolean = false
-    private var extras: Multimap<String, Any> = ArrayListMultimap.create()
+    private var extras: ListMultimap<String, Any> = ListMultimap()
 
     /**
      * XML instances collected during session navigation that is made available
@@ -170,7 +169,7 @@ class StackFrameStep : Externalizable {
         }
     }
 
-    fun getExtras(): Multimap<String, Any> = extras
+    fun getExtras(): ListMultimap<String, Any> = extras
 
     /**
      * Get a performed step to pass on to an actual frame
@@ -240,7 +239,7 @@ class StackFrameStep : Externalizable {
         this._id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this._value = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this.valueIsXpath = ExtUtil.readBool(`in`)
-        this.extras = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as Multimap<String, Any>
+        this.extras = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, Any>
         this.dataInstanceSources = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExternalDataInstanceSource::class.java), pf) as Hashtable<String, ExternalDataInstanceSource>
     }
 

@@ -6,7 +6,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
+
+import org.javarosa.core.util.ListMultimap;
 
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.PostRequest;
@@ -57,7 +58,7 @@ public class EntryParserTest {
         instances.put(TestInstances.CASEDB, TestInstances.buildCaseDb(ImmutableList.of("123", "456", "789")));
         EvaluationContext evalContext = new EvaluationContext(null, instances);
 
-        Multimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext, false);
+        ListMultimap<String, String> evaluatedParams = post.getEvaluatedParams(evalContext, false);
         assertEquals(Arrays.asList("bang"), evaluatedParams.get("case_id"));
         assertFalse(evaluatedParams.containsKey("case_id_list"));
 

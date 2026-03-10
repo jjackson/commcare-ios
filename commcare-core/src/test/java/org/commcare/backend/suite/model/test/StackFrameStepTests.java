@@ -6,7 +6,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
+
+import org.javarosa.core.util.ListMultimap;
 
 import org.cli.MockSessionUtils;
 import org.commcare.core.interfaces.MemoryVirtualDataInstanceStorage;
@@ -181,10 +182,11 @@ public class StackFrameStepTests {
         StackFrameStep queryFrame = steps.get(2);
         assertEquals(SessionFrame.STATE_QUERY_REQUEST, queryFrame.getElementType());
 
-        ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
-        builder.put("case_type", "patient");
-        builder.put("x_commcare_data_registry", "test");
-        builder.putAll("case_id", ImmutableList.of("case_one", "dupe1"));
-        assertEquals(builder.build(), queryFrame.getExtras());
+        ListMultimap<String, String> expected = ListMultimap.create();
+        expected.put("case_type", "patient");
+        expected.put("x_commcare_data_registry", "test");
+        expected.put("case_id", "case_one");
+        expected.put("case_id", "dupe1");
+        assertEquals(expected, queryFrame.getExtras());
     }
 }

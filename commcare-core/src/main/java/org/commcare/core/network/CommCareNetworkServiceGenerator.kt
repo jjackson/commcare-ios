@@ -1,8 +1,6 @@
 package org.commcare.core.network
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.ImmutableMultimap
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.core.services.CommCarePreferenceManagerFactory
 import org.commcare.util.LogTypes
 import org.javarosa.core.model.utils.DateUtils.HOUR_IN_MS
@@ -30,7 +28,7 @@ object CommCareNetworkServiceGenerator {
     // Retrofit needs a base url to generate an instance but since our apis are fully dynamic it's not getting used.
     private const val BASE_URL = "http://example.url/"
 
-    private var queryParams: Multimap<String, String> = ArrayListMultimap.create()
+    private var queryParams: ListMultimap<String, String> = ListMultimap()
 
     private val builder: Retrofit.Builder = Retrofit.Builder().baseUrl(BASE_URL)
 
@@ -117,7 +115,7 @@ object CommCareNetworkServiceGenerator {
         credential: String?,
         enforceSecureEndpoint: Boolean,
         retry: Boolean,
-        params: Multimap<String, String>
+        params: ListMultimap<String, String>
     ): CommCareNetworkService {
         queryParams = params
         authenticationInterceptor.setCredential(credential)
@@ -131,11 +129,11 @@ object CommCareNetworkServiceGenerator {
 
     @JvmStatic
     fun createNoAuthCommCareNetworkService(): CommCareNetworkService {
-        return createCommCareNetworkService(null, false, true, ImmutableMultimap.of())
+        return createCommCareNetworkService(null, false, true, ListMultimap())
     }
 
     @JvmStatic
-    fun createNoAuthCommCareNetworkService(params: Multimap<String, String>): CommCareNetworkService {
+    fun createNoAuthCommCareNetworkService(params: ListMultimap<String, String>): CommCareNetworkService {
         return createCommCareNetworkService(null, false, true, params)
     }
 

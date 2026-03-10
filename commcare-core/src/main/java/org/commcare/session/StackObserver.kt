@@ -1,6 +1,5 @@
 package org.commcare.session
 
-import com.google.common.collect.ImmutableList
 import org.commcare.suite.model.StackFrameStep
 
 /**
@@ -32,7 +31,7 @@ open class StackObserver {
     inner class StepEvent : StackEvent {
         private val steps: List<StackFrameStep>
 
-        constructor(type: EventType, step: StackFrameStep) : this(type, ImmutableList.of(step))
+        constructor(type: EventType, step: StackFrameStep) : this(type, listOf(step))
 
         constructor(type: EventType, steps: List<StackFrameStep>) : super(type) {
             this.steps = steps

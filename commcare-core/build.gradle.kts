@@ -16,7 +16,7 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     jvm {
         withJava()
@@ -42,13 +42,11 @@ kotlin {
                 implementation("javax.ws.rs:javax.ws.rs-api:2.0.1")
                 implementation("org.json:json:20250517")
                 implementation("commons-cli:commons-cli:1.3.1")
-                implementation("joda-time:joda-time:2.12.1")
                 implementation("com.carrotsearch:hppc:0.9.1")
                 api("com.squareup.retrofit2:retrofit:2.9.0")
                 api("com.squareup.okhttp3:okhttp:4.11.0")
                 implementation("com.google.code.findbugs:jsr305:3.0.2")
                 implementation("io.reactivex.rxjava2:rxjava:2.2.21")
-                implementation("com.google.guava:guava:31.1-jre")
                 implementation("io.opentracing:opentracing-api:0.33.0")
                 implementation("io.opentracing:opentracing-util:0.33.0")
                 implementation("com.datadoghq:dd-trace-api:1.10.0")

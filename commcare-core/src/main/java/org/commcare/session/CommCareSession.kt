@@ -1,6 +1,6 @@
 package org.commcare.session
 
-import com.google.common.collect.Multimap
+import org.javarosa.core.util.ListMultimap
 import org.commcare.suite.model.ComputedDatum
 import org.commcare.suite.model.Detail
 import org.commcare.suite.model.EntityDatum
@@ -1040,7 +1040,7 @@ open class CommCareSession {
         return null
     }
 
-    fun getCurrentFrameStepExtras(): Multimap<String, Any>? {
+    fun getCurrentFrameStepExtras(): ListMultimap<String, Any>? {
         val topStep = frame.getTopStep()
         if (topStep != null) {
             return topStep.getExtras()
