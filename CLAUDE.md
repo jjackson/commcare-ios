@@ -60,15 +60,16 @@ commcare-ios/
 | 6 | Migrate serialization consumers | 208 mod, 87 commonMain | #39 | Done (PR #53) |
 | 7 | Migrate XML consumers | 54 mod | #40 | Done (PR #55) |
 | 8 | iOS app shell | 12 new | #41 | Done (PR #57, iOS CI verified PR #60) |
-| 9 | E2E validation | ~5 new | #42 | Open (needs macOS) |
+| 9 | E2E validation | ~5 new | #42 | Done (PR #62) |
 
-**Dependency graph:** Waves 1-4 create abstractions (can partially overlap). Waves 5-7 move files (depend on respective abstraction waves). Wave 8 needs macOS. Wave 9 is final validation.
+**Phase 2 Complete.** All 9 waves done. 88 files in commonMain, 21 cross-platform tests pass on both JVM and iOS. See `docs/plans/2026-03-10-phase2-completion-report.md`.
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
 - **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
+- **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, known limitations, Phase 3 readiness
 - **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — wave details, PR strategy, issue closure template
 - **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — completed infrastructure setup (pipeline, CI, task generator). **Skip unless debugging pipeline issues.**
 - **Degenerify design**: `docs/plans/2026-03-08-abstract-tree-element-degenerify-design.md` — removing AbstractTreeElement type parameter (completed in Wave 2)
