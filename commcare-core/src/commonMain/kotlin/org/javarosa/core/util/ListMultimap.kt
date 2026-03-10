@@ -37,7 +37,7 @@ class ListMultimap<K, V> private constructor(
         val result = mutableListOf<Map.Entry<K, V>>()
         for ((key, values) in map) {
             for (value in values) {
-                result.add(java.util.AbstractMap.SimpleEntry(key, value))
+                result.add(SimpleMapEntry(key, value))
             }
         }
         return result
@@ -60,7 +60,7 @@ class ListMultimap<K, V> private constructor(
     override fun iterator(): kotlin.collections.Iterator<Map.Entry<K, Collection<V>>> {
         return map.entries.map { (k, v) ->
             @Suppress("USELESS_CAST")
-            java.util.AbstractMap.SimpleEntry(k, v as Collection<V>) as Map.Entry<K, Collection<V>>
+            SimpleMapEntry(k, v as Collection<V>) as Map.Entry<K, Collection<V>>
         }.iterator()
     }
 
@@ -84,5 +84,21 @@ class ListMultimap<K, V> private constructor(
 
         @JvmStatic
         fun <K, V> emptyMultimap(): ListMultimap<K, V> = ListMultimap()
+    }
+}
+
+/**
+ * Pure Kotlin Map.Entry implementation replacing java.util.AbstractMap.SimpleEntry
+ * for KMP commonMain compatibility.
+ */
+private class SimpleMapEntry<out K, out V>(
+    override val key: K,
+    override val value: V
+) : Map.Entry<K, V> {
+    override fun toString(): String = "$key=$value"
+    override fun hashCode(): Int = (key?.hashCode() ?: 0) xor (value?.hashCode() ?: 0)
+    override fun equals(other: Any?): Boolean {
+        if (other !is Map.Entry<*, *>) return false
+        return key == other.key && value == other.value
     }
 }
