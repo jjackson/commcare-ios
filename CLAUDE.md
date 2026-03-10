@@ -46,7 +46,7 @@ commcare-ios/
 | 7 | resources | 28 | Done (PR #28) |
 | 8 | commcare-core-services | 71 | Done (PR #29) |
 
-After Phase 1: KMP multiplatform targets (Issue #11), then final verification (Issue #12).
+**Phase 1 Complete.** KMP multiplatform targets added (PR #31). Final verification passed (Issue #12): 710 tests, 611 .kt + 32 .java, 5 JARs verified. See `docs/plans/2026-03-10-phase1-completion-report.md`.
 
 ## Key Docs
 
