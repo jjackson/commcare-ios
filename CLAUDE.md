@@ -117,6 +117,7 @@ commcare-ios/
 - **Phase 2 KMP migration learnings**: `docs/learnings/2026-03-10-wave6-7-kmp-migration-learnings.md` — compileCommonMainKotlinMetadata strictness, transitive dependency bottleneck, PlatformIOException typealias
 - **iOS CI learnings**: `docs/learnings/2026-03-10-ios-ci-learnings.md` — iOS-specific API differences, commonMain visibility from app module, CI strategy
 - **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
+- **Phase 3 Wave 2 learnings**: `docs/learnings/2026-03-10-wave2-xml-consumer-learnings.md` — property-based interfaces, platform type→nullable cascades, Java can't see typealiases, decorator pattern for class interop, DOM isolation vs abstraction
 
 ## Kotlin Conversion Checklist
 
@@ -230,3 +231,13 @@ Do not skip straight to code. The plan is the first deliverable of every phase.
 - Follow PR Rules and Issue Closure Rules exactly — AI agents must not skip deliverable steps
 - When in doubt about a technical decision, document it in the PR description
 - Never mix documentation changes into code branches — use separate doc PRs (see Doc PR Rules)
+
+### Post-Wave Learnings Review (mandatory)
+
+After completing each wave (code PR merged or ready), **explicitly decide** whether a learnings doc PR is needed:
+
+1. **Review what went wrong or was surprising** — compilation errors, test failures, design pivots, script bugs, unexpected API behaviors
+2. **If there are reusable lessons**, create `docs/learnings/<date>-<wave>-learnings.md` and PR it (per Doc PR Rules)
+3. **If nothing novel happened**, explicitly state "No new learnings from this wave — patterns matched prior waves" in the conversation. Do not silently skip this step.
+
+The goal is a conscious decision every time, not an afterthought when prompted.
