@@ -34,7 +34,7 @@ open class SessionWrapper : CommCareSession, SessionWrapperInterface {
     constructor(session: CommCareSession, platform: CommCarePlatform, sandbox: UserSandbox,
                 remoteInstanceFetcher: RemoteInstanceFetcher?, windowWidth: String?) : this(platform, sandbox, remoteInstanceFetcher, windowWidth) {
         this.frame = session.frame
-        this.setFrameStack(session.frameStack)
+        this.frameStack = session.frameStack
     }
 
     constructor(session: CommCareSession, platform: CommCarePlatform, sandbox: UserSandbox, windowWidth: String?) : this(session, platform, sandbox, null, windowWidth)
@@ -88,7 +88,7 @@ open class SessionWrapper : CommCareSession, SessionWrapperInterface {
 
     @Throws(RemoteInstanceFetcher.RemoteInstanceException::class)
     override fun prepareExternalSources() {
-        for (step in frame.steps) {
+        for (step in frame.getSteps()) {
             step.initDataInstanceSources(remoteInstanceFetcher)
         }
     }
