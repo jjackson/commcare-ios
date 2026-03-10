@@ -52,7 +52,7 @@ commcare-ios/
 
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
-| 1 | Replace Guava/joda-time | ~15 | #34 | Open |
+| 1 | Replace Guava/joda-time | ~15 | #34 | Done (PR #45) |
 | 2 | Serialization abstraction | ~10 new | #35 | Open |
 | 3 | XML parsing abstraction | ~10 new | #36 | Open |
 | 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Open |
