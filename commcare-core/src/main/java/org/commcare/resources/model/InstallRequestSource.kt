@@ -1,9 +1,9 @@
-package org.commcare.resources.model;
+package org.commcare.resources.model
 
 /**
  * All the install workflows a resource install can be part of
  */
-public enum InstallRequestSource {
+enum class InstallRequestSource {
     INSTALL,
     REINSTALL,
     BACKGROUND_UPDATE,
@@ -12,7 +12,7 @@ public enum InstallRequestSource {
     BACKGROUND_LAZY_RESOURCE,
     FOREGROUND_LAZY_RESOURCE;
 
-    public boolean isUpdate() {
-        return this == BACKGROUND_UPDATE || this == FOREGROUND_UPDATE;
+    fun isUpdate(): Boolean {
+        return this == BACKGROUND_UPDATE || this == FOREGROUND_UPDATE
     }
 }

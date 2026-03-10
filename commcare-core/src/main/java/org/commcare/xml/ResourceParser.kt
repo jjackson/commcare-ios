@@ -1,7 +1,7 @@
 package org.commcare.xml
 
 import org.commcare.resources.model.Resource
-import org.commcare.resources.model.Resource.LAZY_VAL_FALSE
+import org.commcare.resources.model.Resource.Companion.LAZY_VAL_FALSE
 import org.commcare.resources.model.ResourceLocation
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException

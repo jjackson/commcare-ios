@@ -192,7 +192,7 @@ class ProfileParser(
         // Get the resource block or fail out
         getNextTagInBlock("login")
         val resource = ResourceParser(parser, maximumResourceAuthority).parse()
-        table.addResource(resource, table.installers.loginImageInstaller, resourceId, initialResourceStatus)
+        table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId, initialResourceStatus)
     }
 
     @Throws(XmlPullParserException::class, IOException::class, InvalidStructureException::class)
@@ -277,7 +277,7 @@ class ProfileParser(
         // Get the resource block or fail out
         getNextTagInBlock("suite")
         val resource = ResourceParser(parser, maximumResourceAuthority).parse()
-        table.addResource(resource, table.installers.suiteInstaller, resourceId, initialResourceStatus)
+        table.addResource(resource, table.getInstallers().getSuiteInstaller(), resourceId, initialResourceStatus)
     }
 
     fun setMaximumAuthority(authority: Int) {

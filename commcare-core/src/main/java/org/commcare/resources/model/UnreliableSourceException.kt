@@ -1,4 +1,4 @@
-package org.commcare.resources.model;
+package org.commcare.resources.model
 
 /**
  * An UnreliableSourceException is a special type of UnresolvedResourceException which signals
@@ -10,8 +10,4 @@ package org.commcare.resources.model;
  *
  * @author ctsims
  */
-public class UnreliableSourceException extends UnresolvedResourceException {
-    public UnreliableSourceException(Resource r, String message) {
-        super(r, message);
-    }
-}
+class UnreliableSourceException(r: Resource, message: String?) : UnresolvedResourceException(r, message)

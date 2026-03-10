@@ -1,41 +1,40 @@
-package org.commcare.resources.model;
+package org.commcare.resources.model
 
-import org.commcare.resources.ResourceInstallContext;
-import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.Reference;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.Vector;
+import org.commcare.resources.ResourceInstallContext
+import org.commcare.util.CommCarePlatform
+import org.javarosa.core.reference.InvalidReferenceException
+import org.javarosa.core.reference.Reference
+import org.javarosa.core.util.externalizable.Externalizable
+import org.javarosa.xml.util.InvalidStructureException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
+import java.util.Vector
 
 /**
- * <p>A Resource Installer (Possible name change pending) is
+ * A Resource Installer (Possible name change pending) is
  * responsible for taking a Resource definition and taking
- * steps to make it available in the local environment.</p>
+ * steps to make it available in the local environment.
  *
- * <p>Resource record objects record and keep track of the state
+ * Resource record objects record and keep track of the state
  * of resources, while installers actually manage the local
  * representation of the resource and manage their initialization
- * and how to get them installed or uninstalled</p>
+ * and how to get them installed or uninstalled
  *
- * <p>Currently these installers are tracked as part of the resource
+ * Currently these installers are tracked as part of the resource
  * record itself. However, this will probably change as they are
- * transitioned to a device-specific factory. </p>
+ * transitioned to a device-specific factory.
  *
  * @author ctsims
  */
-public interface ResourceInstaller<T extends CommCarePlatform> extends Externalizable {
+interface ResourceInstaller<T : CommCarePlatform> : Externalizable {
 
     /**
      * @return true if a resource requires an initialization at
      * runtime in order to work properly. False otherwise.
      * This method may be unnecessary.
      */
-    boolean requiresRuntimeInitialization();
+    fun requiresRuntimeInitialization(): Boolean
 
     /**
      * initializes an installed resource for use at runtime.
@@ -44,9 +43,14 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return true if a resource is ready for use. False if
      * a problem occurred.
      */
-    boolean initialize(T platform, boolean isUpgrade) throws
-            IOException, InvalidReferenceException, InvalidStructureException,
-            XmlPullParserException, UnfullfilledRequirementsException;
+    @Throws(
+        IOException::class,
+        InvalidReferenceException::class,
+        InvalidStructureException::class,
+        XmlPullParserException::class,
+        UnfullfilledRequirementsException::class
+    )
+    fun initialize(platform: T, isUpgrade: Boolean): Boolean
 
     /**
      * Proceeds with the next step of installing resource r, keeping records at
@@ -62,10 +66,12 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @throws UnfullfilledRequirementsException If the current platform does
      *                                           not fullfill the needs for this resource
      */
-    boolean install(Resource r, ResourceLocation location,
-                    Reference ref, ResourceTable table,
-                    T platform, boolean upgrade, ResourceInstallContext resourceInstallContext) throws
-            UnresolvedResourceException, UnfullfilledRequirementsException;
+    @Throws(UnresolvedResourceException::class, UnfullfilledRequirementsException::class)
+    fun install(
+        r: Resource, location: ResourceLocation,
+        ref: Reference, table: ResourceTable,
+        platform: T, upgrade: Boolean, resourceInstallContext: ResourceInstallContext
+    ): Boolean
 
     /**
      * Removes the binary files and cached data associated with a resource, often in order to
@@ -73,7 +79,8 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * This method _should only_ be called on a resource table that will never be made ready again.
      */
-    boolean uninstall(Resource r, T platform) throws UnresolvedResourceException;
+    @Throws(UnresolvedResourceException::class)
+    fun uninstall(r: Resource, platform: T): Boolean
 
     /**
      * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
@@ -83,20 +90,20 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      *
      * After being unstaged, a resource's status will be set by the resource table.
      */
-    boolean unstage(Resource r, int newStatus, T platform);
+    fun unstage(r: Resource, newStatus: Int, platform: T): Boolean
 
     /**
      * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
      * after an unsuccesful upgrade or other issue.
      */
-    boolean revert(Resource r, ResourceTable table, CommCarePlatform platform);
+    fun revert(r: Resource, table: ResourceTable, platform: CommCarePlatform): Boolean
 
     /**
      * Rolls back an incomplete action.
      *
      * @return the new status of this resource
      */
-    int rollback(Resource r, CommCarePlatform platform);
+    fun rollback(r: Resource, platform: CommCarePlatform): Int
 
     /**
      * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
@@ -110,12 +117,13 @@ public interface ResourceInstaller<T extends CommCarePlatform> extends Externali
      * @return True if the upgrade step was completed successfully.
      * @throws UnresolvedResourceException If the local resource definition could not be found
      */
-    boolean upgrade(Resource r, T platform) throws UnresolvedResourceException;
+    @Throws(UnresolvedResourceException::class)
+    fun upgrade(r: Resource, platform: T): Boolean
 
     /**
      * Called to clean up or close any interstitial state that was created by managing this resource.
      */
-    void cleanup();
+    fun cleanup()
 
-    boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList, CommCarePlatform platform);
+    fun verifyInstallation(r: Resource, problemList: Vector<MissingMediaException>, platform: CommCarePlatform): Boolean
 }

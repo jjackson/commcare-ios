@@ -118,7 +118,7 @@ open class SuiteParser : ElementParser<Suite> {
                             if (!skipResources) {
                                 table.addResource(
                                     localeResource,
-                                    table.installers.getLocaleFileInstaller(localeKey),
+                                    table.getInstallers().getLocaleFileInstaller(localeKey),
                                     resourceGuid
                                 )
                             }
@@ -130,7 +130,7 @@ open class SuiteParser : ElementParser<Suite> {
                                 if (!skipResources) {
                                     table.addResource(
                                         mediaResource,
-                                        table.installers.getMediaInstaller(path),
+                                        table.getInstallers().getMediaInstaller(path),
                                         resourceGuid
                                     )
                                 }
@@ -142,9 +142,9 @@ open class SuiteParser : ElementParser<Suite> {
                             if (!skipResources) {
                                 val resourceInstaller: ResourceInstaller<*> =
                                     if (tagName.contentEquals("xform-update-info"))
-                                        table.installers.xFormUpdateInfoInstaller
+                                        table.getInstallers().getXFormUpdateInfoInstaller()
                                     else
-                                        table.installers.xFormInstaller
+                                        table.getInstallers().getXFormInstaller()
                                 table.addResource(xformResource, resourceInstaller, resourceGuid)
                             }
                         }
@@ -154,7 +154,7 @@ open class SuiteParser : ElementParser<Suite> {
                             if (!skipResources) {
                                 table.addResource(
                                     userRestoreResource,
-                                    table.installers.userRestoreInstaller,
+                                    table.getInstallers().getUserRestoreInstaller(),
                                     resourceGuid
                                 )
                             }
