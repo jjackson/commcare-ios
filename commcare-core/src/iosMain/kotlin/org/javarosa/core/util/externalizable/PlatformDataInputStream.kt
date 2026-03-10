@@ -75,7 +75,7 @@ actual class PlatformDataInputStream actual constructor(data: ByteArray) {
             }
         }
 
-        return String(chars, 0, charCount)
+        return chars.concatToString(0, charCount)
     }
 
     actual fun readFully(b: ByteArray) {
