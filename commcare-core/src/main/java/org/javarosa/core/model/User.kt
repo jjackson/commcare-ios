@@ -10,8 +10,8 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -55,7 +55,7 @@ class User : Persistable, Restorable, IMetaData {
 
     // fetch the value for the default user and password from the RMS
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.username = ExtUtil.readString(`in`)
         this.passwordHash = ExtUtil.readString(`in`)
         this.recordId = ExtUtil.readInt(`in`)
@@ -68,7 +68,7 @@ class User : Persistable, Restorable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(username))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(passwordHash))
         ExtUtil.writeNumeric(out, recordId.toLong())

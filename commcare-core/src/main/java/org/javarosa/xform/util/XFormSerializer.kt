@@ -7,7 +7,7 @@ import org.xmlpull.v1.XmlSerializer
 
 import org.javarosa.core.io.createByteArrayOutputStream
 import org.javarosa.core.io.byteArrayOutputStreamToBytes
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStreamWriter
 import java.io.UnsupportedEncodingException
@@ -19,7 +19,7 @@ class XFormSerializer {
             val serializer = KXmlSerializer()
 
             val bos = createByteArrayOutputStream()
-            val dos = DataOutputStream(bos)
+            val dos = PlatformDataOutputStream(bos)
             try {
                 serializer.setOutput(dos, null)
                 e.write(serializer)

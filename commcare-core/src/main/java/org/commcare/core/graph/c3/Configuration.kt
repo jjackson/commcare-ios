@@ -1,4 +1,5 @@
 package org.commcare.core.graph.c3
+import java.util.TreeMap
 
 import org.commcare.core.graph.model.GraphData
 import org.commcare.core.graph.util.GraphException
@@ -7,7 +8,6 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.SortedMap
-import java.util.TreeMap
 
 /**
  * Base class for helper classes that build C3 graph configuration.

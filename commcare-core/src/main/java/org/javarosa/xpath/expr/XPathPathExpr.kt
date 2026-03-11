@@ -32,10 +32,9 @@ import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.text.MessageFormat
 
 class XPathPathExpr : XPathExpression {
     private var templatePathChecked = false
@@ -193,9 +192,8 @@ class XPathPathExpr : XPathExpression {
                     throw XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by ${ref.toString(true)} has not been loaded")
                 }
             } else {
-                val args = arrayOf<Any?>(ref.getInstanceName(), ref.toString(true), evalContext.contextRef)
-                val msg = MessageFormat("The instance \"{0}\" in expression \"{1}\" used by \"{2}\" does not exist in the form. Please correct your form or application.")
-                throw XPathMissingInstanceException(ref.getInstanceName(), msg.format(args))
+                throw XPathMissingInstanceException(ref.getInstanceName(),
+                    "The instance \"${ref.getInstanceName()}\" in expression \"${ref.toString(true)}\" used by \"${evalContext.contextRef}\" does not exist in the form. Please correct your form or application.")
             }
         } else {
             //TODO: We should really stop passing 'm' around and start just getting the right instance from ec
@@ -309,7 +307,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         initContext = ExtUtil.readInt(`in`)
         if (initContext == INIT_CONTEXT_EXPR) {
             filtExpr = ExtUtil.read(`in`, XPathFilterExpr::class.java, pf) as XPathFilterExpr
@@ -321,7 +319,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, initContext.toLong())
         if (initContext == INIT_CONTEXT_EXPR) {
             ExtUtil.write(out, filtExpr!!)

@@ -12,7 +12,6 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.xpath.expr.XPathExpression
 
-import java.util.HashMap
 
 /**
  * This handler detects contexts in which the query is likely to trip many index lookups and will

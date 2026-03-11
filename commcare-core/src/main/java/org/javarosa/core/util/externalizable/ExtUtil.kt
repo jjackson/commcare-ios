@@ -6,10 +6,9 @@ import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.io.createByteArrayInputStream
 import org.javarosa.core.io.createByteArrayOutputStream
 import org.javarosa.core.io.byteArrayOutputStreamToBytes
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.UTFDataFormatException
 import org.javarosa.core.model.utils.PlatformDate
 
 class ExtUtil {
@@ -21,7 +20,7 @@ class ExtUtil {
         fun serialize(o: Any): ByteArray {
             val baos = createByteArrayOutputStream()
             try {
-                write(DataOutputStream(baos), o)
+                write(PlatformDataOutputStream(baos), o)
             } catch (ioe: PlatformIOException) {
                 throw RuntimeException("PlatformIOException writing to ByteArrayOutputStream; shouldn't happen!")
             }
@@ -40,7 +39,7 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun write(out: DataOutputStream, data: Any?) {
+        fun write(out: PlatformDataOutputStream, data: Any?) {
             if (data == null) throw NullPointerException("Cannot serialize null data")
             @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
             when (data) {
@@ -62,40 +61,40 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeNumeric(out: DataOutputStream, `val`: Long) {
+        fun writeNumeric(out: PlatformDataOutputStream, `val`: Long) {
             writeNumeric(out, `val`, ExtWrapIntEncodingUniform())
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeNumeric(out: DataOutputStream, `val`: Long, encoding: ExtWrapIntEncoding) {
+        fun writeNumeric(out: PlatformDataOutputStream, `val`: Long, encoding: ExtWrapIntEncoding) {
             write(out, encoding.clone(`val`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeChar(out: DataOutputStream, `val`: Char) {
+        fun writeChar(out: PlatformDataOutputStream, `val`: Char) {
             out.writeChar(`val`.code)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeDecimal(out: DataOutputStream, `val`: Double) {
+        fun writeDecimal(out: PlatformDataOutputStream, `val`: Double) {
             out.writeDouble(`val`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeBool(out: DataOutputStream, `val`: Boolean) {
+        fun writeBool(out: PlatformDataOutputStream, `val`: Boolean) {
             out.writeBoolean(`val`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeString(out: DataOutputStream, `val`: String?) {
+        fun writeString(out: PlatformDataOutputStream, `val`: String?) {
             try {
                 out.writeUTF(`val`!!)
-            } catch (e: UTFDataFormatException) {
+            } catch (e: PlatformIOException) {
                 val percentOversized =
                     ((`val`!!.toByteArray(Charsets.UTF_8).size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
                 throw SerializationLimitationException(
@@ -109,14 +108,14 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeDate(out: DataOutputStream, `val`: PlatformDate) {
+        fun writeDate(out: PlatformDataOutputStream, `val`: PlatformDate) {
             writeNumeric(out, `val`.time)
             // time zone?
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeBytes(out: DataOutputStream, bytes: ByteArray) {
+        fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
             writeNumeric(out, bytes.size.toLong())
             if (bytes.isNotEmpty()) // i think writing zero-length array might close the stream
                 out.write(bytes)
@@ -125,7 +124,7 @@ class ExtUtil {
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun read(
-            `in`: DataInputStream,
+            `in`: PlatformDataInputStream,
             type: Class<*>,
             pf: PrototypeFactory?
         ): Any {
@@ -153,7 +152,7 @@ class ExtUtil {
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun read(
-            `in`: DataInputStream,
+            `in`: PlatformDataInputStream,
             ew: ExternalizableWrapper,
             pf: PrototypeFactory?
         ): Any? {
@@ -163,13 +162,13 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readNumeric(`in`: DataInputStream): Long {
+        fun readNumeric(`in`: PlatformDataInputStream): Long {
             return readNumeric(`in`, ExtWrapIntEncodingUniform())
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readNumeric(`in`: DataInputStream, encoding: ExtWrapIntEncoding): Long {
+        fun readNumeric(`in`: PlatformDataInputStream, encoding: ExtWrapIntEncoding): Long {
             try {
                 return read(`in`, encoding, null) as Long
             } catch (de: DeserializationException) {
@@ -179,63 +178,63 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readInt(`in`: DataInputStream): Int {
+        fun readInt(`in`: PlatformDataInputStream): Int {
             return toInt(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readLong(`in`: DataInputStream): Long {
+        fun readLong(`in`: PlatformDataInputStream): Long {
             return readNumeric(`in`)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readShort(`in`: DataInputStream): Short {
+        fun readShort(`in`: PlatformDataInputStream): Short {
             return toShort(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readByte(`in`: DataInputStream): Byte {
+        fun readByte(`in`: PlatformDataInputStream): Byte {
             return toByte(readNumeric(`in`))
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readChar(`in`: DataInputStream): Char {
+        fun readChar(`in`: PlatformDataInputStream): Char {
             return `in`.readChar()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readDecimal(`in`: DataInputStream): Double {
+        fun readDecimal(`in`: PlatformDataInputStream): Double {
             return `in`.readDouble()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readBool(`in`: DataInputStream): Boolean {
+        fun readBool(`in`: PlatformDataInputStream): Boolean {
             return `in`.readBoolean()
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readString(`in`: DataInputStream): String {
+        fun readString(`in`: PlatformDataInputStream): String {
             val s = `in`.readUTF()
             return if (interning && stringCache != null) stringCache!!.intern(s) else s
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readDate(`in`: DataInputStream): PlatformDate {
+        fun readDate(`in`: PlatformDataInputStream): PlatformDate {
             return PlatformDate(readNumeric(`in`))
             // time zone?
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readBytes(`in`: DataInputStream): ByteArray {
+        fun readBytes(`in`: PlatformDataInputStream): ByteArray {
             val size = readNumeric(`in`).toInt()
             val bytes = ByteArray(size)
             var read = 0
@@ -441,7 +440,7 @@ class ExtUtil {
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
-            return read(DataInputStream(createByteArrayInputStream(data)), type, pf)
+            return read(PlatformDataInputStream(createByteArrayInputStream(data)), type, pf)
         }
 
         @Suppress("unused")

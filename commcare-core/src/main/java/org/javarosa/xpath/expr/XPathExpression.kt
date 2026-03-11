@@ -14,7 +14,6 @@ import org.kxml2.io.KXmlSerializer
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformOutputStream
-import java.nio.charset.StandardCharsets
 
 abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
 
@@ -271,7 +270,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
             if (value is XPathNodeset && !isLeafNode(value)) {
                 serializeElements(value, output)
             } else {
-                output.write(FunctionUtils.toString(value).toByteArray(StandardCharsets.UTF_8))
+                output.write(FunctionUtils.toString(value).toByteArray(Charsets.UTF_8))
             }
         }
 

@@ -18,8 +18,8 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -469,7 +469,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)
         flags = ExtUtil.readInt(`in`)
@@ -490,7 +490,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    private fun readChildrenFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    private fun readChildrenFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             children = null
         } else {
@@ -506,7 +506,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    private fun readAttributesFromExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    private fun readAttributesFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!ExtUtil.readBool(`in`)) {
             attributes = null
         } else {
@@ -522,7 +522,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
         ExtUtil.writeNumeric(out, multiplicity.toLong())
         ExtUtil.writeNumeric(out, flags.toLong())
@@ -542,7 +542,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    private fun writeChildrenToExternal(out: DataOutputStream) {
+    private fun writeChildrenToExternal(out: PlatformDataOutputStream) {
         if (children == null) {
             ExtUtil.writeBool(out, false)
         } else {
@@ -557,7 +557,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     @Throws(PlatformIOException::class)
-    private fun writeAttributesToExternal(out: DataOutputStream) {
+    private fun writeAttributesToExternal(out: PlatformDataOutputStream) {
         if (attributes == null) {
             ExtUtil.writeBool(out, false)
         } else {
@@ -897,7 +897,7 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      * This can be removed once we are certain no devices will be migrated up from 2.24
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    fun readExternalMigration(`in`: DataInputStream, pf: PrototypeFactory?) {
+    fun readExternalMigration(`in`: PlatformDataInputStream, pf: PrototypeFactory?) {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         multiplicity = ExtUtil.readInt(`in`)
         flags = ExtUtil.readInt(`in`)

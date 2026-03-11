@@ -14,8 +14,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -130,7 +130,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.commandId = ExtUtil.readString(`in`)
         this.display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
 
@@ -141,7 +141,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, commandId)
         ExtUtil.write(out, display)
         ExtUtil.write(out, ExtWrapListPoly(data!!))

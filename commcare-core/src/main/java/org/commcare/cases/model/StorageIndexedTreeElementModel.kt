@@ -9,8 +9,8 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -96,7 +96,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         recordId = ExtUtil.readInt(`in`)
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         root = ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement
@@ -106,7 +106,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(entityId))
         ExtUtil.write(out, root!!)

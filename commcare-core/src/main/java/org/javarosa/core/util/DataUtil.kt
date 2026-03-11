@@ -1,6 +1,5 @@
 package org.javarosa.core.util
 
-import java.util.HashSet
 
 /**
  * @author ctsims

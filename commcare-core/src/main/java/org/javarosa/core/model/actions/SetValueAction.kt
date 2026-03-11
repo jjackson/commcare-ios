@@ -15,8 +15,8 @@ import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -134,7 +134,7 @@ class SetValueAction : Action {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         target = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         explicitValue = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         if (explicitValue == null) {
@@ -143,7 +143,7 @@ class SetValueAction : Action {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, target!!)
 
         ExtUtil.write(out, ExtUtil.emptyIfNull(explicitValue))

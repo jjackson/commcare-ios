@@ -9,10 +9,8 @@ import org.javarosa.core.util.externalizable.Externalizable
 
 import org.javarosa.core.io.createByteArrayOutputStream
 import org.javarosa.core.io.byteArrayOutputStreamToBytes
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.HashMap
-import java.util.HashSet
 
 /**
  * Functions for generating CommCare SQL statements based on classes
@@ -187,7 +185,7 @@ open class TableBuilder {
         fun toBlob(externalizable: Externalizable): ByteArray {
             val bos = createByteArrayOutputStream()
             try {
-                externalizable.writeExternal(DataOutputStream(bos))
+                externalizable.writeExternal(PlatformDataOutputStream(bos))
             } catch (e: PlatformIOException) {
                 throw RuntimeException("Failed to serialize externalizable $externalizable for content values wth exception $e")
             }

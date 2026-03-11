@@ -12,8 +12,8 @@ import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -71,7 +71,7 @@ class XPathFilterExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         x = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
 
@@ -80,7 +80,7 @@ class XPathFilterExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val v = ArrayList<XPathExpression>()
         for (predicate in predicates) {
             v.add(predicate)

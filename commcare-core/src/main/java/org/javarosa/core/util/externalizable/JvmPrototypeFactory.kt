@@ -3,7 +3,6 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.api.ClassNameHasher
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.HashSet
 
 /**
  * JVM implementation of PrototypeFactory using Class.forName() + newInstance()

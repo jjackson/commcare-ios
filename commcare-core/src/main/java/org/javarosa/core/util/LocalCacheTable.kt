@@ -1,34 +1,28 @@
 package org.javarosa.core.util
 
-import java.lang.ref.WeakReference
-
 /**
- * A Local Cache Table is a weak reference store that can be used
- * to maintain a cache of objects keyed by a dynamic type.
+ * A Local Cache Table is a store that can be used to maintain a cache of
+ * objects keyed by a dynamic type.
  *
  * Local Cache Tables should be used for non-global caches. For global caches
  * use [CacheTable].
+ *
+ * Note: In the original Java implementation, this used WeakReferences for GC-friendly
+ * caching. For KMP compatibility, this now uses strong references with manual eviction.
+ * Callers should use [clear] to release entries when the cache is no longer needed.
  */
 class LocalCacheTable<T, K> {
-    private val currentTable = HashMap<T, WeakReference<K>>()
+    private val currentTable = HashMap<T, K>()
 
     fun retrieve(key: T): K? {
         synchronized(this) {
-            if (!currentTable.containsKey(key)) {
-                return null
-            }
-            @Suppress("UNCHECKED_CAST")
-            val retVal = currentTable[key]!!.get()
-            if (retVal == null) {
-                currentTable.remove(key)
-            }
-            return retVal
+            return currentTable[key]
         }
     }
 
     fun register(key: T, item: K) {
         synchronized(this) {
-            currentTable[key] = WeakReference(item)
+            currentTable[key] = item
         }
     }
 

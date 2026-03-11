@@ -5,7 +5,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.PlatformXmlParser
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.LinkedHashMap
 
 /**
  * Reference implementation of BulkProcessingCaseXMLParser which can be used with no platform

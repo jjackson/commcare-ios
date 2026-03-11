@@ -8,8 +8,8 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathException
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class Condition : Triggerable {
@@ -97,14 +97,14 @@ class Condition : Triggerable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(input, pf)
         trueAction = ExtUtil.readInt(input)
         falseAction = ExtUtil.readInt(input)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeNumeric(out, trueAction.toLong())
         ExtUtil.writeNumeric(out, falseAction.toLong())

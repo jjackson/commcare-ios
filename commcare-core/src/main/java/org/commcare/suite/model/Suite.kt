@@ -8,11 +8,9 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.ArrayList
-import java.util.HashMap
 
 /**
  * Suites are containers for a set of actions,
@@ -112,7 +110,7 @@ class Suite : Persistable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.recordId = ExtUtil.readInt(`in`)
         this.version = ExtUtil.readInt(`in`)
         this.details = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Detail::class.java), pf) as HashMap<String, Detail>
@@ -123,7 +121,7 @@ class Suite : Persistable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, recordId.toLong())
         ExtUtil.writeNumeric(out, version.toLong())
         ExtUtil.write(out, ExtWrapMap(details!!))

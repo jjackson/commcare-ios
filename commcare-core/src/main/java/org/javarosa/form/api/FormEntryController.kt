@@ -9,7 +9,6 @@ import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.instance.InvalidReferenceException
 import org.javarosa.core.model.instance.TreeElement
 
-import java.util.ArrayList
 
 import datadog.trace.api.Trace
 

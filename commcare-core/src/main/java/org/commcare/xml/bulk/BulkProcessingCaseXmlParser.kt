@@ -31,7 +31,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.LinkedHashMap
 
 /**
  * A parser which is capable of processing CaseXML transactions in a bulk format.

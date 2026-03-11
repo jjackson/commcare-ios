@@ -1,6 +1,6 @@
 package org.javarosa.core.util
 
-import java.util.Random
+import kotlin.random.Random
 
 object PropertyUtils {
 

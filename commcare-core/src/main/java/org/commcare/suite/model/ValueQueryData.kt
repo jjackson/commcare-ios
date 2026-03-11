@@ -9,10 +9,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Collections
 
 /**
  * Data class for single value query data elements
@@ -43,21 +42,21 @@ class ValueQueryData : QueryData {
 
     override fun getValues(context: EvaluationContext): Iterable<String> {
         return if (excludeExpr == null || !(excludeExpr!!.eval(context) as Boolean)) {
-            Collections.singletonList(FunctionUtils.toString(ref!!.eval(context)))
+            listOf(FunctionUtils.toString(ref!!.eval(context)))
         } else {
-            Collections.emptyList()
+            emptyList()
         }
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.write(out, ExtWrapTagged(ref!!))
         val excl = excludeExpr

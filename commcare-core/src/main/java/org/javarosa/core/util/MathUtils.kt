@@ -1,7 +1,6 @@
 package org.javarosa.core.util
 
-import java.security.SecureRandom
-import java.util.Random
+import kotlin.random.Random
 
 /**
  * Static utility functions for mathematical operations
@@ -25,7 +24,7 @@ object MathUtils {
     @JvmStatic
     fun getRand(): Random {
         if (r == null) {
-            r = SecureRandom()
+            r = Random.Default
         }
         return r!!
     }

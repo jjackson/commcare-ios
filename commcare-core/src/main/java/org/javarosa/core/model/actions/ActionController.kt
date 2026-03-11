@@ -8,8 +8,8 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -61,7 +61,7 @@ class ActionController : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(inStream: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(inStream: PlatformDataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
         eventListeners = ExtUtil.read(
             inStream,
@@ -70,7 +70,7 @@ class ActionController : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(outStream: DataOutputStream) {
+    override fun writeExternal(outStream: PlatformDataOutputStream) {
         ExtUtil.write(outStream, ExtWrapMap(eventListeners, ExtWrapListPoly()))
     }
 

@@ -4,7 +4,6 @@ import org.commcare.cases.model.StorageIndexedTreeElementModel
 import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.util.InvalidStructureException
-import java.util.HashSet
 
 /**
  * Tracks what attributes and elements are stored in indexed columns of an

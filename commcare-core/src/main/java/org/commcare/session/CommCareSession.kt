@@ -30,8 +30,8 @@ import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -1045,7 +1045,7 @@ open class CommCareSession {
         return null
     }
 
-    fun serializeSessionState(outputStream: DataOutputStream) {
+    fun serializeSessionState(outputStream: PlatformDataOutputStream) {
         frame.writeExternal(outputStream)
         ExtUtil.write(outputStream, ExtWrapList(frameStack))
     }
@@ -1060,7 +1060,7 @@ open class CommCareSession {
         @Throws(DeserializationException::class, PlatformIOException::class)
         fun restoreSessionFromStream(
             ccPlatform: CommCarePlatform,
-            inputStream: DataInputStream
+            inputStream: PlatformDataInputStream
         ): CommCareSession {
             val restoredFrame = SessionFrame()
             restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes())

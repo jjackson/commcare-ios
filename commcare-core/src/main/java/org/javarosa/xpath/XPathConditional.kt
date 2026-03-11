@@ -1,6 +1,5 @@
 package org.javarosa.xpath
 
-import org.javarosa.core.log.FatalException
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.IConditionExpr
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
@@ -17,8 +16,8 @@ import org.javarosa.xpath.expr.XPathFuncExpr
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathUnaryOpExpr
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathConditional : IConditionExpr {
@@ -73,7 +72,7 @@ class XPathConditional : IConditionExpr {
             val evaluated = expr!!.eval(model, evalContext!!) as XPathNodeset
             return evaluated.getReferences()!!
         } else {
-            throw FatalException("evalNodeset: must be path expression")
+            throw RuntimeException("evalNodeset: must be path expression")
         }
     }
 
@@ -105,13 +104,13 @@ class XPathConditional : IConditionExpr {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         expr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         hasNow = ExtUtil.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(expr!!))
         ExtUtil.writeBool(out, hasNow)
     }

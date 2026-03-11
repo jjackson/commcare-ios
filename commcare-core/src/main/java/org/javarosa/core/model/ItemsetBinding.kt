@@ -10,10 +10,9 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Collections
 
 class ItemsetBinding : Externalizable {
 
@@ -74,7 +73,7 @@ class ItemsetBinding : Externalizable {
         val currentChoices = choices
         if (currentSortRef != null && currentChoices != null) {
             // Perform sort
-            Collections.sort(currentChoices) { choice1, choice2 ->
+            currentChoices.sortWith { choice1, choice2 ->
                 choice1.evaluatedSortProperty!!.compareTo(choice2.evaluatedSortProperty!!)
             }
 
@@ -113,7 +112,7 @@ class ItemsetBinding : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         nodesetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         nodesetExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
         contextRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
@@ -129,7 +128,7 @@ class ItemsetBinding : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, nodesetRef!!)
         ExtUtil.write(out, ExtWrapTagged(nodesetExpr!!))
         ExtUtil.write(out, contextRef!!)

@@ -8,9 +8,7 @@ import org.javarosa.xpath.IExprDataType
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 
-import java.util.ArrayList
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.HashMap
 
 class FunctionUtils {
     companion object {

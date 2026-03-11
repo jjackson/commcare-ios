@@ -3,8 +3,6 @@ package org.commcare.modern.engine.cases
 import org.commcare.cases.query.QueryCache
 import org.commcare.modern.util.Pair
 
-import java.util.HashMap
-import java.util.LinkedHashSet
 
 /**
  * A record set result cache keeps track of different sets of "Bulk" record which are

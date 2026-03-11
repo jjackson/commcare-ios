@@ -1,4 +1,5 @@
 package org.commcare.core.graph.model
+import java.util.TreeMap
 
 import org.commcare.core.graph.c3.AxisConfiguration
 import org.commcare.core.graph.c3.DataConfiguration
@@ -9,7 +10,6 @@ import org.commcare.core.graph.util.GraphUtil
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.SortedMap
-import java.util.TreeMap
 
 /**
  * Contains all of the fully-evaluated data to draw a graph: a type, set of series,

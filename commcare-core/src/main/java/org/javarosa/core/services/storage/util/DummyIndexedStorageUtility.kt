@@ -14,11 +14,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.io.createByteArrayInputStream
 import org.javarosa.core.io.createByteArrayOutputStream
 import org.javarosa.core.io.byteArrayOutputStreamToBytes
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.LinkedHashSet
-import java.util.NoSuchElementException
 
 /**
  * @author ctsims
@@ -209,7 +207,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     override fun read(id: Int): T {
         try {
             val t = prototype.newInstance()
-            t.readExternal(DataInputStream(createByteArrayInputStream(readBytes(id))), mFactory)
+            t.readExternal(PlatformDataInputStream(createByteArrayInputStream(readBytes(id))), mFactory)
             t.setID(id)
             return t
         } catch (e: IllegalAccessException) {
@@ -232,7 +230,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         try {
             val item = data[DataUtil.integer(id)]
             if (item != null) {
-                item.writeExternal(DataOutputStream(stream))
+                item.writeExternal(PlatformDataOutputStream(stream))
                 return byteArrayOutputStreamToBytes(stream)
             } else {
                 throw NoSuchElementException("No record for ID $id")

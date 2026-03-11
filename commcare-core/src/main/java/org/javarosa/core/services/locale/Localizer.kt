@@ -10,10 +10,9 @@ import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.HashSet
 
 /**
  * The Localizer object maintains mappings for locale ID's and Object
@@ -368,7 +367,7 @@ class Localizer @JvmOverloads constructor(
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         fallbackDefaultLocale = ExtUtil.readBool(dis)
         fallbackDefaultForm = ExtUtil.readBool(dis)
         @Suppress("UNCHECKED_CAST")
@@ -383,7 +382,7 @@ class Localizer @JvmOverloads constructor(
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(dos: DataOutputStream) {
+    override fun writeExternal(dos: PlatformDataOutputStream) {
         ExtUtil.writeBool(dos, fallbackDefaultLocale)
         ExtUtil.writeBool(dos, fallbackDefaultForm)
         ExtUtil.write(dos, ExtWrapMap(localeResources, ExtWrapListPoly()))
