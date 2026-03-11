@@ -4,6 +4,7 @@ import org.commcare.test.utilities.MockApp
 import org.commcare.test.utilities.MockSessionNavigationResponder
 import org.commcare.session.SessionNavigator
 import org.javarosa.core.model.condition.EvaluationContext
+import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.form.api.FormEntryController
 import org.javarosa.form.api.FormEntryModel
 import org.javarosa.xpath.XPathParseTool
@@ -15,11 +16,8 @@ open class XPathBenchmark {
 
     private lateinit var model: FormEntryModel
     private lateinit var evalContext: EvaluationContext
+    private lateinit var mainInstance: FormInstance
 
-    /**
-     * Set up a loaded form with evaluation context.
-     * Uses the large TDH form so XPath expressions have realistic data to traverse.
-     */
     @Setup(Level.Trial)
     fun setUp() {
         val mockApp = MockApp("/app_performance/")
@@ -41,69 +39,48 @@ open class XPathBenchmark {
         navigator.startNextSessionStep()
 
         val fec: FormEntryController = mockApp.loadAndInitForm("large_tdh_form.xml")
-        model = fec.model
-        evalContext = model.form.evaluationContext
+        model = fec.getModel()
+        val formDef = model.getForm()
+        evalContext = formDef.getEvaluationContext()!!
+        mainInstance = formDef.getMainInstance()!!
     }
 
-    /**
-     * Parse a simple XPath reference. Baseline for parser overhead.
-     */
     @Benchmark
     fun parseSimpleReference(): Any {
-        return XPathParseTool.parseXPath("/data/question1")
+        return XPathParseTool.parseXPath("/data/question1")!!
     }
 
-    /**
-     * Parse a complex XPath expression with predicates and functions.
-     */
     @Benchmark
     fun parseComplexExpression(): Any {
         return XPathParseTool.parseXPath(
             "if(count(instance('casedb')/casedb/case[@case_type='patient' and @status='open']) > 0, 'yes', 'no')"
-        )
+        )!!
     }
 
-    /**
-     * Evaluate a simple path expression against the loaded form model.
-     */
     @Benchmark
     fun evalSimpleReference(): Any? {
-        val expr = XPathParseTool.parseXPath("/data/patient_name")
-        return FunctionUtils.unpack(expr.eval(model.form.mainInstance, evalContext))
+        val expr = XPathParseTool.parseXPath("/data/patient_name")!!
+        return FunctionUtils.unpack(expr.eval(mainInstance, evalContext))
     }
 
-    /**
-     * Evaluate an arithmetic expression (e.g., BMI calculation).
-     */
     @Benchmark
     fun evalArithmetic(): Any? {
-        val expr = XPathParseTool.parseXPath("1 + 2 * 3 div 4")
-        return FunctionUtils.unpack(expr.eval(model.form.mainInstance, evalContext))
+        val expr = XPathParseTool.parseXPath("1 + 2 * 3 div 4")!!
+        return FunctionUtils.unpack(expr.eval(mainInstance, evalContext))
     }
 
-    /**
-     * Evaluate a string concatenation expression.
-     */
     @Benchmark
     fun evalStringFunction(): Any? {
-        val expr = XPathParseTool.parseXPath("concat('hello', ' ', 'world')")
-        return FunctionUtils.unpack(expr.eval(model.form.mainInstance, evalContext))
+        val expr = XPathParseTool.parseXPath("concat('hello', ' ', 'world')")!!
+        return FunctionUtils.unpack(expr.eval(mainInstance, evalContext))
     }
 
-    /**
-     * Evaluate a conditional expression (relevance/skip logic pattern).
-     */
     @Benchmark
     fun evalConditional(): Any? {
-        val expr = XPathParseTool.parseXPath("if(true() and not(false()), 'show', 'hide')")
-        return FunctionUtils.unpack(expr.eval(model.form.mainInstance, evalContext))
+        val expr = XPathParseTool.parseXPath("if(true() and not(false()), 'show', 'hide')")!!
+        return FunctionUtils.unpack(expr.eval(mainInstance, evalContext))
     }
 
-    /**
-     * Batch evaluation — 20 mixed expressions, simulating form entry.
-     * This is the most realistic benchmark: during form entry, each question
-     * triggers multiple XPath evaluations for relevance, constraints, and calculations.
-     */
     @Benchmark
     fun evalBatch20(): Int {
         val expressions = listOf(
@@ -130,8 +107,8 @@ open class XPathBenchmark {
         )
         var count = 0
         for (exprStr in expressions) {
-            val expr = XPathParseTool.parseXPath(exprStr)
-            FunctionUtils.unpack(expr.eval(model.form.mainInstance, evalContext))
+            val expr = XPathParseTool.parseXPath(exprStr)!!
+            FunctionUtils.unpack(expr.eval(mainInstance, evalContext))
             count++
         }
         return count

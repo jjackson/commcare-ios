@@ -25,7 +25,7 @@ open class SerializationBenchmark {
 
         // Load a form and get its instance for serialization benchmarking
         val fpi = FormParseInit("/app_performance/large_tdh_form.xml")
-        formInstance = fpi.formDef.mainInstance
+        formInstance = fpi.formDef.getMainInstance()!!
 
         // Pre-serialize for deserialization benchmark
         val baos = ByteArrayOutputStream()

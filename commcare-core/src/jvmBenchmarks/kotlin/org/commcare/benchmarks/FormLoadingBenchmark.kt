@@ -37,7 +37,7 @@ open class FormLoadingBenchmark {
         navigator.startNextSessionStep()
 
         val fec: FormEntryController = mockApp.loadAndInitForm("large_tdh_form.xml")
-        return fec.model.getEvent()
+        return fec.getModel().getEvent()
     }
 
     /**
@@ -46,6 +46,6 @@ open class FormLoadingBenchmark {
     @Benchmark
     fun parseLargeFormXml(): Int {
         val fpi = FormParseInit("/app_performance/large_tdh_form.xml")
-        return fpi.formDef.children.size
+        return fpi.formDef.getChildren().size
     }
 }
