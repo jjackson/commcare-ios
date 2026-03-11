@@ -199,12 +199,19 @@ public class XPathFuncExprTest {
         // exclude functions defined at runtime
         funcClasses.remove(XPathCustomRuntimeFunc.class);
 
-        HashMap<String, Class<?>> funcList = FunctionUtils.getXPathFuncListMap();
+        HashMap<String, kotlin.jvm.functions.Function0<XPathFuncExpr>> funcList = FunctionUtils.getXPathFuncListMap();
+
+        // Build set of classes from factory invocations
+        Set<Class<?>> registeredClasses = new java.util.HashSet<>();
+        for (kotlin.jvm.functions.Function0<XPathFuncExpr> factory : funcList.values()) {
+            registeredClasses.add(factory.invoke().getClass());
+        }
+
         for (Class c : funcClasses) {
             assertTrue(c + " is not in list of functions, please update it",
-                    funcList.containsValue(c));
+                    registeredClasses.contains(c));
         }
-        for (Class c : funcList.values()) {
+        for (Class<?> c : registeredClasses) {
             assertTrue(c + " is in the list of functions but no longer exists, please remove it.",
                     funcClasses.contains(c));
         }
