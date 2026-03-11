@@ -20,7 +20,6 @@ import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathSelectedFunc
-import java.util.LinkedHashSet
 
 /**
  * @author ctsims

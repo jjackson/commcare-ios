@@ -47,7 +47,6 @@ import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.NoSuchElementException
 import datadog.trace.api.Trace
 import io.opentracing.util.GlobalTracer
 

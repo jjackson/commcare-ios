@@ -9,7 +9,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.NoSuchElementException
 
 /**
  * Contains all of the logic for parsing transactions in xml that pertain to

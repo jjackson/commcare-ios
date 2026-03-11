@@ -34,7 +34,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.NoSuchElementException
 
 /**
  * The CaseXML Parser is responsible for processing and performing

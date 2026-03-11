@@ -26,7 +26,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.LinkedHashMap
 
 /**
  * The BulkCaseInstanceXmlParser Parser is responsible for parsing case instance xml structure

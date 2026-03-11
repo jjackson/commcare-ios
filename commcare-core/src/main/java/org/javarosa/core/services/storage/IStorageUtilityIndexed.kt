@@ -3,9 +3,6 @@ package org.javarosa.core.services.storage
 import org.javarosa.core.model.condition.RequestAbandonedException
 import org.javarosa.core.util.InvalidIndexException
 import org.javarosa.core.util.externalizable.Externalizable
-import java.util.HashMap
-import java.util.LinkedHashSet
-import java.util.NoSuchElementException
 
 /**
  * IStorageUtilityIndexed

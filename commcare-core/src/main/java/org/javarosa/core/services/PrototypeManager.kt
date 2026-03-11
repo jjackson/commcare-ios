@@ -2,7 +2,6 @@ package org.javarosa.core.services
 
 import org.javarosa.core.util.externalizable.CannotCreateObjectException
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.util.HashSet
 
 object PrototypeManager {
     private val globalPrototypes: HashSet<String> = HashSet()

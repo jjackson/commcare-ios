@@ -2,7 +2,7 @@ package org.commcare.cases.query
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.Collections
+
 
 /**
  * Class that loads, runs, and manages the QueryHandlers during storage lookups
@@ -41,7 +41,7 @@ open class QueryPlanner {
 
     fun addQueryHandler(handler: QueryHandler<*>) {
         handlers.add(handler)
-        Collections.sort(handlers) { first, second ->
+        handlers.sortWith { first, second ->
             first.getExpectedRuntime() - second.getExpectedRuntime()
         }
     }
