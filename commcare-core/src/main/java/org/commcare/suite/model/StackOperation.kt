@@ -2,10 +2,11 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
@@ -81,19 +82,18 @@ class StackOperation : Externalizable {
         return elements
     }
 
-    @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        opType = ExtUtil.readInt(`in`)
-        ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        elements = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
+        opType = SerializationHelpers.readInt(`in`)
+        ifCondition = nullIfEmpty(SerializationHelpers.readString(`in`))
+        elements = SerializationHelpers.readList(`in`, pf) { StackFrameStep() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, opType.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition))
-        ExtUtil.write(out, ExtWrapList(elements))
+        SerializationHelpers.writeNumeric(out, opType.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(ifCondition))
+        SerializationHelpers.writeList(out, elements)
     }
 
     override fun toString(): String {

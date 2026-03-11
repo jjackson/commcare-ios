@@ -2,10 +2,9 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -73,19 +72,19 @@ class DisplayUnit : Externalizable, DetailTemplate {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        imageReference = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        audioReference = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        badgeFunction = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        hintText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
+        name = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
+        imageReference = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        audioReference = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        badgeFunction = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        hintText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, name)
-        ExtUtil.write(out, ExtWrapNullable(imageReference))
-        ExtUtil.write(out, ExtWrapNullable(audioReference))
-        ExtUtil.write(out, ExtWrapNullable(badgeFunction))
-        ExtUtil.write(out, ExtWrapNullable(hintText))
+        SerializationHelpers.write(out, name!!)
+        SerializationHelpers.writeNullable(out, imageReference)
+        SerializationHelpers.writeNullable(out, audioReference)
+        SerializationHelpers.writeNullable(out, badgeFunction)
+        SerializationHelpers.writeNullable(out, hintText)
     }
 }

@@ -6,9 +6,9 @@ import org.javarosa.core.services.PropertyManager
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -194,36 +194,37 @@ class Profile : Persistable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordId = ExtUtil.readInt(`in`)
-        version = ExtUtil.readInt(`in`)
-        authRef = ExtUtil.readString(`in`)
-        uniqueId = ExtUtil.readString(`in`)
-        displayName = ExtUtil.readString(`in`)
-        fromOld = ExtUtil.readBool(`in`)
+        recordId = SerializationHelpers.readInt(`in`)
+        version = SerializationHelpers.readInt(`in`)
+        authRef = SerializationHelpers.readString(`in`)
+        uniqueId = SerializationHelpers.readString(`in`)
+        displayName = SerializationHelpers.readString(`in`)
+        fromOld = SerializationHelpers.readBool(`in`)
 
-        properties = ExtUtil.read(`in`, ExtWrapList(PropertySetter::class.java), pf) as ArrayList<PropertySetter>
-        roots = ExtUtil.read(`in`, ExtWrapList(RootTranslator::class.java), pf) as ArrayList<RootTranslator>
+        properties = SerializationHelpers.readList(`in`, pf) { PropertySetter() }
+        roots = SerializationHelpers.readList(`in`, pf) { RootTranslator() }
+        @Suppress("UNCHECKED_CAST")
         featureStatus = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), pf) as HashMap<String, Boolean>
-        buildProfileId = ExtUtil.readString(`in`)
-        dependencies = ExtUtil.read(`in`, ExtWrapList(AndroidPackageDependency::class.java), pf) as ArrayList<AndroidPackageDependency>
-        credentials = ExtUtil.read(`in`, ExtWrapList(Credential::class.java), pf) as ArrayList<Credential>
+        buildProfileId = SerializationHelpers.readString(`in`)
+        dependencies = SerializationHelpers.readList(`in`, pf) { AndroidPackageDependency() }
+        credentials = SerializationHelpers.readList(`in`, pf) { Credential() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeNumeric(out, version.toLong())
-        ExtUtil.writeString(out, authRef)
-        ExtUtil.writeString(out, uniqueId)
-        ExtUtil.writeString(out, displayName)
-        ExtUtil.writeBool(out, fromOld)
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeNumeric(out, version.toLong())
+        SerializationHelpers.writeString(out, authRef!!)
+        SerializationHelpers.writeString(out, uniqueId!!)
+        SerializationHelpers.writeString(out, displayName!!)
+        SerializationHelpers.writeBool(out, fromOld)
 
-        ExtUtil.write(out, ExtWrapList(properties))
-        ExtUtil.write(out, ExtWrapList(roots))
-        ExtUtil.write(out, ExtWrapMap(featureStatus))
-        ExtUtil.writeString(out, buildProfileId)
-        ExtUtil.write(out, ExtWrapList(dependencies))
-        ExtUtil.write(out, ExtWrapList(credentials))
+        SerializationHelpers.writeList(out, properties)
+        SerializationHelpers.writeList(out, roots)
+        SerializationHelpers.writeMap(out, featureStatus)
+        SerializationHelpers.writeString(out, buildProfileId!!)
+        SerializationHelpers.writeList(out, dependencies)
+        SerializationHelpers.writeList(out, credentials)
     }
 
     companion object {

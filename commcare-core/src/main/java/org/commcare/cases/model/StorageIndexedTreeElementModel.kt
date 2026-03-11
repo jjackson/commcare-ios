@@ -5,9 +5,10 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -97,20 +98,19 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordId = ExtUtil.readInt(`in`)
-        entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        root = ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement
-        @Suppress("UNCHECKED_CAST")
-        indices = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
+        recordId = SerializationHelpers.readInt(`in`)
+        entityId = nullIfEmpty(SerializationHelpers.readString(`in`))
+        root = SerializationHelpers.readExternalizable(`in`, pf) { TreeElement() }
+        indices = SerializationHelpers.readStringList(`in`)
         metaDataFields = buildMetadataFields(indices!!)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(entityId))
-        ExtUtil.write(out, root!!)
-        ExtUtil.write(out, ExtWrapList(indices!!))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(entityId))
+        SerializationHelpers.write(out, root!!)
+        SerializationHelpers.writeList(out, indices!!)
     }
 
     companion object {

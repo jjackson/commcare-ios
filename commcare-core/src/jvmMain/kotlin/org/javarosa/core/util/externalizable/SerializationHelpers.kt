@@ -187,6 +187,68 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
+    actual fun <T : Externalizable> readStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): HashMap<String, T> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = HashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
+    actual fun readStringTaggedMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map, ExtWrapTagged()))
+    }
+
+    @JvmStatic
+    actual fun <T : Externalizable> readOrderedStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): LinkedHashMap<String, T> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
+    actual fun readOrderedStringStringMap(
+        `in`: PlatformDataInputStream
+    ): LinkedHashMap<String, String> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = ExtUtil.readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         return ExtUtil.arrayEquals(a, b, unwrap)
     }

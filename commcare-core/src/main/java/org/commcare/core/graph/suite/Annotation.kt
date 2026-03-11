@@ -2,9 +2,9 @@ package org.commcare.core.graph.suite
 
 import org.commcare.suite.model.Text
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -33,15 +33,15 @@ class Annotation : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        mX = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        mY = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        mAnnotation = ExtUtil.read(`in`, Text::class.java, pf) as Text
+        mX = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
+        mY = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
+        mAnnotation = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, mX)
-        ExtUtil.write(out, mY)
-        ExtUtil.write(out, mAnnotation)
+        SerializationHelpers.write(out, mX!!)
+        SerializationHelpers.write(out, mY!!)
+        SerializationHelpers.write(out, mAnnotation!!)
     }
 }

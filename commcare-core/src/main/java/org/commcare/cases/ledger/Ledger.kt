@@ -6,6 +6,7 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -99,16 +100,16 @@ class Ledger : Persistable, IMetaData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordId = ExtUtil.readInt(`in`)
-        entityId = ExtUtil.readString(`in`)
+        recordId = SerializationHelpers.readInt(`in`)
+        entityId = SerializationHelpers.readString(`in`)
         @Suppress("UNCHECKED_CAST")
         sections = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapMap(String::class.java, Int::class.javaObjectType)), pf) as HashMap<String, HashMap<String, Int>>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeString(out, entityId ?: "")
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeString(out, entityId ?: "")
         ExtUtil.write(out, ExtWrapMap(sections, ExtWrapMap(String::class.java, Int::class.javaObjectType)))
     }
 

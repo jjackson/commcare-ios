@@ -18,9 +18,8 @@ package org.javarosa.core.model.data
 
 import org.javarosa.core.data.IDataPointer
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -66,12 +65,12 @@ class PointerAnswerData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        data = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IDataPointer
+        data = SerializationHelpers.readTagged(`in`, pf) as IDataPointer
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(data!!))
+        SerializationHelpers.writeTagged(out, data!!)
     }
 
     override fun uncast(): UncastData {

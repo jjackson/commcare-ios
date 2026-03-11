@@ -3,8 +3,8 @@ package org.javarosa.core.services.locale
 import org.javarosa.core.util.UnregisteredLocaleException
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -72,12 +72,11 @@ class TableLocaleSource : LocaleDataSource {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        localeData = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
+        localeData = SerializationHelpers.readStringStringMap(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapMap(localeData))
+        SerializationHelpers.writeMap(out, localeData)
     }
 }

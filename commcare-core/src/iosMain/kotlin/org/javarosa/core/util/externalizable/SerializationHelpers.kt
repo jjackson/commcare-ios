@@ -220,6 +220,73 @@ actual object SerializationHelpers {
         }
     }
 
+    actual fun <T : Externalizable> readStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): HashMap<String, T> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readStringTaggedMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Any>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeTagged(out, value!!)
+        }
+    }
+
+    actual fun <T : Externalizable> readOrderedStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): LinkedHashMap<String, T> {
+        val size = readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readOrderedStringStringMap(
+        `in`: PlatformDataInputStream
+    ): LinkedHashMap<String, String> {
+        val size = readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         if (a.size != b.size) return false
         for (i in a.indices) {

@@ -7,9 +7,11 @@ import org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMultiMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -104,23 +106,23 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        instanceId = ExtUtil.readString(`in`)
-        mUseCaseTemplate = ExtUtil.readBool(`in`)
-        sourceUri = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        instanceId = SerializationHelpers.readString(`in`)
+        mUseCaseTemplate = SerializationHelpers.readBool(`in`)
+        sourceUri = nullIfEmpty(SerializationHelpers.readString(`in`))
         @Suppress("UNCHECKED_CAST")
         requestData = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, String>
-        storageReferenceId = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        reference = ExtUtil.readString(`in`)
+        storageReferenceId = SerializationHelpers.readNullableString(`in`, pf)
+        reference = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceId))
-        ExtUtil.writeBool(out, mUseCaseTemplate)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(sourceUri))
+        SerializationHelpers.writeString(out, emptyIfNull(instanceId))
+        SerializationHelpers.writeBool(out, mUseCaseTemplate)
+        SerializationHelpers.writeString(out, emptyIfNull(sourceUri))
         ExtUtil.write(out, ExtWrapMultiMap(requestData!!))
-        ExtUtil.write(out, ExtWrapNullable(storageReferenceId?.toString()))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))
+        SerializationHelpers.writeNullable(out, storageReferenceId?.toString())
+        SerializationHelpers.writeString(out, emptyIfNull(reference))
     }
 
     fun getInstanceId(): String? = instanceId

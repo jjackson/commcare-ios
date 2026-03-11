@@ -2,8 +2,8 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -37,12 +37,12 @@ class RemoteRequestEntry : Entry {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        post = ExtUtil.read(`in`, PostRequest::class.java, pf) as PostRequest
+        post = SerializationHelpers.readExternalizable(`in`, pf) { PostRequest() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.write(out, post)
+        SerializationHelpers.write(out, post!!)
     }
 }

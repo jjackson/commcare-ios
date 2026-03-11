@@ -125,6 +125,36 @@ expect object SerializationHelpers {
     @Throws(PlatformIOException::class)
     fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?)
 
+    // --- Typed map read/write ---
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun <T : Externalizable> readStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): HashMap<String, T>
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readStringTaggedMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any>
+
+    @Throws(PlatformIOException::class)
+    fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun <T : Externalizable> readOrderedStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): LinkedHashMap<String, T>
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readOrderedStringStringMap(
+        `in`: PlatformDataInputStream
+    ): LinkedHashMap<String, String>
+
     // --- Comparison utilities ---
 
     fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean

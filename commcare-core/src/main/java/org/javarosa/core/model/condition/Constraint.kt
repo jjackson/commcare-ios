@@ -19,10 +19,11 @@ package org.javarosa.core.model.condition
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -80,14 +81,14 @@ class Constraint : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
-        constraint = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
-        constraintMsg = ExtUtil.nullIfEmpty(ExtUtil.readString(input))
+        constraint = SerializationHelpers.readTagged(input, pf) as IConditionExpr
+        constraintMsg = nullIfEmpty(SerializationHelpers.readString(input))
         attemptConstraintCompile()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(constraint!!))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(constraintMsg))
+        SerializationHelpers.writeTagged(out, constraint!!)
+        SerializationHelpers.writeString(out, emptyIfNull(constraintMsg))
     }
 }
