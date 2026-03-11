@@ -11,7 +11,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
@@ -33,7 +33,7 @@ internal class FileBitCache(
         val cacheLocation = cacheDirSetup!!.getCacheDir()
 
         // generate temp file
-        temp = File.createTempFile("commcare_pull_${Date().time}", "xml", cacheLocation)
+        temp = File.createTempFile("commcare_pull_${PlatformDate().time}", "xml", cacheLocation)
         key = CryptUtil.generateSemiRandomKey()
     }
 

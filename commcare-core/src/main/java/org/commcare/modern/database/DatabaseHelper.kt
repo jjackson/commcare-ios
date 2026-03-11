@@ -6,7 +6,7 @@ import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.Externalizable
 
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashMap
 import java.util.HashSet
 
@@ -152,7 +152,7 @@ object DatabaseHelper {
             for (key in (e as IMetaData).getMetaDataFields()) {
                 val o = e.getMetaData(key) ?: continue
                 val scrubbedKey = TableBuilder.scrubName(key)
-                if (o is Date) {
+                if (o is PlatformDate) {
                     // store date as seconds since epoch
                     values[scrubbedKey] = o.time
                 } else {

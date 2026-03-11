@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * A response to a question requesting a DateTime Value
@@ -16,7 +16,7 @@ import java.util.Date
  * @author Clayton Sims
  */
 class DateTimeData : IAnswerData {
-    var d: Date? = null
+    var d: PlatformDate? = null
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -24,12 +24,12 @@ class DateTimeData : IAnswerData {
      */
     constructor()
 
-    constructor(d: Date) {
+    constructor(d: PlatformDate) {
         setValue(d)
     }
 
     override fun clone(): IAnswerData {
-        return DateTimeData(Date(d!!.time))
+        return DateTimeData(PlatformDate(d!!.time))
     }
 
     override fun setValue(o: Any?) {
@@ -37,11 +37,11 @@ class DateTimeData : IAnswerData {
         if (o == null) {
             throw NullPointerException("Attempt to set an IAnswerData class to null.")
         }
-        d = Date((o as Date).time)
+        d = PlatformDate((o as PlatformDate).time)
     }
 
     override fun getValue(): Any {
-        return Date(d!!.time)
+        return PlatformDate(d!!.time)
     }
 
     override fun getDisplayText(): String {

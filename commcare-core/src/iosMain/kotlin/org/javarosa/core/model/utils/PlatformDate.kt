@@ -1,0 +1,30 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
+package org.javarosa.core.model.utils
+
+import platform.Foundation.NSDate
+import platform.Foundation.timeIntervalSince1970
+
+/**
+ * iOS implementation of PlatformDate, wrapping milliseconds since epoch.
+ */
+actual class PlatformDate actual constructor() {
+    private var millis: Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
+
+    actual constructor(date: Long) : this() {
+        millis = date
+    }
+
+    actual fun getTime(): Long = millis
+    actual fun setTime(time: Long) { millis = time }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PlatformDate) return false
+        return time == other.time
+    }
+
+    override fun hashCode(): Int = time.hashCode()
+
+    override fun toString(): String = "PlatformDate(time=$time)"
+}
