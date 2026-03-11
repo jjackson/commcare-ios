@@ -112,7 +112,7 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
         //new serializer should be used, and then registered
         //with this serializer
         val pointer = data.getValue() as IDataPointer
-        return pointer.displayText
+        return pointer.getDisplayText()
     }
 
     /**

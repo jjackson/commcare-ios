@@ -220,7 +220,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
-    abstract fun parse(): T
+    abstract fun parse(): T?
 
     @Throws(PlatformXmlParserException::class, IOException::class)
     open fun skipBlock(tag: String) {

@@ -58,7 +58,7 @@ open class JavaFileReference @JvmOverloads constructor(
     }
 
     private fun file(): File {
-        return File(localURI)
+        return File(getLocalURI())
     }
 
     override fun getLocalURI(): String {
