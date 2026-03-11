@@ -3,13 +3,15 @@ package org.javarosa.core.model
 import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xform.parse.XFormParseException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.nullIfEmpty
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 class SelectChoice : Externalizable {
 
@@ -79,19 +81,19 @@ class SelectChoice : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        isLocalizable = ExtUtil.readBool(`in`)
-        labelInnerText = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        textID = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        value = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        isLocalizable = SerializationHelpers.readBool(`in`)
+        labelInnerText = nullIfEmpty(SerializationHelpers.readString(`in`))
+        textID = nullIfEmpty(SerializationHelpers.readString(`in`))
+        value = nullIfEmpty(SerializationHelpers.readString(`in`))
         //index will be set by questiondef
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeBool(out, isLocalizable)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(labelInnerText))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(textID))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(value))
+        SerializationHelpers.writeBool(out, isLocalizable)
+        SerializationHelpers.writeString(out, emptyIfNull(labelInnerText))
+        SerializationHelpers.writeString(out, emptyIfNull(textID))
+        SerializationHelpers.writeString(out, emptyIfNull(value))
         //don't serialize index; it will be restored from questiondef
     }
 

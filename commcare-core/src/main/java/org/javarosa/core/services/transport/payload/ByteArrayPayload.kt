@@ -1,12 +1,14 @@
 package org.javarosa.core.services.transport.payload
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.io.createByteArrayInputStream
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.nullIfEmpty
+import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.io.PlatformInputStream
 
 /**
@@ -57,7 +59,7 @@ class ByteArrayPayload : IDataPayload {
             this.payload = ByteArray(length)
             `in`.readFully(this.payload)
         }
-        id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        id = nullIfEmpty(SerializationHelpers.readString(`in`))
     }
 
     @Throws(PlatformIOException::class)
@@ -66,7 +68,7 @@ class ByteArrayPayload : IDataPayload {
         if (payload.isNotEmpty()) {
             out.write(payload)
         }
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id))
+        SerializationHelpers.writeString(out, emptyIfNull(id))
     }
 
     override fun <T> accept(visitor: IDataPayloadVisitor<T>): T {

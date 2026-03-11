@@ -1,12 +1,13 @@
 package org.javarosa.core.reference
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * A Root Translator is a simple reference factory which doesn't
@@ -61,13 +62,13 @@ open class RootTranslator : ReferenceFactory, Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        prefix = ExtUtil.readString(`in`)
-        translatedPrefix = ExtUtil.readString(`in`)
+        prefix = SerializationHelpers.readString(`in`)
+        translatedPrefix = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, prefix)
-        ExtUtil.writeString(out, translatedPrefix)
+        SerializationHelpers.writeString(out, emptyIfNull(prefix))
+        SerializationHelpers.writeString(out, emptyIfNull(translatedPrefix))
     }
 }

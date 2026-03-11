@@ -1,13 +1,15 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.nullIfEmpty
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * Model class to represent an argument to Endpoint
@@ -28,16 +30,16 @@ class EndpointArgument : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        id = ExtUtil.readString(`in`)
-        instanceId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        instanceSrc = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        id = SerializationHelpers.readString(`in`)
+        instanceId = nullIfEmpty(SerializationHelpers.readString(`in`))
+        instanceSrc = nullIfEmpty(SerializationHelpers.readString(`in`))
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, id)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceId))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceSrc))
+        SerializationHelpers.writeString(out, emptyIfNull(id))
+        SerializationHelpers.writeString(out, emptyIfNull(instanceId))
+        SerializationHelpers.writeString(out, emptyIfNull(instanceSrc))
     }
 
     fun getId(): String? = id

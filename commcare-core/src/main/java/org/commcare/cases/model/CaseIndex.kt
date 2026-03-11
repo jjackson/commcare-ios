@@ -1,13 +1,13 @@
 package org.commcare.cases.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * A case index represents a link between one case and another. Depending
@@ -57,18 +57,18 @@ open class CaseIndex : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        mName = ExtUtil.readString(`in`)
-        mTargetId = ExtUtil.readString(`in`)
-        mTargetCaseType = ExtUtil.readString(`in`)
-        mRelationship = ExtUtil.readString(`in`)
+        mName = SerializationHelpers.readString(`in`)
+        mTargetId = SerializationHelpers.readString(`in`)
+        mTargetCaseType = SerializationHelpers.readString(`in`)
+        mRelationship = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, mName ?: "")
-        ExtUtil.writeString(out, mTargetId ?: "")
-        ExtUtil.writeString(out, mTargetCaseType ?: "")
-        ExtUtil.writeString(out, mRelationship ?: "")
+        SerializationHelpers.writeString(out, mName ?: "")
+        SerializationHelpers.writeString(out, mTargetId ?: "")
+        SerializationHelpers.writeString(out, mTargetCaseType ?: "")
+        SerializationHelpers.writeString(out, mRelationship ?: "")
     }
 
     fun getName(): String? = mName

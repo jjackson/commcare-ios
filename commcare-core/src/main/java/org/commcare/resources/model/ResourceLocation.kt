@@ -2,12 +2,12 @@ package org.commcare.resources.model
 
 import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * A resource location is a simple model containing a possible
@@ -65,15 +65,15 @@ class ResourceLocation : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.authority = ExtUtil.readInt(`in`)
-        this.location = ExtUtil.readString(`in`)
+        this.authority = SerializationHelpers.readInt(`in`)
+        this.location = SerializationHelpers.readString(`in`)
         this.relative = ReferenceManager.isRelative(location)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, authority.toLong())
-        ExtUtil.writeString(out, location)
+        SerializationHelpers.writeNumeric(out, authority.toLong())
+        SerializationHelpers.writeString(out, location)
         this.relative = ReferenceManager.isRelative(location)
     }
 }

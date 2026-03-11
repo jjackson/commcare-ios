@@ -8,12 +8,13 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xform.parse.IElementHandler
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing
@@ -77,12 +78,12 @@ class SendAction : Action {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        submissionId = ExtUtil.readString(`in`)
+        submissionId = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(submissionId))
+        SerializationHelpers.writeString(out, emptyIfNull(submissionId))
     }
 
     companion object {

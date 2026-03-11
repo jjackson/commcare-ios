@@ -1,13 +1,15 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.nullIfEmpty
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * @author ctsims
@@ -32,13 +34,13 @@ open class SessionDatum : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        value = ExtUtil.readString(`in`)
+        id = nullIfEmpty(SerializationHelpers.readString(`in`))
+        value = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id))
-        ExtUtil.writeString(out, value)
+        SerializationHelpers.writeString(out, emptyIfNull(id))
+        SerializationHelpers.writeString(out, emptyIfNull(value))
     }
 }
