@@ -30,7 +30,7 @@ import org.javarosa.core.util.externalizable.SerializationLimitationException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.LinkedHashMap
 
 /**
@@ -130,7 +130,7 @@ abstract class BulkProcessingCaseXmlParser(parser: PlatformXmlParser) :
         createElement: TreeElement,
         currentOperatingSet: MutableMap<String, Case>,
         caseId: String,
-        modified: Date?,
+        modified: PlatformDate?,
         userId: String?
     ): Case {
         val data = arrayOfNulls<String>(3)

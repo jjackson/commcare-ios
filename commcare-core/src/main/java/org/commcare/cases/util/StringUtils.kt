@@ -2,14 +2,13 @@ package org.commcare.cases.util
 
 import org.commcare.modern.util.Pair
 import java.text.Normalizer
-import java.util.regex.Pattern
 
 /**
  * Created by willpride on 10/27/16.
  */
 object StringUtils {
 
-    private var diacritics: Pattern? = null
+    private var diacritics: Regex? = null
 
     // TODO: Really not sure about this size. Also, the LRU probably isn't really the best model here
     // since we'd _like_ for these caches to get cleaned up at _some_ point.
@@ -28,7 +27,7 @@ object StringUtils {
     fun normalize(input: String): String {
         if (normalizationCache == null) {
             normalizationCache = LruCache(cacheSize)
-            diacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+            diacritics = Regex("\\p{InCombiningDiacriticalMarks}+")
         }
         val cachedString = normalizationCache!!.get(input)
         if (cachedString != null) {
@@ -42,7 +41,7 @@ object StringUtils {
         // issues, but we can at least still eliminate diacritics.
         val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
 
-        val output = diacritics!!.matcher(normalized).replaceAll("").lowercase()
+        val output = diacritics!!.replace(normalized, "").lowercase()
 
         normalizationCache!!.put(input, output)
 

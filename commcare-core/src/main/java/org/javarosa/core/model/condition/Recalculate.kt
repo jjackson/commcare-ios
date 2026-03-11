@@ -17,7 +17,7 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.XPathException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import kotlin.math.abs
 
 class Recalculate : Triggerable {
@@ -123,7 +123,7 @@ class Recalculate : Triggerable {
                 return SelectMultiData().cast(UncastData(`val`.toString()))
             } else if (`val` is String) {
                 return StringData(`val`)
-            } else if (`val` is Date) {
+            } else if (`val` is PlatformDate) {
                 return if (dataType == Constants.DATATYPE_DATE_TIME) {
                     DateTimeData(`val`)
                 } else if (dataType == Constants.DATATYPE_TIME) {

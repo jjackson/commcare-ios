@@ -5,7 +5,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.util.InvalidStructureException
 import java.util.HashSet
-import java.util.regex.Pattern
 
 /**
  * Tracks what attributes and elements are stored in indexed columns of an
@@ -67,7 +66,7 @@ class FixtureIndexSchema(schemaTree: TreeElement, @JvmField val fixtureName: Str
         @JvmStatic
         @Throws(InvalidStructureException::class)
         private fun validateIndexValue(index: String) {
-            if (!Pattern.matches("^[a-zA-Z0-9,@_\\.-]+$", index)) {
+            if (!index.matches(Regex("^[a-zA-Z0-9,@_\\.-]+$"))) {
                 throw InvalidStructureException("Fixture schema contains an invalid index: '$index'")
             }
         }

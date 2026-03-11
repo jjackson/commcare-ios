@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.text.SimpleDateFormat
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -66,7 +66,7 @@ object CommCareNetworkServiceGenerator {
                 val serverTimeInMillis = SimpleDateFormat(
                     "EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH
                 ).parse(serverDate).time
-                val now = Date().time
+                val now = PlatformDate().time
                 var currentDrift = (now - serverTimeInMillis) / HOUR_IN_MS
                 commCarePreferenceManager.putLong(CURRENT_DRIFT, currentDrift)
                 val maxDriftSinceLastHeartbeat = commCarePreferenceManager.getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0)

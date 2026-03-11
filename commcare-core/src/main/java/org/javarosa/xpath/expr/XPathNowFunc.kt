@@ -3,7 +3,7 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 open class XPathNowFunc : XPathFuncExpr, VolatileXPathFuncExpr {
     constructor() {
@@ -15,7 +15,7 @@ open class XPathNowFunc : XPathFuncExpr, VolatileXPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, false)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Date()
+        return PlatformDate()
     }
 
     override fun rootExpressionTypeIsCacheable(): Boolean {

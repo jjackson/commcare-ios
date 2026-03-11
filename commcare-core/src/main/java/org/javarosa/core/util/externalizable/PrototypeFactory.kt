@@ -2,7 +2,7 @@ package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.api.ClassNameHasher
 import org.javarosa.core.model.data.UncastData
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashSet
 
 /**
@@ -85,7 +85,7 @@ open class PrototypeFactory {
             Float::class.javaObjectType,
             Double::class.javaObjectType,
             String::class.java,
-            Date::class.java,
+            PlatformDate::class.java,
             UncastData::class.java
         )
 

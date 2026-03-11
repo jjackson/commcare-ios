@@ -4,7 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 open class XPathFormatDateFunc : XPathFuncExpr {
     constructor() {
@@ -24,7 +24,7 @@ open class XPathFormatDateFunc : XPathFuncExpr {
         private const val EXPECTED_ARG_COUNT: Int = 2
 
         private fun dateStr(od: Any?, of: Any?): String {
-            val expandedDate: Date? = FunctionUtils.expandDateSafe(od)
+            val expandedDate: PlatformDate? = FunctionUtils.expandDateSafe(od)
             if (expandedDate == null) {
                 return ""
             }

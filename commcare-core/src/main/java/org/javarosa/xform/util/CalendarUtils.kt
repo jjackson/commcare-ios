@@ -6,7 +6,7 @@ import org.commcare.util.LocaleArrayDataSource
 import org.javarosa.core.model.utils.DateUtils
 
 import java.util.Calendar
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashMap
 import java.util.TimeZone
 
@@ -215,7 +215,7 @@ class CalendarUtils {
         }
 
         @JvmStatic
-        fun ConvertToEthiopian(d: Date, format: String?): String {
+        fun ConvertToEthiopian(d: PlatformDate, format: String?): String {
             val fmt = format ?: "%e %B %Y"
 
             val fields = DateUtils.getFields(d)
@@ -271,7 +271,7 @@ class CalendarUtils {
          * @return Nepali date string in 'd MMMM yyyy' format
          */
         @JvmStatic
-        fun convertToNepaliString(date: Date, format: String?): String {
+        fun convertToNepaliString(date: PlatformDate, format: String?): String {
             var fmt = format
             if (fmt == null) {
                 fmt = "%e %B %Y"
@@ -383,7 +383,7 @@ class CalendarUtils {
         }
 
         @JvmStatic
-        fun fromMillis(date: Date, timezone: String?): UniversalDate {
+        fun fromMillis(date: PlatformDate, timezone: String?): UniversalDate {
             val cd = Calendar.getInstance()
             cd.time = date
             if (timezone != null) {
@@ -397,7 +397,7 @@ class CalendarUtils {
 
         @JvmStatic
         fun fromMillis(millisFromJavaEpoch: Long): UniversalDate {
-            val date = Date(millisFromJavaEpoch)
+            val date = PlatformDate(millisFromJavaEpoch)
             return fromMillis(date, null)
         }
 

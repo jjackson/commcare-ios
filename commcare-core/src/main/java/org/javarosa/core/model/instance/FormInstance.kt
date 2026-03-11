@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * This class represents the xform model instance
@@ -23,7 +23,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     /**
      * The date that this model was taken and recorded
      */
-    private var dateSaved: Date? = null
+    private var dateSaved: PlatformDate? = null
 
     @JvmField
     var schema: String? = null
@@ -163,7 +163,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
+        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
 
         @Suppress("UNCHECKED_CAST")
         namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
@@ -244,7 +244,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     fun migrateSerialization(`in`: DataInputStream, pf: PrototypeFactory?) {
         super.readExternal(`in`, pf!!)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
+        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
 
         @Suppress("UNCHECKED_CAST")
         namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>

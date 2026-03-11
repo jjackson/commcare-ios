@@ -24,7 +24,7 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Calendar
 import java.util.Collections
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * Text objects are a model for holding strings which
@@ -99,7 +99,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
                     temp.addFunctionHandler(object : IFunctionHandler {
                         override fun eval(args: Array<Any?>?, ec: EvaluationContext?): Any? {
                             val o = FunctionUtils.toDate(args!![0])
-                            if (o !is Date) {
+                            if (o !is PlatformDate) {
                                 // return null, date is null.
                                 return ""
                             }
@@ -119,7 +119,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
                         override fun getPrototypes(): ArrayList<Any> {
                             val format = ArrayList<Any>()
                             val prototypes = arrayOf<Class<*>>(
-                                Date::class.java,
+                                PlatformDate::class.java,
                                 String::class.java
                             )
                             format.add(prototypes)
@@ -132,7 +132,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
                     temp.addFunctionHandler(object : IFunctionHandler {
                         override fun eval(args: Array<Any?>?, ec: EvaluationContext?): Any? {
                             val c = Calendar.getInstance()
-                            c.time = Date()
+                            c.time = PlatformDate()
                             return c.get(Calendar.DAY_OF_WEEK).toString()
                         }
 
