@@ -17,7 +17,7 @@ open class XPathRandomFunc : XPathFuncExpr, VolatileXPathFuncExpr {
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         //calculated expressions may be recomputed w/o warning! use with caution!!
-        return java.lang.Double.valueOf(MathUtils.getRand().nextDouble())
+        return MathUtils.getRand().nextDouble()
     }
 
     override fun rootExpressionTypeIsCacheable(): Boolean {

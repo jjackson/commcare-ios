@@ -22,6 +22,8 @@ open class SizeBoundVector<E>(
     @JvmField
     var badVideoReferenceCount: Int = 0
 
+    override fun contains(element: E): Boolean = super.contains(element)
+
     @Synchronized
     override fun add(element: E): Boolean {
         if (this.size == limit) {
