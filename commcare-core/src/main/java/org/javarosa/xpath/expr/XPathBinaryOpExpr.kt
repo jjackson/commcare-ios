@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
@@ -48,7 +49,7 @@ abstract class XPathBinaryOpExpr : XPathOpExpr {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         op = ExtUtil.readInt(`in`)
         readExpressions(`in`, pf)
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = JvmExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)

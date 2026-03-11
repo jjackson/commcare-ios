@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import io.reactivex.Single
 import org.javarosa.core.model.condition.EvaluationContext
@@ -132,7 +133,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         this.commandId = ExtUtil.readString(`in`)
-        this.display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        this.display = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
 
         data = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<SessionDatum>
         instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>

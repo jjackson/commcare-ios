@@ -1,4 +1,5 @@
 package org.commcare.core.graph.suite
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.commcare.suite.model.Text
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -33,9 +34,9 @@ class Annotation : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        mX = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        mY = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        mAnnotation = ExtUtil.read(`in`, Text::class.java, pf) as Text
+        mX = JvmExtUtil.read(`in`, Text::class.java, pf) as Text
+        mY = JvmExtUtil.read(`in`, Text::class.java, pf) as Text
+        mAnnotation = JvmExtUtil.read(`in`, Text::class.java, pf) as Text
     }
 
     @Throws(PlatformIOException::class)

@@ -1,4 +1,5 @@
 package org.javarosa.model.xform
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -50,7 +51,7 @@ class XPathReference : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         nodeset = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        ref = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        ref = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
     }
 
     @Throws(PlatformIOException::class)

@@ -1,4 +1,5 @@
 package org.javarosa.core.model.condition
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.instance.FormInstance
@@ -235,8 +236,8 @@ abstract class Triggerable : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
         expr = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
-        contextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
-        originalContextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
+        contextRef = JvmExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
+        originalContextRef = JvmExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
         @Suppress("UNCHECKED_CAST")
         targets = ExtUtil.read(input, ExtWrapList(TreeReference::class.java), pf) as ArrayList<TreeReference>
         stopContextualizingAt = ExtUtil.readInt(input)

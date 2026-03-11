@@ -235,7 +235,7 @@ public class MultiSelectEntityScreen extends EntityScreen {
                 String caseName = null;
                 QueryScreen queryScreen = this.getQueryScreen();
                 IStorageUtilityIndexed<Case> caseSearchStorage = queryScreen != null ? queryScreen.getCaseSearchStorage() : null;
-                caseName = FormDataUtil.getCaseName(sandbox, caseSearchStorage, caseId);
+                caseName = FormDataUtil.INSTANCE.getCaseName(sandbox, caseSearchStorage, caseId);
                 if (caseName != null) {
                     if (caseCount > 1) {
                         return "(" + caseCount + ") " + caseName + ", ...";

@@ -31,7 +31,7 @@ public class FormDataUtilTest {
                 + "CASE_ID usercase_id 05c0fb7a77a54eed9872fc1b72a21826 "
                 + "CASE_ID return_to m0";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
-        String title = FormDataUtil.getTitleFromSession(sandbox,
+        String title = FormDataUtil.INSTANCE.getTitleFromSession(sandbox,
                 blankSession, blankSession.getEvaluationContext());
         assertEquals("Saul", title);
     }
@@ -51,7 +51,7 @@ public class FormDataUtilTest {
                 + "COMMAND_ID m2-f0 "
                 + "CASE_ID case_id_new_adult_0 case_one";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
-        String title = FormDataUtil.getTitleFromSession(sandbox,
+        String title = FormDataUtil.INSTANCE.getTitleFromSession(sandbox,
                 blankSession, blankSession.getEvaluationContext());
         assertEquals("Saul", title);
     }
@@ -69,7 +69,7 @@ public class FormDataUtilTest {
                 + "CASE_ID case_id case_one "
                 + "COMMAND_ID m4-f0";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
-        String title = FormDataUtil.getTitleFromSession(sandbox,
+        String title = FormDataUtil.INSTANCE.getTitleFromSession(sandbox,
                 blankSession, blankSession.getEvaluationContext());
         assertEquals("Saul", title);
     }
@@ -88,7 +88,7 @@ public class FormDataUtilTest {
                 + "CASE_ID case_id case_one "
                 + "COMMAND_ID m1-f0";
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor, blankSession);
-        String title = FormDataUtil.getTitleFromSession(sandbox,
+        String title = FormDataUtil.INSTANCE.getTitleFromSession(sandbox,
                 blankSession, blankSession.getEvaluationContext());
         assertEquals("Saul", title);
     }

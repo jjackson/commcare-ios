@@ -263,7 +263,7 @@ public class EntityScreen extends CompoundScreenHost {
     public String getBreadcrumb(String input, UserSandbox sandbox, SessionWrapper session) {
         QueryScreen queryScreen = this.getQueryScreen();
         IStorageUtilityIndexed<Case> caseSearchStorage = queryScreen != null ? queryScreen.getCaseSearchStorage() : null;
-        String caseName = FormDataUtil.getCaseName(sandbox, caseSearchStorage, input);
+        String caseName = FormDataUtil.INSTANCE.getCaseName(sandbox, caseSearchStorage, input);
         return caseName == null ? ScreenUtils.getBestTitle(session) : caseName;
     }
 

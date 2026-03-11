@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
@@ -79,7 +80,7 @@ open class EntityDatum : SessionDatum {
         super.readExternal(`in`, pf)
 
         if (ExtUtil.readBool(`in`)) {
-            nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+            nodeset = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         } else {
             nodeset = null
         }

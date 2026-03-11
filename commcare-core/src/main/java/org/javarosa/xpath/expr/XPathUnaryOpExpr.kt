@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
@@ -36,7 +37,7 @@ abstract class XPathUnaryOpExpr : XPathOpExpr {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = JvmExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)

@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.Constants
 import org.javarosa.core.model.condition.EvaluationContext
@@ -128,7 +129,7 @@ class DetailField : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        header = ExtUtil.read(`in`, Text::class.java, pf) as Text
+        header = JvmExtUtil.read(`in`, Text::class.java, pf) as Text
         template = ExtUtil.read(`in`, ExtWrapTagged(DetailTemplate::class.java), pf) as DetailTemplate
         sort = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         altText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?

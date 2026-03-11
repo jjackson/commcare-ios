@@ -1,4 +1,5 @@
 package org.javarosa.core.model.instance
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
@@ -587,7 +588,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
         contextType = ExtUtil.readInt(`in`)
         val size = ExtUtil.readInt(`in`)
         for (i in 0 until size) {
-            val level = ExtUtil.read(`in`, TreeReferenceLevel::class.java, pf) as TreeReferenceLevel
+            val level = JvmExtUtil.read(`in`, TreeReferenceLevel::class.java, pf) as TreeReferenceLevel
             this.add(level.intern())
         }
     }

@@ -80,19 +80,19 @@ public class Shoe implements Persistable, IMetaData {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        brand = ExtUtil.readString(in);
-        style = ExtUtil.readString(in);
-        size = ExtUtil.readString(in);
-        reviewText = ExtUtil.readString(in);
+        brand = ExtUtil.Companion.readString(in);
+        style = ExtUtil.Companion.readString(in);
+        size = ExtUtil.Companion.readString(in);
+        reviewText = ExtUtil.Companion.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, brand);
-        ExtUtil.writeString(out, style);
-        ExtUtil.writeString(out, size);
+        ExtUtil.Companion.writeString(out, brand);
+        ExtUtil.Companion.writeString(out, style);
+        ExtUtil.Companion.writeString(out, size);
 
-        ExtUtil.writeString(out, reviewText);
+        ExtUtil.Companion.writeString(out, reviewText);
 
     }
 

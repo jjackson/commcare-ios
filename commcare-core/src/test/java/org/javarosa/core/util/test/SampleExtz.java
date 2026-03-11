@@ -38,14 +38,14 @@ public class SampleExtz implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException {
-        a = ExtUtil.readString(in);
-        b = ExtUtil.readString(in);
+        a = ExtUtil.Companion.readString(in);
+        b = ExtUtil.Companion.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, a);
-        ExtUtil.writeString(out, b);
+        ExtUtil.Companion.writeString(out, a);
+        ExtUtil.Companion.writeString(out, b);
     }
 
     public boolean equals(Object o) {

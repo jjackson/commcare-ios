@@ -11,6 +11,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.DefaultPrototypes;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
@@ -31,7 +32,7 @@ public class TextFormTests {
 
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");
-        pf = ExtUtil.defaultPrototypes();
+        pf = DefaultPrototypes.defaultPrototypes();
     }
 
     @Before

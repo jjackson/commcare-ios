@@ -10,6 +10,8 @@ package org.javarosa.core.util
  */
 class SizeBoundUniqueVector<E>(sizeLimit: Int) : SizeBoundVector<E>(sizeLimit) {
 
+    override fun contains(element: E): Boolean = super.contains(element)
+
     @Synchronized
     override fun add(element: E): Boolean {
         return when {

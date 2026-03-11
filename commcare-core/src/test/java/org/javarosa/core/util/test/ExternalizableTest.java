@@ -6,6 +6,7 @@ import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.JvmExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -44,22 +45,22 @@ public class ExternalizableTest {
         print("Original: " + printObj(orig));
 
         try {
-            bytes = ExtUtil.serialize(orig);
+            bytes = ExtUtil.Companion.serialize(orig);
 
             print("Serialized as:");
-            print(ExtUtil.printBytes(bytes));
+            print(ExtUtil.Companion.printBytes(bytes));
 
             if (template instanceof Class) {
-                deser = ExtUtil.deserialize(bytes, (Class)template, pf);
+                deser = JvmExtUtil.deserialize(bytes, (Class)template, pf);
             } else if (template instanceof ExternalizableWrapper) {
-                deser = ExtUtil.read(new DataInputStream(new ByteArrayInputStream(bytes)), (ExternalizableWrapper)template, pf);
+                deser = ExtUtil.Companion.read(new DataInputStream(new ByteArrayInputStream(bytes)), (ExternalizableWrapper)template, pf);
             } else {
                 throw new ClassCastException();
             }
 
             print("Reconstituted: " + printObj(deser));
 
-            if (ExtUtil.equals(orig, deser, true)) {
+            if (ExtUtil.Companion.equals(orig, deser, true)) {
                 print("SUCCESS");
             } else {
                 print("FAILURE");
@@ -86,7 +87,7 @@ public class ExternalizableTest {
     }
 
     public static String printObj(Object o) {
-        o = ExtUtil.unwrap(o);
+        o = ExtUtil.Companion.unwrap(o);
 
         if (o == null) {
             return "(null)";

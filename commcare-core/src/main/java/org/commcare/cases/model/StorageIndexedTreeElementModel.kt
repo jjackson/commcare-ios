@@ -1,4 +1,5 @@
 package org.commcare.cases.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.commcare.cases.instance.FixtureIndexSchema
 import org.javarosa.core.model.instance.TreeElement
@@ -99,7 +100,7 @@ open class StorageIndexedTreeElementModel : Persistable, IMetaData {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         recordId = ExtUtil.readInt(`in`)
         entityId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        root = ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement
+        root = JvmExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement
         @Suppress("UNCHECKED_CAST")
         indices = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
         metaDataFields = buildMetadataFields(indices!!)

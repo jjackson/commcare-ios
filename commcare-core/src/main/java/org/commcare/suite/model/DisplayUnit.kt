@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -73,7 +74,7 @@ class DisplayUnit : Externalizable, DetailTemplate {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = ExtUtil.read(`in`, Text::class.java, pf) as Text
+        name = JvmExtUtil.read(`in`, Text::class.java, pf) as Text
         imageReference = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         audioReference = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         badgeFunction = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?

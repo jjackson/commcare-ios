@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.commcare.session.RemoteQuerySessionManager
 import org.javarosa.core.model.condition.EvaluationContext
@@ -90,7 +91,7 @@ class Action : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        display = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
         stackOps = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
         autoLaunchExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
         relevantExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?

@@ -1,6 +1,7 @@
 package org.commcare.session
 
 import org.javarosa.core.util.ListMultimap
+import org.javarosa.core.util.externalizable.defaultPrototypes
 import org.commcare.suite.model.ComputedDatum
 import org.commcare.suite.model.Detail
 import org.commcare.suite.model.EntityDatum
@@ -1063,7 +1064,7 @@ open class CommCareSession {
             inputStream: PlatformDataInputStream
         ): CommCareSession {
             val restoredFrame = SessionFrame()
-            restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes())
+            restoredFrame.readExternal(inputStream, defaultPrototypes())
 
             val restoredSession = CommCareSession(ccPlatform)
             restoredSession.frame = restoredFrame

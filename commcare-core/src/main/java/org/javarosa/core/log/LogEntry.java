@@ -45,15 +45,15 @@ public class LogEntry implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        time = ExtUtil.readDate(in);
-        type = ExtUtil.readString(in);
-        message = ExtUtil.readString(in);
+        time = ExtUtil.Companion.readDate(in);
+        type = ExtUtil.Companion.readString(in);
+        message = ExtUtil.Companion.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeDate(out, time);
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(type));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(message));
+        ExtUtil.Companion.writeDate(out, time);
+        ExtUtil.Companion.writeString(out, ExtUtil.Companion.emptyIfNull(type));
+        ExtUtil.Companion.writeString(out, ExtUtil.Companion.emptyIfNull(message));
     }
 }

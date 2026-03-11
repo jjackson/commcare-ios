@@ -31,7 +31,7 @@ class ExtWrapBase : ExternalizableWrapper {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        `val` = ExtUtil.read(`in`, type!!, pf)
+        `val` = JvmExtUtil.read(`in`, type!!, pf)
     }
 
     @Throws(PlatformIOException::class)

@@ -1,4 +1,5 @@
 package org.javarosa.core.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -37,7 +38,7 @@ class SubmissionProfile : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         resource = ExtUtil.readString(`in`)
-        targetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        targetRef = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         ref = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
     }
 

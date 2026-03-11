@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
@@ -42,7 +43,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
         } else {
             op = NEQ
         }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = JvmExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)

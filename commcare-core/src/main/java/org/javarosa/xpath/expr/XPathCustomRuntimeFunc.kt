@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.IFunctionHandler
@@ -38,7 +39,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         name = ExtUtil.readString(`in`)
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = JvmExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)

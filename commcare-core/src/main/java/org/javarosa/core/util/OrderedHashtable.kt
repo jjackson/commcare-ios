@@ -1,7 +1,7 @@
 package org.javarosa.core.util
 
 
-class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
+class OrderedHashtable<K, V> : LinkedHashMap<K, V>, OrderedMap {
     private val orderedKeys: ArrayList<K>
 
     constructor() : super() {
@@ -73,7 +73,7 @@ class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         sb.append("[")
         val e = orderedKeys()
         while (e.hasNext()) {

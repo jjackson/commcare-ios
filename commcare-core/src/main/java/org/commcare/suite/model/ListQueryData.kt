@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.commcare.util.DatumUtil
 import org.javarosa.core.model.condition.EvaluationContext
@@ -61,7 +62,7 @@ class ListQueryData : QueryData {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
-        nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        nodeset = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathPathExpr
         excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
     }

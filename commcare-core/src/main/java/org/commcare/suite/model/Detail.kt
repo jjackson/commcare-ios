@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityUtil
@@ -205,7 +206,7 @@ class Detail : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         id = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        title = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        title = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
         noItemsText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
         titleForm = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         nodeset = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?

@@ -2,6 +2,7 @@ package org.javarosa.core.model.utils.test;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.JvmExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -35,7 +36,7 @@ public class PersistableSandbox {
     
     public <T extends Externalizable> T deserialize(byte[] object, Class<T> c) {
         try {
-            return (T)ExtUtil.deserialize(object, c, factory);
+            return (T)JvmExtUtil.deserialize(object, c, factory);
         } catch (IOException | DeserializationException e) {
             throw wrap("Error deserializing: " + c.getName(), e);
         }

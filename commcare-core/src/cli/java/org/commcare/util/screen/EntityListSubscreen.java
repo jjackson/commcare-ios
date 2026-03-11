@@ -95,7 +95,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             int widthHint = getWidthHint(fields, field);
             ScreenUtils.addPaddedStringToBuilder(row, s, widthHint);
 
-            if (DataUtil.intArrayContains(sorts, i)) {
+            if (DataUtil.INSTANCE.intArrayContains(sorts, i)) {
                 if (i == sortIndex) {
                     if (reverse) {
                         s = s + " Λ ";

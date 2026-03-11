@@ -63,13 +63,13 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        prefix = ExtUtil.readString(in);
-        translatedPrefix = ExtUtil.readString(in);
+        prefix = ExtUtil.Companion.readString(in);
+        translatedPrefix = ExtUtil.Companion.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, prefix);
-        ExtUtil.writeString(out, translatedPrefix);
+        ExtUtil.Companion.writeString(out, prefix);
+        ExtUtil.Companion.writeString(out, translatedPrefix);
     }
 }

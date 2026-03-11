@@ -134,7 +134,7 @@ public class CasePurgeFilterTests {
         }
 
         for(int i = 0 ; i < toRemove.length; ++i) {
-            removed.remove(DataUtil.integer(toRemove[i]));
+            removed.remove(DataUtil.INSTANCE.integer(toRemove[i]));
         }
         if(removed.size() > 0) {
             fail("caseStorage purge returned incorrect set of removed items");
@@ -144,7 +144,7 @@ public class CasePurgeFilterTests {
     private ArrayList<Integer> atv(int[] a) {
         ArrayList<Integer> ret = new ArrayList<>(a.length);
         for(int i = 0; i < a.length ; ++i) {
-            ret.add(DataUtil.integer(a[i]));
+            ret.add(DataUtil.INSTANCE.integer(a[i]));
         }
         return ret;
     }

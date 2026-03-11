@@ -1,4 +1,5 @@
 package org.javarosa.core.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.util.ListMultimap
 import org.commcare.modern.util.Pair
@@ -1201,7 +1202,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         setTitle(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
         @Suppress("UNCHECKED_CAST")
         setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<IFormElement>?)
-        setInstance(ExtUtil.read(dis, FormInstance::class.java, pf) as FormInstance)
+        setInstance(JvmExtUtil.read(dis, FormInstance::class.java, pf) as FormInstance)
 
         setLocalizer(ExtUtil.read(dis, ExtWrapNullable(Localizer::class.java), pf) as Localizer?)
 
@@ -1236,7 +1237,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<XFormExtension>
 
         setEvaluationContext(EvaluationContext(null))
-        actionController = ExtUtil.read(dis, ActionController::class.java, pf) as ActionController
+        actionController = JvmExtUtil.read(dis, ActionController::class.java, pf) as ActionController
     }
 
     /**

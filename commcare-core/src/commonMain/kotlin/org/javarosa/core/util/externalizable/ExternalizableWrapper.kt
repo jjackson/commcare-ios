@@ -22,7 +22,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  */
 abstract class ExternalizableWrapper : Externalizable {
     /* core data that is being wrapped; will be null when shell wrapper is created for deserialization */
-    @JvmField
     var `val`: Any? = null
 
     /* create a copy of a wrapper, but with new val (but all the same type annotations */

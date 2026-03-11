@@ -1,4 +1,5 @@
 package org.javarosa.core.model.actions
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.IFormElement
@@ -135,7 +136,7 @@ class SetValueAction : Action {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        target = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        target = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         explicitValue = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         if (explicitValue == null) {
             value = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression

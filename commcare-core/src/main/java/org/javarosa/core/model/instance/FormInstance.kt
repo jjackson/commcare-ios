@@ -1,4 +1,5 @@
 package org.javarosa.core.model.instance
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.instance.utils.ITreeVisitor
@@ -167,7 +168,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
 
         @Suppress("UNCHECKED_CAST")
         namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
-        setRoot(ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement)
+        setRoot(JvmExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement)
     }
 
     @Throws(PlatformIOException::class)

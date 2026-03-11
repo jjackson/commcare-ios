@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.ItemsetBinding
 import org.javarosa.core.model.condition.EvaluationContext
@@ -58,12 +59,12 @@ class QueryPrompt : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = ExtUtil.read(`in`, String::class.java, pf) as String
+        _key = JvmExtUtil.read(`in`, String::class.java, pf) as String
         appearance = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         input = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         receive = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         hidden = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        display = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
         itemsetBinding = ExtUtil.read(`in`, ExtWrapNullable(ItemsetBinding::class.java), pf) as ItemsetBinding?
         defaultValueExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
         allowBlankValue = ExtUtil.readBool(`in`)

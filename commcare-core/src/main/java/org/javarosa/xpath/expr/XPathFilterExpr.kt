@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
@@ -76,7 +77,7 @@ class XPathFilterExpr : XPathExpression {
         val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
 
         predicates = Array(v.size) { i -> v[i] as XPathExpression }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = JvmExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)

@@ -15,6 +15,7 @@
  */
 
 package org.javarosa.core.model.data
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -65,7 +66,7 @@ class SelectOneData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        s = ExtUtil.read(`in`, Selection::class.java, pf) as Selection
+        s = JvmExtUtil.read(`in`, Selection::class.java, pf) as Selection
     }
 
     @Throws(PlatformIOException::class)

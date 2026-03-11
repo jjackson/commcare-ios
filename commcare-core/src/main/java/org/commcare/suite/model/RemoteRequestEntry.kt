@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -37,7 +38,7 @@ class RemoteRequestEntry : Entry {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        post = ExtUtil.read(`in`, PostRequest::class.java, pf) as PostRequest
+        post = JvmExtUtil.read(`in`, PostRequest::class.java, pf) as PostRequest
     }
 
     @Throws(PlatformIOException::class)

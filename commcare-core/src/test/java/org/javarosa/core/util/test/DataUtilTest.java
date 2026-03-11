@@ -22,7 +22,7 @@ public class DataUtilTest {
         ArrayList<String> setTwo = new ArrayList<>();
         setTwo.add("one");
         setTwo.add("three");
-        Collection<String> intersectSet = DataUtil.intersection(setOne, setTwo);
+        Collection<String> intersectSet = DataUtil.INSTANCE.intersection(setOne, setTwo);
 
         // for safety, we want to return a whole new vector
         assertFalse(intersectSet == setOne);

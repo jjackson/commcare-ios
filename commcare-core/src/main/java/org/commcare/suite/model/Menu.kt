@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import io.reactivex.Single
 import org.javarosa.core.model.condition.EvaluationContext
@@ -141,7 +142,7 @@ class Menu : Externalizable, MenuDisplayable {
         _id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         root = ExtUtil.readString(`in`)
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        display = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
         commandIds = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
         instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>
         commandExprs = arrayOfNulls(ExtUtil.readInt(`in`))

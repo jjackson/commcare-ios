@@ -1,4 +1,5 @@
 package org.javarosa.core.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.model.condition.IConditionExpr
 import org.javarosa.core.model.instance.DataInstance
@@ -113,10 +114,10 @@ class ItemsetBinding : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        nodesetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        nodesetRef = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         nodesetExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
-        contextRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        labelRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        contextRef = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        labelRef = JvmExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         labelExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
         valueRef = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
         valueExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IConditionExpr?

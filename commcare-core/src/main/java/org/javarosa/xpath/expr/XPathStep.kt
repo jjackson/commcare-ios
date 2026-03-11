@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -190,7 +191,7 @@ class XPathStep : Externalizable {
         test = ExtUtil.readInt(`in`)
 
         when (test) {
-            TEST_NAME -> name = ExtUtil.read(`in`, XPathQName::class.java, pf) as XPathQName
+            TEST_NAME -> name = JvmExtUtil.read(`in`, XPathQName::class.java, pf) as XPathQName
             TEST_NAMESPACE_WILDCARD -> namespace = ExtUtil.readString(`in`)
             TEST_TYPE_PROCESSING_INSTRUCTION -> literal = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         }

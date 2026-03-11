@@ -16,8 +16,7 @@ object DataUtil {
      *
      * @return Cached or new Integer instance that corresponds to ivalue argument
      */
-    @JvmStatic
-    fun integer(ivalue: Int): Int {
+fun integer(ivalue: Int): Int {
         // lazily populate Integer cache
         if (iarray == null) {
             iarray = Array(high - low) { i -> i + low }
@@ -30,18 +29,12 @@ object DataUtil {
         }
     }
 
-    @JvmStatic
-    fun <T> intersection(a: Collection<T>, b: Collection<T>): List<T> {
+fun <T> intersection(a: Collection<T>, b: Collection<T>): List<T> {
         if (b.size < a.size) {
             return intersection(b, a)
         }
 
-        val setA: HashSet<T> = if (a is HashSet<*>) {
-            @Suppress("UNCHECKED_CAST")
-            (a as HashSet<T>).clone() as HashSet<T>
-        } else {
-            HashSet(a)
-        }
+        val setA: HashSet<T> = HashSet(a)
         val setB: HashSet<T> = if (b is HashSet<*>) {
             @Suppress("UNCHECKED_CAST")
             b as HashSet<T>
@@ -52,8 +45,7 @@ object DataUtil {
         return ArrayList(setA)
     }
 
-    @JvmStatic
-    fun listToString(list: List<String>): String {
+fun listToString(list: List<String>): String {
         val sb = StringBuilder()
         for (s in list) {
             sb.append("$s ")
@@ -61,21 +53,18 @@ object DataUtil {
         return sb.toString().substring(0, sb.length - 1)
     }
 
-    @JvmStatic
-    fun stringToList(s: String): List<String> {
+fun stringToList(s: String): List<String> {
         return listOf(*splitOnSpaces(s))
     }
 
-    @JvmStatic
-    fun splitOnSpaces(s: String): Array<String> {
+fun splitOnSpaces(s: String): Array<String> {
         if (s == "") {
             return emptyArray()
         }
         return s.split("[ ]+".toRegex()).toTypedArray()
     }
 
-    @JvmStatic
-    fun intArrayContains(source: IntArray, target: Int): Boolean {
+fun intArrayContains(source: IntArray, target: Int): Boolean {
         for (current in source) {
             if (current == target) {
                 return true
@@ -84,18 +73,15 @@ object DataUtil {
         return false
     }
 
-    @JvmStatic
-    fun splitOnDash(s: String): Array<String> {
+fun splitOnDash(s: String): Array<String> {
         return s.split("-").toTypedArray()
     }
 
-    @JvmStatic
-    fun splitOnColon(s: String): Array<String> {
+fun splitOnColon(s: String): Array<String> {
         return s.split(":").toTypedArray()
     }
 
-    @JvmStatic
-    fun splitOnPlus(s: String): Array<String> {
+fun splitOnPlus(s: String): Array<String> {
         return s.split("[+]".toRegex()).toTypedArray()
     }
 }

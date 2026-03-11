@@ -1,4 +1,5 @@
 package org.commcare.suite.model
+import org.javarosa.core.util.externalizable.JvmExtUtil
 
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
@@ -23,8 +24,8 @@ class QueryGroup : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        key = ExtUtil.read(`in`, String::class.java, pf) as String
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        key = JvmExtUtil.read(`in`, String::class.java, pf) as String
+        display = JvmExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
     }
 
     @Throws(PlatformIOException::class)

@@ -288,7 +288,7 @@ public class FormOverview {
     private static boolean listGroup (FormDef f, GroupDef g, int indent, StringBuffer sb) {
         FormEntryModel femodel = new FormEntryModel(f);
         boolean repeat = g.isRepeat();
-        String caption = ExtUtil.nullIfEmpty(femodel.getCaptionPrompt().getLongText());
+        String caption = ExtUtil.Companion.nullIfEmpty(femodel.getCaptionPrompt().getLongText());
         TreeElement instanceNode = getInstanceNode(f.getInstance(), g.getBind());
 
         String relevant = printConditionalProperty("relevant", f, instanceNode);
