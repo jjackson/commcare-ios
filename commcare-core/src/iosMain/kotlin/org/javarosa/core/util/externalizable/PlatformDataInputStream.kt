@@ -1,6 +1,8 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util.externalizable
 
-actual class PlatformDataInputStream actual constructor(data: ByteArray) {
+actual class PlatformDataInputStream(data: ByteArray) {
     private val buffer = data
     private var pos = 0
 
@@ -48,30 +50,26 @@ actual class PlatformDataInputStream actual constructor(data: ByteArray) {
         checkAvailable(utfLen)
         val chars = CharArray(utfLen) // max possible chars
         var charCount = 0
-        val start = pos
         val end = pos + utfLen
 
         while (pos < end) {
             val b = buffer[pos].toInt() and 0xFF
             if (b < 0x80) {
-                // Single byte: 0xxxxxxx
                 pos++
                 chars[charCount++] = b.toChar()
             } else if (b and 0xE0 == 0xC0) {
-                // Two bytes: 110xxxxx 10xxxxxx
                 if (pos + 1 >= end) throw RuntimeException("Malformed modified UTF-8")
                 val b2 = buffer[pos + 1].toInt() and 0xFF
                 pos += 2
                 chars[charCount++] = (((b and 0x1F) shl 6) or (b2 and 0x3F)).toChar()
             } else if (b and 0xF0 == 0xE0) {
-                // Three bytes: 1110xxxx 10xxxxxx 10xxxxxx
                 if (pos + 2 >= end) throw RuntimeException("Malformed modified UTF-8")
                 val b2 = buffer[pos + 1].toInt() and 0xFF
                 val b3 = buffer[pos + 2].toInt() and 0xFF
                 pos += 3
                 chars[charCount++] = (((b and 0x0F) shl 12) or ((b2 and 0x3F) shl 6) or (b3 and 0x3F)).toChar()
             } else {
-                throw RuntimeException("Malformed modified UTF-8 at byte ${pos - start}")
+                throw RuntimeException("Malformed modified UTF-8 at position $pos")
             }
         }
 
@@ -111,3 +109,6 @@ actual class PlatformDataInputStream actual constructor(data: ByteArray) {
         }
     }
 }
+
+actual fun createDataInputStream(data: ByteArray): PlatformDataInputStream =
+    PlatformDataInputStream(data)

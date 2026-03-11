@@ -6,20 +6,16 @@ import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashSet
 
 /**
- * ProtoType factory for serializing and deserializing persisted classes using
- * their hash codes. To use a non-default hasher, use one of the overriding constructors
- * or call setStaticHasher().
+ * JVM implementation of PrototypeFactory using Class.forName() + newInstance()
+ * for reflection-based class instantiation during deserialization.
  */
-open class PrototypeFactory {
+open class JvmPrototypeFactory : PrototypeFactory {
 
     private var classes: ArrayList<Class<*>>? = null
     private var hashes: ArrayList<ByteArray>? = null
 
     // lazy evaluation
     private var classNames: HashSet<String>?
-
-    @JvmField
-    protected var initialized: Boolean
 
     constructor() : this(null, null)
 
@@ -126,7 +122,7 @@ open class PrototypeFactory {
         return null
     }
 
-    open fun getInstance(hash: ByteArray): Any {
+    override fun getInstance(hash: ByteArray): Any {
         return getInstance(getClass(hash)!!)
     }
 
@@ -155,37 +151,9 @@ open class PrototypeFactory {
         }
 
         @JvmStatic
-        fun compareHash(a: ByteArray, b: ByteArray): Boolean {
-            if (a.size != b.size) {
-                return false
-            }
-
-            for (i in a.indices) {
-                if (a[i] != b[i]) {
-                    return false
-                }
-            }
-
-            return true
-        }
-
-        @JvmStatic
         fun setStaticHasher(staticHasher: Hasher) {
             mStaticHasher = staticHasher
-        }
-
-        @JvmStatic
-        fun getClassHashSize(): Int {
-            return mStaticHasher!!.getHashSize()
-        }
-
-        @JvmStatic
-        fun getWrapperTag(): ByteArray {
-            val bytes = ByteArray(getClassHashSize())
-            for (i in bytes.indices) {
-                bytes[i] = 0xff.toByte()
-            }
-            return bytes
+            setClassHashSize(staticHasher.getHashSize())
         }
     }
 }

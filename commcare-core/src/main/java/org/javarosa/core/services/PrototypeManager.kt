@@ -1,6 +1,7 @@
 package org.javarosa.core.services
 
 import org.javarosa.core.util.externalizable.CannotCreateObjectException
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.util.HashSet
 
@@ -28,7 +29,7 @@ object PrototypeManager {
         globalPrototypes.add(className)
 
         try {
-            PrototypeFactory.getInstance(Class.forName(className))
+            JvmPrototypeFactory.getInstance(Class.forName(className))
         } catch (e: ClassNotFoundException) {
             throw CannotCreateObjectException("$className: not found")
         }
@@ -63,18 +64,18 @@ object PrototypeManager {
         if (currentStaticFactory == null) {
             if (useThreadLocalStrategy) {
                 @Suppress("UNCHECKED_CAST")
-                threadLocalPrototypeFactory.set(PrototypeFactory(globalPrototypes.clone() as HashSet<String>))
+                threadLocalPrototypeFactory.set(JvmPrototypeFactory(globalPrototypes.clone() as HashSet<String>))
             } else {
-                globalStaticDefault = PrototypeFactory(globalPrototypes)
+                globalStaticDefault = JvmPrototypeFactory(globalPrototypes)
             }
             return
         }
         synchronized(currentStaticFactory) {
             if (useThreadLocalStrategy) {
                 @Suppress("UNCHECKED_CAST")
-                threadLocalPrototypeFactory.set(PrototypeFactory(globalPrototypes.clone() as HashSet<String>))
+                threadLocalPrototypeFactory.set(JvmPrototypeFactory(globalPrototypes.clone() as HashSet<String>))
             } else {
-                globalStaticDefault = PrototypeFactory(globalPrototypes)
+                globalStaticDefault = JvmPrototypeFactory(globalPrototypes)
             }
         }
     }

@@ -1,6 +1,8 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util.externalizable
 
-actual class PlatformDataOutputStream actual constructor() {
+actual class PlatformDataOutputStream {
     private val buffer = mutableListOf<Byte>()
 
     actual fun writeByte(v: Int) {
@@ -70,16 +72,11 @@ actual class PlatformDataOutputStream actual constructor() {
         // No resources to release
     }
 
-    actual fun toByteArray(): ByteArray {
+    fun toByteArray(): ByteArray {
         return buffer.toByteArray()
     }
 
     private fun encodeModifiedUtf8(s: String): ByteArray {
-        // Java modified UTF-8:
-        // - Null (0x0000) → 0xC0 0x80 (two bytes, NOT single zero byte)
-        // - 0x0001-0x007F → single byte
-        // - 0x0080-0x07FF → two bytes: 110xxxxx 10xxxxxx
-        // - 0x0800-0xFFFF → three bytes: 1110xxxx 10xxxxxx 10xxxxxx
         val result = mutableListOf<Byte>()
         for (ch in s) {
             val c = ch.code
@@ -104,4 +101,10 @@ actual class PlatformDataOutputStream actual constructor() {
         }
         return result.toByteArray()
     }
+}
+
+actual fun serializeToBytes(block: (PlatformDataOutputStream) -> Unit): ByteArray {
+    val stream = PlatformDataOutputStream()
+    block(stream)
+    return stream.toByteArray()
 }

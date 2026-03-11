@@ -15,7 +15,7 @@ import org.javarosa.core.api.ClassNameHasher
  *
  * @author ctsims
  */
-class LivePrototypeFactory : PrototypeFactory {
+class LivePrototypeFactory : JvmPrototypeFactory {
     private val factoryTable = HashMap<String, Class<*>>()
     private val mLiveHasher: LiveHasher
 
@@ -23,7 +23,7 @@ class LivePrototypeFactory : PrototypeFactory {
 
     private constructor(hasher: Hasher) : super() {
         this.mLiveHasher = LiveHasher(this, hasher)
-        PrototypeFactory.setStaticHasher(this.mLiveHasher)
+        JvmPrototypeFactory.setStaticHasher(this.mLiveHasher)
     }
 
     override fun lazyInit() {
@@ -40,7 +40,7 @@ class LivePrototypeFactory : PrototypeFactory {
     }
 
     override fun getInstance(hash: ByteArray): Any {
-        return PrototypeFactory.getInstance(getClass(hash)!!)
+        return JvmPrototypeFactory.getInstance(getClass(hash)!!)
     }
 
     private fun getLiveHasher(): LiveHasher {

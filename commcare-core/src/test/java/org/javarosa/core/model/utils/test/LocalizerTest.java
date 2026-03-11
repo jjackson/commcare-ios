@@ -3,7 +3,7 @@ package org.javarosa.core.model.utils.test;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.util.UnregisteredLocaleException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 
 public class LocalizerTest {
     private void testSerialize(Localizer l, String msg) {
-        PrototypeFactory pf = new PrototypeFactory();
+        JvmPrototypeFactory pf = new JvmPrototypeFactory();
         pf.addClass(TableLocaleSource.class);
         ExternalizableTest.testExternalizable(l, pf, "Localizer [" + msg + "]");
     }

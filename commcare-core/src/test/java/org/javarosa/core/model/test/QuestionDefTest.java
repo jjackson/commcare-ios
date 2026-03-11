@@ -11,6 +11,7 @@ import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XPathReference;
@@ -33,11 +34,11 @@ public class QuestionDefTest {
         fep = new FormEntryPrompt(fpi.getFormDef(), fpi.getFormEntryModel().getFormIndex());
     }
 
-    static final PrototypeFactory pf;
+    static final JvmPrototypeFactory pf;
 
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");
-        pf = ExtUtil.defaultPrototypes();
+        pf = (JvmPrototypeFactory) ExtUtil.defaultPrototypes();
     }
 
     private void testSerialize(QuestionDef q, String msg) {

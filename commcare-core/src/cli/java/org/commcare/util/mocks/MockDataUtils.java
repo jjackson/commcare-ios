@@ -7,6 +7,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 public class MockDataUtils {
 
     public static MockUserDataSandbox getStaticStorage() {
-        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
+        PrototypeFactory factory = new JvmPrototypeFactory(new ClassNameHasher());
         return new MockUserDataSandbox(factory);
     }
 

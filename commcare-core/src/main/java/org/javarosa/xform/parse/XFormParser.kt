@@ -33,6 +33,7 @@ import org.javarosa.core.services.locale.TableLocaleSource
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.ShortestCycleAlgorithm
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xform.util.InterningKXmlParser
@@ -724,7 +725,7 @@ class XFormParser {
 
         @JvmStatic
         fun restoreDataModel(doc: Document, restorableType: Class<*>?): FormInstance {
-            val r = if (restorableType != null) PrototypeFactory.getInstance(restorableType) as? org.javarosa.core.model.util.restorable.Restorable else null
+            val r = if (restorableType != null) JvmPrototypeFactory.getInstance(restorableType) as? org.javarosa.core.model.util.restorable.Restorable else null
 
             val e = doc.rootElement
 
