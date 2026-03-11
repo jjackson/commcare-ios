@@ -10,10 +10,16 @@ buildscript {
 plugins {
     kotlin("multiplatform") version "2.0.21"
     kotlin("plugin.serialization") version "2.0.21"
+    kotlin("plugin.allopen") version "2.0.21"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.16"
 }
 
 repositories {
     mavenCentral()
+}
+
+allOpen {
+    annotation("org.openjdk.jmh.annotations.State")
 }
 
 kotlin {
@@ -21,6 +27,21 @@ kotlin {
 
     jvm {
         withJava()
+
+        compilations {
+            val main by getting
+            val test by getting
+
+            val benchmarks by compilations.creating {
+                defaultSourceSet {
+                    dependencies {
+                        implementation(main.compileDependencyFiles + main.output.classesDirs)
+                        implementation(test.compileDependencyFiles + test.output.classesDirs)
+                        implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.16")
+                    }
+                }
+            }
+        }
     }
 
     // iOS targets — empty for now, code will move to commonMain incrementally
@@ -92,6 +113,22 @@ kotlin {
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
         }
+    }
+}
+
+benchmark {
+    configurations {
+        named("main") {
+            warmups = 5
+            iterations = 10
+            iterationTime = 1000
+            iterationTimeUnit = "ms"
+            outputTimeUnit = "ms"
+            reportFormat = "json"
+        }
+    }
+    targets {
+        register("jvmBenchmarks")
     }
 }
 
