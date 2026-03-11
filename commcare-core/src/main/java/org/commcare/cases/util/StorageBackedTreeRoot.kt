@@ -364,7 +364,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
         }
 
         if (ids.size > 50 && ids.size < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-            val cue = currentQueryContext.getQueryCache(RecordSetResultCache::class.java)
+            val cue = currentQueryContext.getQueryCache(RecordSetResultCache::class) { RecordSetResultCache() }
             val cacheName = storageCacheName
             if (cacheName != null) {
                 cue.reportBulkRecordSet(cacheKey, cacheName, ids)

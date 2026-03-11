@@ -58,7 +58,7 @@ abstract class DerivedCaseQueryLookup(
     }
 
     private fun getOrLoadCachedQuerySet(queryContext: QueryContext): ModelQuerySet? {
-        val cache = queryContext.getQueryCache(QuerySetCache::class.java)
+        val cache = queryContext.getQueryCache(QuerySetCache::class) { QuerySetCache() }
 
         var set = cache.getModelQuerySet(this.currentQuerySetId)
         if (set == null) {

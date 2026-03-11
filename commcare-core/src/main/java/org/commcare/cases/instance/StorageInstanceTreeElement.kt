@@ -244,7 +244,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
         if (context == null || storageCacheName == null) {
             return getElementSingular(recordId, context)
         }
-        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class.java)
+        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class)
 
         val storageCacheKey = storageCacheName!!
 
@@ -315,9 +315,9 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
             // If the query isn't currently in a bulk mode, don't force an object cache to exist unless
             // it already does
             return if (context.getScope() < QueryContext.BULK_QUERY_THRESHOLD) {
-                context.getQueryCacheOrNull(RecordObjectCache::class.java) as RecordObjectCache<T>?
+                context.getQueryCacheOrNull(RecordObjectCache::class) as RecordObjectCache<T>?
             } else {
-                context.getQueryCache(RecordObjectCache::class.java) as RecordObjectCache<T>?
+                context.getQueryCache(RecordObjectCache::class) { RecordObjectCache<T>() } as RecordObjectCache<T>?
             }
         }
     }

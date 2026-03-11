@@ -66,7 +66,7 @@ class IndexedFixtureChildElement internal constructor(
         if (context == null) {
             return null
         }
-        val cache = context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache::class.java)
+        val cache = context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache::class)
             ?: return null
 
         //If cache already contains partial match, return it here...
@@ -110,7 +110,7 @@ class IndexedFixtureChildElement internal constructor(
 
         //Otherwise, see if we have a record set result which can be used to load the record in
         //bulk along with other records.
-        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class.java)
+        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class)
 
         val recordSetKey = parent.storageCacheName
 

@@ -51,7 +51,7 @@ class CaseIndexQuerySetTransform(private val table: CaseIndexTable?) : QuerySetT
         private fun cacheCaseModelQuerySet(queryContext: QueryContext, ret: DualTableSingleMatchModelQuerySet) {
             val modelQueryMagnitude = ret.getSetBody().size
             if (modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-                queryContext.getQueryCache(RecordSetResultCache::class.java)
+                queryContext.getQueryCache(RecordSetResultCache::class) { RecordSetResultCache() }
                     .reportBulkRecordSet(this.currentQuerySetId,
                         CaseInstanceTreeElement.MODEL_NAME, ret.getSetBody())
             }

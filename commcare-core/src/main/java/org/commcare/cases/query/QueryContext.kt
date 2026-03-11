@@ -4,6 +4,7 @@ import org.commcare.cases.query.queryset.CurrentModelQuerySet
 import org.commcare.cases.query.queryset.QuerySetCache
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.trace.EvaluationTrace
+import kotlin.reflect.KClass
 
 /**
  * A Query Context object is responsible for keeping track of relevant metadata about where a
@@ -128,17 +129,31 @@ open class QueryContext {
         this.traceRoot = traceRoot
     }
 
-    fun <T : QueryCache> getQueryCache(cacheType: Class<T>): T {
-        return cache.getQueryCache(cacheType)
+    fun <T : QueryCache> getQueryCache(cacheType: KClass<T>, factory: () -> T): T {
+        return cache.getQueryCache(cacheType, factory)
     }
 
-    fun <T : QueryCache> getQueryCacheOrNull(cacheType: Class<T>): T? {
+    fun <T : QueryCache> getQueryCacheOrNull(cacheType: KClass<T>): T? {
         return cache.getQueryCacheOrNull(cacheType)
+    }
+
+    /**
+     * Java-compatible overload that accepts Class<T> and uses reflection to create instances.
+     * Prefer the KClass version with factory lambda for new Kotlin code.
+     */
+    fun <T : QueryCache> getQueryCache(cacheType: Class<T>): T {
+        return cache.getQueryCache(cacheType.kotlin) {
+            try {
+                cacheType.getDeclaredConstructor().newInstance()
+            } catch (e: Exception) {
+                throw RuntimeException("Couldn't create cache $cacheType", e)
+            }
+        }
     }
 
     fun setHackyOriginalContextBody(hackyOriginalContextBody: CurrentModelQuerySet?) {
         if (hackyOriginalContextBody != null) {
-            getQueryCache(QuerySetCache::class.java)
+            getQueryCache(QuerySetCache::class) { QuerySetCache() }
                 .addModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID, hackyOriginalContextBody)
         }
     }

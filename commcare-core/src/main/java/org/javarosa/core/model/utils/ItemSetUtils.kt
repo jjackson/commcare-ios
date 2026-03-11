@@ -131,7 +131,7 @@ object ItemSetUtils {
         val newContext = questionContext.spawnWithCleanLifecycle()
 
         val isolatedContext = newContext.getCurrentQueryContext()
-        val cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache::class.java)
+        val cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache::class) { ScopeLimitedReferenceRequestCache() }
         cache.addTreeReferencesToLimitedScope(references)
         return newContext
     }

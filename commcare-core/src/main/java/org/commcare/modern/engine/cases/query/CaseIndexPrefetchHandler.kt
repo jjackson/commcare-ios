@@ -56,7 +56,7 @@ class CaseIndexPrefetchHandler(private val mCaseIndexTable: CaseIndexTable?) : Q
         val indexName = querySet.key.substring(Case.INDEX_CASE_INDEX_PRE.length)
         val value = querySet.value as String
 
-        val cache = context.getQueryCache(Cache::class.java)
+        val cache = context.getQueryCache(Cache::class) { Cache() }
         if (!cache.currentlyFetchedIndexKeys.contains(indexName)) {
             if (context.getScope() < BULK_LOAD_THRESHOLD) {
                 return null

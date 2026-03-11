@@ -1,5 +1,8 @@
 package org.commcare.cases.query
 
+import kotlin.jvm.JvmOverloads
+import kotlin.reflect.KClass
+
 /**
  * A QueryCacheHost is a lifecycle object associated with a particular QueryContext.
  *
@@ -21,33 +24,27 @@ open class QueryCacheHost @JvmOverloads constructor(
     internal var parent: QueryCacheHost? = null
 ) {
 
-    internal var cacheEntries: HashMap<Class<*>, QueryCache> = HashMap()
+    internal var cacheEntries: HashMap<KClass<*>, QueryCache> = HashMap()
 
     /**
      * Gets a usable copy of the query cache type provided, and if one does not exist,
-     * create one at the current cache level.
+     * create one at the current cache level using the provided factory.
      */
-    fun <T : QueryCache> getQueryCache(cacheType: Class<T>): T {
+    fun <T : QueryCache> getQueryCache(cacheType: KClass<T>, factory: () -> T): T {
         val t = getQueryCacheOrNull(cacheType)
         if (t != null) {
             return t
         }
-        try {
-            val newCache = cacheType.newInstance()
-            cacheEntries[cacheType] = newCache
-            return newCache
-        } catch (e: InstantiationException) {
-            throw RuntimeException("Couldn't create cache $cacheType", e)
-        } catch (e: IllegalAccessException) {
-            throw RuntimeException("Couldn't create cache $cacheType", e)
-        }
+        val newCache = factory()
+        cacheEntries[cacheType] = newCache
+        return newCache
     }
 
     /**
      * Get the query cache object provided if one has been created in the current context, or any
      * parent contexts. If not, return null and do not instantiate a new query cache.
      */
-    fun <T : QueryCache> getQueryCacheOrNull(cacheType: Class<T>): T? {
+    fun <T : QueryCache> getQueryCacheOrNull(cacheType: KClass<T>): T? {
         return if (cacheEntries.containsKey(cacheType)) {
             @Suppress("UNCHECKED_CAST")
             cacheEntries[cacheType] as T
