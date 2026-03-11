@@ -24,7 +24,6 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.io.PlatformInputStream
-import java.io.UnsupportedEncodingException
 import kotlin.jvm.JvmStatic
 
 /**
@@ -63,11 +62,7 @@ class OfflineUserRestore : Persistable {
     }
 
     private fun getInMemoryStream(): PlatformInputStream {
-        try {
-            return createByteArrayInputStream(restore!!.toByteArray(charset("UTF-8")))
-        } catch (e: UnsupportedEncodingException) {
-            throw RuntimeException(e)
-        }
+        return createByteArrayInputStream(restore!!.toByteArray(Charsets.UTF_8))
     }
 
     @Throws(InvalidReferenceException::class, PlatformIOException::class)

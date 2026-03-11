@@ -1,8 +1,8 @@
 package org.commcare.util
 
 import org.commcare.modern.util.Pair
-import java.text.ParseException
 import org.javarosa.core.model.utils.PlatformDate
+import org.javarosa.core.util.PlatformParseException
 import org.javarosa.core.model.utils.platformFormatPlatformDate
 import org.javarosa.core.model.utils.platformParseDate
 import kotlin.jvm.JvmStatic
@@ -18,25 +18,25 @@ object DateRangeUtils {
     /**
      * @param humanReadableDateRange human readable format for date range as 'startDate to endDate'
      * @return a Pair of start time and end time that can be supplied to MaterialDatePicker to set a date range,
-     * @throws ParseException if the given humanReadableDateRange is not in 'yyyy-mm-dd to yyyy-mm-dd' format
+     * @throws PlatformParseException if the given humanReadableDateRange is not in 'yyyy-mm-dd to yyyy-mm-dd' format
      */
     @JvmStatic
-    @Throws(ParseException::class)
+    @Throws(PlatformParseException::class)
     fun parseHumanReadableDate(humanReadableDateRange: String): Pair<Long, Long>? {
         if (humanReadableDateRange.contains(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)) {
             val humanReadableDateRangeSplit = humanReadableDateRange.split(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)
             if (humanReadableDateRangeSplit.size == 2) {
                 val startDate = platformParseDate(humanReadableDateRangeSplit[0], DATE_FORMAT)
-                    ?: throw ParseException("Cannot parse start date: ${humanReadableDateRangeSplit[0]}", 0)
+                    ?: throw PlatformParseException("Cannot parse start date: ${humanReadableDateRangeSplit[0]}", 0)
                 val endDate = platformParseDate(humanReadableDateRangeSplit[1], DATE_FORMAT)
-                    ?: throw ParseException("Cannot parse end date: ${humanReadableDateRangeSplit[1]}", 0)
+                    ?: throw PlatformParseException("Cannot parse end date: ${humanReadableDateRangeSplit[1]}", 0)
                 return Pair(
                     getTimeFromDateOffsettingTz(startDate),
                     getTimeFromDateOffsettingTz(endDate)
                 )
             }
         }
-        throw ParseException(
+        throw PlatformParseException(
             "Argument $humanReadableDateRange should be formatted as 'yyyy-mm-dd to yyyy-mm-dd'", 0
         )
     }
@@ -76,7 +76,7 @@ object DateRangeUtils {
     }
 
     @JvmStatic
-    @Throws(ParseException::class)
+    @Throws(PlatformParseException::class)
     fun formatDateRangeAnswer(humanReadableDateRange: String): String {
         val selection = parseHumanReadableDate(humanReadableDateRange)!!
         val startDate = getDateFromTime(selection.first)

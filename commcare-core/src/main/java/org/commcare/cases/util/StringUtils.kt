@@ -1,7 +1,7 @@
 package org.commcare.cases.util
 
 import org.commcare.modern.util.Pair
-import java.text.Normalizer
+import org.javarosa.core.util.platformNormalizeNFD
 import kotlin.jvm.JvmStatic
 
 /**
@@ -40,7 +40,7 @@ object StringUtils {
         // If we're above gingerbread we'll normalize this in NFD form
         // which helps a lot. Otherwise we won't be able to clear up some of those
         // issues, but we can at least still eliminate diacritics.
-        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+        val normalized = platformNormalizeNFD(input)
 
         val output = diacritics!!.replace(normalized, "").lowercase()
 

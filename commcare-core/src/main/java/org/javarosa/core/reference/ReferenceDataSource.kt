@@ -7,8 +7,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.IOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * The ReferenceDataSource is a source of locale data which
@@ -38,14 +37,14 @@ open class ReferenceDataSource : LocaleDataSource {
     }
 
     override fun getLocalizedText(): HashMap<String, String> {
-        var inputStream: InputStream? = null
+        var inputStream: PlatformInputStream? = null
         try {
             inputStream = ReferenceManager.instance().DeriveReference(referenceURI!!).getStream()
             if (inputStream == null) {
-                throw IOException("There is no resource at $referenceURI")
+                throw PlatformIOException("There is no resource at $referenceURI")
             }
             return LocalizationUtils.parseLocaleInput(inputStream)
-        } catch (e: IOException) {
+        } catch (e: PlatformIOException) {
             e.printStackTrace()
             throw RuntimeException("IOException while getting localized text at reference $referenceURI\n${e.message}")
         } catch (e: InvalidReferenceException) {
@@ -55,7 +54,7 @@ open class ReferenceDataSource : LocaleDataSource {
             if (inputStream != null) {
                 try {
                     inputStream.close()
-                } catch (e: IOException) {
+                } catch (e: PlatformIOException) {
                 }
             }
         }

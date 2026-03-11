@@ -6,8 +6,8 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import java.io.IOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.Throws
 
 /**
@@ -23,29 +23,29 @@ class DataModelPullParser : ElementParser<Boolean> {
     private val factory: TransactionParserFactory
     private val failfast: Boolean
     private val deep: Boolean
-    private val `is`: InputStream
+    private val `is`: PlatformInputStream
     private val requiredRootEnvelope: String? = null
     private val rListener: CommCareOTARestoreListener?
 
-    @Throws(InvalidStructureException::class, IOException::class)
-    constructor(`is`: InputStream, factory: TransactionParserFactory) :
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
+    constructor(`is`: PlatformInputStream, factory: TransactionParserFactory) :
             this(`is`, factory, false)
 
-    @Throws(InvalidStructureException::class, IOException::class)
-    constructor(`is`: InputStream, factory: TransactionParserFactory, rl: CommCareOTARestoreListener?) :
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
+    constructor(`is`: PlatformInputStream, factory: TransactionParserFactory, rl: CommCareOTARestoreListener?) :
             this(`is`, factory, false, false, rl)
 
-    @Throws(InvalidStructureException::class, IOException::class)
-    constructor(`is`: InputStream, factory: TransactionParserFactory, deep: Boolean) :
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
+    constructor(`is`: PlatformInputStream, factory: TransactionParserFactory, deep: Boolean) :
             this(`is`, factory, false, deep)
 
-    @Throws(InvalidStructureException::class, IOException::class)
-    constructor(`is`: InputStream, factory: TransactionParserFactory, failfast: Boolean, deep: Boolean) :
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
+    constructor(`is`: PlatformInputStream, factory: TransactionParserFactory, failfast: Boolean, deep: Boolean) :
             this(`is`, factory, failfast, deep, null)
 
-    @Throws(InvalidStructureException::class, IOException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class)
     constructor(
-        `is`: InputStream,
+        `is`: PlatformInputStream,
         factory: TransactionParserFactory,
         failfast: Boolean,
         deep: Boolean,
@@ -61,7 +61,7 @@ class DataModelPullParser : ElementParser<Boolean> {
 
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
@@ -113,7 +113,7 @@ class DataModelPullParser : ElementParser<Boolean> {
             // we bail early due to schema errors
             try {
                 `is`.close()
-            } catch (ioe: IOException) {
+            } catch (ioe: PlatformIOException) {
                 // swallow
             }
         }
@@ -123,7 +123,7 @@ class DataModelPullParser : ElementParser<Boolean> {
 
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
@@ -161,7 +161,7 @@ class DataModelPullParser : ElementParser<Boolean> {
         }
     }
 
-    @Throws(PlatformXmlParserException::class, IOException::class)
+    @Throws(PlatformXmlParserException::class, PlatformIOException::class)
     private fun deal(e: Exception, parentTag: String) {
         errors.add(WrappedException.printException(e))
         this.skipBlock(parentTag)

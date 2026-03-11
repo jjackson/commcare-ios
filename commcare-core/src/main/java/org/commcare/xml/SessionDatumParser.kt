@@ -17,8 +17,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.net.MalformedURLException
-import java.net.URL
+import org.javarosa.core.util.PlatformMalformedUrlException
+import org.javarosa.core.util.PlatformUrl
 
 /**
  * @author ctsims
@@ -122,10 +122,10 @@ class SessionDatumParser(parser: PlatformXmlParser) : CommCareElementParser<Sess
             val errorMsg = "<query> element missing 'url' or 'storage-instance' attribute"
             throw InvalidStructureException(errorMsg, parser)
         }
-        val queryUrl: URL
+        val queryUrl: PlatformUrl
         try {
-            queryUrl = URL(queryUrlString)
-        } catch (e: MalformedURLException) {
+            queryUrl = PlatformUrl(queryUrlString)
+        } catch (e: PlatformMalformedUrlException) {
             val errorMsg = "<query> element has invalid 'url' attribute ($queryUrlString)."
             throw InvalidStructureException(errorMsg, parser)
         }

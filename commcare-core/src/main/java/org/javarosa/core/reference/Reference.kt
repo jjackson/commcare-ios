@@ -1,8 +1,8 @@
 package org.javarosa.core.reference
 
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
+import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * A Reference is essentially a pointer to interact in a limited
@@ -24,7 +24,7 @@ interface Reference {
      * @throws IOException If there is a problem identifying
      * the status of the resource
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun doesBinaryExist(): Boolean
 
     /**
@@ -33,8 +33,8 @@ interface Reference {
      * @throws IOException If there is a problem reading the
      * stream.
      */
-    @Throws(IOException::class)
-    fun getStream(): InputStream
+    @Throws(PlatformIOException::class)
+    fun getStream(): PlatformInputStream
 
     /**
      * @return A URI which will evaluate to this same reference
@@ -63,8 +63,8 @@ interface Reference {
      * @throws IOException If there is a problem writing or the
      * reference is read only
      */
-    @Throws(IOException::class)
-    fun getOutputStream(): OutputStream
+    @Throws(PlatformIOException::class)
+    fun getOutputStream(): PlatformOutputStream
 
     /**
      * Removes the binary data located by this reference.
@@ -72,6 +72,6 @@ interface Reference {
      * @throws IOException If there is a problem deleting or the
      * reference is read only
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun remove()
 }

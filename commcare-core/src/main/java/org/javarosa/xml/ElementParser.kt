@@ -4,8 +4,8 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.Logger
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import java.io.IOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
@@ -90,7 +90,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      * inside this tag, an invalid structure is detected and the proper
      * exception is thrown.
      */
-    @Throws(InvalidStructureException::class, IOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     protected fun getNextTagInBlock(terminal: String) {
         if (!nextTagInBlock(terminal)) {
             throw InvalidStructureException(
@@ -104,7 +104,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      * to the tag identified by terminal. If there are no further tags
      * inside this tag, false will be returned.
      */
-    @Throws(InvalidStructureException::class, IOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     protected open fun nextTagInBlock(terminal: String?): Boolean {
         var eventType = parser.next()
         while (eventType == PlatformXmlParser.TEXT && parser.isWhitespace()) {
@@ -135,7 +135,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      * Retrieves the next tag in the XML document, assuming
      * that it is named the same as the provided parameter.
      */
-    @Throws(InvalidStructureException::class, IOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     protected fun nextTag(name: String) {
         val depth = parser.getDepth()
         if (nextTagInBlock(null)) {
@@ -158,7 +158,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      * Retrieves the next tag in the XML document. If there are no further
      * tags in the document, false is returned.
      */
-    @Throws(InvalidStructureException::class, IOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     protected fun nextTagInBlock(): Boolean {
         return nextTagInBlock(null)
     }
@@ -216,13 +216,13 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      */
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
     abstract fun parse(): T?
 
-    @Throws(PlatformXmlParserException::class, IOException::class)
+    @Throws(PlatformXmlParserException::class, PlatformIOException::class)
     open fun skipBlock(tag: String) {
         while (parser.getEventType() != PlatformXmlParser.END_DOCUMENT) {
             val eventType = parser.next()
@@ -236,7 +236,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
         }
     }
 
-    @Throws(PlatformXmlParserException::class, IOException::class)
+    @Throws(PlatformXmlParserException::class, PlatformIOException::class)
     protected fun nextNonWhitespace(): Int {
         var ret = parser.next()
         if (ret == PlatformXmlParser.TEXT && parser.isWhitespace()) {
@@ -262,8 +262,8 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
          * parameters and setting it to the appropriate point in the document.
          */
         @JvmStatic
-        @Throws(IOException::class)
-        fun instantiateParser(stream: InputStream): PlatformXmlParser {
+        @Throws(PlatformIOException::class)
+        fun instantiateParser(stream: PlatformInputStream): PlatformXmlParser {
             try {
                 val parser = createXmlParser(stream)
                 // Point to the first available tag.
@@ -271,10 +271,10 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
                 return parser
             } catch (e: PlatformXmlParserException) {
                 Logger.exception("Element Parser", e)
-                throw IOException(e.message)
+                throw PlatformIOException(e.message)
             } catch (e: IllegalArgumentException) {
                 e.printStackTrace()
-                throw IOException(e.message)
+                throw PlatformIOException(e.message)
             }
         }
     }

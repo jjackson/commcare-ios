@@ -4,7 +4,7 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import java.io.IOException
+import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
 import kotlin.jvm.Throws
 
@@ -19,7 +19,7 @@ class TreeElementParser(
 
     @Throws(
         InvalidStructureException::class,
-        IOException::class,
+        PlatformIOException::class,
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
