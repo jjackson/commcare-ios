@@ -1,7 +1,7 @@
 package org.javarosa.core.model.data
 
+import kotlin.jvm.JvmField
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -60,12 +60,12 @@ class UncastData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        value = ExtUtil.readString(`in`)
+        value = `in`.readUTF()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, value!!)
+        out.writeUTF(value!!)
     }
 
     override fun uncast(): UncastData {
