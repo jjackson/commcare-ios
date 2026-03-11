@@ -302,7 +302,7 @@ class XFormParser {
                 if (parent != null && parent.getChild(name, TreeReference.INDEX_TEMPLATE) != null) {
                     throw XFormParseException(
                         "More than one node declared as the template for the same repeated set [$name]",
-                        node
+                        getVagueLocation(node)
                     )
                 }
             } else {
@@ -317,7 +317,7 @@ class XFormParser {
                 element.setInstanceName(instanceName)
             } else {
                 if (typeMappings[modelType] == null) {
-                    throw XFormParseException("ModelType $modelType is not recognized.", node)
+                    throw XFormParseException("ModelType $modelType is not recognized.", getVagueLocation(node))
                 }
                 element = TreeElement(name, multiplicity)
             }
@@ -997,7 +997,7 @@ class XFormParser {
                                 Element.IGNORABLE_WHITESPACE -> continue
                                 Element.ELEMENT -> throw XFormParseException(
                                     "Instance declaration for instance $instanceid contains both a src and a body, only one is permitted",
-                                    e
+                                    getVagueLocation(e)
                                 )
                             }
                         }
@@ -1150,12 +1150,12 @@ class XFormParser {
             } else {
                 if (type == Node.ELEMENT) {
                     if (child!!.namespace == NAMESPACE_XFORMS) {
-                        throw XFormParseException("Unrecognized top-level tag [$childName] found within <model>", child)
+                        throw XFormParseException("Unrecognized top-level tag [$childName] found within <model>", getVagueLocation(child))
                     }
                 } else if (type == Node.TEXT && getXMLText(e, i, true)!!.isNotEmpty()) {
                     throw XFormParseException(
                         "Unrecognized text content found within <model>: \"${getXMLText(e, i, true)}\"",
-                        child ?: e
+                        getVagueLocation(child ?: e)
                     )
                 }
             }
@@ -1206,13 +1206,13 @@ class XFormParser {
 
         if (bind != null) {
             val binding = bindingsByID[bind]
-                ?: throw XFormParseException("XForm Parse: invalid binding ID in submit'$bind'", e)
+                ?: throw XFormParseException("XForm Parse: invalid binding ID in submit'$bind'", getVagueLocation(e))
             dataRef = binding.reference
             refFromBind = true
         } else if (ref != null) {
             dataRef = XPathReference(ref)
         } else {
-            throw XFormParseException("setvalue action with no target!", e)
+            throw XFormParseException("setvalue action with no target!", getVagueLocation(e))
         }
 
         if (dataRef != null) {
@@ -1230,7 +1230,7 @@ class XFormParser {
             if (e.childCount == 0 || !e.isText(0)) {
                 throw XFormParseException(
                     "No 'value' attribute and no inner value set in <setvalue> associated with: $treeref",
-                    e
+                    getVagueLocation(e)
                 )
             }
             action = SetValueAction(treeref, e.getText(0))
@@ -1239,7 +1239,7 @@ class XFormParser {
                 action = SetValueAction(treeref, XPathParseTool.parseXPath(valueRef))
             } catch (e1: XPathSyntaxException) {
                 e1.printStackTrace()
-                throw XFormParseException("Invalid XPath in value set action declaration: '$valueRef'", e)
+                throw XFormParseException("Invalid XPath in value set action declaration: '$valueRef'", getVagueLocation(e))
             }
         }
 
@@ -1258,7 +1258,7 @@ class XFormParser {
     private fun getRequiredAttribute(e: Element, attrName: String): String {
         val value = e.getAttributeValue(null, attrName)
         if (value == null || value == "") {
-            throw XFormParseException("Missing required attribute $attrName in element", e)
+            throw XFormParseException("Missing required attribute $attrName in element", getVagueLocation(e))
         }
         return value
     }
@@ -1291,7 +1291,7 @@ class XFormParser {
 
         val targetReference = XPathReference.getPathExpr(targetref).getReference()
         if (targetReference.instanceName != null) {
-            throw XFormParseException("<submission> events can only target the main instance", submission)
+            throw XFormParseException("<submission> events can only target the main instance", getVagueLocation(submission))
         }
         registerActionTarget(targetReference)
 
@@ -1312,7 +1312,7 @@ class XFormParser {
         for (i in 0 until instance.childCount) {
             if (instance.getType(i) == Node.ELEMENT) {
                 if (instanceNode != null) {
-                    throw XFormParseException("XForm Parse: <instance> has more than one child element", instance)
+                    throw XFormParseException("XForm Parse: <instance> has more than one child element", getVagueLocation(instance))
                 } else {
                     instanceNode = instance.getElement(i)
                 }
@@ -1326,7 +1326,7 @@ class XFormParser {
         if (mainInstanceNode == null) {
             mainInstanceNode = instanceNode
         } else if (instanceId == null) {
-            throw XFormParseException("XForm Parse: Non-main <instance> element requires an id attribute", instance)
+            throw XFormParseException("XForm Parse: Non-main <instance> element requires an id attribute", getVagueLocation(instance))
         }
 
         instanceNodes.add(instanceNode)
@@ -1392,7 +1392,7 @@ class XFormParser {
 
         if (bind != null) {
             val binding = bindingsByID[bind]
-                ?: throw XFormParseException("XForm Parse: invalid binding ID '$bind'", e)
+                ?: throw XFormParseException("XForm Parse: invalid binding ID '$bind'", getVagueLocation(e))
             dataRef = binding.reference
             refFromBind = true
         } else if (ref != null) {
@@ -1407,7 +1407,7 @@ class XFormParser {
                 if (controlRefTarget.hasPredicates()) {
                     throw XFormParseException(
                         "XForm Parse: The ref path of a <trigger> isn't allowed to have predicates.",
-                        e
+                        getVagueLocation(e)
                     )
                 }
             } catch (el: RuntimeException) {
@@ -1418,7 +1418,7 @@ class XFormParser {
             if (controlType == Constants.CONTROL_TRIGGER) {
                 // special handling for triggers
             } else {
-                throw XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'", e)
+                throw XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'", getVagueLocation(e))
             }
         }
 
@@ -1623,14 +1623,14 @@ class XFormParser {
             xpath = e.getAttributeValue(null, VALUE)
         }
         if (xpath == null) {
-            throw XFormParseException("XForm Parse: <output> without 'ref' or 'value'", e)
+            throw XFormParseException("XForm Parse: <output> without 'ref' or 'value'", getVagueLocation(e))
         }
 
         val expr: XPathConditional
         try {
             expr = XPathConditional(xpath)
         } catch (xse: XPathSyntaxException) {
-            throw XFormParseException("Output tag has malformed $attr attribute: $xpath", e)
+            throw XFormParseException("Output tag has malformed $attr attribute: $xpath", getVagueLocation(e))
         }
 
         var index: Int
@@ -1681,7 +1681,7 @@ class XFormParser {
                         textRef = ref.substring(ITEXT_OPEN.length, ref.indexOf(ITEXT_CLOSE))
                         verifyTextMappings(textRef, "Item <label>", true)
                     } else {
-                        throw XFormParseException("malformed ref [$ref] for <item>", child)
+                        throw XFormParseException("malformed ref [$ref] for <item>", getVagueLocation(child))
                     }
                 }
             } else if (VALUE == childName) {
@@ -1719,10 +1719,10 @@ class XFormParser {
         }
 
         if (textRef == null && labelInnerText == null) {
-            throw XFormParseException("<item> without proper <label>", e)
+            throw XFormParseException("<item> without proper <label>", getVagueLocation(e))
         }
         if (value == null) {
-            throw XFormParseException("<item> without proper <value>", e)
+            throw XFormParseException("<item> without proper <value>", getVagueLocation(e))
         }
 
         if (textRef != null) {
@@ -1856,7 +1856,7 @@ class XFormParser {
 
         if (bind != null) {
             val binding = bindingsByID[bind]
-                ?: throw XFormParseException("XForm Parse: invalid binding ID [$bind]", e)
+                ?: throw XFormParseException("XForm Parse: invalid binding ID [$bind]", getVagueLocation(e))
             dataRef = binding.reference
             refFromBind = true
         } else {
@@ -1864,7 +1864,7 @@ class XFormParser {
                 if (nodeset != null) {
                     dataRef = XPathReference(nodeset)
                 } else {
-                    throw XFormParseException("XForm Parse: <repeat> with no binding ('bind' or 'nodeset')", e)
+                    throw XFormParseException("XForm Parse: <repeat> with no binding ('bind' or 'nodeset')", getVagueLocation(e))
                 }
             } else {
                 if (ref != null) {
@@ -1966,7 +1966,7 @@ class XFormParser {
         }
 
         if (l.availableLocales.isEmpty()) {
-            throw XFormParseException("no <translation>s defined", itext)
+            throw XFormParseException("no <translation>s defined", getVagueLocation(itext))
         }
 
         if (l.defaultLocale == null) {
@@ -1985,17 +1985,17 @@ class XFormParser {
 
         val lang = trans.getAttributeValue("", "lang")
         if (lang == null || lang.isEmpty()) {
-            throw XFormParseException("no language specified for <translation>", trans)
+            throw XFormParseException("no language specified for <translation>", getVagueLocation(trans))
         }
         val isDefault = trans.getAttributeValue("", "default")
 
         if (!l.addAvailableLocale(lang)) {
-            throw XFormParseException("duplicate <translation> for language '$lang'", trans)
+            throw XFormParseException("duplicate <translation> for language '$lang'", getVagueLocation(trans))
         }
 
         if (isDefault != null) {
             if (l.defaultLocale != null) {
-                throw XFormParseException("more than one <translation> set as default", trans)
+                throw XFormParseException("more than one <translation> set as default", getVagueLocation(trans))
             }
             l.setDefaultLocale(lang)
         }
@@ -2034,7 +2034,7 @@ class XFormParser {
         childUsedAtts.add(ID_ATTR)
 
         if (id == null || id.isEmpty()) {
-            throw XFormParseException("no id defined for <text>", text)
+            throw XFormParseException("no id defined for <text>", getVagueLocation(text))
         }
 
         for (k in 0 until text.childCount) {
@@ -2056,7 +2056,7 @@ class XFormParser {
             if (l.hasMapping(textID)) {
                 throw XFormParseException(
                     "duplicate definition for text ID \"$id\" and form \"$form\". Can only have one definition for each text form.",
-                    text
+                    getVagueLocation(text)
                 )
             }
             l.setLocaleMapping(textID, data)
@@ -2134,7 +2134,7 @@ class XFormParser {
         binding.id = e.getAttributeValue("", ID_ATTR)
 
         val nodeset = e.getAttributeValue(null, NODESET_ATTR)
-            ?: throw XFormParseException("XForm Parse: <bind> without nodeset", e)
+            ?: throw XFormParseException("XForm Parse: <bind> without nodeset", getVagueLocation(e))
         val ref: XPathReference
         try {
             ref = XPathReference(nodeset)

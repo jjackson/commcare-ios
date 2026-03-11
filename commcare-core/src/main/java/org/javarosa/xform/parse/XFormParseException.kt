@@ -16,7 +16,6 @@
 
 package org.javarosa.xform.parse
 
-import org.kxml2.kdom.Element
 import kotlin.jvm.JvmField
 
 /**
@@ -24,31 +23,28 @@ import kotlin.jvm.JvmField
  *
  * @author Drew Roos
  */
-// Clayton Sims - Aug 18, 2008 : This doesn't actually seem
-// to be a RuntimeException to me. Is there justification
-// as to why it is?
 class XFormParseException : RuntimeException {
 
     @JvmField
-    internal var element: Element? = null
+    internal var elementLocation: String? = null
 
     constructor()
 
     constructor(msg: String?) : super(msg) {
-        element = null
+        elementLocation = null
     }
 
-    constructor(msg: String?, e: Element?) : super(msg) {
-        element = e
+    constructor(msg: String?, elementLocation: String?) : super(msg) {
+        this.elementLocation = elementLocation
     }
 
     override val message: String?
         get() {
-            val el = element
-            return if (el == null) {
+            val loc = elementLocation
+            return if (loc == null) {
                 super.message
             } else {
-                super.message + XFormParser.getVagueLocation(el)
+                super.message + loc
             }
         }
 }
