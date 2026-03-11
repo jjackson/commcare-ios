@@ -6,7 +6,7 @@ abstract class HereFunctionHandler : IFunctionHandler {
     protected var listener: HereFunctionHandlerListener? = null
 
     override fun getPrototypes(): ArrayList<*> {
-        val p = ArrayList<Array<Class<*>>>()
+        val p = ArrayList<Array<Any>>()
         p.add(arrayOf())
         return p
     }

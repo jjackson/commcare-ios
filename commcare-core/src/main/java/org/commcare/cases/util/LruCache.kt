@@ -104,7 +104,7 @@ open class LruCache<K, V>(private var maxSize: Int) {
             entryEvicted(key, value)
         }
         check(!(size < 0 || (map.isEmpty() && size != 0))) {
-            "${javaClass.name}.sizeOf() is reporting inconsistent results!"
+            "${this::class.qualifiedName}.sizeOf() is reporting inconsistent results!"
         }
     }
 

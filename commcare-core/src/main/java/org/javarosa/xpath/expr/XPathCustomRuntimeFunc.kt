@@ -16,6 +16,7 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 /**
  * Custom function that is dispatched at runtime
@@ -70,7 +71,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
             var argPrototypeArityMatch = false
             while (typedArgs == null && e.hasNext()) {
                 // try to coerce args into prototype, stopping on first success
-                val proto = e.next() as Array<Class<*>>
+                val proto = e.next() as Array<*>
                 typedArgs = matchPrototype(args, proto)
                 argPrototypeArityMatch = argPrototypeArityMatch ||
                         (proto.size == args.size)
@@ -107,7 +108,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
          * argument list -- these will be the arguments used to evaluate the
          * function.  If not coercible, return null.
          */
-        private fun matchPrototype(args: Array<Any?>, prototype: Array<Class<*>>): Array<Any?>? {
+        private fun matchPrototype(args: Array<Any?>, prototype: Array<*>): Array<Any?>? {
             var typed: Array<Any?>? = null
 
             if (prototype.size == args.size) {
@@ -115,19 +116,20 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
 
                 for (i in prototype.indices) {
                     typed[i] = null
+                    val typeToken = prototype[i] ?: return null
 
                     // how to handle type conversions of custom types?
-                    if (prototype[i].isAssignableFrom(args[i]!!.javaClass)) {
+                    if (isInstanceOfTypeToken(typeToken, args[i]!!)) {
                         typed[i] = args[i]
                     } else {
                         try {
-                            if (prototype[i] == java.lang.Boolean::class.java) {
+                            if (isTypeTokenEqual(typeToken, Boolean::class)) {
                                 typed[i] = FunctionUtils.toBoolean(args[i])
-                            } else if (prototype[i] == java.lang.Double::class.java) {
+                            } else if (isTypeTokenEqual(typeToken, Double::class)) {
                                 typed[i] = FunctionUtils.toNumeric(args[i])
-                            } else if (prototype[i] == String::class.java) {
+                            } else if (isTypeTokenEqual(typeToken, String::class)) {
                                 typed[i] = FunctionUtils.toString(args[i])
-                            } else if (prototype[i] == PlatformDate::class.java) {
+                            } else if (isTypeTokenEqual(typeToken, PlatformDate::class)) {
                                 typed[i] = FunctionUtils.toDate(args[i])
                             }
                         } catch (xptme: XPathTypeMismatchException) {
