@@ -16,9 +16,9 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (88 .kt files — platform-agnostic)
-│   ├── src/jvmMain/         # JVM platform implementations (10 .kt files)
-│   ├── src/iosMain/         # iOS/Native platform implementations (11 .kt files)
+│   ├── src/commonMain/      # KMP shared code (204 .kt files — platform-agnostic)
+│   ├── src/jvmMain/         # JVM platform implementations (59 .kt files)
+│   ├── src/iosMain/         # iOS/Native platform implementations (33 .kt files)
 │   ├── src/main/java/       # JVM-only Kotlin + Java source (being migrated to commonMain)
 │   ├── src/test/java/       # JUnit 4 tests (JVM)
 │   ├── src/commonTest/      # Cross-platform tests (run on both JVM and iOS)
@@ -90,24 +90,23 @@ commcare-ios/
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
 | 1 | Quick wins (Math, Locale, Objects, synchronized) | ~10 | #111 | Done (PR #122) |
-| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Done (PR #123) |
+| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Done (PR #122) |
 | 3 | Complete Date/Calendar migration | ~7 | #113 | Done (PR #125) |
-| 4 | Migrate xmlpull/kxml2 consumers | 9 | #114 | Open |
+| 4 | Migrate xmlpull/kxml2 consumers | 9 | #114 | Done (PR #128) |
 | 5 | Abstract org.json to PlatformJson | 8 | #115 | Done (PR #124) |
-| 6 | Abstract io.reactivex and tracing | 7 | #116 | Done (PR #124) |
-| 7 | Abstract java.io and java.net | ~18 | #117 | In Progress (PR #126 partial) |
-| 8 | KClass conversion for serialization | ~16 | #118 | Open |
+| 6 | Abstract io.reactivex and tracing | 7 | #116 | Done (PR #123) |
+| 7 | Abstract java.io and java.net | ~18 | #117 | Done (PRs #126, #127) |
+| 8 | KClass conversion for serialization | ~16 | #118 | Done (PR #129) |
 | 9 | Move HTTP/network files to jvmMain | 7 | #119 | Done (PR #124) |
-| 10 | Bulk migration to commonMain | 390+ | #120 | Open |
+| 10 | Bulk migration to commonMain | 390+ | #120 | Done (PR #130) |
 
-**Next**: Waves 4 (xmlpull/kxml2), 7 (java.io/net remaining), 8 (KClass). Wave 10 depends on all.
-
-**Plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md`
+**Phase 4 Complete.** All 10 waves done. 204 files in commonMain (+20 from Phase 3). Bulk migration hit ceiling: ~450 files blocked by ExtUtil/ExtWrap* serialization framework's deep `Class<*>` dependency. See `docs/plans/2026-03-11-phase4-completion-report.md`.
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling, options for Phase 5
 - **Phase 4 plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md` — targeted JVM dep removal from 67 blocker files, wave details
 - **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis, remaining JVM deps
 - **Phase 3 plan**: `docs/plans/2026-03-10-phase3-engine-on-ios-plan.md` — wave details, dependency analysis, serialization framework strategy
@@ -135,6 +134,7 @@ commcare-ios/
 - **iOS CI learnings**: `docs/learnings/2026-03-10-ios-ci-learnings.md` — iOS-specific API differences, commonMain visibility from app module, CI strategy
 - **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
 - **Phase 3 Wave 4 learnings**: `docs/learnings/2026-03-11-wave4-serialization-framework-learnings.md` — Class<*> as fundamental blocker, extension function shadowing, ExtUtil inlining workaround, PrototypeFactory expect/actual pattern
+- **Phase 4 deep migration learnings**: `docs/learnings/2026-03-11-phase4-deep-migration-learnings.md` — ExtUtil ceiling, iterative compiler-validated migration, platformSynchronized, TypeTokenUtils bridge, XFormConstants extraction
 
 ## Kotlin Conversion Checklist
 
