@@ -2,7 +2,7 @@ package org.javarosa.core.services.transport.payload
 
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * IDataPayload is an interface that specifies a piece of data
@@ -20,7 +20,7 @@ interface IDataPayload : Externalizable {
      * @throws PlatformIOException
      */
     @Throws(PlatformIOException::class)
-    fun getPayloadStream(): InputStream
+    fun getPayloadStream(): PlatformInputStream
 
     /**
      * @return A string identifying the contents of the payload

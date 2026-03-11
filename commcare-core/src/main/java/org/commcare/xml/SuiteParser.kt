@@ -16,7 +16,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * Parses a suite file resource and creates the associated object
@@ -45,7 +45,7 @@ open class SuiteParser : ElementParser<Suite> {
 
     @Throws(PlatformIOException::class)
     constructor(
-        suiteStream: InputStream,
+        suiteStream: PlatformInputStream,
         table: ResourceTable,
         resourceGuid: String,
         fixtureStorage: IStorageUtilityIndexed<FormInstance>
@@ -60,7 +60,7 @@ open class SuiteParser : ElementParser<Suite> {
 
     @Throws(PlatformIOException::class)
     protected constructor(
-        suiteStream: InputStream,
+        suiteStream: PlatformInputStream,
         table: ResourceTable, resourceGuid: String,
         fixtureStorage: IStorageUtilityIndexed<FormInstance>,
         skipResources: Boolean, isValidationPass: Boolean,

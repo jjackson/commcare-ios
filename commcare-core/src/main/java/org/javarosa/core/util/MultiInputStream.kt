@@ -1,7 +1,7 @@
 package org.javarosa.core.util
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * MultiInputStream allows for concatenating multiple
@@ -15,13 +15,13 @@ import java.io.InputStream
  *
  * @author Clayton Sims
  */
-class MultiInputStream : InputStream() {
+class MultiInputStream : PlatformInputStream() {
 
-    private val streams: ArrayList<InputStream> = ArrayList()
+    private val streams: ArrayList<PlatformInputStream> = ArrayList()
 
     private var currentStream: Int = -1
 
-    fun addStream(stream: InputStream) {
+    fun addStream(stream: PlatformInputStream) {
         streams.add(stream)
     }
 

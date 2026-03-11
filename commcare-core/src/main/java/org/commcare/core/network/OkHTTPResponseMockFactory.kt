@@ -5,7 +5,7 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.ResponseBody
 import retrofit2.Response
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * Response Factory for OkHTTP Response
@@ -23,7 +23,7 @@ object OkHTTPResponseMockFactory {
     }
 
     @JvmStatic
-    fun createResponse(responseCode: Int, inputStream: InputStream): Response<ResponseBody> {
+    fun createResponse(responseCode: Int, inputStream: PlatformInputStream): Response<ResponseBody> {
         val responseBody = FakeResponseBody(inputStream)
         return createResponse(responseCode, responseBody)
     }

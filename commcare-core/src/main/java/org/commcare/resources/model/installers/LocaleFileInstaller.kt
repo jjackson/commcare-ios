@@ -27,7 +27,7 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * @author ctsims
@@ -101,7 +101,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
         } else if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
             //We need to download the resource, and store it locally. Either in the cache
             //(if no resource location is available) or in a local reference if one exists.
-            var incoming: InputStream? = null
+            var incoming: PlatformInputStream? = null
             try {
                 if (!ref.doesBinaryExist()) {
                     return false
@@ -196,7 +196,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
 
     @Throws(UnresolvedResourceException::class)
     private fun cache(
-        incoming: InputStream, r: Resource,
+        incoming: PlatformInputStream, r: Resource,
         table: ResourceTable, upgrade: Boolean
     ): Boolean {
         //NOTE: Incoming here needs to be _fresh_. It's extremely important that

@@ -5,9 +5,9 @@ import okhttp3.ResponseBody
 import okio.BufferedSource
 import okio.buffer
 import okio.source
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
-class FakeResponseBody(private val inputStream: InputStream) : ResponseBody() {
+class FakeResponseBody(private val inputStream: PlatformInputStream) : ResponseBody() {
 
     override fun contentType(): MediaType? = null
 

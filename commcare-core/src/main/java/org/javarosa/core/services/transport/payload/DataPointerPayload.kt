@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * A payload for a Pointer to some data.
@@ -42,7 +42,7 @@ class DataPointerPayload : IDataPayload {
     }
 
     @Throws(PlatformIOException::class)
-    override fun getPayloadStream(): InputStream {
+    override fun getPayloadStream(): PlatformInputStream {
         return pointer.getDataStream()
     }
 
