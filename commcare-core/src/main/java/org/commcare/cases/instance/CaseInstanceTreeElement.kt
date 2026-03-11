@@ -184,7 +184,6 @@ class CaseInstanceTreeElement : StorageInstanceTreeElement<Case, CaseChildElemen
         return super.getNextIndexMatch(profiles, storage, currentQueryContext)
     }
 
-    @Synchronized
     override fun loadElements() {
         if (elements != null) {
             return

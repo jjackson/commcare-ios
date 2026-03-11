@@ -123,7 +123,6 @@ class ProfileInstaller : CacheInstaller<Profile> {
                         Logger.log(LogTypes.TYPE_RESOURCES, "IO Exception fetching profile: " + e.message)
                     }
                     val exception = UnreliableSourceException(r, e.message)
-                    exception.initCause(e)
                     throw exception
                 }
 

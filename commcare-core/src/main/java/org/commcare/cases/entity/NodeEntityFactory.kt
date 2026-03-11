@@ -1,5 +1,6 @@
 package org.commcare.cases.entity
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.queryset.CurrentModelQuerySet
 import org.commcare.suite.model.Detail
@@ -161,7 +162,7 @@ open class NodeEntityFactory(
      * set should not be manipulated until it has completed.
      */
     fun prepareEntities(entities: List<Entity<TreeReference>>) {
-        synchronized(mPreparationLock) {
+        platformSynchronized(mPreparationLock) {
             prepareEntitiesInternal(entities)
             mEntitySetInitialized = true
         }
@@ -185,7 +186,7 @@ open class NodeEntityFactory(
      */
     val isEntitySetReady: Boolean
         get() {
-            synchronized(mPreparationLock) {
+            platformSynchronized(mPreparationLock) {
                 if (!mEntitySetInitialized) {
                     throw RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()")
                 }

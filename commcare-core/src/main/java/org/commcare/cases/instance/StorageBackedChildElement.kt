@@ -1,5 +1,6 @@
 package org.commcare.cases.instance
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitiveTreeElement
 import org.javarosa.core.model.condition.EvaluationContext
@@ -177,7 +178,7 @@ abstract class StorageBackedChildElement<Model : Externalizable> protected const
         if (name == nameId) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
                 //if we're already cached, don't bother with this nonsense
-                synchronized(parent.treeCache) {
+                platformSynchronized(parent.treeCache) {
                     val element = parent.treeCache.retrieve(recordId)
                     if (element != null) {
                         return cache(context).getAttribute(namespace, name)
@@ -203,7 +204,7 @@ abstract class StorageBackedChildElement<Model : Externalizable> protected const
     override fun getAttribute(namespace: String?, name: String): AbstractTreeElement? {
         if (name == nameId) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
-                synchronized(parent.treeCache) {
+                platformSynchronized(parent.treeCache) {
                     val element = parent.treeCache.retrieve(recordId)
                     if (element != null) {
                         return cache().getAttribute(namespace, name)

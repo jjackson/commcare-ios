@@ -80,7 +80,6 @@ class SuiteInstaller : CacheInstaller<Suite>() {
                 throw UnresolvedResourceException(r, e.message, true)
             } catch (e: PlatformIOException) {
                 val exception = UnreliableSourceException(r, e.message)
-                exception.initCause(e)
                 throw exception
             } catch (e: PlatformXmlParserException) {
                 e.printStackTrace()

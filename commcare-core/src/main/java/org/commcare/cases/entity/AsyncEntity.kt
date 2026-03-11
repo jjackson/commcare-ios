@@ -1,5 +1,6 @@
 package org.commcare.cases.entity
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL_FIELD
 import org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD
 import org.commcare.cases.util.StringUtils
@@ -56,7 +57,7 @@ class AsyncEntity(
     private val mAsyncLock = Any()
 
     private fun loadVariableContext() {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             if (!mVariableContextLoaded) {
                 // These are actually in an ordered hashtable, so we can't just get the keyset, since it's
                 // in a 1.3 hashtable equivalent
@@ -71,7 +72,7 @@ class AsyncEntity(
     }
 
     override fun getField(i: Int): Any? {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             if (data[i] != null) {
                 return data[i]
             }
@@ -117,7 +118,7 @@ class AsyncEntity(
     }
 
     override fun getSortField(i: Int): String? {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             if (sortData[i] != null) {
                 return sortData[i]
             }
@@ -184,7 +185,7 @@ class AsyncEntity(
         // NOTE: This totally jacks the asynchronicity. It's only used in
         // detail fields for now, so not super important, but worth bearing
         // in mind
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             loadVariableContext()
             if (getField(fieldIndex) == "") {
                 return false
@@ -194,7 +195,7 @@ class AsyncEntity(
     }
 
     private fun getRelevancyData(i: Int): Boolean {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             val cached = relevancyData[i]
             if (cached != null) {
                 return cached
@@ -226,14 +227,14 @@ class AsyncEntity(
     }
 
     private fun setSortData(i: Int, value: String) {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             this.sortData[i] = value
             this.sortDataPieces[i] = breakUpField(value)
         }
     }
 
     private fun setFieldData(i: Int, value: String) {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             data[i] = value
         }
     }
@@ -264,7 +265,7 @@ class AsyncEntity(
     }
 
     fun getAltTextData(i: Int): String? {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             if (altTextData[i] != null) {
                 return altTextData[i]
             }
