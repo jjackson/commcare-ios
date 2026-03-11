@@ -7,7 +7,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * Created by wpride1 on 8/11/15.
@@ -21,7 +21,7 @@ object ParseUtils {
         PlatformXmlParserException::class,
         PlatformIOException::class
     )
-    fun parseIntoSandbox(stream: InputStream, sandbox: UserSandbox) {
+    fun parseIntoSandbox(stream: PlatformInputStream, sandbox: UserSandbox) {
         parseIntoSandbox(stream, sandbox, failfast = false)
     }
 
@@ -32,7 +32,7 @@ object ParseUtils {
         PlatformXmlParserException::class,
         PlatformIOException::class
     )
-    fun parseIntoSandbox(stream: InputStream, sandbox: UserSandbox, failfast: Boolean) {
+    fun parseIntoSandbox(stream: PlatformInputStream, sandbox: UserSandbox, failfast: Boolean) {
         parseIntoSandbox(stream, sandbox, failfast, bulkProcessingEnabled = false)
     }
 
@@ -44,7 +44,7 @@ object ParseUtils {
         PlatformXmlParserException::class
     )
     fun parseIntoSandbox(
-        stream: InputStream,
+        stream: PlatformInputStream,
         sandbox: UserSandbox,
         failfast: Boolean,
         bulkProcessingEnabled: Boolean
@@ -61,7 +61,7 @@ object ParseUtils {
         PlatformXmlParserException::class
     )
     fun parseIntoSandbox(
-        stream: InputStream,
+        stream: PlatformInputStream,
         factory: TransactionParserFactory,
         failfast: Boolean,
         bulkProcessingEnabled: Boolean

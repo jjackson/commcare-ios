@@ -28,7 +28,7 @@ import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.net.URL
 import java.text.ParseException
 import java.util.HashMap
@@ -301,7 +301,7 @@ class RemoteQuerySessionManager private constructor(
     }
 
     fun buildExternalDataInstance(
-        responseData: InputStream, url: String?,
+        responseData: PlatformInputStream, url: String?,
         requestData: ListMultimap<String, String>?
     ): Pair<ExternalDataInstance?, String?> {
         try {

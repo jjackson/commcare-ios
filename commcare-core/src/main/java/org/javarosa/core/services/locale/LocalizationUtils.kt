@@ -2,7 +2,7 @@ package org.javarosa.core.services.locale
 
 import java.io.BufferedReader
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
 
 /**
@@ -15,7 +15,7 @@ object LocalizationUtils {
      */
     @JvmStatic
     @Throws(PlatformIOException::class)
-    fun parseLocaleInput(`is`: InputStream): HashMap<String, String> {
+    fun parseLocaleInput(`is`: PlatformInputStream): HashMap<String, String> {
         val locale = HashMap<String, String>()
         val isr = InputStreamReader(`is`, "UTF-8")
         val reader = BufferedReader(isr)

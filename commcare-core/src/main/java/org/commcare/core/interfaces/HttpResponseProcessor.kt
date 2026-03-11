@@ -1,7 +1,7 @@
 package org.commcare.core.interfaces
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * Callbacks for different http response result codes
@@ -12,7 +12,7 @@ interface HttpResponseProcessor {
     /**
      * Http response was in the 200s
      */
-    fun processSuccess(responseCode: Int, responseData: InputStream, apiVersion: String?)
+    fun processSuccess(responseCode: Int, responseData: PlatformInputStream, apiVersion: String?)
 
     /**
      * Http response was in the 400s.
@@ -20,7 +20,7 @@ interface HttpResponseProcessor {
      * Can represent authentication issues, data parity issues between client
      * and server, among other things
      */
-    fun processClientError(responseCode: Int, errorStream: InputStream?)
+    fun processClientError(responseCode: Int, errorStream: PlatformInputStream?)
 
     /**
      * Http response was in the 500s

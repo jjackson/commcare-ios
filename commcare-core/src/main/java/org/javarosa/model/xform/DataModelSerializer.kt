@@ -8,7 +8,7 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xml.PlatformXmlSerializer
 import org.javarosa.xml.createXmlSerializer
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformOutputStream
 
 /**
  * A quick rewrite of the basics for writing higher level xml documents straight to
@@ -22,7 +22,7 @@ class DataModelSerializer {
     private val factory: InstanceInitializationFactory?
 
     @Throws(PlatformIOException::class)
-    constructor(stream: OutputStream, factory: InstanceInitializationFactory?) {
+    constructor(stream: PlatformOutputStream, factory: InstanceInitializationFactory?) {
         serializer = createXmlSerializer(stream, "UTF-8")
         this.factory = factory
     }

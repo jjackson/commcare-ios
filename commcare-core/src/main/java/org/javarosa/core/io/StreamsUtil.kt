@@ -1,10 +1,7 @@
 package org.javarosa.core.io
 
-import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
-import java.io.OutputStream
 
 class StreamsUtil {
 
@@ -39,7 +36,7 @@ class StreamsUtil {
          */
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
-        private fun writeFromInputToOutputInner(`in`: InputStream, out: OutputStream) {
+        private fun writeFromInputToOutputInner(`in`: PlatformInputStream, out: PlatformOutputStream) {
             // TODO: God this is naive
             var value: Int
             try {
@@ -63,13 +60,13 @@ class StreamsUtil {
 
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
-        fun writeFromInputToOutputSpecific(`in`: InputStream, out: OutputStream) {
+        fun writeFromInputToOutputSpecific(`in`: PlatformInputStream, out: PlatformOutputStream) {
             writeFromInputToOutputInner(`in`, out)
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeFromInputToOutput(`in`: InputStream, out: OutputStream) {
+        fun writeFromInputToOutput(`in`: PlatformInputStream, out: PlatformOutputStream) {
             try {
                 writeFromInputToOutputInner(`in`, out)
             } catch (e: InputIOException) {
@@ -81,14 +78,14 @@ class StreamsUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun inputStreamToByteArray(input: InputStream): ByteArray {
+        fun inputStreamToByteArray(input: PlatformInputStream): ByteArray {
             val buffer = ByteArray(8192)
             var bytesRead: Int
-            val output = ByteArrayOutputStream()
+            val output = createByteArrayOutputStream()
             while (input.read(buffer).also { bytesRead = it } != -1) {
                 output.write(buffer, 0, bytesRead)
             }
-            return output.toByteArray()
+            return byteArrayOutputStreamToBytes(output)
         }
 
         /**
@@ -97,7 +94,7 @@ class StreamsUtil {
          */
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
-        fun writeFromInputToOutputUnmanaged(`is`: InputStream, os: OutputStream) {
+        fun writeFromInputToOutputUnmanaged(`is`: PlatformInputStream, os: PlatformOutputStream) {
             var count: Int
             val buffer = ByteArray(8192)
             try {
@@ -124,7 +121,7 @@ class StreamsUtil {
          */
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
-        fun writeFromInputToOutputNew(`is`: InputStream, os: OutputStream) {
+        fun writeFromInputToOutputNew(`is`: PlatformInputStream, os: PlatformOutputStream) {
             writeFromInputToOutputNewInner(`is`, os, null)
         }
 
@@ -133,7 +130,7 @@ class StreamsUtil {
          */
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
-        fun writeFromInputToOutputNew(`is`: InputStream, os: OutputStream, observer: StreamReadObserver) {
+        fun writeFromInputToOutputNew(`is`: PlatformInputStream, os: PlatformOutputStream, observer: StreamReadObserver) {
             writeFromInputToOutputNewInner(`is`, os, observer)
         }
 
@@ -143,8 +140,8 @@ class StreamsUtil {
         @JvmStatic
         @Throws(InputIOException::class, OutputIOException::class)
         private fun writeFromInputToOutputNewInner(
-            `is`: InputStream,
-            os: OutputStream,
+            `is`: PlatformInputStream,
+            os: PlatformOutputStream,
             observer: StreamReadObserver?
         ) {
             val buffer = ByteArray(8192)
@@ -165,7 +162,7 @@ class StreamsUtil {
         }
 
         @Throws(OutputIOException::class)
-        private fun writeFromBuffer(os: OutputStream, buffer: ByteArray, count: Int) {
+        private fun writeFromBuffer(os: PlatformOutputStream, buffer: ByteArray, count: Int) {
             try {
                 os.write(buffer, 0, count)
             } catch (e: PlatformIOException) {
@@ -174,7 +171,7 @@ class StreamsUtil {
         }
 
         @Throws(InputIOException::class)
-        private fun readIntoBuffer(`is`: InputStream, buffer: ByteArray): Int {
+        private fun readIntoBuffer(`is`: PlatformInputStream, buffer: ByteArray): Int {
             try {
                 return `is`.read(buffer)
             } catch (e: PlatformIOException) {

@@ -13,7 +13,7 @@ import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xml.createXmlSerializer
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformOutputStream
 import java.nio.charset.StandardCharsets
 
 abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
@@ -267,7 +267,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
     companion object {
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun serializeResult(value: Any?, output: OutputStream) {
+        fun serializeResult(value: Any?, output: PlatformOutputStream) {
             if (value is XPathNodeset && !isLeafNode(value)) {
                 serializeElements(value, output)
             } else {
@@ -287,7 +287,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
         }
 
         @Throws(PlatformIOException::class)
-        private fun serializeElements(nodeset: XPathNodeset, output: OutputStream) {
+        private fun serializeElements(nodeset: XPathNodeset, output: PlatformOutputStream) {
             val serializer = createXmlSerializer(output, "UTF-8")
 
             val s = DataModelSerializer(serializer)

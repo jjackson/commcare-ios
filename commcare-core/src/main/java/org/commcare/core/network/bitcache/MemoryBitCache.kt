@@ -1,33 +1,34 @@
 package org.commcare.core.network.bitcache
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.io.createByteArrayOutputStream
+import org.javarosa.core.io.byteArrayOutputStreamToBytes
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
 
 /**
  * @author ctsims
  */
 internal class MemoryBitCache : BitCache {
 
-    private var bos: ByteArrayOutputStream? = null
+    private var bos: PlatformOutputStream? = null
     private var data: ByteArray? = null
 
     override fun initializeCache() {
-        bos = ByteArrayOutputStream()
+        bos = createByteArrayOutputStream()
         data = null
     }
 
-    override fun getCacheStream(): OutputStream {
+    override fun getCacheStream(): PlatformOutputStream {
         return bos!!
     }
 
-    override fun retrieveCache(): InputStream {
+    override fun retrieveCache(): PlatformInputStream {
         if (data == null) {
-            data = bos!!.toByteArray()
+            data = byteArrayOutputStreamToBytes(bos!!)
             bos = null
         }
-        return ByteArrayInputStream(data)
+        return createByteArrayInputStream(data!!)
     }
 
     override fun release() {

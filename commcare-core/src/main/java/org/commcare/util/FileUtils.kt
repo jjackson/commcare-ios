@@ -7,7 +7,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
@@ -26,7 +26,7 @@ object FileUtils {
      */
     @JvmStatic
     @Throws(PlatformIOException::class)
-    fun copyFile(inputStream: InputStream?, dstFile: File) {
+    fun copyFile(inputStream: PlatformInputStream?, dstFile: File) {
         if (inputStream == null) {
             return
         }
