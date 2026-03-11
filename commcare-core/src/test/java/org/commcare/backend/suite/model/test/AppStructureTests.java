@@ -188,7 +188,7 @@ public class AppStructureTests {
         assertEquals("Menu 1 Text", menuWithDisplayBlock.getDisplayText(null));
         EvaluationContext ec =
                 appWithGoodUserRestore.getSession().getEvaluationContext(menuWithDisplayBlock.getId());
-        TestObserver<String> testObserver = menuWithDisplayBlock.getTextForBadge(ec).test();
+        TestObserver<String> testObserver = menuWithDisplayBlock.getTextForBadge(ec).getSingle().test();
         testObserver.assertNoErrors();
         testObserver.assertValue("1");
     }

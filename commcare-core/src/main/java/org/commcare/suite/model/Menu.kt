@@ -1,6 +1,5 @@
 package org.commcare.suite.model
 
-import io.reactivex.Single
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.utils.InstanceUtils
@@ -189,8 +188,8 @@ class Menu : Externalizable, MenuDisplayable {
         return text.evaluate(ec)
     }
 
-    override fun getTextForBadge(ec: EvaluationContext?): Single<String> {
-        val badgeText = display?.getBadgeText() ?: return Single.just("")
+    override fun getTextForBadge(ec: EvaluationContext?): PlatformSingle<String> {
+        val badgeText = display?.getBadgeText() ?: return platformSingleJust("")
         return badgeText.getDisposableSingleForEvaluation(ec)
     }
 

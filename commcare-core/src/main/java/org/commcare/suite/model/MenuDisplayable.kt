@@ -1,6 +1,5 @@
 package org.commcare.suite.model
 
-import io.reactivex.Single
 import org.javarosa.core.model.condition.EvaluationContext
 
 /**
@@ -17,7 +16,7 @@ interface MenuDisplayable {
 
     fun getDisplayText(ec: EvaluationContext?): String?
 
-    fun getTextForBadge(ec: EvaluationContext?): Single<String>
+    fun getTextForBadge(ec: EvaluationContext?): PlatformSingle<String>
 
     fun getCommandID(): String?
 

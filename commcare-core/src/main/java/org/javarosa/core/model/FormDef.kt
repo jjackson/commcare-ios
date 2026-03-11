@@ -44,8 +44,8 @@ import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import datadog.trace.api.Trace
-import io.opentracing.util.GlobalTracer
+import org.javarosa.core.model.trace.PlatformTrace
+import org.javarosa.core.model.trace.setActiveSpanTag
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
@@ -702,7 +702,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Get all of the elements which will need to be evaluated (in order) when
      * the triggerable is fired.
      */
-    @Trace
+    @PlatformTrace
     private fun fillTriggeredElements(
         t: Triggerable,
         destination: MutableList<Triggerable>,
@@ -855,7 +855,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         return debugInfo
     }
 
-    @Trace
+    @PlatformTrace
     private fun initAllTriggerables() {
         // Use all triggerables because we can assume they are rooted by rootRef
         val rootRef = TreeReference.rootRef()
@@ -872,7 +872,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Evaluate triggerables targeting references that are children of the
      * provided newly created (repeat instance) ref.
      */
-    @Trace
+    @PlatformTrace
     private fun initTriggerablesRootedBy(
         rootRef: TreeReference,
         triggeredDuringInsert: ArrayList<Triggerable>
@@ -897,7 +897,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     /**
      * The entry point for the DAG cascade after a value is changed in the model.
      */
-    @Trace
+    @PlatformTrace
     fun triggerTriggerables(ref: TreeReference) {
         // turn unambiguous ref into a generic ref to identify what nodes
         // should be triggered by this reference changing
@@ -916,7 +916,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Step 2 in evaluating DAG computation updates from a value being changed
      * in the instance.
      */
-    @Trace
+    @PlatformTrace
     private fun evaluateTriggerables(
         tv: MutableList<Triggerable>,
         anchorRef: TreeReference,
@@ -944,13 +944,12 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Step 3 in DAG cascade. evaluate the individual triggerable expressions
      * against the anchor (the value that changed which triggered recomputation)
      */
-    @Trace
+    @PlatformTrace
     private fun evaluateTriggerable(triggerable: Triggerable, anchorRef: TreeReference) {
         // Contextualize the reference used by the triggerable against the anchor
         val contextRef = triggerable.narrowContextBy(anchorRef)
         if (isTracingEnabled()) {
-            val span = GlobalTracer.get().activeSpan()
-            span.setTag("triggerable", triggerable.toString())
+            setActiveSpanTag("triggerable", triggerable.toString())
         }
 
         // Now identify all of the fully qualified nodes which this triggerable
@@ -1165,12 +1164,11 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         return currentTemplate
     }
 
-    @Trace
+    @PlatformTrace
     fun populateDynamicChoices(itemset: ItemsetBinding, curQRef: TreeReference) {
         if (isTracingEnabled()) {
-            val span = GlobalTracer.get().activeSpan()
-            span.setTag("itemset", itemset.nodesetRef.toString())
-            span.setTag("treeReference", curQRef.toString())
+            setActiveSpanTag("itemset", itemset.nodesetRef.toString())
+            setActiveSpanTag("treeReference", curQRef.toString())
         }
         ItemSetUtils.populateDynamicChoices(itemset, curQRef, exprEvalContext!!, getMainInstance(), mProfilingEnabled)
     }
@@ -1192,7 +1190,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     /**
      * Reads the form definition object from the supplied stream.
      */
-    @Trace
+    @PlatformTrace
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         setID(SerializationHelpers.readInt(dis))
@@ -1254,7 +1252,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     /**
      * meant to be called after deserialization and initialization of handlers
      */
-    @Trace
+    @PlatformTrace
     fun initialize(
         newInstance: Boolean, isCompletedInstance: Boolean,
         factory: InstanceInitializationFactory?,
