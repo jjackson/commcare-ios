@@ -291,6 +291,22 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), null) as HashMap<String, Boolean>
+    }
+
+    @JvmStatic
+    actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
+        return ExtUtil.readBytes(`in`)
+    }
+
+    @JvmStatic
+    actual fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
+        ExtUtil.writeBytes(out, bytes)
+    }
+
+    @JvmStatic
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         return ExtUtil.arrayEquals(a, b, unwrap)
     }

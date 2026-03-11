@@ -353,6 +353,34 @@ actual object SerializationHelpers {
         }
     }
 
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Boolean>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readBool(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
+        val size = readNumeric(`in`).toInt()
+        val bytes = ByteArray(size)
+        var read = 0
+        var toread = size
+        while (read != size) {
+            read = `in`.read(bytes, 0, toread)
+            toread -= read
+        }
+        return bytes
+    }
+
+    actual fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
+        writeNumeric(out, bytes.size.toLong())
+        if (bytes.isNotEmpty()) out.write(bytes)
+    }
+
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         if (a.size != b.size) return false
         for (i in a.indices) {

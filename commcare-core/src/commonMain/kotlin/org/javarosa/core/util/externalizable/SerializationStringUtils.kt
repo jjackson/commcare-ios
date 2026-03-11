@@ -12,3 +12,19 @@ fun nullIfEmpty(s: String?): String? {
 fun emptyIfNull(s: String?): String {
     return s ?: ""
 }
+
+fun nullIfEmpty(ba: ByteArray?): ByteArray? {
+    return if (ba == null || ba.isEmpty()) null else ba
+}
+
+fun emptyIfNull(ba: ByteArray?): ByteArray {
+    return ba ?: ByteArray(0)
+}
+
+fun <T> nullIfEmpty(v: ArrayList<T>?): ArrayList<T>? {
+    return if (v == null || v.isEmpty()) null else v
+}
+
+fun emptyIfNull(v: ArrayList<*>?): ArrayList<*> {
+    return v ?: ArrayList<Any?>()
+}

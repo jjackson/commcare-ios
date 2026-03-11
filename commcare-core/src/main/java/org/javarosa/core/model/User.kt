@@ -7,12 +7,10 @@ import org.javarosa.core.model.util.restorable.RestoreUtils
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.util.externalizable.nullIfEmpty
-// Note: ExtUtil kept for readBytes/writeBytes (no SerializationHelpers equivalent)
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -66,7 +64,7 @@ class User : Persistable, Restorable, IMetaData {
         this.rememberMe = SerializationHelpers.readBool(`in`)
         this.syncToken = nullIfEmpty(SerializationHelpers.readString(`in`))
         this.properties = SerializationHelpers.readStringStringMap(`in`)
-        this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(`in`))
+        this.wrappedKey = nullIfEmpty(SerializationHelpers.readBytes(`in`))
     }
 
     @Throws(PlatformIOException::class)
@@ -78,7 +76,7 @@ class User : Persistable, Restorable, IMetaData {
         SerializationHelpers.writeBool(out, rememberMe)
         SerializationHelpers.writeString(out, emptyIfNull(syncToken))
         SerializationHelpers.writeMap(out, properties)
-        ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey))
+        SerializationHelpers.writeBytes(out, emptyIfNull(wrappedKey))
     }
 
     fun getUsername(): String? {

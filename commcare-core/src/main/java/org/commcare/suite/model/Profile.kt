@@ -5,11 +5,8 @@ import org.javarosa.core.reference.RootTranslator
 import org.javarosa.core.services.PropertyManager
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
-// Note: ExtUtil kept for featureStatus HashMap<String, Boolean> map (no SerializationHelpers equivalent)
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -205,7 +202,7 @@ class Profile : Persistable {
         properties = SerializationHelpers.readList(`in`, pf) { PropertySetter() }
         roots = SerializationHelpers.readList(`in`, pf) { RootTranslator() }
         @Suppress("UNCHECKED_CAST")
-        featureStatus = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), pf) as HashMap<String, Boolean>
+        featureStatus = SerializationHelpers.readStringBooleanMap(`in`)
         buildProfileId = SerializationHelpers.readString(`in`)
         dependencies = SerializationHelpers.readList(`in`, pf) { AndroidPackageDependency() }
         credentials = SerializationHelpers.readList(`in`, pf) { Credential() }

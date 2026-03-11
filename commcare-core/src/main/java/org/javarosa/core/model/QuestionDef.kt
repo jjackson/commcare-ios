@@ -3,7 +3,8 @@ package org.javarosa.core.model
 import org.javarosa.core.model.actions.ActionController
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
@@ -188,7 +189,7 @@ class QuestionDef : IFormElement {
         setAppearanceAttr(SerializationHelpers.readNullableString(dis, pf))
         setControlType(SerializationHelpers.readInt(dis))
         @Suppress("UNCHECKED_CAST")
-        choices = ExtUtil.nullIfEmpty(SerializationHelpers.readList(dis, pf) { SelectChoice() })
+        choices = nullIfEmpty(SerializationHelpers.readList(dis, pf) { SelectChoice() })
         for (i in 0 until getNumChoices()) {
             choices!![i].setIndex(i)
         }
@@ -205,7 +206,7 @@ class QuestionDef : IFormElement {
         SerializationHelpers.writeNullableTagged(dos, binding)
         SerializationHelpers.writeNullable(dos, getAppearanceAttr())
         SerializationHelpers.writeNumeric(dos, getControlType().toLong())
-        SerializationHelpers.writeList(dos, ExtUtil.emptyIfNull(choices))
+        SerializationHelpers.writeList(dos, emptyIfNull(choices))
         SerializationHelpers.writeNullable(dos, dynamicChoices)
         SerializationHelpers.writeMap(dos, mQuestionStrings)
         SerializationHelpers.writeListPoly(dos, extensions)

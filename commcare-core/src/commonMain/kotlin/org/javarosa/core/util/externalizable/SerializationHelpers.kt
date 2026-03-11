@@ -188,6 +188,19 @@ expect object SerializationHelpers {
     @Throws(PlatformIOException::class)
     fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
 
+    // --- Typed map read ---
+
+    @Throws(PlatformIOException::class)
+    fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean>
+
+    // --- Byte array read/write ---
+
+    @Throws(PlatformIOException::class)
+    fun readBytes(`in`: PlatformDataInputStream): ByteArray
+
+    @Throws(PlatformIOException::class)
+    fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray)
+
     // --- Comparison utilities ---
 
     fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean
