@@ -19,7 +19,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.NoLocalizedTextException
 import org.javarosa.core.util.UnregisteredLocaleException
-import org.javarosa.xform.parse.XFormParser
+import org.javarosa.xform.parse.XFormConstants
 
 
 import org.javarosa.core.model.trace.PlatformTrace
@@ -175,7 +175,7 @@ open class FormEntryPrompt : FormEntryCaption {
     fun getConstraintText(attemptedValue: IAnswerData?): String? {
         // new constraint spec uses "alert" form XForm spec 8.2.4
         // http://www.w3.org/TR/xforms/#ui-commonelems
-        val newConstraintMsg = this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT))
+        val newConstraintMsg = this.localizeText(getQuestion().getQuestionString(XFormConstants.CONSTRAINT_ELEMENT))
         if (newConstraintMsg != null) {
             return newConstraintMsg
         }
@@ -278,14 +278,14 @@ open class FormEntryPrompt : FormEntryCaption {
         }
 
         val qd = element as QuestionDef
-        return localizeText(qd.getQuestionString(XFormParser.HINT_ELEMENT))
+        return localizeText(qd.getQuestionString(XFormConstants.HINT_ELEMENT))
     }
 
     /**
      * Determine if this prompt has any help, whether text or multimedia.
      */
     fun hasHelp(): Boolean {
-        if (this.getQuestion().getQuestionString(XFormParser.HELP_ELEMENT) != null) {
+        if (this.getQuestion().getQuestionString(XFormConstants.HELP_ELEMENT) != null) {
             return true
         }
 
@@ -315,7 +315,7 @@ open class FormEntryPrompt : FormEntryCaption {
         }
 
         val qd = element as QuestionDef
-        return localizeText(qd.getQuestionString(XFormParser.HELP_ELEMENT))
+        return localizeText(qd.getQuestionString(XFormConstants.HELP_ELEMENT))
     }
 
     /**

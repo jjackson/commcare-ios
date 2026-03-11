@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
-import org.javarosa.xform.parse.XFormParser
+import org.javarosa.xform.parse.XFormConstants
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -55,7 +55,7 @@ class QuestionDef : IFormElement {
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
         //work reliably
-        mQuestionStrings[XFormParser.LABEL_ELEMENT] = QuestionString(XFormParser.LABEL_ELEMENT, null)
+        mQuestionStrings[XFormConstants.LABEL_ELEMENT] = QuestionString(XFormConstants.LABEL_ELEMENT, null)
         actionController = ActionController()
     }
 
@@ -104,7 +104,7 @@ class QuestionDef : IFormElement {
     }
 
     fun getHelpTextID(): String? {
-        return mQuestionStrings[XFormParser.HELP_ELEMENT]?.textId
+        return mQuestionStrings[XFormConstants.HELP_ELEMENT]?.textId
     }
 
     fun addSelectChoice(choice: SelectChoice) {
@@ -218,11 +218,11 @@ class QuestionDef : IFormElement {
     }
 
     override fun getTextID(): String? {
-        return this.getQuestionString(XFormParser.LABEL_ELEMENT)!!.textId
+        return this.getQuestionString(XFormConstants.LABEL_ELEMENT)!!.textId
     }
 
     override fun getLabelInnerText(): String? {
-        return this.getQuestionString(XFormParser.LABEL_ELEMENT)!!.textInner
+        return this.getQuestionString(XFormConstants.LABEL_ELEMENT)!!.textInner
     }
 
     override fun setTextID(textID: String?) {
@@ -231,7 +231,7 @@ class QuestionDef : IFormElement {
             org.javarosa.core.util.platformStdErrPrintln("Warning: TextID contains ;form modifier:: \"${mutableTextID!!.substring(mutableTextID.indexOf(";"))}\"... will be stripped.")
             mutableTextID = mutableTextID.substring(0, mutableTextID.indexOf(";")) //trim away the form specifier
         }
-        this.getQuestionString(XFormParser.LABEL_ELEMENT)!!.textId = mutableTextID
+        this.getQuestionString(XFormConstants.LABEL_ELEMENT)!!.textId = mutableTextID
     }
 
     fun addExtension(extension: QuestionDataExtension) {
