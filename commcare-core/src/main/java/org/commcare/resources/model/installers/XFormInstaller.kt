@@ -14,6 +14,7 @@ import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.form.api.FormEntryCaption
 import org.javarosa.xform.parse.XFormParseException
 import org.javarosa.xform.util.XFormUtils
+import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStreamReader
 
@@ -38,7 +39,7 @@ class XFormInstaller : CacheInstaller<FormDef>() {
         table: ResourceTable, platform: CommCarePlatform,
         upgrade: Boolean, resourceInstallContext: ResourceInstallContext
     ): Boolean {
-        var incoming: java.io.InputStream? = null
+        var incoming: PlatformInputStream? = null
         try {
             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
                 //If it's in the cache, we should just get it from there

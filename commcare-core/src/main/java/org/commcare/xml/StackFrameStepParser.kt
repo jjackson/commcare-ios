@@ -9,8 +9,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.net.MalformedURLException
-import java.net.URL
+import org.javarosa.core.util.PlatformMalformedUrlException
+import org.javarosa.core.util.PlatformUrl
 
 /**
  * @author ctsims
@@ -42,8 +42,8 @@ internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<S
         val queryId = parser.getAttributeValue(null, "id")
         val url = parser.getAttributeValue(null, "value")
         try {
-            URL(url)
-        } catch (e: MalformedURLException) {
+            PlatformUrl(url)
+        } catch (e: PlatformMalformedUrlException) {
             val errorMsg = "<query> element has invalid 'value' attribute ($url)."
             throw InvalidStructureException(errorMsg, parser)
         }

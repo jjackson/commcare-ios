@@ -1,7 +1,6 @@
 package org.commcare.cases.entity
 
 import org.commcare.suite.model.Detail
-import java.io.Closeable
 
 /**
  * Interface for evaluated entity fields cache
@@ -12,7 +11,7 @@ interface EntityStorageCache {
         TYPE_SORT_FIELD
     }
 
-    fun lockCache(): Closeable
+    fun lockCache(): AutoCloseable
 
     fun getCacheKey(detailId: String, detailFieldIndex: String, valueType: ValueType): String
 

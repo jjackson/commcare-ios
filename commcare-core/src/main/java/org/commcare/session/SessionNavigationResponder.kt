@@ -1,7 +1,7 @@
 package org.commcare.session
 
 import org.javarosa.core.model.condition.EvaluationContext
-import java.util.concurrent.locks.ReentrantLock
+import org.javarosa.core.util.PlatformLock
 
 /**
  * Interface defining all functionality to be implemented by any class that will receive and
@@ -20,5 +20,5 @@ interface SessionNavigationResponder {
     // Provide a hook to the current evaluation context that the SessionNavigator will use
     fun getEvalContextForNavigator(): EvaluationContext
 
-    fun getBackgroundSyncLock(): ReentrantLock
+    fun getBackgroundSyncLock(): PlatformLock
 }

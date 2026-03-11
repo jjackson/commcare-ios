@@ -89,18 +89,18 @@ commcare-ios/
 
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
-| 1 | Quick wins (Math, Locale, Objects, synchronized) | ~10 | #111 | Open |
-| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Open |
-| 3 | Complete Date/Calendar migration | ~7 | #113 | Open |
+| 1 | Quick wins (Math, Locale, Objects, synchronized) | ~10 | #111 | Done (PR #122) |
+| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Done (PR #123) |
+| 3 | Complete Date/Calendar migration | ~7 | #113 | Done (PR #125) |
 | 4 | Migrate xmlpull/kxml2 consumers | 9 | #114 | Open |
-| 5 | Abstract org.json to PlatformJson | 8 | #115 | Open |
-| 6 | Abstract io.reactivex and tracing | 7 | #116 | Open |
-| 7 | Abstract java.io and java.net | ~18 | #117 | Open |
+| 5 | Abstract org.json to PlatformJson | 8 | #115 | Done (PR #124) |
+| 6 | Abstract io.reactivex and tracing | 7 | #116 | Done (PR #124) |
+| 7 | Abstract java.io and java.net | ~18 | #117 | In Progress (PR #126 partial) |
 | 8 | KClass conversion for serialization | ~16 | #118 | Open |
-| 9 | Move HTTP/network files to jvmMain | 7 | #119 | Open |
+| 9 | Move HTTP/network files to jvmMain | 7 | #119 | Done (PR #124) |
 | 10 | Bulk migration to commonMain | 390+ | #120 | Open |
 
-**Next wave**: Wave 1 (Issue #111) — quick wins. Waves 1-9 can largely run in parallel. Wave 10 depends on all.
+**Next**: Waves 4 (xmlpull/kxml2), 7 (java.io/net remaining), 8 (KClass). Wave 10 depends on all.
 
 **Plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md`
 

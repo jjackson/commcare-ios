@@ -5,11 +5,11 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 
+import org.javarosa.core.util.PlatformMalformedUrlException
+import org.javarosa.core.util.PlatformUrl
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.net.MalformedURLException
-import java.net.URL
 
 /**
  * Entry config for querying a remote server with user and session provided
@@ -36,7 +36,7 @@ class RemoteQueryDatum : SessionDatum {
      *                        heterogeneity) in case data lookups
      */
     constructor(
-        url: URL, storageInstance: String?,
+        url: PlatformUrl, storageInstance: String?,
         hiddenQueryValues: List<QueryData>?,
         userQueryPrompts: OrderedHashtable<String, QueryPrompt>?, useCaseTemplate: Boolean,
         defaultSearch: Boolean, dynamicSearch: Boolean, title: Text?, description: Text?,
@@ -59,10 +59,10 @@ class RemoteQueryDatum : SessionDatum {
 
     fun getHiddenQueryValues(): List<QueryData>? = hiddenQueryValues
 
-    fun getUrl(): URL? {
+    fun getUrl(): PlatformUrl? {
         return try {
-            URL(getValue())
-        } catch (e: MalformedURLException) {
+            PlatformUrl(getValue())
+        } catch (e: PlatformMalformedUrlException) {
             // Not possible given constructor passes in a valid URL
             e.printStackTrace()
             null

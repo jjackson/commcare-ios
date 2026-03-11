@@ -10,10 +10,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 
+import org.javarosa.core.util.PlatformUrl
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.net.URL
 
 /**
  * Entry config for posting data to a remote server as part of synchronous
@@ -22,19 +22,19 @@ import java.net.URL
  * @author Phillip Mates (pmates@dimagi.com).
  */
 class PostRequest : Externalizable {
-    private var url: URL? = null
+    private var url: PlatformUrl? = null
     private var relevantExpr: XPathExpression? = null
     private var params: List<QueryData>? = null
 
     constructor()
 
-    constructor(url: URL?, relevantExpr: XPathExpression?, params: List<QueryData>?) {
+    constructor(url: PlatformUrl?, relevantExpr: XPathExpression?, params: List<QueryData>?) {
         this.url = url
         this.params = params
         this.relevantExpr = relevantExpr
     }
 
-    fun getUrl(): URL? = url
+    fun getUrl(): PlatformUrl? = url
 
     /**
      * Evaluates parameters for post request
@@ -63,7 +63,7 @@ class PostRequest : Externalizable {
             val localEvalContext = evalContext.spawnWithCleanLifecycle()
             val evaluatedParams = getEvaluatedParams(localEvalContext, true)
             evaluatedParams.keySet().forEach { key ->
-                localEvalContext.setVariable(key, java.lang.String.join(" ", evaluatedParams.get(key)))
+                localEvalContext.setVariable(key, evaluatedParams.get(key).joinToString(" "))
             }
             val re = relevantExpr!!
             val result = RemoteQuerySessionManager.evalXpathExpression(re, localEvalContext)
@@ -75,7 +75,7 @@ class PostRequest : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         params = SerializationHelpers.readListPoly(`in`, pf) as List<QueryData>
-        url = URL(SerializationHelpers.readString(`in`))
+        url = PlatformUrl(SerializationHelpers.readString(`in`))
         relevantExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
     }
 

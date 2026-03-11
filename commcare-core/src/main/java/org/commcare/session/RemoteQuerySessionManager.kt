@@ -29,8 +29,8 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
-import java.net.URL
-import java.text.ParseException
+import org.javarosa.core.util.PlatformParseException
+import org.javarosa.core.util.PlatformUrl
 import kotlin.jvm.JvmStatic
 
 /**
@@ -67,7 +67,7 @@ class RemoteQuerySessionManager private constructor(
                 if (INPUT_TYPE_DATERANGE == prompt.getInput()) {
                     try {
                         value = DateRangeUtils.formatDateRangeAnswer(value)
-                    } catch (e: ParseException) {
+                    } catch (e: PlatformParseException) {
                         Logger.exception("Error parsing default date range $value for $promptId", e)
                     }
                 }
@@ -108,7 +108,7 @@ class RemoteQuerySessionManager private constructor(
         }
     }
 
-    fun getBaseUrl(): URL? {
+    fun getBaseUrl(): PlatformUrl? {
         return queryDatum.getUrl()
     }
 

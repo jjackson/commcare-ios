@@ -21,8 +21,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.net.MalformedURLException
-import java.net.URL
+import org.javarosa.core.util.PlatformMalformedUrlException
+import org.javarosa.core.util.PlatformUrl
 import kotlin.jvm.JvmStatic
 
 /**
@@ -168,10 +168,10 @@ class EntryParser private constructor(
                 "Expected 'url' attribute in a <post> structure.",
                 parser
             )
-        val url: URL
+        val url: PlatformUrl
         try {
-            url = URL(urlString)
-        } catch (e: MalformedURLException) {
+            url = PlatformUrl(urlString)
+        } catch (e: PlatformMalformedUrlException) {
             throw InvalidStructureException(
                 "The <post> block's 'url' attribute ($urlString) isn't a valid url.",
                 parser

@@ -1,8 +1,8 @@
 package org.javarosa.core.data
 
+import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.util.externalizable.Externalizable
-import java.io.IOException
-import java.io.InputStream
+import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.Throws
 
 /**
@@ -20,14 +20,14 @@ interface IDataPointer : Externalizable {
     /**
      * Get the data from the underlying storage. This should maybe be a stream instead of a byte[]
      */
-    @Throws(IOException::class)
+    @Throws(PlatformIOException::class)
     fun getData(): ByteArray
 
     /**
      * Get the data from the underlying storage.
      */
-    @Throws(IOException::class)
-    fun getDataStream(): InputStream
+    @Throws(PlatformIOException::class)
+    fun getDataStream(): PlatformInputStream
 
     /**
      * Deletes the underlying data from storage.
