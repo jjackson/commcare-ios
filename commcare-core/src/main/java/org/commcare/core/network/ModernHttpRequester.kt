@@ -13,7 +13,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
 
@@ -53,12 +53,12 @@ open class ModernHttpRequester(
                  * @throws PlatformIOException if an io error happens while reading or writing to cache
                  */
                 @Throws(PlatformIOException::class)
-                override fun getResponseStream(): InputStream {
+                override fun getResponseStream(): PlatformInputStream {
                     return requester.getResponseStream(response!!)
                 }
 
                 @Throws(PlatformIOException::class)
-                override fun getErrorResponseStream(): InputStream? {
+                override fun getErrorResponseStream(): PlatformInputStream? {
                     return requester.getErrorResponseStream(response!!)
                 }
 
@@ -118,13 +118,13 @@ open class ModernHttpRequester(
      * @throws PlatformIOException if an io error happens while reading or writing to cache
      */
     @Throws(PlatformIOException::class)
-    fun getResponseStream(response: Response<ResponseBody>): InputStream {
+    fun getResponseStream(response: Response<ResponseBody>): PlatformInputStream {
         val inputStream = response.body()!!.byteStream()
         return cacheResponse(inputStream, response)
     }
 
     @Throws(PlatformIOException::class)
-    private fun cacheResponse(inputStream: InputStream, response: Response<ResponseBody>): InputStream {
+    private fun cacheResponse(inputStream: PlatformInputStream, response: Response<ResponseBody>): PlatformInputStream {
         val cache = BitCacheFactory.getCache(cacheDirSetup, getContentLength(response))
         cache.initializeCache()
         val cacheOut = cache.getCacheStream()
@@ -133,7 +133,7 @@ open class ModernHttpRequester(
     }
 
     @Throws(PlatformIOException::class)
-    fun getErrorResponseStream(response: Response<ResponseBody>): InputStream? {
+    fun getErrorResponseStream(response: Response<ResponseBody>): PlatformInputStream? {
         if (response.errorBody() != null) {
             return cacheResponse(response.errorBody()!!.byteStream(), response)
         }
@@ -168,7 +168,7 @@ open class ModernHttpRequester(
             streamAccessor: ResponseStreamAccessor
         ) {
             if (responseCode in 200..299) {
-                var responseStream: InputStream? = null
+                var responseStream: PlatformInputStream? = null
                 try {
                     try {
                         responseStream = streamAccessor.getResponseStream()
@@ -182,7 +182,7 @@ open class ModernHttpRequester(
                     StreamsUtil.closeStream(responseStream)
                 }
             } else if (responseCode in 400..499) {
-                var errorStream: InputStream? = null
+                var errorStream: PlatformInputStream? = null
                 try {
                     errorStream = streamAccessor.getErrorResponseStream()
                     responseProcessor.processClientError(responseCode, errorStream)

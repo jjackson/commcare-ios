@@ -1,8 +1,8 @@
 package org.commcare.core.network.bitcache
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
 
 /**
  * @author ctsims
@@ -12,10 +12,10 @@ interface BitCache {
     fun initializeCache()
 
     @Throws(PlatformIOException::class)
-    fun getCacheStream(): OutputStream
+    fun getCacheStream(): PlatformOutputStream
 
     @Throws(PlatformIOException::class)
-    fun retrieveCache(): InputStream
+    fun retrieveCache(): PlatformInputStream
 
     fun release()
 }

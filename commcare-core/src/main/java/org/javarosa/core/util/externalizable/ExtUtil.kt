@@ -3,8 +3,9 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.services.PrototypeManager
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.OrderedHashtable
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.io.createByteArrayOutputStream
+import org.javarosa.core.io.byteArrayOutputStreamToBytes
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -18,13 +19,13 @@ class ExtUtil {
 
         @JvmStatic
         fun serialize(o: Any): ByteArray {
-            val baos = ByteArrayOutputStream()
+            val baos = createByteArrayOutputStream()
             try {
                 write(DataOutputStream(baos), o)
             } catch (ioe: PlatformIOException) {
                 throw RuntimeException("PlatformIOException writing to ByteArrayOutputStream; shouldn't happen!")
             }
-            return baos.toByteArray()
+            return byteArrayOutputStreamToBytes(baos)
         }
 
         @JvmStatic
@@ -440,7 +441,7 @@ class ExtUtil {
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
-            return read(DataInputStream(ByteArrayInputStream(data)), type, pf)
+            return read(DataInputStream(createByteArrayInputStream(data)), type, pf)
         }
 
         @Suppress("unused")

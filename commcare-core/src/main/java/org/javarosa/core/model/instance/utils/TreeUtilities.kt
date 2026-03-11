@@ -22,7 +22,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.util.LinkedHashSet
 
 /**
@@ -284,7 +284,7 @@ object TreeUtilities {
     @JvmStatic
     @Throws(InvalidStructureException::class, PlatformIOException::class)
     fun xmlToTreeElement(xmlFilepath: String?): TreeElement {
-        var inputStream: InputStream? = null
+        var inputStream: PlatformInputStream? = null
         try {
             inputStream = InstanceUtils::class.java.getResourceAsStream(xmlFilepath)
             try {
@@ -313,7 +313,7 @@ object TreeUtilities {
         PlatformXmlParserException::class,
         InvalidStructureException::class
     )
-    fun xmlStreamToTreeElement(stream: InputStream?, instanceId: String?): TreeElement {
+    fun xmlStreamToTreeElement(stream: PlatformInputStream?, instanceId: String?): TreeElement {
         val baseParser = ElementParser.instantiateParser(stream)
         return TreeElementParser(baseParser, 0, instanceId).parse()
     }

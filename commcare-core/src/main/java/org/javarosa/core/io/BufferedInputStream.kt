@@ -1,7 +1,6 @@
 package org.javarosa.core.io
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
 
 /**
  * An implementation of a Buffered Stream for j2me compatible libraries.
@@ -11,20 +10,20 @@ import java.io.InputStream
  *
  * @author ctsims
  */
-class BufferedInputStream : InputStream {
+class BufferedInputStream : PlatformInputStream {
 
     // TODO: Better close semantics
     // TODO: Threadsafety
 
-    private val `in`: InputStream
+    private val `in`: PlatformInputStream
     private var buffer: ByteArray?
 
     private var position: Int = 0
     private var count: Int = 0
 
-    constructor(`in`: InputStream) : this(`in`, 2048)
+    constructor(`in`: PlatformInputStream) : this(`in`, 2048)
 
-    constructor(`in`: InputStream, size: Int) {
+    constructor(`in`: PlatformInputStream, size: Int) {
         this.`in` = `in`
         this.buffer = ByteArray(size)
         cleanBuffer()
@@ -49,14 +48,6 @@ class BufferedInputStream : InputStream {
         `in`.close()
         // clear up buffer
         buffer = null
-    }
-
-    override fun mark(readlimit: Int) {
-        // nothing
-    }
-
-    override fun markSupported(): Boolean {
-        return false
     }
 
     @Throws(PlatformIOException::class)
@@ -130,18 +121,13 @@ class BufferedInputStream : InputStream {
             return false
         }
         position = 0
-        count = `in`.read(buffer)
+        count = `in`.read(buffer!!)
         return count == buffer!!.size
     }
 
     @Throws(PlatformIOException::class)
     override fun read(b: ByteArray): Int {
         return this.read(b, 0, b.size)
-    }
-
-    @Throws(PlatformIOException::class)
-    override fun reset() {
-        // mark is unsupported
     }
 
     @Throws(PlatformIOException::class)
