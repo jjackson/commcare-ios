@@ -1,16 +1,12 @@
 package org.commcare.benchmarks
 
-import org.commcare.cases.model.Case
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.test.FormParseInit
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.LivePrototypeFactory
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.openjdk.jmh.annotations.*
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.DataInputStream
-import java.io.DataOutputStream
 
 @State(Scope.Benchmark)
 open class SerializationBenchmark {
@@ -28,9 +24,9 @@ open class SerializationBenchmark {
         formInstance = fpi.formDef.getMainInstance()!!
 
         // Pre-serialize for deserialization benchmark
-        val baos = ByteArrayOutputStream()
-        formInstance.writeExternal(DataOutputStream(baos))
-        serializedFormBytes = baos.toByteArray()
+        val out = PlatformDataOutputStream()
+        formInstance.writeExternal(out)
+        serializedFormBytes = out.toByteArray()
     }
 
     /**
@@ -38,9 +34,9 @@ open class SerializationBenchmark {
      */
     @Benchmark
     fun serializeFormInstance(): ByteArray {
-        val baos = ByteArrayOutputStream()
-        formInstance.writeExternal(DataOutputStream(baos))
-        return baos.toByteArray()
+        val out = PlatformDataOutputStream()
+        formInstance.writeExternal(out)
+        return out.toByteArray()
     }
 
     /**
@@ -50,7 +46,7 @@ open class SerializationBenchmark {
     fun deserializeFormInstance(): FormInstance {
         val instance = FormInstance()
         instance.readExternal(
-            DataInputStream(ByteArrayInputStream(serializedFormBytes)),
+            PlatformDataInputStream(serializedFormBytes),
             prototypeFactory
         )
         return instance
@@ -61,13 +57,13 @@ open class SerializationBenchmark {
      */
     @Benchmark
     fun roundTripFormInstance(): FormInstance {
-        val baos = ByteArrayOutputStream()
-        formInstance.writeExternal(DataOutputStream(baos))
-        val bytes = baos.toByteArray()
+        val out = PlatformDataOutputStream()
+        formInstance.writeExternal(out)
+        val bytes = out.toByteArray()
 
         val result = FormInstance()
         result.readExternal(
-            DataInputStream(ByteArrayInputStream(bytes)),
+            PlatformDataInputStream(bytes),
             prototypeFactory
         )
         return result
