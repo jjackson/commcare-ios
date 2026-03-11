@@ -1,6 +1,6 @@
 package org.javarosa.xpath
 
-import java.text.MessageFormat
+import org.javarosa.core.util.formatMessage
 
 open class XPathException : RuntimeException {
 
@@ -22,10 +22,10 @@ open class XPathException : RuntimeException {
     override val message: String?
         get() {
             if (prefix != null) {
-                return MessageFormat.format("{0}\n{1}", prefix, super.message)
+                return formatMessage("{0}\n{1}", prefix, super.message)
             }
             return if (source != null) {
-                MessageFormat.format(
+                formatMessage(
                     "The problem was located in {0}:\n{1}", source, super.message
                 )
             } else {

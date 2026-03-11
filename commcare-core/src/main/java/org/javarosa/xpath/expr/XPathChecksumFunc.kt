@@ -1,11 +1,9 @@
 package org.javarosa.xpath.expr
 
-import org.commcare.cases.util.StringUtils
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Collections
 
 open class XPathChecksumFunc : XPathFuncExpr {
     constructor() {
@@ -77,8 +75,8 @@ open class XPathChecksumFunc : XPathFuncExpr {
             // The inverse table
             val inv = intArrayOf(0, 4, 3, 2, 1, 5, 6, 7, 8, 9)
 
-            val inputList = StringUtils.toList(input)
-            Collections.reverse(inputList)
+            val inputList = ArrayList(input.toList())
+            inputList.reverse()
 
             var check = 0
             for (i in inputList.indices) {
