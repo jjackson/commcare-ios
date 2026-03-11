@@ -3,12 +3,6 @@ package org.javarosa.core.model.utils
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.MathUtils
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Arrays
-import java.util.Calendar
-import java.util.TimeZone
-import java.util.concurrent.TimeUnit
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 import kotlin.jvm.JvmOverloads
@@ -20,7 +14,7 @@ import kotlin.math.abs
  * @author Clayton Sims
  */
 object DateUtils {
-    private val MONTH_OFFSET = 1 - Calendar.JANUARY
+    private val MONTH_OFFSET = 1 - MONTH_JANUARY
 
     const val FORMAT_ISO8601: Int = 1
     const val FORMAT_ISO8601_WALL_TIME: Int = 10
@@ -34,9 +28,9 @@ object DateUtils {
     private var tzProvider = TimezoneProvider()
 
     @JvmField
-    val HOUR_IN_MS: Long = TimeUnit.HOURS.toMillis(1)
+    val HOUR_IN_MS: Long = 60L * 60 * 1000
     @JvmField
-    val DAY_IN_MS: Long = TimeUnit.DAYS.toMillis(1)
+    val DAY_IN_MS: Long = 24L * 60 * 60 * 1000
 
     private val EPOCH_DATE: PlatformDate = getDate(1970, 1, 1)!!
 
@@ -96,7 +90,7 @@ object DateUtils {
     }
 
     @JvmStatic
-    fun timezone(): TimeZone? {
+    fun timezone(): PlatformTimeZone? {
         return tzProvider.getTimezone()
     }
 
@@ -116,12 +110,12 @@ object DateUtils {
 
     @JvmStatic
     fun getFields(d: PlatformDate, timezone: String?): DateFields {
-        val cd = Calendar.getInstance()
+        val cd = platformCalendarInstance()
         cd.time = d
         if (timezone != null) {
-            cd.timeZone = TimeZone.getTimeZone(timezone)
+            cd.timeZone = platformTimeZone(timezone)
         } else if (timezone() != null) {
-            cd.timeZone = timezone()
+            cd.timeZone = timezone()!!
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset())
         }
@@ -129,23 +123,23 @@ object DateUtils {
     }
 
     private fun getFields(d: PlatformDate, timezoneOffset: Int): DateFields {
-        val cd = Calendar.getInstance()
-        cd.timeZone = TimeZone.getTimeZone("UTC")
+        val cd = platformCalendarInstance()
+        cd.timeZone = platformTimeZone("UTC")
         cd.time = d
-        cd.add(Calendar.MILLISECOND, timezoneOffset)
+        cd.add(CALENDAR_MILLISECOND, timezoneOffset)
         return getFields(cd, timezoneOffset)
     }
 
-    private fun getFields(cal: Calendar, timezoneOffset: Int): DateFields {
+    private fun getFields(cal: PlatformCalendar, timezoneOffset: Int): DateFields {
         val fields = DateFields()
-        fields.year = cal.get(Calendar.YEAR)
-        fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET
-        fields.day = cal.get(Calendar.DAY_OF_MONTH)
-        fields.hour = cal.get(Calendar.HOUR_OF_DAY)
-        fields.minute = cal.get(Calendar.MINUTE)
-        fields.second = cal.get(Calendar.SECOND)
-        fields.secTicks = cal.get(Calendar.MILLISECOND)
-        fields.dow = cal.get(Calendar.DAY_OF_WEEK)
+        fields.year = cal.get(CALENDAR_YEAR)
+        fields.month = cal.get(CALENDAR_MONTH) + MONTH_OFFSET
+        fields.day = cal.get(CALENDAR_DAY_OF_MONTH)
+        fields.hour = cal.get(CALENDAR_HOUR_OF_DAY)
+        fields.minute = cal.get(CALENDAR_MINUTE)
+        fields.second = cal.get(CALENDAR_SECOND)
+        fields.secTicks = cal.get(CALENDAR_MILLISECOND)
+        fields.dow = cal.get(CALENDAR_DAY_OF_WEEK)
         fields.timezoneOffsetInMillis = timezoneOffset
         return fields
     }
@@ -178,40 +172,40 @@ object DateUtils {
      * timezone into account.
      */
     private fun getDate(df: DateFields, timezone: String?): PlatformDate? {
-        val cd = Calendar.getInstance()
+        val cd = platformCalendarInstance()
 
         if (timezone != null) {
-            cd.timeZone = TimeZone.getTimeZone(timezone)
+            cd.timeZone = platformTimeZone(timezone)
         } else if (timezone() != null) {
-            cd.timeZone = timezone()
+            cd.timeZone = timezone()!!
         } else if (timezoneOffset() != -1) {
             return getDate(df, timezoneOffset())
         }
 
-        cd.set(Calendar.YEAR, df.year)
-        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET)
-        cd.set(Calendar.DAY_OF_MONTH, df.day)
-        cd.set(Calendar.HOUR_OF_DAY, df.hour)
-        cd.set(Calendar.MINUTE, df.minute)
-        cd.set(Calendar.SECOND, df.second)
-        cd.set(Calendar.MILLISECOND, df.secTicks)
+        cd.set(CALENDAR_YEAR, df.year)
+        cd.set(CALENDAR_MONTH, df.month - MONTH_OFFSET)
+        cd.set(CALENDAR_DAY_OF_MONTH, df.day)
+        cd.set(CALENDAR_HOUR_OF_DAY, df.hour)
+        cd.set(CALENDAR_MINUTE, df.minute)
+        cd.set(CALENDAR_SECOND, df.second)
+        cd.set(CALENDAR_MILLISECOND, df.secTicks)
 
         return cd.time
     }
 
     private fun getDate(df: DateFields, timezoneOffset: Int): PlatformDate {
-        val cd = Calendar.getInstance()
-        cd.timeZone = TimeZone.getTimeZone("UTC")
+        val cd = platformCalendarInstance()
+        cd.timeZone = platformTimeZone("UTC")
 
-        cd.set(Calendar.YEAR, df.year)
-        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET)
-        cd.set(Calendar.DAY_OF_MONTH, df.day)
-        cd.set(Calendar.HOUR_OF_DAY, df.hour)
-        cd.set(Calendar.MINUTE, df.minute)
-        cd.set(Calendar.SECOND, df.second)
-        cd.set(Calendar.MILLISECOND, df.secTicks)
+        cd.set(CALENDAR_YEAR, df.year)
+        cd.set(CALENDAR_MONTH, df.month - MONTH_OFFSET)
+        cd.set(CALENDAR_DAY_OF_MONTH, df.day)
+        cd.set(CALENDAR_HOUR_OF_DAY, df.hour)
+        cd.set(CALENDAR_MINUTE, df.minute)
+        cd.set(CALENDAR_SECOND, df.second)
+        cd.set(CALENDAR_MILLISECOND, df.secTicks)
 
-        cd.add(Calendar.MILLISECOND, -1 * timezoneOffset)
+        cd.add(CALENDAR_MILLISECOND, -1 * timezoneOffset)
 
         return cd.time
     }
@@ -313,7 +307,7 @@ object DateUtils {
             offset = timezoneOffset()
         } else {
             //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
-            offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0)
+            offset = platformDefaultTimeZone().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0)
         }
 
         //NOTE: offset is in millis
@@ -534,14 +528,14 @@ object DateUtils {
         }
 
         // Now apply any relevant offsets from the timezone.
-        val c = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val c = platformCalendarInstance(platformTimeZone("UTC"))
 
         c.time = PlatformDate(getDate(df, "UTC")!!.time + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000))
 
         // c is now in the timezone of the parsed value, so put
         // it in the local timezone.
 
-        c.timeZone = TimeZone.getDefault()
+        c.timeZone = platformDefaultTimeZone()
 
         val adjusted = getFields(c.time)
 
@@ -608,8 +602,8 @@ object DateUtils {
     @JvmStatic
     fun daysInMonth(month: Int, year: Int): Int {
         return when (month) {
-            Calendar.APRIL, Calendar.JUNE, Calendar.SEPTEMBER, Calendar.NOVEMBER -> 30
-            Calendar.FEBRUARY -> 28 + (if (isLeap(year)) 1 else 0)
+            MONTH_APRIL, MONTH_JUNE, MONTH_SEPTEMBER, MONTH_NOVEMBER -> 30
+            MONTH_FEBRUARY -> 28 + (if (isLeap(year)) 1 else 0)
             else -> 31
         }
     }
@@ -664,17 +658,17 @@ object DateUtils {
                 throw RuntimeException()
             }
 
-            val cd = Calendar.getInstance()
+            val cd = platformCalendarInstance()
             cd.time = ref
 
-            val current_dow = when (cd.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> 0
-                Calendar.MONDAY -> 1
-                Calendar.TUESDAY -> 2
-                Calendar.WEDNESDAY -> 3
-                Calendar.THURSDAY -> 4
-                Calendar.FRIDAY -> 5
-                Calendar.SATURDAY -> 6
+            val current_dow = when (cd.get(CALENDAR_DAY_OF_WEEK)) {
+                DAY_SUNDAY -> 0
+                DAY_MONDAY -> 1
+                DAY_TUESDAY -> 2
+                DAY_WEDNESDAY -> 3
+                DAY_THURSDAY -> 4
+                DAY_FRIDAY -> 5
+                DAY_SATURDAY -> 6
                 else -> throw RuntimeException() //something is wrong
             }
 
@@ -693,14 +687,14 @@ object DateUtils {
     fun getMonthsDifference(earlierDate: PlatformDate, laterDate: PlatformDate): Int {
         val span = PlatformDate(laterDate.time - earlierDate.time)
         val firstDate = PlatformDate(0)
-        val calendar = Calendar.getInstance()
+        val calendar = platformCalendarInstance()
         calendar.time = firstDate
-        val firstYear = calendar.get(Calendar.YEAR)
-        val firstMonth = calendar.get(Calendar.MONTH)
+        val firstYear = calendar.get(CALENDAR_YEAR)
+        val firstMonth = calendar.get(CALENDAR_MONTH)
 
         calendar.time = span
-        val spanYear = calendar.get(Calendar.YEAR)
-        val spanMonth = calendar.get(Calendar.MONTH)
+        val spanYear = calendar.get(CALENDAR_YEAR)
+        val spanMonth = calendar.get(CALENDAR_MONTH)
         return (spanYear - firstYear) * 12 + (spanMonth - firstMonth)
     }
 
@@ -794,9 +788,7 @@ object DateUtils {
         return if (ms == 0L) {
             ""
         } else {
-            val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
-            df.timeZone = TimeZone.getTimeZone("UTC")
-            df.format(ms)
+            platformFormatDate(ms, "yyyy-MM-dd'T'HH:mm'Z'", "UTC")
         }
     }
 }
