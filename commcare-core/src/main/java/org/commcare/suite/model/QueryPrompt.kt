@@ -12,8 +12,8 @@ import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 // Model for <prompt> node
@@ -57,7 +57,7 @@ class QueryPrompt : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.read(`in`, String::class.java, pf) as String
         appearance = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         input = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -74,7 +74,7 @@ class QueryPrompt : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, _key)
         ExtUtil.write(out, ExtWrapNullable(appearance))
         ExtUtil.write(out, ExtWrapNullable(input))

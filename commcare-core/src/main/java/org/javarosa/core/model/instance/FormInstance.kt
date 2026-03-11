@@ -10,8 +10,8 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 
@@ -160,7 +160,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
@@ -171,7 +171,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.write(out, ExtWrapNullable(schema))
         ExtUtil.write(out, ExtWrapNullable(dateSaved))
@@ -241,7 +241,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
      * This can be removed once no devices running 2.24 remain
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    fun migrateSerialization(`in`: DataInputStream, pf: PrototypeFactory?) {
+    fun migrateSerialization(`in`: PlatformDataInputStream, pf: PrototypeFactory?) {
         super.readExternal(`in`, pf!!)
         schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?

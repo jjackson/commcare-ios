@@ -6,8 +6,8 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -71,14 +71,14 @@ class XPathQName : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         namespace = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         name = ExtUtil.readString(`in`)
         cacheCode()
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapNullable(namespace))
         ExtUtil.writeString(out, name!!)
     }

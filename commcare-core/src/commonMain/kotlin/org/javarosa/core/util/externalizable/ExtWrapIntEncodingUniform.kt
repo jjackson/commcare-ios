@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
 
@@ -17,11 +14,11 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
     constructor()
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
-        return ExtWrapIntEncodingUniform(ExtUtil.toLong(`val`!!))
+        return ExtWrapIntEncodingUniform(numericToLong(`val`!!))
     }
 
     @Throws(PlatformIOException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         var l: Long = 0
         var b: Byte
         var firstByte = true
@@ -47,7 +44,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
      * there are more bytes to follow, or 0 to indicate the last byte
      */
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val l = `val` as Long
 
         var sig = -1
@@ -63,11 +60,11 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
         }
     }
 
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         // do nothing
     }
 
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         // do nothing
     }
 }

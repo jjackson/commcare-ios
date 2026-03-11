@@ -3,8 +3,8 @@ package org.javarosa.core.services.properties
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -25,7 +25,7 @@ class Property : Persistable, IMetaData {
     var recordId: Int = -1
 
     @Throws(PlatformIOException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         var fullString = ""
 
         val inputarray = ByteArray(`in`.available())
@@ -59,7 +59,7 @@ class Property : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         var outputString = name
         // Note that this enumeration should contain at least one element, otherwise the
         // deserialization is invalid

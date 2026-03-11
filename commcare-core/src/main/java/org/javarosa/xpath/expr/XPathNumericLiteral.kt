@@ -8,8 +8,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class XPathNumericLiteral : XPathExpression {
@@ -44,7 +44,7 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (`in`.readByte() == 0x00.toByte()) {
             d = ExtUtil.readNumeric(`in`).toDouble()
         } else {
@@ -54,7 +54,7 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         if (d == d.toInt().toDouble()) {
             out.writeByte(0x00)
             ExtUtil.writeNumeric(out, d.toLong())

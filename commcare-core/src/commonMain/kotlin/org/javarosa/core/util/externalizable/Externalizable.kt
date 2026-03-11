@@ -1,9 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
-
 /**
  * Gives objects control over serialization. A replacement for the interfaces
  * `Externalizable` and `Serializable`, which are
@@ -17,11 +13,11 @@ interface Externalizable {
      * Read the object from stream.
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    fun readExternal(`in`: DataInputStream, pf: PrototypeFactory)
+    fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory)
 
     /**
      * Write the object to stream.
      */
     @Throws(PlatformIOException::class)
-    fun writeExternal(out: DataOutputStream)
+    fun writeExternal(out: PlatformDataOutputStream)
 }

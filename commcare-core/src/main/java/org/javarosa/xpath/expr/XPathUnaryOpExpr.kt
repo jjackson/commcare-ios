@@ -7,8 +7,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 abstract class XPathUnaryOpExpr : XPathOpExpr {
@@ -34,13 +34,13 @@ abstract class XPathUnaryOpExpr : XPathOpExpr {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
         cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(a!!))
         ExtUtil.write(out, cacheState)
     }

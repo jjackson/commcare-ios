@@ -3,8 +3,8 @@ package org.javarosa.core.model
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -28,12 +28,12 @@ class UploadQuestionExtension : QuestionDataExtension {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         this.maxDimen = ExtUtil.readInt(dis)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(dos: DataOutputStream) {
+    override fun writeExternal(dos: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(dos, maxDimen.toLong())
     }
 }

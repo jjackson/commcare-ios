@@ -11,10 +11,8 @@ import org.javarosa.core.util.InvalidIndexException
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashSet
 import java.util.NoSuchElementException
@@ -208,7 +206,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     override fun read(id: Int): T {
         try {
             val t = prototype.newInstance()
-            t.readExternal(DataInputStream(ByteArrayInputStream(readBytes(id))), mFactory)
+            t.readExternal(PlatformDataInputStream(readBytes(id)), mFactory)
             t.setID(id)
             return t
         } catch (e: IllegalAccessException) {
@@ -227,12 +225,12 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     }
 
     override fun readBytes(id: Int): ByteArray {
-        val stream = ByteArrayOutputStream()
         try {
             val item = data[DataUtil.integer(id)]
             if (item != null) {
-                item.writeExternal(DataOutputStream(stream))
-                return stream.toByteArray()
+                val dos = PlatformDataOutputStream()
+                item.writeExternal(dos)
+                return dos.toByteArray()
             } else {
                 throw NoSuchElementException("No record for ID $id")
             }

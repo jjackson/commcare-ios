@@ -44,8 +44,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathTypeMismatchException
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
 import datadog.trace.api.Trace
@@ -1196,7 +1196,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      */
     @Trace
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)))
         setTitle(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
@@ -1307,7 +1307,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      * Writes the form definition object to the supplied stream.
      */
     @Throws(PlatformIOException::class)
-    override fun writeExternal(dos: DataOutputStream) {
+    override fun writeExternal(dos: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()))
         ExtUtil.write(dos, ExtWrapNullable(getTitle()))

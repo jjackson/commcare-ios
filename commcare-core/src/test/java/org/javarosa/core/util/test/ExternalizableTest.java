@@ -21,8 +21,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import org.javarosa.core.util.externalizable.PlatformDataInputStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class ExternalizableTest {
             if (template instanceof Class) {
                 deser = ExtUtil.deserialize(bytes, (Class)template, pf);
             } else if (template instanceof ExternalizableWrapper) {
-                deser = ExtUtil.read(new DataInputStream(new ByteArrayInputStream(bytes)), (ExternalizableWrapper)template, pf);
+                deser = ExtUtil.read(new PlatformDataInputStream(bytes), (ExternalizableWrapper)template, pf);
             } else {
                 throw new ClassCastException();
             }

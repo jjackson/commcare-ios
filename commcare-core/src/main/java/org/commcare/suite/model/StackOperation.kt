@@ -11,8 +11,8 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -83,14 +83,14 @@ class StackOperation : Externalizable {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         opType = ExtUtil.readInt(`in`)
         ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         elements = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, opType.toLong())
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition))
         ExtUtil.write(out, ExtWrapList(elements))

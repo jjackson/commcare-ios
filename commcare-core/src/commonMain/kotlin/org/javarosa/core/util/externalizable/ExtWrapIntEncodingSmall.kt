@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
@@ -16,7 +13,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
     /* serialization */
 
-    @JvmOverloads
+    
     constructor(l: Long, bias: Int = DEFAULT_BIAS) {
         `val` = l
         this.bias = bias
@@ -25,17 +22,17 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
     /* deserialization */
 
     // need the garbage param or else it conflicts with (long) constructor
-    @JvmOverloads
+    
     constructor(bias: Int = DEFAULT_BIAS) {
         this.bias = bias
     }
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
-        return ExtWrapIntEncodingSmall(ExtUtil.toLong(`val`!!), bias)
+        return ExtWrapIntEncodingSmall(numericToLong(`val`!!), bias)
     }
 
     @Throws(PlatformIOException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val b = `in`.readByte()
         val l: Long
 
@@ -55,8 +52,8 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
      * there are more bytes to follow, or 0 to indicate the last byte
      */
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
-        val n = ExtUtil.toInt(`val` as Long)
+    override fun writeExternal(out: PlatformDataOutputStream) {
+        val n = numericToInt(`val` as Long)
 
         if (n >= -bias && n < 255 - bias) {
             val adjusted = n + bias
@@ -68,12 +65,12 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
-        bias = `in`.readUnsignedByte()
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
+        bias = `in`.readByte().toInt() and 0xFF
     }
 
     @Throws(PlatformIOException::class)
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         out.writeByte(bias)
     }
 
