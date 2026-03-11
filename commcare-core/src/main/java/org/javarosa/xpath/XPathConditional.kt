@@ -19,14 +19,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
-
 class XPathConditional : IConditionExpr {
 
     private var expr: XPathExpression? = null
 
-    @JvmField
     var xpath: String? = null //not serialized!
 
     private var hasNow: Boolean = false //indicates whether this XpathConditional contains the now() function (used for timestamping)
@@ -52,10 +48,8 @@ class XPathConditional : IConditionExpr {
             if (xpath != null) {
                 throw XPathUnsupportedException(xpath)
             } else {
-                val contextMessage = String.format(
-                    "Error calculating expression: \"%s\", being calculated for \"%s\"",
-                    expr!!.toPrettyString(), evalContext!!.contextRef
-                )
+                val contextMessage =
+                    "Error calculating expression: \"${expr!!.toPrettyString()}\", being calculated for \"${evalContext!!.contextRef}\""
                 throw XPathUnsupportedException(contextMessage)
             }
         }
@@ -138,7 +132,6 @@ class XPathConditional : IConditionExpr {
          * @param originalContextRef Context reference pointing to the nodeset
          *                           reference; used for expanding 'current()'
          */
-        @JvmStatic
         private fun getExprsTriggersAccumulator(
             expr: XPathExpression,
             triggers: ArrayList<TreeReference>,

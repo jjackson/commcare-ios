@@ -5,12 +5,12 @@ import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 class Condition : Triggerable {
 
@@ -99,15 +99,15 @@ class Condition : Triggerable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(input, pf)
-        trueAction = ExtUtil.readInt(input)
-        falseAction = ExtUtil.readInt(input)
+        trueAction = SerializationHelpers.readInt(input)
+        falseAction = SerializationHelpers.readInt(input)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeNumeric(out, trueAction.toLong())
-        ExtUtil.writeNumeric(out, falseAction.toLong())
+        SerializationHelpers.writeNumeric(out, trueAction.toLong())
+        SerializationHelpers.writeNumeric(out, falseAction.toLong())
     }
 
     override fun getDebugLabel(): String {

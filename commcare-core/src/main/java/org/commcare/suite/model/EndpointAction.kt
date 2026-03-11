@@ -1,13 +1,14 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 class EndpointAction : Externalizable {
     private var endpointId: String? = null
@@ -22,14 +23,14 @@ class EndpointAction : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        endpointId = ExtUtil.readString(`in`)
-        isBackground = ExtUtil.readBool(`in`)
+        endpointId = SerializationHelpers.readString(`in`)
+        isBackground = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, endpointId)
-        ExtUtil.writeBool(out, isBackground)
+        SerializationHelpers.writeString(out, emptyIfNull(endpointId))
+        SerializationHelpers.writeBool(out, isBackground)
     }
 
     fun getEndpointId(): String? = endpointId

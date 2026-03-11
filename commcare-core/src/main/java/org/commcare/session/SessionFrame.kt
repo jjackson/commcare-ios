@@ -3,10 +3,9 @@ package org.commcare.session
 import org.commcare.suite.model.StackFrameStep
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -176,18 +175,16 @@ open class SessionFrame : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        steps = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
-        @Suppress("UNCHECKED_CAST")
-        snapshot = ExtUtil.read(`in`, ExtWrapList(StackFrameStep::class.java), pf) as ArrayList<StackFrameStep>
-        dead = ExtUtil.readBool(`in`)
+        steps = SerializationHelpers.readList(`in`, pf) { StackFrameStep() }
+        snapshot = SerializationHelpers.readList(`in`, pf) { StackFrameStep() }
+        dead = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(steps))
-        ExtUtil.write(out, ExtWrapList(snapshot))
-        ExtUtil.writeBool(out, dead)
+        SerializationHelpers.writeList(out, steps)
+        SerializationHelpers.writeList(out, snapshot)
+        SerializationHelpers.writeBool(out, dead)
     }
 
     override fun toString(): String {

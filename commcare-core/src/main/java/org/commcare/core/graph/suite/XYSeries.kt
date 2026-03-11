@@ -3,11 +3,9 @@ package org.commcare.core.graph.suite
 import org.commcare.suite.model.Text
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
@@ -88,22 +86,20 @@ open class XYSeries : Externalizable, Configurable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        mX = ExtUtil.readString(`in`)
-        mY = ExtUtil.readString(`in`)
-        mNodeSet = ExtUtil.readString(`in`)
-        @Suppress("UNCHECKED_CAST")
-        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
-        @Suppress("UNCHECKED_CAST")
-        mPointConfiguration = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
+        mX = SerializationHelpers.readString(`in`)
+        mY = SerializationHelpers.readString(`in`)
+        mNodeSet = SerializationHelpers.readString(`in`)
+        mConfiguration = SerializationHelpers.readStringExtMap(`in`, pf) { Text() }
+        mPointConfiguration = SerializationHelpers.readStringList(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, mX)
-        ExtUtil.writeString(out, mY)
-        ExtUtil.writeString(out, mNodeSet)
-        ExtUtil.write(out, ExtWrapMap(mConfiguration!!))
-        ExtUtil.write(out, ExtWrapList(mPointConfiguration!!))
+        SerializationHelpers.writeString(out, mX!!)
+        SerializationHelpers.writeString(out, mY!!)
+        SerializationHelpers.writeString(out, mNodeSet!!)
+        SerializationHelpers.writeMap(out, mConfiguration!!)
+        SerializationHelpers.writeList(out, mPointConfiguration!!)
     }
 
     /*

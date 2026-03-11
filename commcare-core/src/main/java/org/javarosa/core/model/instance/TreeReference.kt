@@ -1,10 +1,11 @@
 package org.javarosa.core.model.instance
 
+import kotlin.jvm.JvmStatic
+
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzable
 import org.javarosa.xpath.analysis.XPathAnalyzer
@@ -20,14 +21,12 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private var refLevel: Int = 0
-    @JvmField
     internal var contextType: Int = 0
 
     /**
      * Name of the reference's root, if it is a non-main instance, otherwise
      * null.
      */
-    @JvmField
     internal var instanceName: String? = null
 
     private var data: ArrayList<TreeReferenceLevel>? = null
@@ -529,7 +528,7 @@ class TreeReference : Externalizable, XPathAnalyzable {
     }
 
     fun toString(includePredicates: Boolean): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         if (instanceName != null) {
             sb.append("instance(").append(instanceName).append(")")
         } else if (contextType == CONTEXT_ORIGINAL) {
@@ -582,24 +581,24 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        refLevel = ExtUtil.readInt(`in`)
-        instanceName = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        contextType = ExtUtil.readInt(`in`)
-        val size = ExtUtil.readInt(`in`)
+        refLevel = SerializationHelpers.readInt(`in`)
+        instanceName = SerializationHelpers.readNullableString(`in`, pf)
+        contextType = SerializationHelpers.readInt(`in`)
+        val size = SerializationHelpers.readInt(`in`)
         for (i in 0 until size) {
-            val level = ExtUtil.read(`in`, TreeReferenceLevel::class.java, pf) as TreeReferenceLevel
+            val level = SerializationHelpers.readExternalizable(`in`, pf) { TreeReferenceLevel() }
             this.add(level.intern())
         }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, refLevel.toLong())
-        ExtUtil.write(out, ExtWrapNullable(instanceName))
-        ExtUtil.writeNumeric(out, contextType.toLong())
-        ExtUtil.writeNumeric(out, size().toLong())
+        SerializationHelpers.writeNumeric(out, refLevel.toLong())
+        SerializationHelpers.writeNullable(out, instanceName)
+        SerializationHelpers.writeNumeric(out, contextType.toLong())
+        SerializationHelpers.writeNumeric(out, size().toLong())
         for (l in data!!) {
-            ExtUtil.write(out, l)
+            SerializationHelpers.write(out, l)
         }
     }
 
@@ -804,7 +803,6 @@ class TreeReference : Externalizable, XPathAnalyzable {
         const val CONTEXT_ORIGINAL: Int = 2
         const val CONTEXT_INSTANCE: Int = 4
 
-        @JvmField
         val CONTEXT_TYPES: IntArray =
             intArrayOf(CONTEXT_ABSOLUTE, CONTEXT_INHERITED, CONTEXT_ORIGINAL, CONTEXT_INSTANCE)
 
@@ -837,14 +835,12 @@ class TreeReference : Externalizable, XPathAnalyzable {
          *
          * @return a reference that represents a base 'current()' path
          */
-        @JvmStatic
         fun baseCurrentRef(): TreeReference {
             val currentRef = TreeReference(null, 0, CONTEXT_ORIGINAL)
             currentRef.contextType = CONTEXT_ORIGINAL
             return currentRef
         }
 
-        @JvmStatic
         fun buildRefFromTreeElement(elem: AbstractTreeElement?): TreeReference {
             var elem = elem
             var ref = selfRef()

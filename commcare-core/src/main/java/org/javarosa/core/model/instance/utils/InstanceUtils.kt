@@ -1,4 +1,5 @@
 package org.javarosa.core.model.instance.utils
+import kotlin.jvm.JvmStatic
 
 import org.commcare.cases.instance.CaseInstanceTreeElement
 import org.javarosa.core.model.instance.AbstractTreeElement
@@ -51,7 +52,7 @@ object InstanceUtils {
                 instanceRoot.rebase(instanceBase)
             }
             else -> {
-                val error = "Unrecognised Instance root of type ${instanceRoot.javaClass.name}" +
+                val error = "Unrecognised Instance root of type ${instanceRoot::class.simpleName ?: ""}" +
                         " for instance $instanceId"
                 throw UnrecognisedInstanceRootException(error)
             }

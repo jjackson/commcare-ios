@@ -43,7 +43,7 @@ open class XPathSortByFunc : XPathFuncExpr {
             )
         }
         if (sortedList.isEmpty()) {
-            throw XPathException(String.format("Called sort-by() on empty list with args %s", evaluatedArgs))
+            throw XPathException("Called sort-by() on empty list with args $evaluatedArgs")
         }
         return DataUtil.listToString(sortedList)
     }

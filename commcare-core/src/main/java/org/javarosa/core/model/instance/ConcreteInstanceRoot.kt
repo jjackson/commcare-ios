@@ -6,11 +6,11 @@ package org.javarosa.core.model.instance
  * the `commcaresession` instance.
  */
 open class ConcreteInstanceRoot(
-    @JvmField protected var root: AbstractTreeElement?
+    private var _root: AbstractTreeElement?
 ) : InstanceRoot {
 
     override fun getRoot(): AbstractTreeElement? {
-        return root
+        return _root
     }
 
     override fun setupNewCopy(instance: ExternalDataInstance) {
@@ -18,7 +18,7 @@ open class ConcreteInstanceRoot(
     }
 
     companion object {
-        @JvmField
+        @kotlin.jvm.JvmField
         val NULL: InstanceRoot = ConcreteInstanceRoot(null)
     }
 }

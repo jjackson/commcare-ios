@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathAbsFunc
 import org.javarosa.xpath.expr.XPathAcosFunc
@@ -82,9 +81,8 @@ import org.javarosa.xpath.expr.XPathWeightedChecklistFunc
 import org.javarosa.xpath.expr.XpathCoalesceFunc
 import org.javarosa.xpath.parser.XPathSyntaxException
 
-class ASTNodeFunctionCall(@JvmField val name: XPathQName) : ASTNode() {
+class ASTNodeFunctionCall(val name: XPathQName) : ASTNode() {
 
-    @JvmField
     var args: List<out ASTNode> = ArrayList()
 
     override fun getChildren(): List<out ASTNode> {

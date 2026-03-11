@@ -13,16 +13,13 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
 
 /**
  * This construct, whose syntax is of the form '(filter-expr pred1 pred2 ...)',
  * is currently unsupported by JavaRosa
  */
 class XPathFilterExpr : XPathExpression {
-    @JvmField
     var x: XPathExpression? = null
-    @JvmField
     var predicates: Array<XPathExpression> = emptyArray()
 
     constructor() // for deserialization

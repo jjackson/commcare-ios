@@ -5,14 +5,9 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.utils.InstanceUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -131,23 +126,23 @@ abstract class Entry : Externalizable, MenuDisplayable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.commandId = ExtUtil.readString(`in`)
-        this.display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        this.commandId = SerializationHelpers.readString(`in`)
+        this.display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
 
-        data = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<SessionDatum>
-        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>
-        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
-        assertions = ExtUtil.read(`in`, ExtWrapNullable(AssertionSet::class.java), pf) as AssertionSet?
+        data = SerializationHelpers.readListPoly(`in`, pf) as ArrayList<SessionDatum>
+        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as HashMap<String, DataInstance<*>>
+        stackOperations = SerializationHelpers.readList(`in`, pf) { StackOperation() }
+        assertions = SerializationHelpers.readNullableExternalizable(`in`, pf) { AssertionSet() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, commandId)
-        ExtUtil.write(out, display)
-        ExtUtil.write(out, ExtWrapListPoly(data!!))
-        ExtUtil.write(out, ExtWrapMap(instances!!, ExtWrapTagged()))
-        ExtUtil.write(out, ExtWrapList(stackOperations!!))
-        ExtUtil.write(out, ExtWrapNullable(assertions))
+        SerializationHelpers.writeString(out, commandId ?: "")
+        SerializationHelpers.write(out, display!!)
+        SerializationHelpers.writeListPoly(out, data!!)
+        SerializationHelpers.writeTaggedMap(out, instances!! as HashMap<*, *>)
+        SerializationHelpers.writeList(out, stackOperations!!)
+        SerializationHelpers.writeNullable(out, assertions)
     }
 
     override fun toString(): String {

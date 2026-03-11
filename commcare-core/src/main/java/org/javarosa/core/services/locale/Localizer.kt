@@ -3,13 +3,9 @@ package org.javarosa.core.services.locale
 import org.javarosa.core.util.NoLocalizedTextException
 import org.javarosa.core.util.UnregisteredLocaleException
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -368,14 +364,13 @@ class Localizer @JvmOverloads constructor(
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
-        fallbackDefaultLocale = ExtUtil.readBool(dis)
-        fallbackDefaultForm = ExtUtil.readBool(dis)
+        fallbackDefaultLocale = SerializationHelpers.readBool(dis)
+        fallbackDefaultForm = SerializationHelpers.readBool(dis)
         @Suppress("UNCHECKED_CAST")
-        localeResources = ExtUtil.read(dis, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as HashMap<String, ArrayList<LocaleDataSource>>
-        @Suppress("UNCHECKED_CAST")
-        locales = ExtUtil.read(dis, ExtWrapList(String::class.java), pf) as ArrayList<String>
-        setDefaultLocale(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
-        val currentLocale = ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?
+        localeResources = SerializationHelpers.readStringListPolyMap(dis, pf) as HashMap<String, ArrayList<LocaleDataSource>>
+        locales = SerializationHelpers.readStringList(dis)
+        setDefaultLocale(SerializationHelpers.readNullableString(dis, pf))
+        val currentLocale = SerializationHelpers.readNullableString(dis, pf)
         if (currentLocale != null) {
             setLocale(currentLocale)
         }
@@ -383,21 +378,21 @@ class Localizer @JvmOverloads constructor(
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(dos: PlatformDataOutputStream) {
-        ExtUtil.writeBool(dos, fallbackDefaultLocale)
-        ExtUtil.writeBool(dos, fallbackDefaultForm)
-        ExtUtil.write(dos, ExtWrapMap(localeResources, ExtWrapListPoly()))
-        ExtUtil.write(dos, ExtWrapList(locales))
-        ExtUtil.write(dos, ExtWrapNullable(defaultLocale))
-        ExtUtil.write(dos, ExtWrapNullable(locale))
+        SerializationHelpers.writeBool(dos, fallbackDefaultLocale)
+        SerializationHelpers.writeBool(dos, fallbackDefaultForm)
+        SerializationHelpers.writeStringListPolyMap(dos, localeResources as HashMap<*, *>)
+        SerializationHelpers.writeList(dos, locales)
+        SerializationHelpers.writeNullable(dos, defaultLocale)
+        SerializationHelpers.writeNullable(dos, locale)
     }
 
     override fun equals(other: Any?): Boolean {
         if (other is Localizer) {
             //TODO: Compare all resources
-            return (ExtUtil.equals(locales, other.locales, false) &&
-                    ExtUtil.equals(localeResources, other.localeResources, true) &&
-                    ExtUtil.equals(defaultLocale, other.defaultLocale, false) &&
-                    ExtUtil.equals(locale, other.locale, true) &&
+            return (SerializationHelpers.nullEquals(locales, other.locales, false) &&
+                    SerializationHelpers.nullEquals(localeResources, other.localeResources, true) &&
+                    SerializationHelpers.nullEquals(defaultLocale, other.defaultLocale, false) &&
+                    SerializationHelpers.nullEquals(locale, other.locale, true) &&
                     fallbackDefaultLocale == other.fallbackDefaultLocale &&
                     fallbackDefaultForm == other.fallbackDefaultForm)
         }

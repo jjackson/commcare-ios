@@ -1,11 +1,11 @@
 package org.javarosa.core.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * Represents any additional information included in an "upload" question type via extra
@@ -29,11 +29,11 @@ class UploadQuestionExtension : QuestionDataExtension {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.maxDimen = ExtUtil.readInt(dis)
+        this.maxDimen = SerializationHelpers.readInt(dis)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(dos: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(dos, maxDimen.toLong())
+        SerializationHelpers.writeNumeric(dos, maxDimen.toLong())
     }
 }

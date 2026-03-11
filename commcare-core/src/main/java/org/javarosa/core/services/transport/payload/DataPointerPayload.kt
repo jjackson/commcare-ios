@@ -2,9 +2,8 @@ package org.javarosa.core.services.transport.payload
 
 import org.javarosa.core.data.IDataPointer
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -64,11 +63,11 @@ class DataPointerPayload : IDataPayload {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        pointer = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IDataPointer
+        pointer = SerializationHelpers.readTagged(`in`, pf) as IDataPointer
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(pointer))
+        SerializationHelpers.writeTagged(out, pointer)
     }
 }

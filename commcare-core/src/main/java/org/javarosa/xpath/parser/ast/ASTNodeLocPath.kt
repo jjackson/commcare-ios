@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathFilterExpr
@@ -10,10 +9,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodeLocPath : ASTNode() {
 
-    @JvmField
     val clauses: ArrayList<ASTNode> = ArrayList()
 
-    @JvmField
     var separators: MutableList<Int> = ArrayList()
 
     override fun getChildren(): ArrayList<ASTNode> {

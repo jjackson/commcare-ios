@@ -1,9 +1,9 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -23,14 +23,14 @@ class QueryGroup : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        key = ExtUtil.read(`in`, String::class.java, pf) as String
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
+        key = SerializationHelpers.readString(`in`)
+        display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, key)
-        ExtUtil.write(out, display)
+        SerializationHelpers.writeString(out, key!!)
+        SerializationHelpers.write(out, display!!)
     }
 
     fun getKey(): String? = key

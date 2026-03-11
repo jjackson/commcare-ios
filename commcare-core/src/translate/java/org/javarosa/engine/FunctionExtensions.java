@@ -140,8 +140,8 @@ public class FunctionExtensions {
         public Object eval(Object[] args, EvaluationContext ec) {
             String functionName = (String)args[0];
 
-            Class functionClass = FunctionUtils.getXPathFuncListMap().get(functionName);
-            if (functionClass == null) {
+            kotlin.jvm.functions.Function0 functionFactory = FunctionUtils.getXPathFuncListMap().get(functionName);
+            if (functionFactory == null) {
                 return "Function '" + functionName + "' doesn't exist";
             }
 

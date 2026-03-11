@@ -4,10 +4,8 @@ import org.commcare.util.DatumUtil
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 
@@ -60,18 +58,17 @@ class ListQueryData : QueryData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = ExtUtil.readString(`in`)
-        nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathPathExpr
-        excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
+        _key = SerializationHelpers.readString(`in`)
+        nodeset = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
+        ref = SerializationHelpers.readTagged(`in`, pf) as XPathPathExpr
+        excludeExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, _key)
-        ExtUtil.write(out, nodeset)
-        ExtUtil.write(out, ExtWrapTagged(ref!!))
-        val excl = excludeExpr
-        ExtUtil.write(out, ExtWrapNullable(if (excl == null) null else ExtWrapTagged(excl)))
+        SerializationHelpers.writeString(out, _key ?: "")
+        SerializationHelpers.write(out, nodeset!!)
+        SerializationHelpers.writeTagged(out, ref!!)
+        SerializationHelpers.writeNullableTagged(out, excludeExpr)
     }
 }

@@ -4,8 +4,8 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.IFunctionHandler
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.XPathUnhandledException
@@ -37,15 +37,15 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        name = ExtUtil.readString(`in`)
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        name = SerializationHelpers.readString(`in`)
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeString(out, name)
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.writeString(out, name)
+        SerializationHelpers.write(out, cacheState)
     }
 
     companion object {

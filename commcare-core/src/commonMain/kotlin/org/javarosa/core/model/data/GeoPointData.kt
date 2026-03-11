@@ -2,8 +2,8 @@ package org.javarosa.core.model.data
 
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -81,17 +81,17 @@ class GeoPointData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        len = ExtUtil.readNumeric(`in`).toInt()
+        len = SerializationHelpers.readNumeric(`in`).toInt()
         for (i in 0 until len) {
-            gp[i] = ExtUtil.readDecimal(`in`)
+            gp[i] = SerializationHelpers.readDecimal(`in`)
         }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, len.toLong())
+        SerializationHelpers.writeNumeric(out, len.toLong())
         for (i in 0 until len) {
-            ExtUtil.writeDecimal(out, gp[i])
+            SerializationHelpers.writeDecimal(out, gp[i])
         }
     }
 
@@ -109,7 +109,7 @@ class GeoPointData : IAnswerData {
 
         var i = 0
         for (s in choices) {
-            val d = java.lang.Double.parseDouble(s)
+            val d = s.toDouble()
             ret[i] = d
             ++i
         }
@@ -132,8 +132,8 @@ class GeoPointData : IAnswerData {
          * @param numberOfDecimals number of decimals that should present in result
          */
         private fun roundDecimalUp(x: Double, numberOfDecimals: Int): Double {
-            val factor = java.lang.Double.parseDouble("1e$numberOfDecimals").toInt()
-            return Math.floor(x * factor) / factor
+            val factor = "1e$numberOfDecimals".toDouble().toInt()
+            return kotlin.math.floor(x * factor) / factor
         }
     }
 }

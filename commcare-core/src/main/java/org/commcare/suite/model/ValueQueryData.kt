@@ -2,10 +2,8 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
 
@@ -50,16 +48,15 @@ class ValueQueryData : QueryData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = ExtUtil.readString(`in`)
-        ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        excludeExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
+        _key = SerializationHelpers.readString(`in`)
+        ref = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        excludeExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, _key)
-        ExtUtil.write(out, ExtWrapTagged(ref!!))
-        val excl = excludeExpr
-        ExtUtil.write(out, ExtWrapNullable(if (excl == null) null else ExtWrapTagged(excl)))
+        SerializationHelpers.writeString(out, _key!!)
+        SerializationHelpers.writeTagged(out, ref!!)
+        SerializationHelpers.writeNullableTagged(out, excludeExpr)
     }
 }

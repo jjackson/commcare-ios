@@ -1,7 +1,6 @@
 package org.javarosa.core.model.trace
 
 import org.javarosa.core.util.OrderedHashtable
-import java.util.ConcurrentModificationException
 
 /**
  * A Trace Reduction represents a "folded-in" model of an evaluation trace
@@ -45,22 +44,15 @@ class EvaluationTraceReduction(trace: EvaluationTrace) : EvaluationTrace(trace.g
         }
         valueMap[trace.getValue()] = valueCount
         val subTraceVector = trace.getSubTraces()
-        @Suppress("UNCHECKED_CAST")
-        val copy = subTraceVector.clone() as ArrayList<EvaluationTrace>
-        synchronized(subTraceVector) {
-            try {
-                for (subTrace in copy) {
-                    val subKey = subTrace.getExpression()
-                    if (subTraces.containsKey(subKey)) {
-                        val reducedSubExpr = subTraces[subTrace.getExpression()]
-                        reducedSubExpr!!.foldIn(subTrace)
-                    } else {
-                        val reducedSubExpr = EvaluationTraceReduction(subTrace)
-                        subTraces[subKey] = reducedSubExpr
-                    }
-                }
-            } catch (cme: ConcurrentModificationException) {
-                throw RuntimeException(cme)
+        val copy = ArrayList(subTraceVector)
+        for (subTrace in copy) {
+            val subKey = subTrace.getExpression()
+            if (subTraces.containsKey(subKey)) {
+                val reducedSubExpr = subTraces[subTrace.getExpression()]
+                reducedSubExpr!!.foldIn(subTrace)
+            } else {
+                val reducedSubExpr = EvaluationTraceReduction(subTrace)
+                subTraces[subKey] = reducedSubExpr
             }
         }
     }
@@ -94,7 +86,7 @@ class EvaluationTraceReduction(trace: EvaluationTrace) : EvaluationTrace(trace.g
             response += "    $key: ${valueMap[key]}\n"
             valueResponseCount++
             if (valueResponseCount >= 10) {
-                response += String.format("    ... %s more ...", totalRecords - valueResponseCount)
+                response += "    ... ${totalRecords - valueResponseCount} more ..."
                 break
             }
         }

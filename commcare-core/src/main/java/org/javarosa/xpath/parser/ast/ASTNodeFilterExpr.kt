@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathFilterExpr
@@ -7,10 +6,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodeFilterExpr : ASTNode() {
 
-    @JvmField
     var expr: ASTNodeAbstractExpr? = null
 
-    @JvmField
     val predicates: ArrayList<ASTNode> = ArrayList()
 
     override fun getChildren(): List<ASTNode> {

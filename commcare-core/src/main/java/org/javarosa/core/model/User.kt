@@ -7,9 +7,10 @@ import org.javarosa.core.model.util.restorable.RestoreUtils
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -56,27 +57,26 @@ class User : Persistable, Restorable, IMetaData {
     // fetch the value for the default user and password from the RMS
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.username = ExtUtil.readString(`in`)
-        this.passwordHash = ExtUtil.readString(`in`)
-        this.recordId = ExtUtil.readInt(`in`)
-        this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.rememberMe = ExtUtil.readBool(`in`)
-        this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        @Suppress("UNCHECKED_CAST")
-        this.properties = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
-        this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(`in`))
+        this.username = SerializationHelpers.readString(`in`)
+        this.passwordHash = SerializationHelpers.readString(`in`)
+        this.recordId = SerializationHelpers.readInt(`in`)
+        this.uniqueId = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.rememberMe = SerializationHelpers.readBool(`in`)
+        this.syncToken = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.properties = SerializationHelpers.readStringStringMap(`in`)
+        this.wrappedKey = nullIfEmpty(SerializationHelpers.readBytes(`in`))
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(username))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(passwordHash))
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId))
-        ExtUtil.writeBool(out, rememberMe)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken))
-        ExtUtil.write(out, ExtWrapMap(properties))
-        ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey))
+        SerializationHelpers.writeString(out, emptyIfNull(username))
+        SerializationHelpers.writeString(out, emptyIfNull(passwordHash))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(uniqueId))
+        SerializationHelpers.writeBool(out, rememberMe)
+        SerializationHelpers.writeString(out, emptyIfNull(syncToken))
+        SerializationHelpers.writeMap(out, properties)
+        SerializationHelpers.writeBytes(out, emptyIfNull(wrappedKey))
     }
 
     fun getUsername(): String? {
@@ -158,7 +158,7 @@ class User : Persistable, Restorable, IMetaData {
         } else if (META_WRAPPED_KEY == fieldName) {
             return wrappedKey as Any
         } else if (META_SYNC_TOKEN == fieldName) {
-            return ExtUtil.emptyIfNull(syncToken) as Any
+            return emptyIfNull(syncToken) as Any
         }
         throw IllegalArgumentException("No metadata field $fieldName for User Models")
     }

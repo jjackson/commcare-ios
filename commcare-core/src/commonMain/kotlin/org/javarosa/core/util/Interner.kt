@@ -19,32 +19,26 @@ class Interner<K> : CacheTable<Int, K>() {
      * as expected.
      */
     fun intern(k: K & Any): K {
-        synchronized(this) {
-            val hash = k.hashCode()
-            val nk = retrieve(hash)
-            if (nk == null) {
-                register(hash, k)
-                return k
-            }
+        val hash = k.hashCode()
+        val nk = retrieve(hash)
+        if (nk == null) {
+            register(hash, k)
+            return k
+        }
 
-            return if (k == nk) {
-                nk
-            } else {
-                // Collision. We should deal with this better for interning (and not manually caching) tables.
-                k
-            }
+        return if (k == nk) {
+            nk
+        } else {
+            // Collision. We should deal with this better for interning (and not manually caching) tables.
+            k
         }
     }
 
     override fun retrieve(key: Int): K? {
-        synchronized(this) {
-            return super.retrieve(DataUtil.integer(key))
-        }
+        return super.retrieve(DataUtil.integer(key))
     }
 
     override fun register(key: Int, item: K) {
-        synchronized(this) {
-            super.register(DataUtil.integer(key), item)
-        }
+        super.register(DataUtil.integer(key), item)
     }
 }

@@ -2,9 +2,11 @@ package org.javarosa.model.xform
 
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.XPathTypeMismatchException
@@ -49,14 +51,14 @@ class XPathReference : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        nodeset = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        ref = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        nodeset = nullIfEmpty(SerializationHelpers.readString(`in`))
+        ref = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(nodeset))
-        ExtUtil.write(out, ref)
+        SerializationHelpers.writeString(out, emptyIfNull(nodeset))
+        SerializationHelpers.write(out, ref)
     }
 
     companion object {

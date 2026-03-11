@@ -7,9 +7,10 @@ import org.javarosa.core.model.condition.Recalculate
 import org.javarosa.core.model.data.AnswerDataFactory
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xform.parse.IElementHandler
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
@@ -135,20 +136,20 @@ class SetValueAction : Action {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        target = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        explicitValue = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        target = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
+        explicitValue = nullIfEmpty(SerializationHelpers.readString(`in`))
         if (explicitValue == null) {
-            value = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
+            value = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
         }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, target!!)
+        SerializationHelpers.write(out, target!!)
 
-        ExtUtil.write(out, ExtUtil.emptyIfNull(explicitValue))
+        SerializationHelpers.writeString(out, emptyIfNull(explicitValue))
         if (explicitValue == null) {
-            ExtUtil.write(out, ExtWrapTagged(value!!))
+            SerializationHelpers.writeTagged(out, value!!)
         }
     }
 

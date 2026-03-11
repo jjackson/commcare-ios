@@ -5,13 +5,13 @@ import org.commcare.modern.util.Pair
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and
@@ -46,7 +46,7 @@ open class FixtureXmlParser(
                 if (matchingFixtures.size > 0) {
                     //find all fixtures with the same user
                     val matchingUsers = storage.getIDsForValue(
-                        FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId)
+                        FormInstance.META_XMLNS, emptyIfNull(userId)
                     )
                     for (i in matchingFixtures) {
                         if (matchingUsers.indexOf(i) != -1) {

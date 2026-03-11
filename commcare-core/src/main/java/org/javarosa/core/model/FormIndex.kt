@@ -2,10 +2,9 @@ package org.javarosa.core.model
 
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -362,22 +361,22 @@ class FormIndex : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        beginningOfForm = ExtUtil.readBool(`in`)
-        endOfForm = ExtUtil.readBool(`in`)
-        localIndex = ExtUtil.readInt(`in`)
-        instanceIndex = ExtUtil.readInt(`in`)
-        reference = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        nextLevel = ExtUtil.read(`in`, ExtWrapNullable(FormIndex::class.java), pf) as FormIndex?
+        beginningOfForm = SerializationHelpers.readBool(`in`)
+        endOfForm = SerializationHelpers.readBool(`in`)
+        localIndex = SerializationHelpers.readInt(`in`)
+        instanceIndex = SerializationHelpers.readInt(`in`)
+        reference = SerializationHelpers.readNullableExternalizable(`in`, pf) { TreeReference() }
+        nextLevel = SerializationHelpers.readNullableExternalizable(`in`, pf) { FormIndex() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeBool(out, beginningOfForm)
-        ExtUtil.writeBool(out, endOfForm)
-        ExtUtil.writeNumeric(out, localIndex.toLong())
-        ExtUtil.writeNumeric(out, instanceIndex.toLong())
-        ExtUtil.write(out, ExtWrapNullable(reference))
-        ExtUtil.write(out, ExtWrapNullable(nextLevel))
+        SerializationHelpers.writeBool(out, beginningOfForm)
+        SerializationHelpers.writeBool(out, endOfForm)
+        SerializationHelpers.writeNumeric(out, localIndex.toLong())
+        SerializationHelpers.writeNumeric(out, instanceIndex.toLong())
+        SerializationHelpers.writeNullable(out, reference)
+        SerializationHelpers.writeNullable(out, nextLevel)
     }
 
     companion object {

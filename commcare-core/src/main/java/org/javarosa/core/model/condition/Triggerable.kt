@@ -5,11 +5,9 @@ import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -234,21 +232,20 @@ abstract class Triggerable : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
-        expr = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
-        contextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
-        originalContextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
-        @Suppress("UNCHECKED_CAST")
-        targets = ExtUtil.read(input, ExtWrapList(TreeReference::class.java), pf) as ArrayList<TreeReference>
-        stopContextualizingAt = ExtUtil.readInt(input)
+        expr = SerializationHelpers.readTagged(input, pf) as IConditionExpr
+        contextRef = SerializationHelpers.readExternalizable(input, pf) { TreeReference() }
+        originalContextRef = SerializationHelpers.readExternalizable(input, pf) { TreeReference() }
+        targets = SerializationHelpers.readList(input, pf) { TreeReference() }
+        stopContextualizingAt = SerializationHelpers.readInt(input)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(expr!!))
-        ExtUtil.write(out, contextRef!!)
-        ExtUtil.write(out, originalContextRef!!)
-        ExtUtil.write(out, ExtWrapList(targets))
-        ExtUtil.writeNumeric(out, stopContextualizingAt.toLong())
+        SerializationHelpers.writeTagged(out, expr!!)
+        SerializationHelpers.write(out, contextRef!!)
+        SerializationHelpers.write(out, originalContextRef!!)
+        SerializationHelpers.writeList(out, targets)
+        SerializationHelpers.writeNumeric(out, stopContextualizingAt.toLong())
     }
 
     override fun toString(): String {

@@ -17,8 +17,8 @@
 package org.javarosa.core.model.data
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -64,12 +64,12 @@ class StringData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        s = ExtUtil.readString(`in`)
+        s = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, s!!)
+        SerializationHelpers.writeString(out, s!!)
     }
 
     override fun uncast(): UncastData {

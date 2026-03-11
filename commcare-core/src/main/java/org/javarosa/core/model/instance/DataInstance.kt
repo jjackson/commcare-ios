@@ -7,9 +7,8 @@ import org.javarosa.core.model.utils.CacheHost
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.LocalCacheTable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -33,18 +32,15 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     /**
      * The name for this data model
      */
-    @JvmField
-    protected var name: String? = null
+    private var _name: String? = null
 
     /**
      * The ID of the form that this is a model for
      */
     private var formId: Int = 0
 
-    @JvmField
     protected var instanceid: String? = null
 
-    @JvmField
     protected var mCacheHost: CacheHost? = null
 
     private val referenceCache = LocalCacheTable<TreeReference, T>()
@@ -244,14 +240,14 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
 
     fun getFormId(): Int = this.formId
 
-    fun getName(): String? = name
+    fun getName(): String? = _name
 
     fun setName(name: String?) {
-        this.name = name
+        this._name = name
     }
 
     override fun toString(): String {
-        val displayName = this.name ?: "NULL"
+        val displayName = this._name ?: "NULL"
         return "DataInstance{" +
                 "name='" + displayName + '\'' +
                 ", instanceid='" + instanceid + '\'' +
@@ -260,18 +256,19 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordid = ExtUtil.readInt(`in`)
-        formId = ExtUtil.readInt(`in`)
-        name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        instanceid = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        recordid = SerializationHelpers.readInt(`in`)
+        formId = SerializationHelpers.readInt(`in`)
+        _name = SerializationHelpers.readNullableString(`in`, pf)
+        val rawInstanceId = SerializationHelpers.readString(`in`)
+        instanceid = if (rawInstanceId.isEmpty()) null else rawInstanceId
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordid.toLong())
-        ExtUtil.writeNumeric(out, formId.toLong())
-        ExtUtil.write(out, ExtWrapNullable(name))
-        ExtUtil.write(out, ExtUtil.emptyIfNull(instanceid))
+        SerializationHelpers.writeNumeric(out, recordid.toLong())
+        SerializationHelpers.writeNumeric(out, formId.toLong())
+        SerializationHelpers.writeNullable(out, _name)
+        SerializationHelpers.write(out, instanceid ?: "")
     }
 
     override fun getID(): Int = recordid
@@ -297,7 +294,6 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     }
 
     companion object {
-        @JvmStatic
         fun unpackReference(ref: XPathReference): TreeReference {
             return ref.reference
         }

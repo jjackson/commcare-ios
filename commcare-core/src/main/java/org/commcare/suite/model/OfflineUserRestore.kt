@@ -10,7 +10,6 @@ import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
@@ -21,6 +20,9 @@ import org.javarosa.core.io.createByteArrayInputStream
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.nullIfEmpty
+import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.io.PlatformInputStream
 import java.io.UnsupportedEncodingException
 
@@ -79,18 +81,18 @@ class OfflineUserRestore : Persistable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.recordId = ExtUtil.readInt(`in`)
-        this.reference = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.restore = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        this.recordId = SerializationHelpers.readInt(`in`)
+        this.reference = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.restore = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.username = nullIfEmpty(SerializationHelpers.readString(`in`))
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(restore))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(username))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(reference))
+        SerializationHelpers.writeString(out, emptyIfNull(restore))
+        SerializationHelpers.writeString(out, emptyIfNull(username))
     }
 
     override fun setID(ID: Int) {

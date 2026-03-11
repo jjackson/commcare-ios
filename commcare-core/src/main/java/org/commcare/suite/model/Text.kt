@@ -6,10 +6,9 @@ import org.javarosa.core.model.condition.IFunctionHandler
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.analysis.AnalysisInvalidException
@@ -218,19 +217,18 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
         return keys
     }
 
-    @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        type = ExtUtil.readInt(`in`)
-        argument = ExtUtil.readString(`in`)
-        arguments = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
+        type = SerializationHelpers.readInt(`in`)
+        argument = SerializationHelpers.readString(`in`)
+        arguments = SerializationHelpers.readStringExtMap(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, type.toLong())
-        ExtUtil.writeString(out, argument)
-        ExtUtil.write(out, ExtWrapMap(arguments ?: HashMap<String, Text>()))
+        SerializationHelpers.writeNumeric(out, type.toLong())
+        SerializationHelpers.writeString(out, argument!!)
+        SerializationHelpers.writeMap(out, arguments ?: HashMap<String, Text>())
     }
 
     fun getArgument(): String? = argument

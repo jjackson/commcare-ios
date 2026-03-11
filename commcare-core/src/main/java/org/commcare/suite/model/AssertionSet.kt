@@ -2,10 +2,9 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
@@ -74,16 +73,15 @@ class AssertionSet : Externalizable {
         return null
     }
 
-    @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.xpathExpressions = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
-        this.messages = ExtUtil.read(`in`, ExtWrapList(Text::class.java), pf) as ArrayList<Text>
+        this.xpathExpressions = SerializationHelpers.readStringList(`in`)
+        this.messages = SerializationHelpers.readList(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(xpathExpressions))
-        ExtUtil.write(out, ExtWrapList(messages))
+        SerializationHelpers.writeList(out, xpathExpressions)
+        SerializationHelpers.writeList(out, messages)
     }
 }

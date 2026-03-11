@@ -1,5 +1,7 @@
 package org.javarosa.core.util.externalizable
 
+import org.javarosa.core.model.utils.PlatformDate
+
 /**
  * JVM implementation of SerializationHelpers that delegates to the existing
  * ExtUtil/ExtWrap framework for binary compatibility.
@@ -110,14 +112,198 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
+    actual fun readDate(`in`: PlatformDataInputStream): PlatformDate {
+        return ExtUtil.readDate(`in`)
+    }
+
+    @JvmStatic
+    actual fun writeDate(out: PlatformDataOutputStream, date: PlatformDate) {
+        ExtUtil.writeDate(out, date)
+    }
+
+    @JvmStatic
+    actual fun readStringList(`in`: PlatformDataInputStream): ArrayList<String> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val list = ArrayList<String>(size)
+        for (i in 0 until size) {
+            list.add(ExtUtil.readString(`in`))
+        }
+        return list
+    }
+
+    @JvmStatic
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), null) as HashMap<String, String>
+    }
+
+    @JvmStatic
+    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map))
+    }
+
+    @JvmStatic
     actual fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String? {
         @Suppress("UNCHECKED_CAST")
         return ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
     }
 
     @JvmStatic
+    actual fun <T : Externalizable> readNullableExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T? {
+        if (!`in`.readBoolean()) return null
+        val instance = creator()
+        instance.readExternal(`in`, pf)
+        return instance
+    }
+
+    @JvmStatic
+    actual fun readNullableTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any? {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf)
+    }
+
+    @JvmStatic
+    actual fun readNullableDate(`in`: PlatformDataInputStream): PlatformDate? {
+        if (!`in`.readBoolean()) return null
+        return readDate(`in`)
+    }
+
+    @JvmStatic
     actual fun writeNullable(out: PlatformDataOutputStream, value: Any?) {
         ExtUtil.write(out, ExtWrapNullable(value))
+    }
+
+    @JvmStatic
+    actual fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?) {
+        if (value != null) {
+            ExtUtil.write(out, ExtWrapNullable(ExtWrapTagged(value)))
+        } else {
+            ExtUtil.write(out, ExtWrapNullable(null as Any?))
+        }
+    }
+
+    @JvmStatic
+    actual fun <T : Externalizable> readStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): HashMap<String, T> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = HashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
+    actual fun readStringTaggedMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map, ExtWrapTagged()))
+    }
+
+    @JvmStatic
+    actual fun <T : Externalizable> readOrderedStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): LinkedHashMap<String, T> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
+    actual fun readOrderedStringStringMap(
+        `in`: PlatformDataInputStream
+    ): LinkedHashMap<String, String> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = ExtUtil.readString(`in`)
+            val value = ExtUtil.readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    @JvmStatic
+    actual fun readStringMapPoly(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMapPoly(map))
+    }
+
+    @JvmStatic
+    actual fun readStringMultiMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): org.javarosa.core.util.ListMultimap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as org.javarosa.core.util.ListMultimap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
+        ExtUtil.write(out, ExtWrapMultiMap(map))
+    }
+
+    @JvmStatic
+    actual fun readStringListPolyMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, ArrayList<Any?>> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as HashMap<String, ArrayList<Any?>>
+    }
+
+    @JvmStatic
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map, ExtWrapListPoly()))
+    }
+
+    @JvmStatic
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), null) as HashMap<String, Boolean>
+    }
+
+    @JvmStatic
+    actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
+        return ExtUtil.readBytes(`in`)
+    }
+
+    @JvmStatic
+    actual fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
+        ExtUtil.writeBytes(out, bytes)
     }
 
     @JvmStatic

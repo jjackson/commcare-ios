@@ -14,7 +14,6 @@ import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.Reference
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
@@ -22,6 +21,7 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * @author ctsims
@@ -199,12 +199,12 @@ class ProfileInstaller : CacheInstaller<Profile> {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        forceVersion = ExtUtil.readBool(`in`)
+        forceVersion = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeBool(out, forceVersion)
+        SerializationHelpers.writeBool(out, forceVersion)
     }
 }

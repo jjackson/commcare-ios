@@ -3,10 +3,9 @@ package org.javarosa.form.api
 import org.javarosa.core.model.FormIndex
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -125,14 +124,13 @@ class FormEntrySession : FormEntrySessionRecorder, Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        actions = ExtUtil.read(`in`, ExtWrapList(FormEntryAction::class.java), pf) as ArrayList<FormEntryAction>
+        actions = SerializationHelpers.readList(`in`, pf) { FormEntryAction() }
         sessionStopRef = computeStopRef(actions)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(actions))
+        SerializationHelpers.writeList(out, actions)
     }
 
     companion object {

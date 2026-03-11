@@ -1,13 +1,13 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * This is just a tiny little struct to make it reasonable to maintain
@@ -41,16 +41,16 @@ class PropertySetter : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = ExtUtil.readString(`in`)
-        _value = ExtUtil.readString(`in`)
-        force = ExtUtil.readBool(`in`)
+        _key = SerializationHelpers.readString(`in`)
+        _value = SerializationHelpers.readString(`in`)
+        force = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, _key)
-        ExtUtil.writeString(out, _value)
-        ExtUtil.writeBool(out, force)
+        SerializationHelpers.writeString(out, _key)
+        SerializationHelpers.writeString(out, _value)
+        SerializationHelpers.writeBool(out, force)
     }
 
     override fun equals(other: Any?): Boolean {

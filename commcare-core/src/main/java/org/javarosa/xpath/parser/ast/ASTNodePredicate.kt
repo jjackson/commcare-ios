@@ -1,12 +1,10 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodePredicate : ASTNode() {
 
-    @JvmField
     var expr: ASTNode? = null
 
     override fun getChildren(): List<ASTNode> {

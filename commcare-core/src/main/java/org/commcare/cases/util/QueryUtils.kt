@@ -10,7 +10,6 @@ import org.commcare.cases.query.QuerySensitive
  */
 object QueryUtils {
 
-    @JvmStatic
     fun getFirstKeyIndexedValue(profiles: ArrayList<PredicateProfile>): IndexedValueLookup? {
         if (profiles[0] is IndexedValueLookup) {
             return profiles[0] as IndexedValueLookup
@@ -18,7 +17,6 @@ object QueryUtils {
         return null
     }
 
-    @JvmStatic
     fun wrapSingleResult(result: Int?): ArrayList<Int> {
         val results = ArrayList<Int>()
         if (result != null) {
@@ -32,7 +30,6 @@ object QueryUtils {
      * current query context so it can potentially prepare itself for use in a more efficient
      * manner
      */
-    @JvmStatic
     fun prepareSensitiveObjectForUseInCurrentContext(o: Any?, context: QueryContext) {
         if (o is QuerySensitive) {
             o.prepareForUseInCurrentContext(context)

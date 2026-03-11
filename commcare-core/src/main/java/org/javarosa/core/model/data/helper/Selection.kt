@@ -20,7 +20,6 @@ import org.commcare.cases.util.StringUtils
 import org.javarosa.core.model.QuestionDef
 import org.javarosa.core.model.SelectChoice
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.XPathException
@@ -29,6 +28,7 @@ import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * A response to a question requesting a selection
@@ -135,14 +135,14 @@ class Selection : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        xmlValue = ExtUtil.readString(`in`)
-        index = ExtUtil.readInt(`in`)
+        xmlValue = SerializationHelpers.readString(`in`)
+        index = SerializationHelpers.readInt(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, getValue())
-        ExtUtil.writeNumeric(out, index.toLong())
+        SerializationHelpers.writeString(out, getValue())
+        SerializationHelpers.writeNumeric(out, index.toLong())
     }
 
     /**

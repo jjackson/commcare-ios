@@ -3,9 +3,9 @@ package org.javarosa.core.model.instance
 import org.commcare.cases.instance.CaseInstanceTreeElement
 import org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -94,18 +94,15 @@ open class ExternalDataInstance : DataInstance<AbstractTreeElement> {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        reference = ExtUtil.readString(`in`)
-        source = ExtUtil.read(
-            `in`,
-            ExtWrapNullable(ExternalDataInstanceSource::class.java), pf
-        ) as ExternalDataInstanceSource?
+        reference = SerializationHelpers.readString(`in`)
+        source = SerializationHelpers.readNullableExternalizable(`in`, pf) { ExternalDataInstanceSource() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(reference))
-        ExtUtil.write(out, ExtWrapNullable(source))
+        SerializationHelpers.writeString(out, emptyIfNull(reference))
+        SerializationHelpers.writeNullable(out, source)
     }
 
     override fun initialize(initializer: InstanceInitializationFactory?, instanceId: String?): DataInstance<*> {
@@ -139,7 +136,7 @@ open class ExternalDataInstance : DataInstance<AbstractTreeElement> {
     override fun toString(): String {
         return "ExternalDataInstance{" +
                 "reference='" + reference + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + getName() + '\'' +
                 ", instanceid='" + instanceid + '\'' +
                 '}'
     }

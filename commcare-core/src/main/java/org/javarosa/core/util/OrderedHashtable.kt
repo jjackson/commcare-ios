@@ -48,7 +48,7 @@ class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
     override fun put(key: K, value: V): V? {
         if (key == null) {
             throw NullPointerException(
-                String.format("No value found for key %s in table %s", key, this.toString())
+                "No value found for key $key in table ${this.toString()}"
             )
         }
 

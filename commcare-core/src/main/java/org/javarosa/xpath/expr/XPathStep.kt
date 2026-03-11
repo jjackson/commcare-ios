@@ -9,23 +9,15 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 class XPathStep : Externalizable {
-    @JvmField
     var axis: Int = 0
-    @JvmField
     var test: Int = 0
-    @JvmField
     var predicates: Array<XPathExpression> = emptyArray()
 
     //test-dependent variables
-    @JvmField
     var name: XPathQName? = null //TEST_NAME only
-    @JvmField
     var namespace: String? = null //TEST_NAMESPACE_WILDCARD only
-    @JvmField
     var literal: String? = null //TEST_TYPE_PROCESSING_INSTRUCTION only
 
     constructor() // for deserialization
@@ -265,17 +257,14 @@ class XPathStep : Externalizable {
 
         private var refs: Interner<XPathStep>? = null
 
-        @JvmStatic
         fun ABBR_SELF(): XPathStep {
             return XPathStep(AXIS_SELF, TEST_TYPE_NODE)
         }
 
-        @JvmStatic
         fun ABBR_PARENT(): XPathStep {
             return XPathStep(AXIS_PARENT, TEST_TYPE_NODE)
         }
 
-        @JvmStatic
         fun ABBR_DESCENDANTS(): XPathStep {
             return XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE)
         }
@@ -283,12 +272,10 @@ class XPathStep : Externalizable {
         /**
          * Used by J2ME
          */
-        @JvmStatic
         fun attachInterner(refs: Interner<XPathStep>) {
             XPathStep.refs = refs
         }
 
-        @JvmStatic
         fun axisStr(axis: Int): String? {
             return when (axis) {
                 AXIS_CHILD -> "child"

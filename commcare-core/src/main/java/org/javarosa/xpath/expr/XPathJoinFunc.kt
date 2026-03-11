@@ -1,5 +1,4 @@
 package org.javarosa.xpath.expr
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
@@ -45,7 +44,6 @@ open class XPathJoinFunc : XPathFuncExpr {
         /**
          * concatenate an abritrary-length argument list of string values together
          */
-        @JvmStatic
         fun join(oSep: Any?, argVals: Array<Any?>): String {
             val sep = FunctionUtils.toString(oSep)
             val sb = StringBuffer()

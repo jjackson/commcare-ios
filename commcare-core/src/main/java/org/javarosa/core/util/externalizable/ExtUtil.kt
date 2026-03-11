@@ -6,7 +6,6 @@ import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.UTFDataFormatException
 import org.javarosa.core.model.utils.PlatformDate
 
 class ExtUtil {
@@ -92,9 +91,9 @@ class ExtUtil {
         fun writeString(out: PlatformDataOutputStream, `val`: String?) {
             try {
                 out.writeUTF(`val`!!)
-            } catch (e: UTFDataFormatException) {
+            } catch (e: PlatformIOException) {
                 val percentOversized =
-                    ((`val`!!.toByteArray(Charsets.UTF_8).size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
+                    ((`val`!!.encodeToByteArray().size / (Short.MAX_VALUE.toInt() * 2)) - 1) * 100
                 throw SerializationLimitationException(
                     percentOversized,
                     e,

@@ -2,12 +2,9 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
@@ -99,29 +96,28 @@ class Callout : Externalizable, DetailTemplate {
         return false
     }
 
-    @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        displayName = ExtUtil.readString(`in`)
-        actionName = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        image = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        extras = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
-        responses = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
-        responseDetailField = ExtUtil.read(`in`, ExtWrapNullable(DetailField::class.java), pf) as DetailField?
-        type = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        isAutoLaunching = ExtUtil.readBool(`in`)
+        displayName = SerializationHelpers.readString(`in`)
+        actionName = SerializationHelpers.readNullableString(`in`, pf)
+        image = SerializationHelpers.readNullableString(`in`, pf)
+        extras = SerializationHelpers.readStringStringMap(`in`)
+        responses = SerializationHelpers.readStringList(`in`)
+        responseDetailField = SerializationHelpers.readNullableExternalizable(`in`, pf) { DetailField() }
+        type = SerializationHelpers.readNullableString(`in`, pf)
+        isAutoLaunching = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, displayName!!)
-        ExtUtil.write(out, ExtWrapNullable(actionName))
-        ExtUtil.write(out, ExtWrapNullable(image))
-        ExtUtil.write(out, ExtWrapMap(extras!!))
-        ExtUtil.write(out, ExtWrapList(responses!!))
-        ExtUtil.write(out, ExtWrapNullable(responseDetailField))
-        ExtUtil.write(out, ExtWrapNullable(type))
-        ExtUtil.writeBool(out, isAutoLaunching)
+        SerializationHelpers.writeString(out, displayName!!)
+        SerializationHelpers.writeNullable(out, actionName)
+        SerializationHelpers.writeNullable(out, image)
+        SerializationHelpers.writeMap(out, extras!!)
+        SerializationHelpers.writeList(out, responses!!)
+        SerializationHelpers.writeNullable(out, responseDetailField)
+        SerializationHelpers.writeNullable(out, type)
+        SerializationHelpers.writeBool(out, isAutoLaunching)
     }
 
     fun getImage(): String? = image

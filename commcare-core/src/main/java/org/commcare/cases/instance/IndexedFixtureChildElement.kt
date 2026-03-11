@@ -134,10 +134,7 @@ class IndexedFixtureChildElement internal constructor(
         val tranche = recordSetCache.getRecordSetForRecordId(recordSetKey, recordId)!!
 
         val loadTrace = EvaluationTrace(
-            String.format(
-                "Model [%s]: Limited Scope Partial Bulk Load [%s}",
-                recordObjectKey, tranche.first
-            )
+            "Model [$recordObjectKey]: Limited Scope Partial Bulk Load [${tranche.first}}"
         )
 
         val body = tranche.second
@@ -155,7 +152,7 @@ class IndexedFixtureChildElement internal constructor(
         context: QueryContext?
     ): Array<String> {
         val trace = EvaluationTrace(
-            String.format("Model [%s]: Single Metadata Load", this.parent.storageCacheName)
+            "Model [${this.parent.storageCacheName}]: Single Metadata Load"
         )
 
         val result = parent.storage.getMetaDataForRecord(recordId, metaFields)

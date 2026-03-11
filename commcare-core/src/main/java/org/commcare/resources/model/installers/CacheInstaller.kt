@@ -13,7 +13,6 @@ import org.javarosa.core.reference.Reference
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
@@ -21,6 +20,7 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 /**
  * Used for any resources which:
@@ -108,12 +108,12 @@ abstract class CacheInstaller<T : Persistable> : ResourceInstaller<CommCarePlatf
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        cacheLocation = ExtUtil.readInt(`in`)
+        cacheLocation = SerializationHelpers.readInt(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, cacheLocation.toLong())
+        SerializationHelpers.writeNumeric(out, cacheLocation.toLong())
     }
 
     override fun verifyInstallation(

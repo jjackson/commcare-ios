@@ -1,7 +1,5 @@
 package org.javarosa.core.util
 
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 /**
  * Fast implementation of RSA's MD5 hash generator in Java JDK Beta-2 or higher.
@@ -329,7 +327,6 @@ class MD5(data: ByteArray) {
      *
      * @return Array of 16 bytes, the hash of all updated bytes
      */
-    @Synchronized
     fun doFinal(): ByteArray {
         if (finals == null) {
             val fin = MD5State(state)
@@ -347,7 +344,6 @@ class MD5(data: ByteArray) {
     }
 
     companion object {
-        @JvmField
         val length = 16
 
         private val HEX_CHARS = charArrayOf(
@@ -381,7 +377,6 @@ class MD5(data: ByteArray) {
          *
          * @return String of this object's hash
          */
-        @JvmStatic
         fun toHex(hash: ByteArray): String {
             val buf = CharArray(hash.size * 2)
             var x = 0
@@ -392,7 +387,6 @@ class MD5(data: ByteArray) {
             return String(buf)
         }
 
-        @JvmStatic
         fun hash(data: ByteArray): ByteArray {
             return MD5(data).doFinal()
         }

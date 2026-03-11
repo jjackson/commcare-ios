@@ -5,6 +5,10 @@ import org.javarosa.core.api.ILogger
 import org.javarosa.core.log.FatalException
 import org.javarosa.core.log.WrappedException
 import org.javarosa.core.model.utils.PlatformDate
+import org.javarosa.core.util.PlatformThread
+import org.javarosa.core.util.platformStdErrPrintln
+import kotlin.jvm.JvmStatic
+import kotlin.math.min
 
 object Logger {
     private const val MAX_MSG_LENGTH = 2048
@@ -23,34 +27,23 @@ object Logger {
         return logger
     }
 
-    /**
-     * Posts the given data to an existing Incident Log, if one has
-     * been registered and if logging is enabled on the device.
-     *
-     * NOTE: This method makes a best faith attempt to log the given
-     * data, but will not produce any output if such attempts fail.
-     *
-     * @param type    The type of incident to be logged.
-     * @param message A message describing the incident.
-     */
     @JvmStatic
     fun log(type: String, message: String?) {
         var msg = message
-        System.err.println("logger> $type: $msg")
+        platformStdErrPrintln("logger> $type: $msg")
         if (msg == null) {
             msg = ""
         }
         if (msg.length > MAX_MSG_LENGTH) {
-            System.err.println("  (message truncated)")
+            platformStdErrPrintln("  (message truncated)")
         }
 
-        msg = msg.substring(0, Math.min(msg.length, MAX_MSG_LENGTH))
+        msg = msg.substring(0, min(msg.length, MAX_MSG_LENGTH))
         if (logger != null) {
             try {
                 logger!!.log(type, msg, PlatformDate())
             } catch (e: RuntimeException) {
-                //do not catch exceptions here; if this fails, we want the exception to propogate
-                System.err.println("exception when trying to write log message! " + WrappedException.printException(e))
+                platformStdErrPrintln("exception when trying to write log message! " + WrappedException.printException(e))
                 logger!!.panic()
             }
         }
@@ -76,26 +69,16 @@ object Logger {
 
     @JvmStatic
     fun die(thread: String, e: Exception) {
-        //log exception
         exception("unhandled exception at top level", e)
-
-        //print stacktrace
         e.printStackTrace()
 
-        //crash
         val crashException = FatalException("unhandled exception in $thread", e)
 
-        //depending on how the code was invoked, a straight 'throw' won't always reliably crash the app
-        //throwing in a thread should work (at least on our nokias)
-        Thread {
+        PlatformThread.startThread {
             throw crashException
-        }.start()
-
-        //still do plain throw as a fallback
-        try {
-            Thread.sleep(3000)
-        } catch (ie: InterruptedException) {
         }
+
+        PlatformThread.sleep(3000)
         throw crashException
     }
 

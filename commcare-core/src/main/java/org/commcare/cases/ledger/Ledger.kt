@@ -3,9 +3,8 @@ package org.commcare.cases.ledger
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -99,17 +98,36 @@ class Ledger : Persistable, IMetaData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordId = ExtUtil.readInt(`in`)
-        entityId = ExtUtil.readString(`in`)
-        @Suppress("UNCHECKED_CAST")
-        sections = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapMap(String::class.java, Int::class.javaObjectType)), pf) as HashMap<String, HashMap<String, Int>>
+        recordId = SerializationHelpers.readInt(`in`)
+        entityId = SerializationHelpers.readString(`in`)
+        val outerSize = SerializationHelpers.readNumeric(`in`).toInt()
+        sections = HashMap(outerSize)
+        for (i in 0 until outerSize) {
+            val sectionKey = SerializationHelpers.readString(`in`)
+            val innerSize = SerializationHelpers.readNumeric(`in`).toInt()
+            val innerMap = HashMap<String, Int>(innerSize)
+            for (j in 0 until innerSize) {
+                val entryKey = SerializationHelpers.readString(`in`)
+                val entryVal = SerializationHelpers.readNumeric(`in`).toInt()
+                innerMap[entryKey] = entryVal
+            }
+            sections[sectionKey] = innerMap
+        }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeString(out, entityId ?: "")
-        ExtUtil.write(out, ExtWrapMap(sections, ExtWrapMap(String::class.java, Int::class.javaObjectType)))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeString(out, entityId ?: "")
+        SerializationHelpers.writeNumeric(out, sections.size.toLong())
+        for ((sectionKey, innerMap) in sections) {
+            SerializationHelpers.writeString(out, sectionKey)
+            SerializationHelpers.writeNumeric(out, innerMap.size.toLong())
+            for ((entryKey, entryVal) in innerMap) {
+                SerializationHelpers.writeString(out, entryKey)
+                SerializationHelpers.writeNumeric(out, entryVal.toLong())
+            }
+        }
     }
 
     override fun setID(ID: Int) {

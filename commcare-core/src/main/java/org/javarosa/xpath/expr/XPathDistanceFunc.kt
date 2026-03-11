@@ -1,5 +1,4 @@
 package org.javarosa.xpath.expr
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.data.GeoPointData
@@ -32,7 +31,6 @@ open class XPathDistanceFunc : XPathFuncExpr {
          * Note that the arguments can be strings.
          * Returns -1 if one of the arguments is null or the empty string.
          */
-        @JvmStatic
         fun distance(from: Any?, to: Any?): Double {
             val unpackedFrom = FunctionUtils.unpack(from) as String?
             val unpackedTo = FunctionUtils.unpack(to) as String?

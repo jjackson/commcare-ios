@@ -11,7 +11,7 @@ import org.javarosa.xpath.expr.FunctionUtils
  */
 open class EvaluationTrace(private val expression: String) {
 
-    private val exprStartNano: Long = System.nanoTime()
+    private val exprStartNano: Long = org.javarosa.core.util.platformNanoTime()
     private var runtimeNano: Long = 0
 
     private var parent: EvaluationTrace? = null
@@ -51,7 +51,7 @@ open class EvaluationTrace(private val expression: String) {
     }
 
     protected fun triggerExprComplete() {
-        runtimeNano = System.nanoTime() - exprStartNano
+        runtimeNano = org.javarosa.core.util.platformNanoTime() - exprStartNano
     }
 
     open fun getRuntimeInNanoseconds(): Long {
@@ -59,9 +59,7 @@ open class EvaluationTrace(private val expression: String) {
     }
 
     fun addSubTrace(child: EvaluationTrace?) {
-        synchronized(children) {
-            this.children.add(child!!)
-        }
+        this.children.add(child!!)
     }
 
     open fun getSubTraces(): ArrayList<EvaluationTrace> {

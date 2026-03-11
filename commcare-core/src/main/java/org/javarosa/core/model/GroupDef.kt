@@ -5,11 +5,10 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -165,27 +164,27 @@ class GroupDef : IFormElement {
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
-        setID(ExtUtil.readInt(dis))
-        setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
-        setBind(ExtUtil.read(dis, ExtWrapTagged(), pf) as XPathReference)
-        setTextID(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
-        setLabelInnerText(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
-        setIsRepeat(ExtUtil.readBool(dis))
+        setID(SerializationHelpers.readInt(dis))
+        setAppearanceAttr(SerializationHelpers.readNullableString(dis, pf))
+        setBind(SerializationHelpers.readTagged(dis, pf) as XPathReference)
+        setTextID(SerializationHelpers.readNullableString(dis, pf))
+        setLabelInnerText(SerializationHelpers.readNullableString(dis, pf))
+        setIsRepeat(SerializationHelpers.readBool(dis))
         @Suppress("UNCHECKED_CAST")
-        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<IFormElement>)
+        setChildren(SerializationHelpers.readListPoly(dis, pf) as ArrayList<IFormElement>)
 
-        noAddRemove = ExtUtil.readBool(dis)
-        count = ExtUtil.read(dis, ExtWrapNullable(ExtWrapTagged()), pf) as XPathReference?
+        noAddRemove = SerializationHelpers.readBool(dis)
+        count = SerializationHelpers.readNullableTagged(dis, pf) as XPathReference?
 
-        chooseCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        addCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        delCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        doneCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        addEmptyCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        doneEmptyCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        entryHeader = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        delHeader = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
-        mainHeader = ExtUtil.nullIfEmpty(ExtUtil.readString(dis))
+        chooseCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        addCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        delCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        doneCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        addEmptyCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        doneEmptyCaption = nullIfEmpty(SerializationHelpers.readString(dis))
+        entryHeader = nullIfEmpty(SerializationHelpers.readString(dis))
+        delHeader = nullIfEmpty(SerializationHelpers.readString(dis))
+        mainHeader = nullIfEmpty(SerializationHelpers.readString(dis))
     }
 
     /**
@@ -193,27 +192,26 @@ class GroupDef : IFormElement {
      */
     @Throws(PlatformIOException::class)
     override fun writeExternal(dos: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(dos, getID().toLong())
-        ExtUtil.write(dos, ExtWrapNullable(getAppearanceAttr()))
-        ExtUtil.write(dos, ExtWrapTagged(getBind()!!))
-        ExtUtil.write(dos, ExtWrapNullable(getTextID()))
-        ExtUtil.write(dos, ExtWrapNullable(getLabelInnerText()))
-        ExtUtil.writeBool(dos, isRepeat())
-        ExtUtil.write(dos, ExtWrapListPoly(getChildren()))
+        SerializationHelpers.writeNumeric(dos, getID().toLong())
+        SerializationHelpers.writeNullable(dos, getAppearanceAttr())
+        SerializationHelpers.writeTagged(dos, getBind()!!)
+        SerializationHelpers.writeNullable(dos, getTextID())
+        SerializationHelpers.writeNullable(dos, getLabelInnerText())
+        SerializationHelpers.writeBool(dos, isRepeat())
+        SerializationHelpers.writeListPoly(dos, getChildren())
 
-        ExtUtil.writeBool(dos, noAddRemove)
-        val currentCount = count
-        ExtUtil.write(dos, ExtWrapNullable(if (currentCount != null) ExtWrapTagged(currentCount) else null))
+        SerializationHelpers.writeBool(dos, noAddRemove)
+        SerializationHelpers.writeNullableTagged(dos, count)
 
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(chooseCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(addCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(delCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(doneCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(addEmptyCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(doneEmptyCaption))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(entryHeader))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(delHeader))
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(mainHeader))
+        SerializationHelpers.writeString(dos, emptyIfNull(chooseCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(addCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(delCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(doneCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(addEmptyCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(doneEmptyCaption))
+        SerializationHelpers.writeString(dos, emptyIfNull(entryHeader))
+        SerializationHelpers.writeString(dos, emptyIfNull(delHeader))
+        SerializationHelpers.writeString(dos, emptyIfNull(mainHeader))
     }
 
     override fun getTextID(): String? {

@@ -1,10 +1,9 @@
 package org.javarosa.core.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -40,17 +39,17 @@ class QuestionString : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        textId = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        textInner = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        textFallback = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
+        name = SerializationHelpers.readNullableString(`in`, pf)
+        textId = SerializationHelpers.readNullableString(`in`, pf)
+        textInner = SerializationHelpers.readNullableString(`in`, pf)
+        textFallback = SerializationHelpers.readNullableString(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapNullable(name))
-        ExtUtil.write(out, ExtWrapNullable(textId))
-        ExtUtil.write(out, ExtWrapNullable(textInner))
-        ExtUtil.write(out, ExtWrapNullable(textFallback))
+        SerializationHelpers.writeNullable(out, name)
+        SerializationHelpers.writeNullable(out, textId)
+        SerializationHelpers.writeNullable(out, textInner)
+        SerializationHelpers.writeNullable(out, textFallback)
     }
 }

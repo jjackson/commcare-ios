@@ -2,10 +2,9 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -36,21 +35,20 @@ class Endpoint : Externalizable {
         this.respectRelevancy = respectRelevancy
     }
 
-    @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        id = ExtUtil.readString(`in`)
-        arguments = ExtUtil.read(`in`, ExtWrapList(EndpointArgument::class.java), pf) as ArrayList<EndpointArgument>
-        stackOperations = ExtUtil.read(`in`, ExtWrapList(StackOperation::class.java), pf) as ArrayList<StackOperation>
-        respectRelevancy = ExtUtil.readBool(`in`)
+        id = SerializationHelpers.readString(`in`)
+        arguments = SerializationHelpers.readList(`in`, pf) { EndpointArgument() }
+        stackOperations = SerializationHelpers.readList(`in`, pf) { StackOperation() }
+        respectRelevancy = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, id!!)
-        ExtUtil.write(out, ExtWrapList(arguments!!))
-        ExtUtil.write(out, ExtWrapList(stackOperations!!))
-        ExtUtil.writeBool(out, respectRelevancy)
+        SerializationHelpers.writeString(out, id!!)
+        SerializationHelpers.writeList(out, arguments!!)
+        SerializationHelpers.writeList(out, stackOperations!!)
+        SerializationHelpers.writeBool(out, respectRelevancy)
     }
 
     fun getId(): String? = id

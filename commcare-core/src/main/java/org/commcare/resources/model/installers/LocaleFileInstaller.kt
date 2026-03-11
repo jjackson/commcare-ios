@@ -18,9 +18,8 @@ import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.services.locale.LocalizationUtils
 import org.javarosa.core.services.locale.TableLocaleSource
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
@@ -274,19 +273,17 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        locale = ExtUtil.readString(`in`)
-        localReference = ExtUtil.readString(`in`)
-        @Suppress("UNCHECKED_CAST")
-        cache = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<*, *>
-        ) as HashMap<String, String>?
+        locale = SerializationHelpers.readString(`in`)
+        localReference = SerializationHelpers.readString(`in`)
+        val readCache = SerializationHelpers.readStringStringMap(`in`)
+        cache = if (readCache.isEmpty()) null else readCache
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, locale)
-        ExtUtil.writeString(out, localReference)
-        ExtUtil.write(out, ExtWrapMap(ExtUtil.emptyIfNull(cache)))
+        SerializationHelpers.writeString(out, locale ?: "")
+        SerializationHelpers.writeString(out, localReference ?: "")
+        SerializationHelpers.writeMap(out, cache ?: HashMap<String, String>())
     }
 
     override fun verifyInstallation(

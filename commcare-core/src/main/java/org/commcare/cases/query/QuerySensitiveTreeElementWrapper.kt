@@ -86,7 +86,6 @@ class QuerySensitiveTreeElementWrapper private constructor(
         wrapped.tryBatchChildFetch(name, mult, predicates, evalContext)
 
     companion object {
-        @JvmStatic
         fun WrapWithContext(element: AbstractTreeElement, context: QueryContext?): AbstractTreeElement {
             if (context == null) {
                 return element

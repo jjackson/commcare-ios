@@ -3,11 +3,9 @@ package org.javarosa.core.model.actions
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -63,15 +61,12 @@ class ActionController : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(inStream: PlatformDataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        eventListeners = ExtUtil.read(
-            inStream,
-            ExtWrapMap(String::class.java, ExtWrapListPoly()), pf
-        ) as HashMap<String, ArrayList<Action>>
+        eventListeners = SerializationHelpers.readStringListPolyMap(inStream, pf) as HashMap<String, ArrayList<Action>>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(outStream: PlatformDataOutputStream) {
-        ExtUtil.write(outStream, ExtWrapMap(eventListeners, ExtWrapListPoly()))
+        SerializationHelpers.writeStringListPolyMap(outStream, eventListeners as HashMap<*, *>)
     }
 
     // Allows defining of a custom callback to execute on a result of processAction()

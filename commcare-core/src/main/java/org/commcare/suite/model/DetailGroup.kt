@@ -1,10 +1,9 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -27,14 +26,14 @@ class DetailGroup : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        function = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        headerRows = ExtUtil.readInt(`in`)
+        function = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        headerRows = SerializationHelpers.readInt(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(function!!))
-        ExtUtil.write(out, headerRows)
+        SerializationHelpers.writeTagged(out, function!!)
+        SerializationHelpers.write(out, headerRows)
     }
 
     // function is internal property

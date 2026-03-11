@@ -3,11 +3,11 @@ package org.commcare.suite.model
 import org.javarosa.core.model.Constants
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
@@ -128,71 +128,71 @@ class DetailField : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        header = ExtUtil.read(`in`, Text::class.java, pf) as Text
-        template = ExtUtil.read(`in`, ExtWrapTagged(DetailTemplate::class.java), pf) as DetailTemplate
-        sort = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        altText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
+        header = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
+        template = SerializationHelpers.readTagged(`in`, pf) as DetailTemplate
+        sort = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        altText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
 
         // Unfortunately I don't think there's a clean way to do this
-        if (ExtUtil.readBool(`in`)) {
-            relevancy = ExtUtil.readString(`in`)
+        if (SerializationHelpers.readBool(`in`)) {
+            relevancy = SerializationHelpers.readString(`in`)
         }
-        headerWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        templateWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        headerForm = ExtUtil.readString(`in`)
-        templateForm = ExtUtil.readString(`in`)
-        sortOrder = ExtUtil.readInt(`in`)
-        sortDirection = ExtUtil.readInt(`in`)
-        sortType = ExtUtil.readInt(`in`)
-        gridX = ExtUtil.readInt(`in`)
-        gridY = ExtUtil.readInt(`in`)
-        gridWidth = ExtUtil.readInt(`in`)
-        gridHeight = ExtUtil.readInt(`in`)
-        fontSize = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        showBlanksLastInSort = ExtUtil.readBool(`in`)
-        horizontalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        verticalAlign = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        cssID = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        endpointAction = ExtUtil.read(`in`, ExtWrapNullable(EndpointAction::class.java), pf) as EndpointAction?
-        showBorder = ExtUtil.readBool(`in`)
-        showShading = ExtUtil.readBool(`in`)
-        _cacheEnabled = ExtUtil.readBool(`in`)
-        _lazyLoading = ExtUtil.readBool(`in`)
+        headerWidthHint = nullIfEmpty(SerializationHelpers.readString(`in`))
+        templateWidthHint = nullIfEmpty(SerializationHelpers.readString(`in`))
+        headerForm = SerializationHelpers.readString(`in`)
+        templateForm = SerializationHelpers.readString(`in`)
+        sortOrder = SerializationHelpers.readInt(`in`)
+        sortDirection = SerializationHelpers.readInt(`in`)
+        sortType = SerializationHelpers.readInt(`in`)
+        gridX = SerializationHelpers.readInt(`in`)
+        gridY = SerializationHelpers.readInt(`in`)
+        gridWidth = SerializationHelpers.readInt(`in`)
+        gridHeight = SerializationHelpers.readInt(`in`)
+        fontSize = nullIfEmpty(SerializationHelpers.readString(`in`))
+        showBlanksLastInSort = SerializationHelpers.readBool(`in`)
+        horizontalAlign = nullIfEmpty(SerializationHelpers.readString(`in`))
+        verticalAlign = nullIfEmpty(SerializationHelpers.readString(`in`))
+        cssID = nullIfEmpty(SerializationHelpers.readString(`in`))
+        endpointAction = SerializationHelpers.readNullableExternalizable(`in`, pf) { EndpointAction() }
+        showBorder = SerializationHelpers.readBool(`in`)
+        showShading = SerializationHelpers.readBool(`in`)
+        _cacheEnabled = SerializationHelpers.readBool(`in`)
+        _lazyLoading = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, header)
-        ExtUtil.write(out, ExtWrapTagged(template!!))
-        ExtUtil.write(out, ExtWrapNullable(sort))
-        ExtUtil.write(out, ExtWrapNullable(altText))
+        SerializationHelpers.write(out, header!!)
+        SerializationHelpers.writeTagged(out, template!!)
+        SerializationHelpers.writeNullable(out, sort)
+        SerializationHelpers.writeNullable(out, altText)
 
         val relevantSet = relevancy != null
-        ExtUtil.writeBool(out, relevantSet)
+        SerializationHelpers.writeBool(out, relevantSet)
         if (relevantSet) {
-            ExtUtil.writeString(out, relevancy)
+            SerializationHelpers.writeString(out, relevancy!!)
         }
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(headerWidthHint))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(templateWidthHint))
-        ExtUtil.writeString(out, headerForm)
-        ExtUtil.writeString(out, templateForm)
-        ExtUtil.writeNumeric(out, sortOrder.toLong())
-        ExtUtil.writeNumeric(out, sortDirection.toLong())
-        ExtUtil.writeNumeric(out, sortType.toLong())
-        ExtUtil.writeNumeric(out, gridX.toLong())
-        ExtUtil.writeNumeric(out, gridY.toLong())
-        ExtUtil.writeNumeric(out, gridWidth.toLong())
-        ExtUtil.writeNumeric(out, gridHeight.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(fontSize))
-        ExtUtil.writeBool(out, showBlanksLastInSort)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(horizontalAlign))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(verticalAlign))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(cssID))
-        ExtUtil.write(out, ExtWrapNullable(endpointAction))
-        ExtUtil.writeBool(out, showBorder)
-        ExtUtil.writeBool(out, showShading)
-        ExtUtil.writeBool(out, _cacheEnabled)
-        ExtUtil.writeBool(out, _lazyLoading)
+        SerializationHelpers.writeString(out, emptyIfNull(headerWidthHint))
+        SerializationHelpers.writeString(out, emptyIfNull(templateWidthHint))
+        SerializationHelpers.writeString(out, headerForm ?: "")
+        SerializationHelpers.writeString(out, templateForm ?: "")
+        SerializationHelpers.writeNumeric(out, sortOrder.toLong())
+        SerializationHelpers.writeNumeric(out, sortDirection.toLong())
+        SerializationHelpers.writeNumeric(out, sortType.toLong())
+        SerializationHelpers.writeNumeric(out, gridX.toLong())
+        SerializationHelpers.writeNumeric(out, gridY.toLong())
+        SerializationHelpers.writeNumeric(out, gridWidth.toLong())
+        SerializationHelpers.writeNumeric(out, gridHeight.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(fontSize))
+        SerializationHelpers.writeBool(out, showBlanksLastInSort)
+        SerializationHelpers.writeString(out, emptyIfNull(horizontalAlign))
+        SerializationHelpers.writeString(out, emptyIfNull(verticalAlign))
+        SerializationHelpers.writeString(out, emptyIfNull(cssID))
+        SerializationHelpers.writeNullable(out, endpointAction)
+        SerializationHelpers.writeBool(out, showBorder)
+        SerializationHelpers.writeBool(out, showShading)
+        SerializationHelpers.writeBool(out, _cacheEnabled)
+        SerializationHelpers.writeBool(out, _lazyLoading)
     }
 
     fun getGridX(): Int = gridX

@@ -35,20 +35,15 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.formatMessage
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 class XPathPathExpr : XPathExpression {
     private var templatePathChecked = false
 
-    @JvmField
     var initContext: Int = 0
-    @JvmField
     var steps: Array<XPathStep> = emptyArray()
     private var cachedReference: TreeReference? = null
 
     //for INIT_CONTEXT_EXPR only
-    @JvmField
     var filtExpr: XPathFilterExpr? = null
 
     constructor() // for deserialization
@@ -223,7 +218,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
 
         sb.append("{path-expr:")
         when (initContext) {
@@ -365,7 +360,7 @@ class XPathPathExpr : XPathExpression {
 
     fun toDebugString(): String {
         try {
-            val sb = StringBuffer()
+            val sb = StringBuilder()
 
             when (initContext) {
                 INIT_CONTEXT_ROOT -> sb.append("/")
@@ -410,7 +405,6 @@ class XPathPathExpr : XPathExpression {
         const val INIT_CONTEXT_RELATIVE = 1
         const val INIT_CONTEXT_EXPR = 2
 
-        @JvmStatic
         fun getRefValue(model: DataInstance<*>, ec: EvaluationContext, ref: TreeReference): Any {
             if (ec.isConstraint && ref == ec.contextRef) {
                 //ITEMSET TODO: need to update this; for itemset/copy constraints, need to simulate a whole xml sub-tree here
@@ -424,7 +418,6 @@ class XPathPathExpr : XPathExpression {
             }
         }
 
-        @JvmStatic
         fun unpackValue(`val`: IAnswerData?): Any {
             if (`val` == null) {
                 return ""
@@ -451,14 +444,13 @@ class XPathPathExpr : XPathExpression {
             } else if (`val` is GeoPointData) {
                 return `val`.uncast().getString()!!
             } else {
-                System.out.println("warning: unrecognized data type in xpath expr: ${`val`.javaClass.name}")
+                System.out.println("warning: unrecognized data type in xpath expr: ${`val`::class.simpleName ?: ""}")
 
                 //TODO: Does this mess up any of our other plans?
                 return `val`.uncast().getString()!!
             }
         }
 
-        @JvmStatic
         fun fromRef(ref: TreeReference): XPathPathExpr {
             val path = XPathPathExpr()
             path.initContext = if (ref.isAbsolute) INIT_CONTEXT_ROOT else INIT_CONTEXT_RELATIVE

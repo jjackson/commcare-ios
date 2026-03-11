@@ -3,8 +3,10 @@ package org.commcare.suite.model
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
@@ -78,32 +80,32 @@ open class EntityDatum : SessionDatum {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
 
-        if (ExtUtil.readBool(`in`)) {
-            nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
+        if (SerializationHelpers.readBool(`in`)) {
+            nodeset = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
         } else {
             nodeset = null
         }
-        shortDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        longDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        inlineDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        persistentDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        autoSelectEnabled = ExtUtil.readBool(`in`)
+        shortDetail = nullIfEmpty(SerializationHelpers.readString(`in`))
+        longDetail = nullIfEmpty(SerializationHelpers.readString(`in`))
+        inlineDetail = nullIfEmpty(SerializationHelpers.readString(`in`))
+        persistentDetail = nullIfEmpty(SerializationHelpers.readString(`in`))
+        autoSelectEnabled = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
 
-        ExtUtil.writeBool(out, nodeset != null)
+        SerializationHelpers.writeBool(out, nodeset != null)
         val ns = nodeset
         if (ns != null) {
-            ExtUtil.write(out, ns)
+            SerializationHelpers.write(out, ns)
         }
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(shortDetail))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(longDetail))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(inlineDetail))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(persistentDetail))
-        ExtUtil.writeBool(out, autoSelectEnabled)
+        SerializationHelpers.writeString(out, emptyIfNull(shortDetail))
+        SerializationHelpers.writeString(out, emptyIfNull(longDetail))
+        SerializationHelpers.writeString(out, emptyIfNull(inlineDetail))
+        SerializationHelpers.writeString(out, emptyIfNull(persistentDetail))
+        SerializationHelpers.writeBool(out, autoSelectEnabled)
     }
 
     /**

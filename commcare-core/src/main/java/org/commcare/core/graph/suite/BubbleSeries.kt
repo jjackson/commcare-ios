@@ -2,13 +2,14 @@ package org.commcare.core.graph.suite
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 
 /**
  * Single series ("line") on a bubble chart.
@@ -55,12 +56,12 @@ class BubbleSeries : XYSeries {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        mRadius = ExtUtil.readString(`in`)
+        mRadius = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeString(out, mRadius)
+        SerializationHelpers.writeString(out, emptyIfNull(mRadius))
     }
 }

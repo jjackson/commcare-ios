@@ -13,7 +13,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
-import org.javarosa.core.model.instance.utils.TreeUtilities
+import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.core.model.trace.BulkEvaluationTrace
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.model.trace.EvaluationTraceReporter
@@ -66,11 +66,9 @@ class EvaluationContext {
     private val variables: HashMap<String, Any?>
 
     // Do we want to evaluate constraints?
-    @JvmField
     var isConstraint: Boolean = false
 
     // validate this value when isConstraint is set
-    @JvmField
     var candidateValue: IAnswerData? = null
 
     // Responsible for informing itext what form is requested if relevant
@@ -575,7 +573,7 @@ class EvaluationContext {
     }
 
     fun resolveReference(qualifiedRef: TreeReference): AbstractTreeElement? {
-        if (Thread.interrupted()) {
+        if (org.javarosa.core.util.PlatformThread.interrupted()) {
             throw RequestAbandonedException()
         }
         var resolveInstance: DataInstance<*>? = this.getMainInstance()
@@ -699,9 +697,7 @@ class EvaluationContext {
                     return
                 }
                 val traces = trace.getParent()!!.getSubTraces()
-                synchronized(traces) {
-                    traces.remove(trace)
-                }
+                traces.remove(trace)
             }
         }
     }
@@ -805,10 +801,7 @@ class EvaluationContext {
             if (!byRef.containsKey(ref)) {
                 if (formInstances.containsKey(name)) {
                     throw RuntimeException(
-                        String.format(
-                            "EvaluationContext already contains an instance with "
-                                    + "ID %s with a different ref", name
-                        )
+                        "EvaluationContext already contains an instance with ID $name with a different ref"
                     )
                 }
                 formInstances[name] = newInstance
@@ -819,7 +812,15 @@ class EvaluationContext {
                         val instanceId = existing.getInstanceId()
                         var root = newInstance.getRoot() as TreeElement
                         if (instanceId != name) {
-                            root = TreeUtilities.renameInstance(root, instanceId)
+                            root = root.deepCopy(false)
+                            root.accept(object : ITreeVisitor {
+                                override fun visit(tree: FormInstance) {
+                                    throw RuntimeException("Not implemented")
+                                }
+                                override fun visit(element: AbstractTreeElement) {
+                                    (element as TreeElement).setInstanceName(instanceId)
+                                }
+                            })
                         }
                         root.setParent(existing.getBase())
                         existing.copyFromSource(ConcreteInstanceRoot(root))

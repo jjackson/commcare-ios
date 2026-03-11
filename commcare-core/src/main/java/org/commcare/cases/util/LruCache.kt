@@ -238,9 +238,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     override fun toString(): String {
         val accesses = hitCount + missCount
         val hitPercent = if (accesses != 0) 100 * hitCount / accesses else 0
-        return String.format(
-            "LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]",
-            maxSize, hitCount, missCount, hitPercent
-        )
+        return "LruCache[maxSize=$maxSize,hits=$hitCount,misses=$missCount,hitRate=$hitPercent%]"
     }
 }

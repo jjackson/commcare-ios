@@ -4,10 +4,10 @@ import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.PropertyUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.commcare.util.CommCarePlatform
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -300,33 +300,33 @@ open class Resource : Persistable, IMetaData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.recordId = ExtUtil.readInt(`in`)
-        this.version = ExtUtil.readInt(`in`)
-        this.id = ExtUtil.readString(`in`)
-        this.guid = ExtUtil.readString(`in`)
-        this.status = ExtUtil.readInt(`in`)
-        this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        this.recordId = SerializationHelpers.readInt(`in`)
+        this.version = SerializationHelpers.readInt(`in`)
+        this.id = SerializationHelpers.readString(`in`)
+        this.guid = SerializationHelpers.readString(`in`)
+        this.status = SerializationHelpers.readInt(`in`)
+        this.parent = nullIfEmpty(SerializationHelpers.readString(`in`))
 
+        locations = SerializationHelpers.readList(`in`, pf) { ResourceLocation() }
         @Suppress("UNCHECKED_CAST")
-        locations = ExtUtil.read(`in`, ExtWrapList(ResourceLocation::class.java), pf) as ArrayList<ResourceLocation>
-        this.initializer = ExtUtil.read(`in`, ExtWrapTagged(), pf) as ResourceInstaller<CommCarePlatform>
-        this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.lazy = ExtUtil.readString(`in`)
+        this.initializer = SerializationHelpers.readTagged(`in`, pf) as ResourceInstaller<CommCarePlatform>
+        this.descriptor = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.lazy = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeNumeric(out, version.toLong())
-        ExtUtil.writeString(out, id)
-        ExtUtil.writeString(out, guid)
-        ExtUtil.writeNumeric(out, status.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(parent))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeNumeric(out, version.toLong())
+        SerializationHelpers.writeString(out, id)
+        SerializationHelpers.writeString(out, guid)
+        SerializationHelpers.writeNumeric(out, status.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(parent))
 
-        ExtUtil.write(out, ExtWrapList(locations))
-        ExtUtil.write(out, ExtWrapTagged(initializer!!))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(descriptor))
-        ExtUtil.writeString(out, lazy)
+        SerializationHelpers.writeList(out, locations)
+        SerializationHelpers.writeTagged(out, initializer!!)
+        SerializationHelpers.writeString(out, emptyIfNull(descriptor))
+        SerializationHelpers.writeString(out, lazy)
     }
 
     override fun getMetaData(fieldName: String): Any {

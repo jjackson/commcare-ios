@@ -2,9 +2,10 @@ package org.commcare.suite.model
 
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -47,14 +48,14 @@ class FormEntry : Entry {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.post = ExtUtil.read(`in`, ExtWrapNullable(PostRequest::class.java), pf) as PostRequest?
+        this.xFormNamespace = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.post = SerializationHelpers.readNullableExternalizable(`in`, pf) { PostRequest() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace))
-        ExtUtil.write(out, ExtWrapNullable(post))
+        SerializationHelpers.writeString(out, emptyIfNull(xFormNamespace))
+        SerializationHelpers.writeNullable(out, post)
     }
 }

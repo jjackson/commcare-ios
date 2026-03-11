@@ -141,8 +141,65 @@ actual object SerializationHelpers {
         }
     }
 
+    actual fun readDate(`in`: PlatformDataInputStream): PlatformDate {
+        return PlatformDate(readNumeric(`in`))
+    }
+
+    actual fun writeDate(out: PlatformDataOutputStream, date: PlatformDate) {
+        writeNumeric(out, date.getTime())
+    }
+
+    actual fun readStringList(`in`: PlatformDataInputStream): ArrayList<String> {
+        val size = readNumeric(`in`).toInt()
+        val list = ArrayList<String>(size)
+        for (i in 0 until size) {
+            list.add(readString(`in`))
+        }
+        return list
+    }
+
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            write(out, value!!)
+        }
+    }
+
     actual fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String? {
         return if (`in`.readBoolean()) readString(`in`) else null
+    }
+
+    actual fun <T : Externalizable> readNullableExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T? {
+        if (!`in`.readBoolean()) return null
+        val instance = creator()
+        instance.readExternal(`in`, pf)
+        return instance
+    }
+
+    actual fun readNullableTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any? {
+        if (!`in`.readBoolean()) return null
+        return readTagged(`in`, pf)
+    }
+
+    actual fun readNullableDate(`in`: PlatformDataInputStream): PlatformDate? {
+        if (!`in`.readBoolean()) return null
+        return readDate(`in`)
     }
 
     actual fun writeNullable(out: PlatformDataOutputStream, value: Any?) {
@@ -152,6 +209,176 @@ actual object SerializationHelpers {
         } else {
             out.writeBoolean(false)
         }
+    }
+
+    actual fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?) {
+        if (value != null) {
+            out.writeBoolean(true)
+            writeTagged(out, value)
+        } else {
+            out.writeBoolean(false)
+        }
+    }
+
+    actual fun <T : Externalizable> readStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): HashMap<String, T> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readStringTaggedMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Any>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeTagged(out, value!!)
+        }
+    }
+
+    actual fun <T : Externalizable> readOrderedStringExtMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): LinkedHashMap<String, T> {
+        val size = readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, T>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = creator()
+            value.readExternal(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readOrderedStringStringMap(
+        `in`: PlatformDataInputStream
+    ): LinkedHashMap<String, String> {
+        val size = readNumeric(`in`).toInt()
+        val map = LinkedHashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readStringMapPoly(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Any>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeTagged(out, value!!)
+        }
+    }
+
+    actual fun readStringMultiMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): org.javarosa.core.util.ListMultimap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = org.javarosa.core.util.ListMultimap<String, Any>()
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map.put(key, value)
+        }
+        return map
+    }
+
+    actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
+        writeNumeric(out, map.size().toLong())
+        map.forEach { key, value ->
+            write(out, key!!)
+            writeTagged(out, value!!)
+        }
+    }
+
+    actual fun readStringListPolyMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, ArrayList<Any?>> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, ArrayList<Any?>>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readListPoly(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeListPoly(out, value as List<*>)
+        }
+    }
+
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Boolean>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readBool(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
+        val size = readNumeric(`in`).toInt()
+        val bytes = ByteArray(size)
+        var read = 0
+        var toread = size
+        while (read != size) {
+            read = `in`.read(bytes, 0, toread)
+            toread -= read
+        }
+        return bytes
+    }
+
+    actual fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
+        writeNumeric(out, bytes.size.toLong())
+        if (bytes.isNotEmpty()) out.write(bytes)
     }
 
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {

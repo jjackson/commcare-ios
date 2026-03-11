@@ -12,14 +12,10 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
 
 abstract class XPathBinaryOpExpr : XPathOpExpr {
-    @JvmField
     var a: XPathExpression? = null
-    @JvmField
     var b: XPathExpression? = null
-    @JvmField
     var op: Int = 0
 
     constructor() // for deserialization of children

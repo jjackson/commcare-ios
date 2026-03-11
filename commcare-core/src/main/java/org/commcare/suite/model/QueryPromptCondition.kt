@@ -1,11 +1,9 @@
 package org.commcare.suite.model
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -28,14 +26,14 @@ class QueryPromptCondition : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        test = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        message = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
+        test = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        message = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(test!!))
-        ExtUtil.write(out, ExtWrapNullable(message))
+        SerializationHelpers.writeTagged(out, test!!)
+        SerializationHelpers.writeNullable(out, message)
     }
 
     fun getTest(): XPathExpression? = test
