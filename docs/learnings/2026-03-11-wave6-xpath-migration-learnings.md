@@ -61,3 +61,28 @@ The Explore agent initially reported ~50 "zero import" leaf files that could mov
 When moving Kotlin `object` declarations to commonMain, `@JvmStatic` must be removed (not available in common). Java callers must change from `ClassName.method()` to `ClassName.INSTANCE.method()`. `const val` in companion objects auto-inlines to `public static final` in bytecode, so Java callers can still access constants directly.
 
 Files affected: Logger, TraceSerialization, and any other `object` declarations.
+
+### 7. SerializationHelpers expect/actual pattern (NEW)
+
+Created `SerializationHelpers` expect/actual object as a commonMain-compatible replacement for ExtUtil/ExtWrap calls. The JVM actual delegates to existing ExtUtil for binary compatibility. This enables files to use serialization in commonMain without Class<*>.
+
+Key methods: `readTagged`, `writeTagged`, `readListPoly`, `writeListPoly`, `readList`, `writeList`, `readNullableString`, `writeNullable`, `readExternalizable`.
+
+### 8. XPath engine depends on model layer, not just serialization (NEW)
+
+The XPath engine has 641 unresolved references to model classes when moved to commonMain:
+- EvaluationContext (218), DataInstance (200), FunctionUtils (136), TreeReference (87)
+
+Only ~13 of 125 XPath files can live in commonMain independently. The rest need the model layer to move first. **Waves 6 and 7 should be merged** — XPath and model classes need to move together.
+
+### 9. java.lang replacement patterns for KMP (NEW)
+
+| JVM API | Kotlin/KMP Replacement |
+|---|---|
+| `java.lang.Math.max/min` | `maxOf`/`minOf` |
+| `Character.isDigit(c)` | `c.isDigit()` |
+| `Character.isLetter(c)` | `c.isLetter()` |
+| `Double.valueOf(s)` | `s.toDouble()` |
+| `Double.isNaN(d)` | `d.isNaN()` |
+| `Double.doubleToLongBits(d)` | `d.toBits()` |
+| `StringBuffer` | `StringBuilder` |
