@@ -102,10 +102,27 @@ commcare-ios/
 
 **Phase 4 Complete.** All 10 waves done. 204 files in commonMain (+20 from Phase 3). Bulk migration hit ceiling: ~450 files blocked by ExtUtil/ExtWrap* serialization framework's deep `Class<*>` dependency. See `docs/plans/2026-03-11-phase4-completion-report.md`.
 
+**Phase 5: Serialization Framework Refactor** — Replace `Class<*>` with `KClass<*>` + factory lambdas in ExtUtil/ExtWrap* to unblock bulk migration.
+
+| Wave | Group | Files | Issue | Status |
+|------|-------|-------|-------|--------|
+| 1 | Refactor ExtUtil | 1 | | Open |
+| 2 | Refactor ExtWrapBase | 1 | | Open |
+| 3 | Refactor ExtWrapList | 1 | | Open |
+| 4 | Refactor ExtWrapTagged + Hasher | 3 | | Open |
+| 5 | Refactor remaining ExtWrap* | 4 | | Open |
+| 6 | Refactor PrototypeFactory + PrototypeManager | 3 | | Open |
+| 7 | Move ExtUtil/ExtWrap* consumers to commonMain | ~50-100 | | Open |
+| 8 | Bulk migration sweep | ~300+ | | Open |
+| 9 | Validation and cleanup | ~5 new | | Open |
+
+**Plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md`
+
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 5 plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md` — ExtUtil/ExtWrap* KClass refactoring, 9 waves, bulk migration strategy
 - **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling, options for Phase 5
 - **Phase 4 plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md` — targeted JVM dep removal from 67 blocker files, wave details
 - **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis, remaining JVM deps
