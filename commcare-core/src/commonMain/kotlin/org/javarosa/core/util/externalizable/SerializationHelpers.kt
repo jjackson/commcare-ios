@@ -155,6 +155,39 @@ expect object SerializationHelpers {
         `in`: PlatformDataInputStream
     ): LinkedHashMap<String, String>
 
+    // --- MapPoly (polymorphic values in maps) ---
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readStringMapPoly(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any>
+
+    @Throws(PlatformIOException::class)
+    fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>)
+
+    // --- MultiMap ---
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readStringMultiMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): org.javarosa.core.util.ListMultimap<String, Any>
+
+    @Throws(PlatformIOException::class)
+    fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>)
+
+    // --- Map with ListPoly values ---
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readStringListPolyMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, ArrayList<Any?>>
+
+    @Throws(PlatformIOException::class)
+    fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+
     // --- Comparison utilities ---
 
     fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean

@@ -4,12 +4,8 @@ import org.javarosa.core.model.actions.ActionController
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xform.parse.XFormParser
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -187,35 +183,33 @@ class QuestionDef : IFormElement {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
-        setID(ExtUtil.readInt(dis))
-        binding = ExtUtil.read(dis, ExtWrapNullable(ExtWrapTagged()), pf) as XPathReference?
-        setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
-        setControlType(ExtUtil.readInt(dis))
+        setID(SerializationHelpers.readInt(dis))
+        binding = SerializationHelpers.readNullableTagged(dis, pf) as XPathReference?
+        setAppearanceAttr(SerializationHelpers.readNullableString(dis, pf))
+        setControlType(SerializationHelpers.readInt(dis))
         @Suppress("UNCHECKED_CAST")
-        choices = ExtUtil.nullIfEmpty(ExtUtil.read(dis, ExtWrapList(SelectChoice::class.java), pf) as ArrayList<SelectChoice>)
+        choices = ExtUtil.nullIfEmpty(SerializationHelpers.readList(dis, pf) { SelectChoice() })
         for (i in 0 until getNumChoices()) {
             choices!![i].setIndex(i)
         }
-        setDynamicChoices(ExtUtil.read(dis, ExtWrapNullable(ItemsetBinding::class.java), pf) as ItemsetBinding?)
+        setDynamicChoices(SerializationHelpers.readNullableExternalizable(dis, pf) { ItemsetBinding() })
+        mQuestionStrings = SerializationHelpers.readStringExtMap(dis, pf) { QuestionString() }
         @Suppress("UNCHECKED_CAST")
-        mQuestionStrings = ExtUtil.read(dis, ExtWrapMap(String::class.java, QuestionString::class.java), pf) as HashMap<String, QuestionString>
-        @Suppress("UNCHECKED_CAST")
-        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<QuestionDataExtension>
-        actionController = ExtUtil.read(dis, ExtWrapNullable(ActionController::class.java), pf) as ActionController? ?: ActionController()
+        extensions = SerializationHelpers.readListPoly(dis, pf) as ArrayList<QuestionDataExtension>
+        actionController = SerializationHelpers.readNullableExternalizable(dis, pf) { ActionController() } ?: ActionController()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(dos: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(dos, getID().toLong())
-        val currentBinding = binding
-        ExtUtil.write(dos, ExtWrapNullable(if (currentBinding == null) null else ExtWrapTagged(currentBinding)))
-        ExtUtil.write(dos, ExtWrapNullable(getAppearanceAttr()))
-        ExtUtil.writeNumeric(dos, getControlType().toLong())
-        ExtUtil.write(dos, ExtWrapList(ExtUtil.emptyIfNull(choices)))
-        ExtUtil.write(dos, ExtWrapNullable(dynamicChoices))
-        ExtUtil.write(dos, ExtWrapMap(mQuestionStrings))
-        ExtUtil.write(dos, ExtWrapListPoly(extensions))
-        ExtUtil.write(dos, ExtWrapNullable(actionController))
+        SerializationHelpers.writeNumeric(dos, getID().toLong())
+        SerializationHelpers.writeNullableTagged(dos, binding)
+        SerializationHelpers.writeNullable(dos, getAppearanceAttr())
+        SerializationHelpers.writeNumeric(dos, getControlType().toLong())
+        SerializationHelpers.writeList(dos, ExtUtil.emptyIfNull(choices))
+        SerializationHelpers.writeNullable(dos, dynamicChoices)
+        SerializationHelpers.writeMap(dos, mQuestionStrings)
+        SerializationHelpers.writeListPoly(dos, extensions)
+        SerializationHelpers.writeNullable(dos, actionController)
     }
 
     override fun getDeepChildCount(): Int {

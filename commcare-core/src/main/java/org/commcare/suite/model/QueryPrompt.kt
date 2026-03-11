@@ -5,11 +5,9 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.util.NoLocalizedTextException
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -58,38 +56,36 @@ class QueryPrompt : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = ExtUtil.read(`in`, String::class.java, pf) as String
-        appearance = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        input = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        receive = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        hidden = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
-        itemsetBinding = ExtUtil.read(`in`, ExtWrapNullable(ItemsetBinding::class.java), pf) as ItemsetBinding?
-        defaultValueExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
-        allowBlankValue = ExtUtil.readBool(`in`)
-        exclude = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
-        validation = ExtUtil.read(`in`, ExtWrapNullable(QueryPromptCondition::class.java), pf) as QueryPromptCondition?
-        required = ExtUtil.read(`in`, ExtWrapNullable(QueryPromptCondition::class.java), pf) as QueryPromptCondition?
-        groupKey = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
+        _key = SerializationHelpers.readString(`in`)
+        appearance = SerializationHelpers.readNullableString(`in`, pf)
+        input = SerializationHelpers.readNullableString(`in`, pf)
+        receive = SerializationHelpers.readNullableString(`in`, pf)
+        hidden = SerializationHelpers.readNullableString(`in`, pf)
+        display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
+        itemsetBinding = SerializationHelpers.readNullableExternalizable(`in`, pf) { ItemsetBinding() }
+        defaultValueExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
+        allowBlankValue = SerializationHelpers.readBool(`in`)
+        exclude = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
+        validation = SerializationHelpers.readNullableExternalizable(`in`, pf) { QueryPromptCondition() }
+        required = SerializationHelpers.readNullableExternalizable(`in`, pf) { QueryPromptCondition() }
+        groupKey = SerializationHelpers.readNullableString(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, _key)
-        ExtUtil.write(out, ExtWrapNullable(appearance))
-        ExtUtil.write(out, ExtWrapNullable(input))
-        ExtUtil.write(out, ExtWrapNullable(receive))
-        ExtUtil.write(out, ExtWrapNullable(hidden))
-        ExtUtil.write(out, display)
-        ExtUtil.write(out, ExtWrapNullable(itemsetBinding))
-        val dve = defaultValueExpr
-        ExtUtil.write(out, ExtWrapNullable(if (dve == null) null else ExtWrapTagged(dve)))
-        ExtUtil.writeBool(out, allowBlankValue)
-        val excl = exclude
-        ExtUtil.write(out, ExtWrapNullable(if (excl == null) null else ExtWrapTagged(excl)))
-        ExtUtil.write(out, ExtWrapNullable(validation))
-        ExtUtil.write(out, ExtWrapNullable(required))
-        ExtUtil.write(out, ExtWrapNullable(groupKey))
+        SerializationHelpers.write(out, _key!!)
+        SerializationHelpers.writeNullable(out, appearance)
+        SerializationHelpers.writeNullable(out, input)
+        SerializationHelpers.writeNullable(out, receive)
+        SerializationHelpers.writeNullable(out, hidden)
+        SerializationHelpers.write(out, display!!)
+        SerializationHelpers.writeNullable(out, itemsetBinding)
+        SerializationHelpers.writeNullableTagged(out, defaultValueExpr)
+        SerializationHelpers.writeBool(out, allowBlankValue)
+        SerializationHelpers.writeNullableTagged(out, exclude)
+        SerializationHelpers.writeNullable(out, validation)
+        SerializationHelpers.writeNullable(out, required)
+        SerializationHelpers.writeNullable(out, groupKey)
     }
 
     fun getKey(): String? = _key

@@ -35,13 +35,10 @@ import org.javarosa.core.util.LocalCacheTable
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.ShortestCycleAlgorithm
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -1196,47 +1193,39 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     @Trace
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
-        setID(ExtUtil.readInt(dis))
-        setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)))
-        setTitle(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
+        setID(SerializationHelpers.readInt(dis))
+        setName(nullIfEmpty(SerializationHelpers.readString(dis)))
+        setTitle(SerializationHelpers.readNullableString(dis, pf))
         @Suppress("UNCHECKED_CAST")
-        setChildren(ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<IFormElement>?)
-        setInstance(ExtUtil.read(dis, FormInstance::class.java, pf) as FormInstance)
+        setChildren(SerializationHelpers.readListPoly(dis, pf) as ArrayList<IFormElement>?)
+        setInstance(SerializationHelpers.readExternalizable(dis, pf) { FormInstance() })
 
-        setLocalizer(ExtUtil.read(dis, ExtWrapNullable(Localizer::class.java), pf) as Localizer?)
+        setLocalizer(SerializationHelpers.readNullableExternalizable(dis, pf) { Localizer() })
 
-        @Suppress("UNCHECKED_CAST")
-        val vcond = ExtUtil.read(dis, ExtWrapList(Condition::class.java), pf) as ArrayList<Any?>
+        val vcond = SerializationHelpers.readList(dis, pf) { Condition() }
         val econd = vcond.iterator()
         while (econd.hasNext()) {
-            addTriggerable(econd.next() as Condition)
+            addTriggerable(econd.next())
         }
-        @Suppress("UNCHECKED_CAST")
-        val vcalc = ExtUtil.read(dis, ExtWrapList(Recalculate::class.java), pf) as ArrayList<Any?>
+        val vcalc = SerializationHelpers.readList(dis, pf) { Recalculate() }
         val ecalc = vcalc.iterator()
         while (ecalc.hasNext()) {
-            addTriggerable(ecalc.next() as Recalculate)
+            addTriggerable(ecalc.next())
         }
         finalizeTriggerables()
 
-        @Suppress("UNCHECKED_CAST")
-        outputFragments = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<Any?>
+        outputFragments = SerializationHelpers.readListPoly(dis, pf)
+
+        submissionProfiles = SerializationHelpers.readStringExtMap(dis, pf) { SubmissionProfile() }
 
         @Suppress("UNCHECKED_CAST")
-        submissionProfiles = ExtUtil.read(
-            dis, ExtWrapMap(String::class.java, SubmissionProfile::class.java), pf
-        ) as HashMap<String, SubmissionProfile>
+        formInstances = SerializationHelpers.readStringTaggedMap(dis, pf) as HashMap<String, DataInstance<*>>
 
         @Suppress("UNCHECKED_CAST")
-        formInstances = ExtUtil.read(
-            dis, ExtWrapMap(String::class.java, ExtWrapTagged()), pf
-        ) as HashMap<String, DataInstance<*>>
-
-        @Suppress("UNCHECKED_CAST")
-        extensions = ExtUtil.read(dis, ExtWrapListPoly(), pf) as ArrayList<XFormExtension>
+        extensions = SerializationHelpers.readListPoly(dis, pf) as ArrayList<XFormExtension>
 
         setEvaluationContext(EvaluationContext(null))
-        actionController = ExtUtil.read(dis, ActionController::class.java, pf) as ActionController
+        actionController = SerializationHelpers.readExternalizable(dis, pf) { ActionController() }
     }
 
     /**
@@ -1307,12 +1296,12 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
      */
     @Throws(PlatformIOException::class)
     override fun writeExternal(dos: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(dos, getID().toLong())
-        ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()))
-        ExtUtil.write(dos, ExtWrapNullable(getTitle()))
-        ExtUtil.write(dos, ExtWrapListPoly(getChildren()))
-        ExtUtil.write(dos, getMainInstance()!!)
-        ExtUtil.write(dos, ExtWrapNullable(localizer))
+        SerializationHelpers.writeNumeric(dos, getID().toLong())
+        SerializationHelpers.writeString(dos, emptyIfNull(getName()))
+        SerializationHelpers.writeNullable(dos, getTitle())
+        SerializationHelpers.writeListPoly(dos, getChildren())
+        SerializationHelpers.write(dos, getMainInstance()!!)
+        SerializationHelpers.writeNullable(dos, localizer)
 
         val conditions = ArrayList<Condition>()
         val recalcs = ArrayList<Recalculate>()
@@ -1323,16 +1312,16 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                 recalcs.add(t)
             }
         }
-        ExtUtil.write(dos, ExtWrapList(conditions as List<*>))
-        ExtUtil.write(dos, ExtWrapList(recalcs as List<*>))
+        SerializationHelpers.writeList(dos, conditions)
+        SerializationHelpers.writeList(dos, recalcs)
 
-        ExtUtil.write(dos, ExtWrapListPoly(outputFragments))
-        ExtUtil.write(dos, ExtWrapMap(submissionProfiles))
+        SerializationHelpers.writeListPoly(dos, outputFragments)
+        SerializationHelpers.writeMap(dos, submissionProfiles)
 
         // for support of multi-instance forms
-        ExtUtil.write(dos, ExtWrapMap(formInstances, ExtWrapTagged()))
-        ExtUtil.write(dos, ExtWrapListPoly(extensions))
-        ExtUtil.write(dos, actionController)
+        SerializationHelpers.writeTaggedMap(dos, formInstances as HashMap<*, *>)
+        SerializationHelpers.writeListPoly(dos, extensions)
+        SerializationHelpers.write(dos, actionController)
     }
 
     fun collapseIndex(
@@ -1495,7 +1484,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
             return name ?: ""
         }
         if (fieldName == "XMLNS") {
-            return ExtUtil.emptyIfNull(mainInstance!!.schema)
+            return emptyIfNull(mainInstance!!.schema)
         } else {
             throw IllegalArgumentException()
         }

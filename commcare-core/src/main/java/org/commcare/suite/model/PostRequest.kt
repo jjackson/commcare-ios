@@ -5,12 +5,9 @@ import org.javarosa.core.util.ListMultimap
 import org.commcare.session.RemoteQuerySessionManager
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -77,16 +74,15 @@ class PostRequest : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        params = ExtUtil.read(`in`, ExtWrapList(ExtWrapTagged()), pf) as List<QueryData>
-        url = URL(ExtUtil.readString(`in`))
-        relevantExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
+        params = SerializationHelpers.readListPoly(`in`, pf) as List<QueryData>
+        url = URL(SerializationHelpers.readString(`in`))
+        relevantExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(params!!, ExtWrapTagged()))
-        ExtUtil.writeString(out, url.toString())
-        val re = relevantExpr
-        ExtUtil.write(out, ExtWrapNullable(if (re == null) null else ExtWrapTagged(re)))
+        SerializationHelpers.writeListPoly(out, params!!)
+        SerializationHelpers.writeString(out, url.toString())
+        SerializationHelpers.writeNullableTagged(out, relevantExpr)
     }
 }

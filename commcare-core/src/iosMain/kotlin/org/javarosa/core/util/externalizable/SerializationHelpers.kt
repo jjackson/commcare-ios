@@ -287,6 +287,78 @@ actual object SerializationHelpers {
         return map
     }
 
+    actual fun readStringMapPoly(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, Any>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeTagged(out, value!!)
+        }
+    }
+
+    actual fun readStringMultiMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): org.javarosa.core.util.ListMultimap<String, Any> {
+        val size = readNumeric(`in`).toInt()
+        val map = org.javarosa.core.util.ListMultimap<String, Any>()
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readTagged(`in`, pf)
+            map.put(key, value)
+        }
+        return map
+    }
+
+    actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
+        var totalEntries = 0
+        for ((_, values) in map.entries) {
+            totalEntries += (values as List<*>).size
+        }
+        writeNumeric(out, totalEntries.toLong())
+        for ((key, values) in map.entries) {
+            for (value in values as List<*>) {
+                write(out, key!!)
+                writeTagged(out, value!!)
+            }
+        }
+    }
+
+    actual fun readStringListPolyMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, ArrayList<Any?>> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, ArrayList<Any?>>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readListPoly(`in`, pf)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            writeListPoly(out, value as List<*>)
+        }
+    }
+
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         if (a.size != b.size) return false
         for (i in a.indices) {

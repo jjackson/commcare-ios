@@ -5,13 +5,11 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.utils.InstanceUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
@@ -138,41 +136,41 @@ class Menu : Externalizable, MenuDisplayable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        root = ExtUtil.readString(`in`)
-        rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        display = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
-        commandIds = ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<String>
-        instances = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, DataInstance<*>>
-        commandExprs = arrayOfNulls(ExtUtil.readInt(`in`))
+        _id = nullIfEmpty(SerializationHelpers.readString(`in`))
+        root = SerializationHelpers.readString(`in`)
+        rawRelevance = nullIfEmpty(SerializationHelpers.readString(`in`))
+        display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
+        commandIds = SerializationHelpers.readStringList(`in`)
+        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as HashMap<String, DataInstance<*>>
+        commandExprs = arrayOfNulls(SerializationHelpers.readInt(`in`))
         for (i in commandExprs!!.indices) {
-            if (ExtUtil.readBool(`in`)) {
-                commandExprs!![i] = ExtUtil.readString(`in`)
+            if (SerializationHelpers.readBool(`in`)) {
+                commandExprs!![i] = SerializationHelpers.readString(`in`)
             }
         }
-        style = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        assertions = ExtUtil.read(`in`, ExtWrapNullable(AssertionSet::class.java), pf) as AssertionSet?
+        style = nullIfEmpty(SerializationHelpers.readString(`in`))
+        assertions = SerializationHelpers.readNullableExternalizable(`in`, pf) { AssertionSet() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(_id))
-        ExtUtil.writeString(out, root)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(rawRelevance))
-        ExtUtil.write(out, display)
-        ExtUtil.write(out, ExtWrapList(commandIds!!))
-        ExtUtil.write(out, ExtWrapMap(instances!!, ExtWrapTagged()))
-        ExtUtil.writeNumeric(out, commandExprs!!.size.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(_id))
+        SerializationHelpers.writeString(out, root ?: "")
+        SerializationHelpers.writeString(out, emptyIfNull(rawRelevance))
+        SerializationHelpers.write(out, display!!)
+        SerializationHelpers.writeList(out, commandIds!!)
+        SerializationHelpers.writeTaggedMap(out, instances!! as HashMap<*, *>)
+        SerializationHelpers.writeNumeric(out, commandExprs!!.size.toLong())
         for (commandExpr in commandExprs!!) {
             if (commandExpr == null) {
-                ExtUtil.writeBool(out, false)
+                SerializationHelpers.writeBool(out, false)
             } else {
-                ExtUtil.writeBool(out, true)
-                ExtUtil.writeString(out, commandExpr)
+                SerializationHelpers.writeBool(out, true)
+                SerializationHelpers.writeString(out, commandExpr)
             }
         }
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(style))
-        ExtUtil.write(out, ExtWrapNullable(assertions))
+        SerializationHelpers.writeString(out, emptyIfNull(style))
+        SerializationHelpers.writeNullable(out, assertions)
     }
 
     override fun getImageURI(): String? {

@@ -4,11 +4,10 @@ import org.javarosa.core.model.utils.PreloadUtils
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMapPoly
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -145,28 +144,27 @@ open class Case : Persistable, IMetaData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        typeId = ExtUtil.readString(`in`)
-        id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        closed = ExtUtil.readBool(`in`)
-        dateOpened = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
-        recordId = ExtUtil.readInt(`in`)
+        typeId = SerializationHelpers.readString(`in`)
+        id = nullIfEmpty(SerializationHelpers.readString(`in`))
+        name = nullIfEmpty(SerializationHelpers.readString(`in`))
+        closed = SerializationHelpers.readBool(`in`)
+        dateOpened = SerializationHelpers.readNullableDate(`in`)
+        recordId = SerializationHelpers.readInt(`in`)
+        indices = SerializationHelpers.readList(`in`, pf) { CaseIndex() }
         @Suppress("UNCHECKED_CAST")
-        indices = ExtUtil.read(`in`, ExtWrapList(CaseIndex::class.java), pf) as ArrayList<CaseIndex>
-        @Suppress("UNCHECKED_CAST")
-        data = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Any>
+        data = SerializationHelpers.readStringMapPoly(`in`, pf) as HashMap<String, Any>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, typeId ?: "")
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
-        ExtUtil.writeBool(out, closed)
-        ExtUtil.write(out, ExtWrapNullable(dateOpened))
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.write(out, ExtWrapList(indices))
-        ExtUtil.write(out, ExtWrapMapPoly(data))
+        SerializationHelpers.writeString(out, typeId ?: "")
+        SerializationHelpers.writeString(out, emptyIfNull(id))
+        SerializationHelpers.writeString(out, emptyIfNull(name))
+        SerializationHelpers.writeBool(out, closed)
+        SerializationHelpers.writeNullable(out, dateOpened)
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeList(out, indices)
+        SerializationHelpers.writeMapPoly(out, data)
     }
 
     fun setProperty(key: String, value: Any?) {

@@ -2,7 +2,6 @@ package org.javarosa.core.services.locale
 
 import org.javarosa.core.util.UnregisteredLocaleException
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -59,7 +58,7 @@ class TableLocaleSource : LocaleDataSource {
         if (other !is TableLocaleSource) {
             return false
         }
-        return ExtUtil.equals(localeData, other.localeData, true)
+        return SerializationHelpers.nullEquals(localeData, other.localeData, true)
     }
 
     override fun hashCode(): Int {

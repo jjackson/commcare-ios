@@ -15,13 +15,9 @@ import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.ArrayUtilities
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
@@ -204,57 +200,54 @@ class Detail : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        id = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        title = ExtUtil.read(`in`, DisplayUnit::class.java, pf) as DisplayUnit
-        noItemsText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        titleForm = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        nodeset = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        val theDetails = ExtUtil.read(`in`, ExtWrapList(Detail::class.java), pf) as ArrayList<Detail>
+        id = SerializationHelpers.readNullableString(`in`, pf)
+        title = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
+        noItemsText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        titleForm = SerializationHelpers.readNullableString(`in`, pf)
+        nodeset = SerializationHelpers.readNullableExternalizable(`in`, pf) { TreeReference() }
+        val theDetails = SerializationHelpers.readList(`in`, pf) { Detail() }
         details = arrayOfNulls<Detail>(theDetails.size) as Array<Detail>
         ArrayUtilities.copyIntoArray(theDetails, details)
-        val theFields = ExtUtil.read(`in`, ExtWrapList(DetailField::class.java), pf) as ArrayList<DetailField>
+        val theFields = SerializationHelpers.readList(`in`, pf) { DetailField() }
         fields = arrayOfNulls<DetailField>(theFields.size) as Array<DetailField>
         ArrayUtilities.copyIntoArray(theFields, fields)
-        variables = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java, ExtWrapMap.TYPE_ORDERED), pf) as OrderedHashtable<String, String>
-        actions = ExtUtil.read(`in`, ExtWrapList(Action::class.java), pf) as ArrayList<Action>
-        callout = ExtUtil.read(`in`, ExtWrapNullable(Callout::class.java), pf) as Callout?
-        forceLandscapeView = ExtUtil.readBool(`in`)
-        focusFunction = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
-        numEntitiesToDisplayPerRow = ExtUtil.readNumeric(`in`).toInt()
-        useUniformUnitsInCaseTile = ExtUtil.readBool(`in`)
-        parsedRelevancyExpression = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as XPathExpression?
-        global = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as Global?
-        group = ExtUtil.read(`in`, ExtWrapNullable(DetailGroup::class.java), pf) as DetailGroup?
-        _lazyLoading = ExtUtil.readBool(`in`)
-        selectText = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        _cacheEnabled = ExtUtil.readBool(`in`)
+        variables = OrderedHashtable<String, String>().also { it.putAll(SerializationHelpers.readOrderedStringStringMap(`in`)) }
+        actions = SerializationHelpers.readList(`in`, pf) { Action() }
+        callout = SerializationHelpers.readNullableExternalizable(`in`, pf) { Callout() }
+        forceLandscapeView = SerializationHelpers.readBool(`in`)
+        focusFunction = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
+        numEntitiesToDisplayPerRow = SerializationHelpers.readNumeric(`in`).toInt()
+        useUniformUnitsInCaseTile = SerializationHelpers.readBool(`in`)
+        parsedRelevancyExpression = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
+        global = SerializationHelpers.readNullableTagged(`in`, pf) as Global?
+        group = SerializationHelpers.readNullableExternalizable(`in`, pf) { DetailGroup() }
+        _lazyLoading = SerializationHelpers.readBool(`in`)
+        selectText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        _cacheEnabled = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapNullable(id))
-        ExtUtil.write(out, title as Any)
-        ExtUtil.write(out, ExtWrapNullable(noItemsText))
-        ExtUtil.write(out, ExtWrapNullable(titleForm))
-        ExtUtil.write(out, ExtWrapNullable(nodeset))
-        ExtUtil.write(out, ExtWrapList(ArrayUtilities.toVector(details)))
-        ExtUtil.write(out, ExtWrapList(ArrayUtilities.toVector(fields)))
-        ExtUtil.write(out, ExtWrapMap(variables))
-        ExtUtil.write(out, ExtWrapList(actions))
-        ExtUtil.write(out, ExtWrapNullable(callout))
-        ExtUtil.writeBool(out, forceLandscapeView)
-        val ff = focusFunction
-        ExtUtil.write(out, ExtWrapNullable(if (ff == null) null else ExtWrapTagged(ff)))
-        ExtUtil.writeNumeric(out, numEntitiesToDisplayPerRow.toLong())
-        ExtUtil.writeBool(out, useUniformUnitsInCaseTile)
-        val pre = parsedRelevancyExpression
-        ExtUtil.write(out, ExtWrapNullable(if (pre == null) null else ExtWrapTagged(pre)))
-        val g = global
-        ExtUtil.write(out, ExtWrapNullable(if (g == null) null else ExtWrapTagged(g)))
-        ExtUtil.write(out, ExtWrapNullable(group))
-        ExtUtil.writeBool(out, _lazyLoading)
-        ExtUtil.write(out, ExtWrapNullable(selectText))
-        ExtUtil.writeBool(out, _cacheEnabled)
+        SerializationHelpers.writeNullable(out, id)
+        SerializationHelpers.write(out, title as Any)
+        SerializationHelpers.writeNullable(out, noItemsText)
+        SerializationHelpers.writeNullable(out, titleForm)
+        SerializationHelpers.writeNullable(out, nodeset)
+        SerializationHelpers.writeList(out, ArrayUtilities.toVector(details))
+        SerializationHelpers.writeList(out, ArrayUtilities.toVector(fields))
+        SerializationHelpers.writeMap(out, variables)
+        SerializationHelpers.writeList(out, actions)
+        SerializationHelpers.writeNullable(out, callout)
+        SerializationHelpers.writeBool(out, forceLandscapeView)
+        SerializationHelpers.writeNullableTagged(out, focusFunction)
+        SerializationHelpers.writeNumeric(out, numEntitiesToDisplayPerRow.toLong())
+        SerializationHelpers.writeBool(out, useUniformUnitsInCaseTile)
+        SerializationHelpers.writeNullableTagged(out, parsedRelevancyExpression)
+        SerializationHelpers.writeNullableTagged(out, global)
+        SerializationHelpers.writeNullable(out, group)
+        SerializationHelpers.writeBool(out, _lazyLoading)
+        SerializationHelpers.writeNullable(out, selectText)
+        SerializationHelpers.writeBool(out, _cacheEnabled)
     }
 
     val variableDeclarations: OrderedHashtable<String, XPathExpression> get() {

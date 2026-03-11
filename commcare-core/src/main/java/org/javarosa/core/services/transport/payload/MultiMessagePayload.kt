@@ -2,9 +2,8 @@ package org.javarosa.core.services.transport.payload
 
 import org.javarosa.core.util.MultiInputStream
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -58,13 +57,12 @@ class MultiMessagePayload : IDataPayload {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        payloads = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<Any?>
+        payloads = SerializationHelpers.readListPoly(`in`, pf)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapListPoly(payloads))
+        SerializationHelpers.writeListPoly(out, payloads)
     }
 
     override fun <T> accept(visitor: IDataPayloadVisitor<T>): T {

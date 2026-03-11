@@ -12,12 +12,9 @@ import org.commcare.suite.model.Text
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.XPathTypeMismatchException
@@ -66,21 +63,19 @@ class Graph : Externalizable, DetailTemplate, Configurable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        mType = ExtUtil.readString(`in`)
+        mType = SerializationHelpers.readString(`in`)
+        mConfiguration = SerializationHelpers.readStringExtMap(`in`, pf) { Text() }
         @Suppress("UNCHECKED_CAST")
-        mConfiguration = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Text::class.java), pf) as HashMap<String, Text>
-        @Suppress("UNCHECKED_CAST")
-        mSeries = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<XYSeries>
-        @Suppress("UNCHECKED_CAST")
-        mAnnotations = ExtUtil.read(`in`, ExtWrapList(Annotation::class.java), pf) as ArrayList<Annotation>
+        mSeries = SerializationHelpers.readListPoly(`in`, pf) as ArrayList<XYSeries>
+        mAnnotations = SerializationHelpers.readList(`in`, pf) { Annotation() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, mType)
-        ExtUtil.write(out, ExtWrapMap(mConfiguration))
-        ExtUtil.write(out, ExtWrapListPoly(mSeries))
-        ExtUtil.write(out, ExtWrapList(mAnnotations))
+        SerializationHelpers.writeString(out, mType ?: "")
+        SerializationHelpers.writeMap(out, mConfiguration)
+        SerializationHelpers.writeListPoly(out, mSeries)
+        SerializationHelpers.writeList(out, mAnnotations)
     }
 
     override fun evaluate(context: EvaluationContext?): GraphData {

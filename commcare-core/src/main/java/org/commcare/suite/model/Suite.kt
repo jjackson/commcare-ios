@@ -2,11 +2,8 @@ package org.commcare.suite.model
 
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapMapPoly
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -111,23 +108,23 @@ class Suite : Persistable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.recordId = ExtUtil.readInt(`in`)
-        this.version = ExtUtil.readInt(`in`)
-        this.details = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Detail::class.java), pf) as HashMap<String, Detail>
-        this.entries = ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Entry>
-        this.menus = ExtUtil.read(`in`, ExtWrapList(Menu::class.java), pf) as ArrayList<Menu>
-        this.endpoints = ExtUtil.read(`in`, ExtWrapMap(String::class.java, Endpoint::class.java), pf) as HashMap<String, Endpoint>
+        this.recordId = SerializationHelpers.readInt(`in`)
+        this.version = SerializationHelpers.readInt(`in`)
+        this.details = SerializationHelpers.readStringExtMap(`in`, pf) { Detail() }
+        this.entries = SerializationHelpers.readStringMapPoly(`in`, pf) as HashMap<String, Entry>
+        this.menus = SerializationHelpers.readList(`in`, pf) { Menu() }
+        this.endpoints = SerializationHelpers.readStringExtMap(`in`, pf) { Endpoint() }
         buildIdToMenus()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordId.toLong())
-        ExtUtil.writeNumeric(out, version.toLong())
-        ExtUtil.write(out, ExtWrapMap(details!!))
-        ExtUtil.write(out, ExtWrapMapPoly(entries!!))
-        ExtUtil.write(out, ExtWrapList(menus!!))
-        ExtUtil.write(out, ExtWrapMap(endpoints!!))
+        SerializationHelpers.writeNumeric(out, recordId.toLong())
+        SerializationHelpers.writeNumeric(out, version.toLong())
+        SerializationHelpers.writeMap(out, details!!)
+        SerializationHelpers.writeMapPoly(out, entries!!)
+        SerializationHelpers.writeList(out, menus!!)
+        SerializationHelpers.writeMap(out, endpoints!!)
     }
 
     companion object {

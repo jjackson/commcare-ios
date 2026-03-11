@@ -5,11 +5,9 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.util.restorable.RestoreUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -114,35 +112,33 @@ class ItemsetBinding : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        nodesetRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        nodesetExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
-        contextRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        labelRef = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
-        labelExpr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as IConditionExpr
-        valueRef = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        valueExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IConditionExpr?
-        copyRef = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        labelIsItext = ExtUtil.readBool(`in`)
-        copyMode = ExtUtil.readBool(`in`)
-        sortRef = ExtUtil.read(`in`, ExtWrapNullable(TreeReference::class.java), pf) as TreeReference?
-        sortExpr = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IConditionExpr?
+        nodesetRef = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
+        nodesetExpr = SerializationHelpers.readTagged(`in`, pf) as IConditionExpr
+        contextRef = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
+        labelRef = SerializationHelpers.readExternalizable(`in`, pf) { TreeReference() }
+        labelExpr = SerializationHelpers.readTagged(`in`, pf) as IConditionExpr
+        valueRef = SerializationHelpers.readNullableExternalizable(`in`, pf) { TreeReference() }
+        valueExpr = SerializationHelpers.readNullableTagged(`in`, pf) as IConditionExpr?
+        copyRef = SerializationHelpers.readNullableExternalizable(`in`, pf) { TreeReference() }
+        labelIsItext = SerializationHelpers.readBool(`in`)
+        copyMode = SerializationHelpers.readBool(`in`)
+        sortRef = SerializationHelpers.readNullableExternalizable(`in`, pf) { TreeReference() }
+        sortExpr = SerializationHelpers.readNullableTagged(`in`, pf) as IConditionExpr?
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, nodesetRef!!)
-        ExtUtil.write(out, ExtWrapTagged(nodesetExpr!!))
-        ExtUtil.write(out, contextRef!!)
-        ExtUtil.write(out, labelRef!!)
-        ExtUtil.write(out, ExtWrapTagged(labelExpr!!))
-        ExtUtil.write(out, ExtWrapNullable(valueRef))
-        val localValueExpr = valueExpr
-        ExtUtil.write(out, ExtWrapNullable(if (localValueExpr == null) null else ExtWrapTagged(localValueExpr)))
-        ExtUtil.write(out, ExtWrapNullable(copyRef))
-        ExtUtil.writeBool(out, labelIsItext)
-        ExtUtil.writeBool(out, copyMode)
-        ExtUtil.write(out, ExtWrapNullable(sortRef))
-        val localSortExpr = sortExpr
-        ExtUtil.write(out, ExtWrapNullable(if (localSortExpr == null) null else ExtWrapTagged(localSortExpr)))
+        SerializationHelpers.write(out, nodesetRef!!)
+        SerializationHelpers.writeTagged(out, nodesetExpr!!)
+        SerializationHelpers.write(out, contextRef!!)
+        SerializationHelpers.write(out, labelRef!!)
+        SerializationHelpers.writeTagged(out, labelExpr!!)
+        SerializationHelpers.writeNullable(out, valueRef)
+        SerializationHelpers.writeNullableTagged(out, valueExpr)
+        SerializationHelpers.writeNullable(out, copyRef)
+        SerializationHelpers.writeBool(out, labelIsItext)
+        SerializationHelpers.writeBool(out, copyMode)
+        SerializationHelpers.writeNullable(out, sortRef)
+        SerializationHelpers.writeNullableTagged(out, sortExpr)
     }
 }

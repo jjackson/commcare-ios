@@ -2,12 +2,8 @@ package org.commcare.suite.model
 
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -89,37 +85,32 @@ class RemoteQueryDatum : SessionDatum {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
+        @Suppress("UNCHECKED_CAST")
         hiddenQueryValues =
-            ExtUtil.read(`in`, ExtWrapList(ExtWrapTagged()), pf) as List<QueryData>
+            SerializationHelpers.readListPoly(`in`, pf) as List<QueryData>
         userQueryPrompts =
-            ExtUtil.read(
-                `in`,
-                ExtWrapMap(String::class.java, QueryPrompt::class.java, ExtWrapMap.TYPE_ORDERED), pf
-            ) as OrderedHashtable<String, QueryPrompt>
+            OrderedHashtable<String, QueryPrompt>().also { it.putAll(SerializationHelpers.readOrderedStringExtMap(`in`, pf) { QueryPrompt() }) }
         userQueryGroupHeaders =
-            ExtUtil.read(
-                `in`,
-                ExtWrapMap(String::class.java, QueryGroup::class.java, ExtWrapMap.TYPE_ORDERED), pf
-            ) as HashMap<String, QueryGroup>
-        title = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        description = ExtUtil.read(`in`, ExtWrapNullable(Text::class.java), pf) as Text?
-        useCaseTemplate = ExtUtil.readBool(`in`)
-        defaultSearch = ExtUtil.readBool(`in`)
-        dynamicSearch = ExtUtil.readBool(`in`)
-        searchOnClear = ExtUtil.readBool(`in`)
+            SerializationHelpers.readOrderedStringExtMap(`in`, pf) { QueryGroup() } as HashMap<String, QueryGroup>
+        title = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        description = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        useCaseTemplate = SerializationHelpers.readBool(`in`)
+        defaultSearch = SerializationHelpers.readBool(`in`)
+        dynamicSearch = SerializationHelpers.readBool(`in`)
+        searchOnClear = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.write(out, ExtWrapList(hiddenQueryValues!!, ExtWrapTagged()))
-        ExtUtil.write(out, ExtWrapMap(userQueryPrompts!!))
-        ExtUtil.write(out, ExtWrapMap(userQueryGroupHeaders!!))
-        ExtUtil.write(out, ExtWrapNullable(title))
-        ExtUtil.write(out, ExtWrapNullable(description))
-        ExtUtil.writeBool(out, useCaseTemplate)
-        ExtUtil.writeBool(out, defaultSearch)
-        ExtUtil.writeBool(out, dynamicSearch)
-        ExtUtil.writeBool(out, searchOnClear)
+        SerializationHelpers.writeListPoly(out, hiddenQueryValues!!)
+        SerializationHelpers.writeMap(out, userQueryPrompts!!)
+        SerializationHelpers.writeMap(out, userQueryGroupHeaders!!)
+        SerializationHelpers.writeNullable(out, title)
+        SerializationHelpers.writeNullable(out, description)
+        SerializationHelpers.writeBool(out, useCaseTemplate)
+        SerializationHelpers.writeBool(out, defaultSearch)
+        SerializationHelpers.writeBool(out, dynamicSearch)
+        SerializationHelpers.writeBool(out, searchOnClear)
     }
 }

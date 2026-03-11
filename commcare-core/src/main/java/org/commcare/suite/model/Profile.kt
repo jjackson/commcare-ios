@@ -9,6 +9,7 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
+// Note: ExtUtil kept for featureStatus HashMap<String, Boolean> map (no SerializationHelpers equivalent)
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream

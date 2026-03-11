@@ -249,6 +249,48 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
+    actual fun readStringMapPoly(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMapPoly(map))
+    }
+
+    @JvmStatic
+    actual fun readStringMultiMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): org.javarosa.core.util.ListMultimap<String, Any> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as org.javarosa.core.util.ListMultimap<String, Any>
+    }
+
+    @JvmStatic
+    actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
+        ExtUtil.write(out, ExtWrapMultiMap(map))
+    }
+
+    @JvmStatic
+    actual fun readStringListPolyMap(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory
+    ): HashMap<String, ArrayList<Any?>> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as HashMap<String, ArrayList<Any?>>
+    }
+
+    @JvmStatic
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map, ExtWrapListPoly()))
+    }
+
+    @JvmStatic
     actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
         return ExtUtil.arrayEquals(a, b, unwrap)
     }

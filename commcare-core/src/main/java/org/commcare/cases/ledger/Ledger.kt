@@ -7,6 +7,7 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapMap
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
+// Note: ExtUtil kept for nested HashMap<String, HashMap<String, Int>> map (too complex for generic helper)
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream

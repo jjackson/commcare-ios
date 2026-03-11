@@ -5,8 +5,6 @@ import org.commcare.core.interfaces.RemoteInstanceFetcher
 import org.javarosa.core.model.instance.ExternalDataInstance.Companion.JR_REMOTE_REFERENCE
 import org.javarosa.core.model.instance.utils.InstanceUtils.setUpInstanceRoot
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMultiMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
@@ -110,7 +108,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
         mUseCaseTemplate = SerializationHelpers.readBool(`in`)
         sourceUri = nullIfEmpty(SerializationHelpers.readString(`in`))
         @Suppress("UNCHECKED_CAST")
-        requestData = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, String>
+        requestData = SerializationHelpers.readStringMultiMap(`in`, pf) as ListMultimap<String, String>
         storageReferenceId = SerializationHelpers.readNullableString(`in`, pf)
         reference = SerializationHelpers.readString(`in`)
     }
@@ -120,7 +118,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
         SerializationHelpers.writeString(out, emptyIfNull(instanceId))
         SerializationHelpers.writeBool(out, mUseCaseTemplate)
         SerializationHelpers.writeString(out, emptyIfNull(sourceUri))
-        ExtUtil.write(out, ExtWrapMultiMap(requestData!!))
+        SerializationHelpers.writeMultiMap(out, requestData!!)
         SerializationHelpers.writeNullable(out, storageReferenceId?.toString())
         SerializationHelpers.writeString(out, emptyIfNull(reference))
     }

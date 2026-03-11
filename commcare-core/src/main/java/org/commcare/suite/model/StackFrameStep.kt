@@ -10,11 +10,11 @@ import org.javarosa.core.model.instance.ExternalDataInstance
 import org.javarosa.core.model.instance.ExternalDataInstanceSource
 import org.javarosa.core.model.instance.InstanceInitializationFactory
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapMultiMap
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
@@ -232,22 +232,22 @@ class StackFrameStep : Externalizable {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        this.elementType = ExtUtil.readString(`in`)
-        this._id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this._value = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        this.valueIsXpath = ExtUtil.readBool(`in`)
-        this.extras = ExtUtil.read(`in`, ExtWrapMultiMap(String::class.java), pf) as ListMultimap<String, Any>
-        this.dataInstanceSources = ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExternalDataInstanceSource::class.java), pf) as HashMap<String, ExternalDataInstanceSource>
+        this.elementType = SerializationHelpers.readString(`in`)
+        this._id = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this._value = nullIfEmpty(SerializationHelpers.readString(`in`))
+        this.valueIsXpath = SerializationHelpers.readBool(`in`)
+        this.extras = SerializationHelpers.readStringMultiMap(`in`, pf) as ListMultimap<String, Any>
+        this.dataInstanceSources = SerializationHelpers.readStringExtMap(`in`, pf) { ExternalDataInstanceSource() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, elementType)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(_id))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(_value))
-        ExtUtil.writeBool(out, valueIsXpath)
-        ExtUtil.write(out, ExtWrapMultiMap(extras))
-        ExtUtil.write(out, ExtWrapMap(dataInstanceSources))
+        SerializationHelpers.writeString(out, elementType ?: "")
+        SerializationHelpers.writeString(out, emptyIfNull(_id))
+        SerializationHelpers.writeString(out, emptyIfNull(_value))
+        SerializationHelpers.writeBool(out, valueIsXpath)
+        SerializationHelpers.writeMultiMap(out, extras)
+        SerializationHelpers.writeMap(out, dataInstanceSources)
     }
 
     override fun equals(other: Any?): Boolean {
