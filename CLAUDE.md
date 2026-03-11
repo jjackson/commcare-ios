@@ -71,28 +71,45 @@ commcare-ios/
 
 **Phase 2 Complete.** All 9 waves done. 88 files in commonMain, 21 cross-platform tests pass on both JVM and iOS. See `docs/plans/2026-03-10-phase2-completion-report.md`.
 
-**Phase 3: Engine on iOS** — Resolve JVM dependency blockers and move core engine code to commonMain so it's callable from iOS.
+**Phase 3: Engine on iOS** — Partially complete. Moved 96 files to commonMain (88→184), removed JVM collections, abstracted serialization. Core model classes blocked by 67 files with direct JVM deps. See `docs/plans/2026-03-11-phase3-completion-report.md`.
 
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
 | 1 | Replace JVM collections | 265 | #64 | Done (PR #74) |
-| 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Open |
+| 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Done (partial) |
 | 3 | Replace Date and regex | ~32 | #66 | Done (PR #100) |
 | 4 | Abstract serialization framework | ~10 new | #67 | Done (PR #101) |
-| 5 | Extend java.io abstractions | ~160 | #68 | Open |
-| 6 | Move XPath engine to commonMain | ~80 | #69 | Open |
-| 7 | Move XForm/cases/session to commonMain | ~150+ | #70 | Open |
-| 8 | Real iOS platform implementations | ~10 | #71 | Open |
-| 9 | Integration testing and validation | ~5 new | #72 | Open |
+| 5 | Extend java.io abstractions | ~160 | #68 | Done (partial) |
+| 6 | Move XPath engine to commonMain | ~80 | #69 | Done (partial) |
+| 7 | Move XForm/cases/session to commonMain | ~150+ | #70 | Done (27 files, PR #109) |
+| 8 | Real iOS platform implementations | ~10 | #71 | Blocked |
+| 9 | Integration testing and validation | ~5 new | #72 | Blocked |
 
-**Next wave**: Wave 5 (Issue #68) — Extend java.io abstractions. Waves 2 and 5 can proceed in parallel.
+**Phase 4: Deep Migration** — Remove JVM dependencies from 67 blocker files + convert 13 Java files to unlock ~390 transitively-blocked files.
 
-**Dependency graph:** Wave 1 first (most pervasive). Waves 2-3 can parallel with Wave 4. Wave 5 after Wave 4. Waves 6-7 after 1-5. Waves 8-9 after 7.
+| Wave | Group | Files | Issue | Status |
+|------|-------|-------|-------|--------|
+| 1 | Quick wins (Math, Locale, Objects, synchronized) | ~10 | #111 | Open |
+| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Open |
+| 3 | Complete Date/Calendar migration | ~7 | #113 | Open |
+| 4 | Migrate xmlpull/kxml2 consumers | 9 | #114 | Open |
+| 5 | Abstract org.json to PlatformJson | 8 | #115 | Open |
+| 6 | Abstract io.reactivex and tracing | 7 | #116 | Open |
+| 7 | Abstract java.io and java.net | ~18 | #117 | Open |
+| 8 | KClass conversion for serialization | ~16 | #118 | Open |
+| 9 | Move HTTP/network files to jvmMain | 7 | #119 | Open |
+| 10 | Bulk migration to commonMain | 390+ | #120 | Open |
+
+**Next wave**: Wave 1 (Issue #111) — quick wins. Waves 1-9 can largely run in parallel. Wave 10 depends on all.
+
+**Plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md`
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 4 plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md` — targeted JVM dep removal from 67 blocker files, wave details
+- **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis, remaining JVM deps
 - **Phase 3 plan**: `docs/plans/2026-03-10-phase3-engine-on-ios-plan.md` — wave details, dependency analysis, serialization framework strategy
 - **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
 - **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, known limitations, Phase 3 readiness
