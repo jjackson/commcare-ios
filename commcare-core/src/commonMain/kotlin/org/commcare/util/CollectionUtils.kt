@@ -1,5 +1,6 @@
 package org.commcare.util
 
+import kotlin.jvm.JvmStatic
 
 /**
  * Common operations on Collections
