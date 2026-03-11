@@ -7,6 +7,7 @@ import org.commcare.core.graph.util.GraphUtil
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.math.round
 
 /**
  * Axis-related configuration for C3.
@@ -130,7 +131,7 @@ class AxisConfiguration(data: GraphData) : Configuration(data) {
                 } catch (e: JSONException) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
-                    tick.put("count", Math.round(java.lang.Double.valueOf(labelString)))
+                    tick.put("count", kotlin.math.round(labelString.toDouble()))
                 }
             }
         }

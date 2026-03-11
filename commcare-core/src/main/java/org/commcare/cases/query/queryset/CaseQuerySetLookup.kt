@@ -24,7 +24,7 @@ class CaseQuerySetLookup(
         if (lookupIdKey == null) {
             return false
         } else {
-            val set = context.getQueryCache(QuerySetCache::class.java)
+            val set = context.getQueryCache(QuerySetCache::class) { QuerySetCache() }
                 .getModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID)
             return set != null
         }
@@ -49,7 +49,7 @@ class CaseQuerySetLookup(
     }
 
     override fun performSetLookup(lookupIdKey: TreeReference, queryContext: QueryContext): List<Int>? {
-        val match = queryContext.getQueryCache(CaseQuerySetLookupCache::class.java)
+        val match = queryContext.getQueryCache(CaseQuerySetLookupCache::class) { CaseQuerySetLookupCache() }
             .lookupQuerySetMatch(queryContext, lookupIdKey, multiplicityMap)
             ?: return null
         val returnVal = ArrayList<Int>()
@@ -58,7 +58,7 @@ class CaseQuerySetLookup(
     }
 
     override fun getLookupSetBody(queryContext: QueryContext): Set<Int> {
-        return queryContext.getQueryCache(CaseQuerySetLookupCache::class.java)
+        return queryContext.getQueryCache(CaseQuerySetLookupCache::class) { CaseQuerySetLookupCache() }
             .getLookupSetBody(queryContext, multiplicityMap)
     }
 
@@ -79,7 +79,7 @@ class CaseQuerySetLookup(
 
         private fun loadCaseQuerySetCache(context: QueryContext, multiplicityMap: Map<Int, Int>) {
             val set = context
-                .getQueryCache(QuerySetCache::class.java)
+                .getQueryCache(QuerySetCache::class) { QuerySetCache() }
                 .getModelQuerySet(CurrentModelQuerySet.CURRENT_QUERY_SET_ID) as CurrentModelQuerySet
 
             val index = HashMap<TreeReference, Int>()

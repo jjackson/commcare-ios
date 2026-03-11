@@ -7,6 +7,7 @@ import org.javarosa.core.model.GroupDef
 import org.javarosa.core.model.IFormElement
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.services.locale.Localizer
+import kotlin.jvm.JvmField
 
 
 /**

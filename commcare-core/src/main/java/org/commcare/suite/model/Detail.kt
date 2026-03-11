@@ -449,7 +449,7 @@ class Detail : Externalizable {
                 this.printTemplatePath = templatePathProvided
                 return true
             } catch (e: InvalidReferenceException) {
-                System.out.println("Invalid print template path provided for detail with id " + this.id)
+                println("Invalid print template path provided for detail with id " + this.id)
             }
         }
         return false

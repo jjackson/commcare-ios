@@ -481,7 +481,7 @@ public class ApplicationHost {
         SessionDatum datum = mSession.getNeededDatum();
         XPathExpression form;
         try {
-            form = XPathParseTool.parseXPath(datum.getValue());
+            form = XPathParseTool.INSTANCE.parseXPath(datum.getValue());
         } catch (XPathSyntaxException e) {
             //TODO: What.
             e.printStackTrace();
@@ -489,11 +489,11 @@ public class ApplicationHost {
         }
         EvaluationContext ec = mSession.getEvaluationContext();
         if (datum instanceof FormIdDatum) {
-            mSession.setXmlns(FunctionUtils.toString(form.eval(ec)));
+            mSession.setXmlns(FunctionUtils.Companion.toString(form.eval(ec)));
             mSession.setEntityDatum("", "awful");
         } else {
             try {
-                mSession.setEntityDatum(datum, FunctionUtils.toString(form.eval(ec)));
+                mSession.setEntityDatum(datum, FunctionUtils.Companion.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
             }

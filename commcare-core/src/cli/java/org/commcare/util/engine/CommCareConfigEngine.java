@@ -88,9 +88,9 @@ public class CommCareConfigEngine {
         this.print = print;
         setRoots();
 
-        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", Resource.class), installerFactory);
-        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", Resource.class), installerFactory);
-        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", Resource.class), installerFactory);
+        table = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RESOURCE_TABLE", kotlin.jvm.JvmClassMappingKt.getKotlinClass(Resource.class)), installerFactory);
+        updateTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_UPGRADE_TABLE", kotlin.jvm.JvmClassMappingKt.getKotlinClass(Resource.class)), installerFactory);
+        recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", kotlin.jvm.JvmClassMappingKt.getKotlinClass(Resource.class)), installerFactory);
 
         StorageManager storageManager = new StorageManager(storageFactory);
         storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
@@ -104,8 +104,15 @@ public class CommCareConfigEngine {
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, MINIMAL_VERSION, storageManager);
     }
 
+    @SuppressWarnings("unchecked")
     private static IStorageIndexedFactory setupDummyStorageFactory(final PrototypeFactory prototypeFactory) {
-        return (name, type) -> new DummyIndexedStorageUtility(type, prototypeFactory);
+        return new IStorageIndexedFactory() {
+            @Override
+            public IStorageUtilityIndexed newStorage(String name, kotlin.reflect.KClass type) {
+                Class javaClass = kotlin.jvm.JvmClassMappingKt.getJavaClass(type);
+                return new DummyIndexedStorageUtility(javaClass, prototypeFactory);
+            }
+        };
     }
 
     protected void setRoots() {

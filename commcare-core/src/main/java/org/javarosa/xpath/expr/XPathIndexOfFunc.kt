@@ -25,7 +25,7 @@ open class XPathIndexOfFunc : XPathFuncExpr {
 
         for (i in argList.indices) {
             if (argList[i] == indexedItem) {
-                return java.lang.Double.valueOf(i.toDouble())
+                return i.toDouble()
             }
         }
         return ""

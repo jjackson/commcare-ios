@@ -1,5 +1,4 @@
 package org.javarosa.core.model.instance.utils
-import kotlin.jvm.JvmStatic
 
 import org.commcare.cases.instance.CaseInstanceTreeElement
 import org.javarosa.core.model.instance.AbstractTreeElement
@@ -20,7 +19,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  */
 object InstanceUtils {
 
-    @JvmStatic
     @Throws(InvalidStructureException::class, PlatformIOException::class)
     fun loadFormInstance(formFilepath: String): FormInstance {
         val root = xmlToTreeElement(formFilepath)
@@ -34,7 +32,6 @@ object InstanceUtils {
      * @param instanceId   instance id to set
      * @param instanceBase instance base to set
      */
-    @JvmStatic
     fun setUpInstanceRoot(
         instanceRoot: AbstractTreeElement?,
         instanceId: String?,
@@ -66,7 +63,6 @@ object InstanceUtils {
      * @return a hashtable representing the data instances that are in scope for this Entry,
      * potentially limited by [limitingList]
      */
-    @JvmStatic
     @JvmSuppressWildcards
     fun getLimitedInstances(
         limitingList: Set<String>?,

@@ -17,6 +17,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * A Menu definition describes the structure of how

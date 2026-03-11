@@ -121,7 +121,7 @@ public class TreeReferenceAccumulatorTest {
     private void runAndTest(EvaluationContext context, String text, String... matches) throws AnalysisInvalidException {
         XPathExpression expression;
         try {
-            expression = XPathParseTool.parseXPath(text);
+            expression = XPathParseTool.INSTANCE.parseXPath(text);
         } catch(XPathSyntaxException e) {
             throw new RuntimeException(e);
         }

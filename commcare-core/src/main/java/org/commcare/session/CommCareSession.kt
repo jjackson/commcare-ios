@@ -33,6 +33,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -965,7 +967,7 @@ open class CommCareSession {
             }
         }
         if (stepId == -1) {
-            System.out.println("I don't think this should be possible...")
+            println("I don't think this should be possible...")
             return null
         }
 

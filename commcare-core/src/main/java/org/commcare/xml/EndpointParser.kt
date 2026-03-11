@@ -10,6 +10,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 class EndpointParser(parser: PlatformXmlParser) : ElementParser<Endpoint>(parser) {
 

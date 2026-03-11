@@ -11,6 +11,7 @@ import org.commcare.suite.model.Text
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
+import kotlin.jvm.JvmStatic
 
 /**
  * Use the session state descriptor attached to saved forms to load case

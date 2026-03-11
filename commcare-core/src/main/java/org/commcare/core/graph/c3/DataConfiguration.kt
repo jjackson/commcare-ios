@@ -11,6 +11,7 @@ import org.commcare.core.graph.util.GraphUtil
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.math.max
 
 /**
  * Data-related configuration for C3. This configuration should be run before
@@ -377,7 +378,7 @@ class DataConfiguration(data: GraphData) : Configuration(data) {
                 // assigning an arbitrary, evenly-spaced x value to each bar and then
                 // using the user's x values as custom labels.
                 xValues.put(barIndex + 1)
-                mBarCount = Math.max(mBarCount, barIndex + 1)
+                mBarCount = max(mBarCount, barIndex + 1)
                 if (addBarLabels) {
                     mBarLabels.put(p.getX())
                 }
@@ -397,7 +398,7 @@ class DataConfiguration(data: GraphData) : Configuration(data) {
                 val b = p as BubblePointData
                 val r = parseDouble(b.getRadius()!!, "$description with radius ${b.getRadius()}")
                 rValues.put(r)
-                maxRadius = Math.max(maxRadius, r)
+                maxRadius = max(maxRadius, r)
             }
 
             barIndex++

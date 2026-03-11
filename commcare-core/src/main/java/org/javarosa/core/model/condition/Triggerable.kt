@@ -12,6 +12,8 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.math.min
 
 /**
  * A triggerable represents an action that should be processed based
@@ -293,7 +295,7 @@ abstract class Triggerable : Externalizable {
             if (stopContextualizingAt == -1) {
                 stopContextualizingAt = smallestIntersectionForRef
             } else {
-                stopContextualizingAt = Math.min(stopContextualizingAt, smallestIntersectionForRef)
+                stopContextualizingAt = min(stopContextualizingAt, smallestIntersectionForRef)
             }
         }
         return refInExpr.removePredicates()
@@ -320,7 +322,7 @@ abstract class Triggerable : Externalizable {
      */
     private fun smallestIntersectingLevelWithPred(refInExpr: TreeReference): Int {
         val intersectionRef = contextRef!!.intersect(refInExpr.removePredicates())
-        for (refLevel in 0 until Math.min(refInExpr.size(), intersectionRef.size())) {
+        for (refLevel in 0 until min(refInExpr.size(), intersectionRef.size())) {
             val predicates = refInExpr.getPredicate(refLevel)
             if (predicates != null && predicates.size > 0) {
                 return refLevel

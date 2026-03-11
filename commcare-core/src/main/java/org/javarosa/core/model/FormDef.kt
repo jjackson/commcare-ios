@@ -46,6 +46,8 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import datadog.trace.api.Trace
 import io.opentracing.util.GlobalTracer
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -1052,7 +1054,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                             return ""
                         }
 
-                        System.out.println("here!!")
+                        println("here!!")
 
                         val choices = q.getChoices()!!
                         for (ch in choices) {
@@ -1123,7 +1125,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                     try {
                         ix = argName.toInt()
                     } catch (nfe: NumberFormatException) {
-                        System.err.println("Warning: expect arguments to be numeric [$argName]")
+                        org.javarosa.core.util.platformStdErrPrintln("Warning: expect arguments to be numeric [$argName]")
                     }
 
                     if (ix < 0 || ix >= outputFragments.size) {

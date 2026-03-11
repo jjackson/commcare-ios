@@ -64,7 +64,7 @@ class ProfileParser(
                         "login" -> parseLogin()
                         "features" -> parseFeatures(profile)
                         "suite" -> parseSuite()
-                        else -> System.out.println("Unrecognized Tag: ${parser.getName()}")
+                        else -> println("Unrecognized Tag: ${parser.getName()}")
                     }
                 }
                 eventType = parser.next()

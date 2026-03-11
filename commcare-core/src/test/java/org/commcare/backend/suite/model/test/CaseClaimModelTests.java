@@ -186,15 +186,15 @@ public class CaseClaimModelTests {
         ImmutableMap<String, ExternalDataInstance> instances = ImmutableMap.of("bad-id", userInputInstance);
         EvaluationContext evaluationContext = session.getEvaluationContext().spawnWithCleanLifecycle(instances);
 
-        XPathExpression xpe = XPathParseTool.parseXPath(
+        XPathExpression xpe = XPathParseTool.INSTANCE.parseXPath(
                 "count(instance('my-search-input')/input/field[current()/@name = 'name'])");
-        String result = FunctionUtils.toString(xpe.eval(evaluationContext));
+        String result = FunctionUtils.Companion.toString(xpe.eval(evaluationContext));
         Assert.assertEquals("1", result);
 
         try {
-            XPathExpression xpe1 = XPathParseTool.parseXPath(
+            XPathExpression xpe1 = XPathParseTool.INSTANCE.parseXPath(
                     "count(instance('bad-id')/input/field[current()/@name = 'name'])");
-            FunctionUtils.toString(xpe1.eval(evaluationContext));
+            FunctionUtils.Companion.toString(xpe1.eval(evaluationContext));
             Assert.fail("Expected exception");
         } catch (XPathMissingInstanceException e) {
             // this fails because we added this instance to the eval context with a different ID ('bad-id')

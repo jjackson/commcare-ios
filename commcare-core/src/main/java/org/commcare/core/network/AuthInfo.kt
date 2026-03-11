@@ -1,6 +1,8 @@
 package org.commcare.core.network
 
 import org.commcare.cases.util.StringUtils
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 /**
  * Created by amstone326 on 5/8/18.

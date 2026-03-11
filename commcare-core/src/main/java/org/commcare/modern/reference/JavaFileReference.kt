@@ -8,6 +8,8 @@ import java.io.FileOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.io.PlatformOutputStream
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 /**
  * @author ctsims

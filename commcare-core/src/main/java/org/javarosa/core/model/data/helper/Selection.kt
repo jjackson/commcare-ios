@@ -29,6 +29,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
+import kotlin.jvm.JvmField
 
 /**
  * A response to a question requesting a selection

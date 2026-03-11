@@ -11,6 +11,7 @@ import org.commcare.modern.engine.cases.CaseIndexTable
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.xpath.expr.XPathExpression
+import kotlin.jvm.JvmField
 
 
 /**
@@ -56,7 +57,7 @@ class CaseIndexPrefetchHandler(private val mCaseIndexTable: CaseIndexTable?) : Q
         val indexName = querySet.key.substring(Case.INDEX_CASE_INDEX_PRE.length)
         val value = querySet.value as String
 
-        val cache = context.getQueryCache(Cache::class.java)
+        val cache = context.getQueryCache(Cache::class) { Cache() }
         if (!cache.currentlyFetchedIndexKeys.contains(indexName)) {
             if (context.getScope() < BULK_LOAD_THRESHOLD) {
                 return null

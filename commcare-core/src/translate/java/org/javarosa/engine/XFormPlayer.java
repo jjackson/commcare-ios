@@ -340,7 +340,7 @@ public class XFormPlayer {
         out.println(xpath);
         XPathExpression expr;
         try {
-            expr = XPathParseTool.parseXPath(xpath);
+            expr = XPathParseTool.INSTANCE.parseXPath(xpath);
         } catch (XPathSyntaxException e) {
             out.println("Error (parse): " + e.getMessage());
             return;
@@ -374,9 +374,9 @@ public class XFormPlayer {
 
     public static String getDisplayString(Object value) {
         if (value instanceof XPathNodeset) {
-            return FunctionUtils.getSerializedNodeset((XPathNodeset)value);
+            return FunctionUtils.Companion.getSerializedNodeset((XPathNodeset)value);
         } else {
-            return FunctionUtils.toString(value);
+            return FunctionUtils.Companion.toString(value);
         }
     }
 

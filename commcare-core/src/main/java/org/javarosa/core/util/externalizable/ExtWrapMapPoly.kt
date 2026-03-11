@@ -4,6 +4,7 @@ import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 // map of objects where elements are multiple types, keys are still assumed to be of a single
 // (non-polymorphic) type

@@ -19,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.xpath.XPathException
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.math.abs
+import kotlin.jvm.JvmStatic
 
 class Recalculate : Triggerable {
 

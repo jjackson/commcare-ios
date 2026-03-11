@@ -1,6 +1,7 @@
 package org.javarosa.core.model.trace
 
 import org.javarosa.core.util.OrderedHashtable
+import kotlin.jvm.JvmField
 
 /**
  * A Cumulative trace reporter collects and "folds" traces which execute over multiple elements.

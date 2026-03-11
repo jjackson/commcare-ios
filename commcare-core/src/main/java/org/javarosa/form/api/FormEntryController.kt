@@ -11,6 +11,7 @@ import org.javarosa.core.model.instance.TreeElement
 
 
 import datadog.trace.api.Trace
+import kotlin.jvm.JvmStatic
 
 /**
  * This class is used to navigate through an xform and appropriately manipulate

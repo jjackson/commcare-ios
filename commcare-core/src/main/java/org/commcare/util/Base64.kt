@@ -1,7 +1,5 @@
 package org.commcare.util
 
-import kotlin.jvm.JvmStatic
-
 // Portions copyright 2002, Google, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -137,7 +135,6 @@ object Base64 {
      *
      * @param source The data to convert
      */
-    @JvmStatic
     fun encode(source: ByteArray): String {
         return encode(source, 0, source.size, ALPHABET, true)
     }
@@ -261,7 +258,6 @@ object Base64 {
      * @param s the string to decode (decoded in default encoding)
      * @return the decoded data
      */
-    @JvmStatic
     @Throws(Base64DecoderException::class)
     fun decode(s: String): ByteArray {
         val bytes = s.toByteArray()

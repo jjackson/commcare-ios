@@ -342,7 +342,7 @@ public class SessionStackTests {
         assertEquals(1, actionToInspect.getStackOperations().size());
         assertTrue(actionToInspect.getAutoLaunchExpr() == null);
 
-        assertTrue(FunctionUtils.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
+        assertTrue(FunctionUtils.Companion.toString(actions.get(0).getAutoLaunchExpr().eval(ec)).contentEquals("true"));
     }
 
     private static void assertInstanceMissing(SessionWrapper session, String xpath)

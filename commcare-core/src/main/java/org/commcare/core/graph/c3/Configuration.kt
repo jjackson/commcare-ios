@@ -64,7 +64,7 @@ open class Configuration(data: GraphData) {
     @Throws(GraphException::class)
     internal fun parseDouble(value: String, description: String): Double {
         try {
-            val numeric = java.lang.Double.valueOf(value)
+            val numeric = value.toDouble()
             if (numeric.isNaN()) {
                 throw GraphException("Could not understand '$value' in $description")
             }

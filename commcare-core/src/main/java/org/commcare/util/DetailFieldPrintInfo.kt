@@ -2,6 +2,7 @@ package org.commcare.util
 
 import org.commcare.cases.entity.Entity
 import org.commcare.suite.model.DetailField
+import kotlin.jvm.JvmField
 
 /**
  * Contains all of the raw information needed by a PrintableDetailField

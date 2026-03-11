@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.parser.XPathSyntaxException
+import kotlin.math.min
 
 open class XPathMinFunc : XPathFuncExpr {
     constructor() {
@@ -42,7 +43,7 @@ open class XPathMinFunc : XPathFuncExpr {
 
             var min = Double.MAX_VALUE
             for (argVal in argVals) {
-                min = Math.min(min, FunctionUtils.toNumeric(argVal))
+                min = min(min, FunctionUtils.toNumeric(argVal))
             }
             return min
         }

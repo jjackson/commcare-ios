@@ -53,7 +53,7 @@ open class CommCarePlatform {
     constructor(majorVersion: Int, minorVersion: Int, minimalVersion: Int, storageManager: StorageManager) :
             this(majorVersion, minorVersion, minimalVersion) {
         this.storageManager = storageManager
-        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property::class.java)
+        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property::class)
         this.propertyManager = PropertyManager(storageManager.getStorage(PropertyManager.STORAGE_KEY))
     }
 
@@ -236,7 +236,7 @@ open class CommCarePlatform {
 
     @Suppress("UNCHECKED_CAST")
     fun getFixtureStorage(): IStorageUtilityIndexed<FormInstance> {
-        storageManager!!.registerStorage("fixture", FormInstance::class.java)
+        storageManager!!.registerStorage("fixture", FormInstance::class)
         return storageManager!!.getStorage("fixture") as IStorageUtilityIndexed<FormInstance>
     }
 

@@ -6,6 +6,7 @@ import org.commcare.modern.util.Pair
 import org.javarosa.core.model.instance.TreeReference
 
 import java.util.Locale
+import kotlin.jvm.JvmStatic
 
 object EntitySortUtil {
 

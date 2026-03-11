@@ -7,6 +7,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import java.io.IOException
 import java.io.InputStream
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Element Parser is the core parsing element for XML files. Implementations

@@ -1,6 +1,8 @@
 package org.javarosa.core.io
 
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 class StreamsUtil {
 

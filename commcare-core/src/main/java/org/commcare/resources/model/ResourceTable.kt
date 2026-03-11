@@ -16,6 +16,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import java.io.FileNotFoundException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
 
 /**
  * A Resource Table maintains a set of Resource Records,

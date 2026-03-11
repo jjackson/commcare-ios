@@ -6,6 +6,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * Property is an encapsulation of a record containing a property in the J2ME
@@ -38,7 +39,7 @@ class Property : Persistable, IMetaData {
         val nameindex = fullString.indexOf(",")
         value = ArrayList()
         if (nameindex == -1) {
-            System.out.println("WARNING: Property in RMS with no value:$fullString")
+            println("WARNING: Property in RMS with no value:$fullString")
             name = fullString.substring(0, fullString.length)
         } else {
             name = fullString.substring(0, nameindex)

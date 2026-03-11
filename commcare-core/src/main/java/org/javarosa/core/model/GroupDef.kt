@@ -13,6 +13,7 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * The definition of a group in a form or questionaire.
@@ -225,7 +226,7 @@ class GroupDef : IFormElement {
         }
         var mutableTextID = textID
         if (DateUtils.stringContains(mutableTextID, ";")) {
-            System.err.println("Warning: TextID contains ;form modifier:: \"${mutableTextID.substring(mutableTextID.indexOf(";"))}\"... will be stripped.")
+            org.javarosa.core.util.platformStdErrPrintln("Warning: TextID contains ;form modifier:: \"${mutableTextID.substring(mutableTextID.indexOf(";"))}\"... will be stripped.")
             mutableTextID = mutableTextID.substring(0, mutableTextID.indexOf(";")) //trim away the form specifier
         }
         this.textID = mutableTextID

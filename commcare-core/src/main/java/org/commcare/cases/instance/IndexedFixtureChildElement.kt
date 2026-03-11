@@ -12,6 +12,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.model.xform.XPathReference
+import kotlin.jvm.JvmStatic
 
 /**
  * Child TreeElement of an indexed fixture whose data is loaded from a DB.
@@ -66,7 +67,7 @@ class IndexedFixtureChildElement internal constructor(
         if (context == null) {
             return null
         }
-        val cache = context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache::class.java)
+        val cache = context.getQueryCacheOrNull(ScopeLimitedReferenceRequestCache::class)
             ?: return null
 
         //If cache already contains partial match, return it here...
@@ -110,7 +111,7 @@ class IndexedFixtureChildElement internal constructor(
 
         //Otherwise, see if we have a record set result which can be used to load the record in
         //bulk along with other records.
-        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class.java)
+        val recordSetCache = context.getQueryCacheOrNull(RecordSetResultCache::class)
 
         val recordSetKey = parent.storageCacheName
 

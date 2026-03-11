@@ -16,9 +16,9 @@ open class XPathStringLengthFunc : XPathFuncExpr {
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val s = FunctionUtils.toString(evaluatedArgs[0])
         if (s == null) {
-            return java.lang.Double.valueOf(0.0)
+            return 0.0
         }
-        return java.lang.Double.valueOf(s.length.toDouble())
+        return s.length.toDouble()
     }
 
     companion object {

@@ -1,5 +1,4 @@
 package org.javarosa.xpath.expr
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.utils.PlatformDateUtils
 import org.javarosa.core.util.CacheTable
@@ -13,7 +12,6 @@ import org.javarosa.core.model.utils.PlatformDate
 
 class FunctionUtils {
     companion object {
-        @JvmStatic
         private val funcList = HashMap<String, () -> XPathFuncExpr>()
 
         init {
@@ -94,7 +92,6 @@ class FunctionUtils {
             funcList[XPathIsPointInsidePolygonFunc.NAME] = { XPathIsPointInsidePolygonFunc() }
         }
 
-        @JvmStatic
         private val mDoubleParseCache = CacheTable<String, Double>()
 
         /**
@@ -103,7 +100,6 @@ class FunctionUtils {
          * @param nodeset An xpath nodeset to be visualized
          * @return A string representation of the nodeset's references
          */
-        @JvmStatic
         fun getSerializedNodeset(nodeset: XPathNodeset): String {
             if (nodeset.size() == 1) {
                 return toString(nodeset)
@@ -131,7 +127,6 @@ class FunctionUtils {
          * @return The passed in object in as specific of a type as was able to
          * be identified.
          */
-        @JvmStatic
         fun InferType(attrValue: String): Any {
             //Throwing exceptions from parsing doubles is _very_ slow, which is the purpose
             //of this cache. In high performant situations, this prevents a ton of overhead.
@@ -165,7 +160,6 @@ class FunctionUtils {
         /**
          * convert a value to a boolean using xpath's type conversion rules
          */
-        @JvmStatic
         fun toBoolean(o: Any?): Boolean {
             var o = unpack(o)
             var `val`: Boolean? = null
@@ -190,7 +184,6 @@ class FunctionUtils {
             }
         }
 
-        @JvmStatic
         fun toDouble(o: Any?): Double {
             return if (o is PlatformDate) {
                 PlatformDateUtils.fractionalDaysSinceEpoch(o)
@@ -203,7 +196,6 @@ class FunctionUtils {
          * Convert a value to a number using xpath's type conversion rules (note that xpath itself makes
          * no distinction between integer and floating point numbers)
          */
-        @JvmStatic
         fun toNumeric(o: Any?): Double {
             var o = unpack(o)
             var `val`: Double? = null
@@ -243,7 +235,6 @@ class FunctionUtils {
          * The xpath spec doesn't recognize scientific notation, or +/-Infinity when converting a
          * string to a number
          */
-        @JvmStatic
         internal fun checkForInvalidNumericOrDatestringCharacters(s: String): Boolean {
             for (i in 0 until s.length) {
                 val c = s[i]
@@ -268,7 +259,6 @@ class FunctionUtils {
          * value to a number first. note that the resulting return value is still a Double, as required
          * by the xpath engine
          */
-        @JvmStatic
         fun toInt(o: Any?): Double {
             val `val` = toNumeric(o)
 
@@ -289,7 +279,6 @@ class FunctionUtils {
         /**
          * convert a value to a string using xpath's type conversion rules
          */
-        @JvmStatic
         fun toString(o: Any?): String {
             var o = unpack(o)
             var `val`: String? = null
@@ -341,7 +330,6 @@ class FunctionUtils {
          * * note, however, than non-empty strings that aren't valid dates _will_ cause an error
          * during conversion
          */
-        @JvmStatic
         fun toDate(o: Any?): Any {
             val o = unpack(o)
 
@@ -376,7 +364,6 @@ class FunctionUtils {
             }
         }
 
-        @JvmStatic
         internal fun expandDateSafe(dateObject: Any?): PlatformDate? {
             var dateObject = dateObject
             if (dateObject !is PlatformDate) {
@@ -390,7 +377,6 @@ class FunctionUtils {
             }
         }
 
-        @JvmStatic
         internal fun subsetArgList(args: Array<Any?>, start: Int): Array<Any?> {
             return subsetArgList(args, start, 1)
         }
@@ -401,7 +387,6 @@ class FunctionUtils {
          * @param start index to start at
          * @param skip  sub-list will contain every nth argument, where n == skip (default: 1)
          */
-        @JvmStatic
         internal fun subsetArgList(args: Array<Any?>, start: Int, skip: Int): Array<Any?> {
             if (start > args.size || skip < 1) {
                 throw RuntimeException("error in subsetting arglist")
@@ -419,7 +404,6 @@ class FunctionUtils {
             return subargs
         }
 
-        @JvmStatic
         fun unpack(o: Any?): Any? {
             return if (o is XPathNodeset) {
                 o.unpack()
@@ -431,7 +415,6 @@ class FunctionUtils {
         /**
          * Perform toUpperCase or toLowerCase on given object.
          */
-        @JvmStatic
         internal fun normalizeCase(o: Any?, toUpper: Boolean): String {
             val s = toString(o)
             return if (toUpper) {
@@ -446,7 +429,6 @@ class FunctionUtils {
          * a nodeset (which will be dereferenced and evaluated), an existing sequence,
          * or a string representation of a sequence (space separated list of strings)
          */
-        @JvmStatic
         fun getSequence(input: Any?): Array<Any?> {
             val argList: Array<Any?>
             if (input is XPathNodeset) {
@@ -468,12 +450,10 @@ class FunctionUtils {
          * (Used in formplayer for function auto-completion)
          */
         @Suppress("unused")
-        @JvmStatic
         fun xPathFuncList(): List<String> {
             return ArrayList(funcList.keys)
         }
 
-        @JvmStatic
         fun getXPathFuncListMap(): HashMap<String, () -> XPathFuncExpr> {
             return funcList
         }

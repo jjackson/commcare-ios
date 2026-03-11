@@ -34,15 +34,15 @@ public class FormIndexTests {
     @Before
     public void setUp() {
         // 1_2
-        index1_2 = new FormIndex(1, 2, TreeReference.rootRef());
+        index1_2 = new FormIndex(1, 2, TreeReference.Companion.rootRef());
         // 1_1, 1_2
-        index1_1x1_2 = new FormIndex(index1_2, 1, 1, TreeReference.rootRef());
+        index1_1x1_2 = new FormIndex(index1_2, 1, 1, TreeReference.Companion.rootRef());
         // 0, 1_1, 1_2
-        index0x1_1x1_2 = new FormIndex(index1_1x1_2, 0, TreeReference.rootRef());
+        index0x1_1x1_2 = new FormIndex(index1_1x1_2, 0, TreeReference.Companion.rootRef());
         // 1, 0, 1_1, 1_2
-        index1x0x1_1x1_2 = new FormIndex(index0x1_1x1_2, 1, TreeReference.rootRef());
+        index1x0x1_1x1_2 = new FormIndex(index0x1_1x1_2, 1, TreeReference.Companion.rootRef());
         // 0, 1, 0, 1_1, 1_2
-        index0x1x0x1_1x1_2 = new FormIndex(index1x0x1_1x1_2, 0, TreeReference.rootRef());
+        index0x1x0x1_1x1_2 = new FormIndex(index1x0x1_1x1_2, 0, TreeReference.Companion.rootRef());
     }
 
     @Test
@@ -84,8 +84,8 @@ public class FormIndexTests {
     @Test
     public void testGetLastRepeatInstanceIndex_notVeryLastIndex() {
         // Add indices to the end of the hierarchy that do NOT have an instance index
-        FormIndex index3 = new FormIndex(3, TreeReference.rootRef());
-        FormIndex index2x3 = new FormIndex(index3, 2, TreeReference.rootRef());
+        FormIndex index3 = new FormIndex(3, TreeReference.Companion.rootRef());
+        FormIndex index2x3 = new FormIndex(index3, 2, TreeReference.Companion.rootRef());
         index1_2.setNextLevel(index2x3);
 
         Assert.assertEquals(2, index0x1x0x1_1x1_2.getLastRepeatInstanceIndex());
@@ -112,9 +112,9 @@ public class FormIndexTests {
      *      2_1
      */
     public void testGetLastRepeatInstanceIndex_nestedRepeats() {
-        FormIndex extensionIndex2_1 = new FormIndex(2, 1, TreeReference.rootRef());
-        FormIndex extensionIndex1x2_1 = new FormIndex(extensionIndex2_1, 1, TreeReference.rootRef());
-        FormIndex extensionIndex0x1x2_1 = new FormIndex(extensionIndex1x2_1, 0, TreeReference.rootRef());
+        FormIndex extensionIndex2_1 = new FormIndex(2, 1, TreeReference.Companion.rootRef());
+        FormIndex extensionIndex1x2_1 = new FormIndex(extensionIndex2_1, 1, TreeReference.Companion.rootRef());
+        FormIndex extensionIndex0x1x2_1 = new FormIndex(extensionIndex1x2_1, 0, TreeReference.Companion.rootRef());
 
         // reset the last index of the original hierarchy to point to the first extension index
         // as its next level

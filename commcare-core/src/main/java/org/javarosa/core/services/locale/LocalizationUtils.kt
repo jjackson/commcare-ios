@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims
@@ -50,7 +51,7 @@ object LocalizationUtils {
         val equalIndex = line.indexOf('=')
         if (equalIndex == -1) {
             if (line.trim() != "") {
-                System.out.println("Invalid line (#$curline) read: $line")
+                println("Invalid line (#$curline) read: $line")
             }
         } else {
             //Check to see if there's anything after the '=' first. Otherwise there

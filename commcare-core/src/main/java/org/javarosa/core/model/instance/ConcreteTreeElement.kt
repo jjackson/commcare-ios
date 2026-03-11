@@ -6,6 +6,7 @@ import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.xpath.expr.XPathExpression
+import kotlin.jvm.JvmField
 
 /**
  * An element of a FormInstance.

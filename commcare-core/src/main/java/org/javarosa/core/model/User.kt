@@ -14,6 +14,7 @@ import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * Persistable object representing a CommCare mobile user.

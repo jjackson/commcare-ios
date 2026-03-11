@@ -274,7 +274,7 @@ public class XPathParseTest {
 
     private static void testXPathValid(String expr, String expected) {
         try {
-            XPathExpression xpe = XPathParseTool.parseXPath(expr);
+            XPathExpression xpe = XPathParseTool.INSTANCE.parseXPath(expr);
             String result = (xpe != null ? xpe.toString() : null);
 
             if (result == null || !result.equals(expected)) {
@@ -294,7 +294,7 @@ public class XPathParseTest {
 
     private static void testXPathInvalid(String expr) {
         try {
-            XPathExpression xpe = XPathParseTool.parseXPath(expr);
+            XPathExpression xpe = XPathParseTool.INSTANCE.parseXPath(expr);
             String result = (xpe != null ? xpe.toString() : null);
 
             fail("XPath Parse Failed! Did not get syntax error as expected." +

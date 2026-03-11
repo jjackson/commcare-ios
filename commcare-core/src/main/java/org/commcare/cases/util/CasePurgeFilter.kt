@@ -7,6 +7,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DAG
 import org.javarosa.core.util.DAG.Edge
 import org.javarosa.core.util.DataUtil
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

@@ -24,7 +24,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Objects
 
 /**
  * @author ctsims
@@ -84,9 +83,9 @@ class StackFrameStep : Externalizable {
     fun getValue(): String? = _value
 
     fun addDataInstanceSource(source: ExternalDataInstanceSource) {
-        Objects.requireNonNull(
-            source, "Unable to add null instance data source to stack frame step '${getId()}'"
-        )
+        requireNotNull(source) {
+            "Unable to add null instance data source to stack frame step '${getId()}'"
+        }
         val reference = source.getReference()
         if (dataInstanceSources.containsKey(reference)) {
             throw RuntimeException(

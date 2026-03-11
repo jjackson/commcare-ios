@@ -12,6 +12,8 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.emptyIfNull
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and

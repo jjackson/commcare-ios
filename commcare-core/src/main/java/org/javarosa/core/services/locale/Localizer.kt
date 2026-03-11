@@ -9,6 +9,8 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmOverloads
 
 /**
  * The Localizer object maintains mappings for locale ID's and Object
@@ -440,7 +442,7 @@ class Localizer @JvmOverloads constructor(
             while (i != -1) {
                 val j = text.indexOf("}", i)
                 if (j == -1) {
-                    System.err.println("Warning: unterminated \${...} arg")
+                    org.javarosa.core.util.platformStdErrPrintln("Warning: unterminated \${...} arg")
                     break
                 }
 
@@ -470,7 +472,7 @@ class Localizer @JvmOverloads constructor(
 
                 // abort if no closing bracket
                 if (j == -1) {
-                    System.err.println("Warning: unterminated \${...} arg")
+                    org.javarosa.core.util.platformStdErrPrintln("Warning: unterminated \${...} arg")
                     break
                 }
 

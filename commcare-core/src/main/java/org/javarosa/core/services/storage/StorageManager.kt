@@ -1,6 +1,7 @@
 package org.javarosa.core.services.storage
 
 import org.javarosa.core.services.Logger
+import kotlin.reflect.KClass
 
 /**
  * Manages StorageProviders for JavaRosa, which maintain persistent
@@ -33,7 +34,7 @@ class StorageManager(factory: IStorageIndexedFactory) {
         } else {
             if (mustWork) {
                 Logger.die(
-                    "A Storage Factory had already been set when storage factory " + fact.javaClass.name
+                    "A Storage Factory had already been set when storage factory " + fact::class.simpleName
                             + " attempted to become the only storage factory",
                     RuntimeException("Duplicate Storage Factory set")
                 )
@@ -41,7 +42,7 @@ class StorageManager(factory: IStorageIndexedFactory) {
         }
     }
 
-    fun registerStorage(key: String, type: Class<*>) {
+    fun registerStorage(key: String, type: KClass<*>) {
         if (storageFactory == null) {
             throw RuntimeException("No storage factory has been set; I don't know what kind of storage utility to create. Either set a storage factory, or register your StorageUtilitys directly.")
         }
@@ -50,12 +51,29 @@ class StorageManager(factory: IStorageIndexedFactory) {
                 return
             } else {
                 throw RuntimeException(
-                    "Attempting to change storage type for key $key from type ${storageRegistry[key]!!.getPrototype().name} to type ${type.name}."
+                    "Attempting to change storage type for key $key from type ${storageRegistry[key]!!.getPrototype().simpleName} to type ${type.simpleName}."
                 )
             }
         }
 
         storageRegistry[key] = storageFactory!!.newStorage(key, type)
+    }
+
+    /**
+     * Java-compatible overload that accepts Class<*>.
+     */
+    fun registerStorage(key: String, type: Class<*>) {
+        registerStorage(key, type.kotlin)
+    }
+
+    /**
+     * Java-compatible helper to call factory with Class<*>.
+     */
+    fun newStorageFromFactory(name: String, type: Class<*>): IStorageUtilityIndexed<*> {
+        if (storageFactory == null) {
+            throw RuntimeException("No storage factory has been set")
+        }
+        return storageFactory!!.newStorage(name, type.kotlin)
     }
 
     fun getStorage(key: String): IStorageUtilityIndexed<*> {

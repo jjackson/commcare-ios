@@ -14,6 +14,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.reflect.KClass
 
 /**
  * @author ctsims
@@ -23,33 +24,37 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     private var meta: HashMap<String, HashMap<Any, ArrayList<Int>>>? = HashMap()
     private val data: HashMap<Int, T> = HashMap()
     private var curCount: Int = 0
-    private val prototype: Class<T>
+    private val prototypeClass: KClass<*>
+    private val prototypeFactory: () -> T
     private val mFactory: PrototypeFactory
 
-    constructor(prototype: Class<T>, factory: PrototypeFactory) {
-        this.prototype = prototype
+    constructor(prototypeClass: KClass<*>, instanceFactory: () -> T, factory: PrototypeFactory) {
+        this.prototypeClass = prototypeClass
+        this.prototypeFactory = instanceFactory
         this.mFactory = factory
-        initMetaFromClass()
+        initMetaFromInstance(instanceFactory())
     }
+
+    /**
+     * Java-compatible constructor that accepts Class<T> and uses reflection.
+     */
+    constructor(prototype: Class<T>, factory: PrototypeFactory) : this(
+        prototype.kotlin,
+        {
+            try {
+                prototype.getDeclaredConstructor().newInstance()
+            } catch (e: Exception) {
+                throw RuntimeException("Couldn't create instance for storage: ${prototype.name}", e)
+            }
+        },
+        factory
+    )
 
     constructor(instance: T, factory: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        this.prototype = instance.javaClass as Class<T>
+        this.prototypeClass = instance::class
+        this.prototypeFactory = { throw UnsupportedOperationException("Cannot create new instances from instance-based constructor") }
         this.mFactory = factory
         initMetaFromInstance(instance)
-    }
-
-    private fun initMetaFromClass() {
-        val p: Persistable
-        try {
-            p = prototype.newInstance()
-        } catch (e: InstantiationException) {
-            throw RuntimeException("Couldn't create a serializable class for storage!" + prototype.name)
-        } catch (e: IllegalAccessException) {
-            throw RuntimeException("Couldn't create a serializable class for storage!" + prototype.name)
-        }
-
-        initMetaFromInstance(p)
     }
 
     private fun initMetaFromInstance(p: Persistable) {
@@ -66,7 +71,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
 
     private fun getIDsForInverseValue(fieldName: String, value: Any): ArrayList<Int> {
         if (meta!![fieldName] == null) {
-            throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototype.name}")
+            throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototypeClass.simpleName}")
         }
         val allValues = meta!![fieldName]!!
         val ids = ArrayList<Int>()
@@ -86,7 +91,7 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
     override fun getIDsForValue(fieldName: String, value: Any): ArrayList<Int> {
         //We don't support all index types
         if (meta!![fieldName] == null) {
-            throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototype.name}")
+            throw IllegalArgumentException("Unsupported index: $fieldName for storage of ${prototypeClass.simpleName}")
         }
         if (meta!![fieldName]!![value] == null) {
             return ArrayList()
@@ -203,16 +208,10 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
 
     override fun read(id: Int): T {
         try {
-            val t = prototype.newInstance()
+            val t = prototypeFactory()
             t.readExternal(PlatformDataInputStream(readBytes(id)), mFactory)
             t.setID(id)
             return t
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-            throw RuntimeException(e.message)
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-            throw RuntimeException(e.message)
         } catch (e: PlatformIOException) {
             e.printStackTrace()
             throw RuntimeException(e.message)
@@ -362,8 +361,8 @@ class DummyIndexedStorageUtility<T : Persistable> : IStorageUtilityIndexed<T> {
         }
     }
 
-    override fun getPrototype(): Class<*> {
-        return prototype
+    override fun getPrototype(): KClass<*> {
+        return prototypeClass
     }
 
     override fun isStorageExists(): Boolean {

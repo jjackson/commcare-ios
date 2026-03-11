@@ -23,6 +23,7 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
 import java.net.URL
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

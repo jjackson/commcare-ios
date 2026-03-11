@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.ReducingTraceReporter
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer
+import kotlin.jvm.JvmStatic
 
 // helper class for common functions related to @code{ItemsetBinding}
 object ItemSetUtils {
@@ -131,7 +132,7 @@ object ItemSetUtils {
         val newContext = questionContext.spawnWithCleanLifecycle()
 
         val isolatedContext = newContext.getCurrentQueryContext()
-        val cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache::class.java)
+        val cache = isolatedContext.getQueryCache(ScopeLimitedReferenceRequestCache::class) { ScopeLimitedReferenceRequestCache() }
         cache.addTreeReferencesToLimitedScope(references)
         return newContext
     }

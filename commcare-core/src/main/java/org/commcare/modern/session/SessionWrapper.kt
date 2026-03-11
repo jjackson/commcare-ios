@@ -8,6 +8,7 @@ import org.commcare.util.CommCarePlatform
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer
 import org.javarosa.xpath.analysis.XPathAnalyzable
+import kotlin.jvm.JvmField
 
 /**
  * Extends a generic CommCare session to include context about the

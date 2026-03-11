@@ -15,18 +15,14 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
 
 /**
  * Base class for xpath function expressions.
  * Dispatches to runtime function overrides when they exist.
  */
 abstract class XPathFuncExpr : XPathExpression {
-    @JvmField
     var name: String = ""
-    @JvmField
     var args: Array<XPathExpression> = emptyArray()
-    @JvmField
     var expectedArgCount: Int = 0
     private var evaluateArgsFirst: Boolean = false
 

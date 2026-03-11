@@ -49,7 +49,7 @@ public class EvalContextTests {
         Assert.assertEquals(instancesThatShouldBeIncluded, ec.getInstanceIds());
 
         // 2) Confirm the display condition was evaluated properly with the restricted context
-        Assert.assertTrue(FunctionUtils.toBoolean(relevancyCondition.eval(ec)));
+        Assert.assertTrue(FunctionUtils.Companion.toBoolean(relevancyCondition.eval(ec)));
     }
 
     @Test
@@ -71,6 +71,6 @@ public class EvalContextTests {
         Assert.assertEquals(instancesThatShouldBeIncluded, ec.getInstanceIds());
 
         // 2) Confirm the display condition was evaluated properly with the restricted context
-        Assert.assertFalse(FunctionUtils.toBoolean(relevancyCondition.eval(ec)));
+        Assert.assertFalse(FunctionUtils.Companion.toBoolean(relevancyCondition.eval(ec)));
     }
 }

@@ -22,7 +22,7 @@ class XPathArithExpr : XPathBinaryOpExpr {
             DIVIDE -> result = aval / bval
             MODULO -> result = aval % bval
         }
-        return java.lang.Double.valueOf(result)
+        return result
     }
 
     override fun toString(): String {

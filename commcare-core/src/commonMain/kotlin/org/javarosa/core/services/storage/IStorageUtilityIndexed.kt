@@ -3,6 +3,7 @@ package org.javarosa.core.services.storage
 import org.javarosa.core.model.condition.RequestAbandonedException
 import org.javarosa.core.util.InvalidIndexException
 import org.javarosa.core.util.externalizable.Externalizable
+import kotlin.reflect.KClass
 
 /**
  * IStorageUtilityIndexed
@@ -287,7 +288,7 @@ interface IStorageUtilityIndexed<E : Externalizable> {
     /**
      * Provide public accessor to the inner class that is stored
      */
-    fun getPrototype(): Class<*>
+    fun getPrototype(): KClass<*>
 
     /**
      * if the storage exists or not

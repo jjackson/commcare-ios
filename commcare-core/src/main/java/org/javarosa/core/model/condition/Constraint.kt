@@ -29,6 +29,7 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 class Constraint : Externalizable {
     @JvmField

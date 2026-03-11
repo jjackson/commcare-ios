@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.JvmStatic
 
 /**
  * Provides an instance of CommCareNetworkService.

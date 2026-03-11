@@ -444,7 +444,7 @@ class XPathPathExpr : XPathExpression {
             } else if (`val` is GeoPointData) {
                 return `val`.uncast().getString()!!
             } else {
-                System.out.println("warning: unrecognized data type in xpath expr: ${`val`::class.simpleName ?: ""}")
+                println("warning: unrecognized data type in xpath expr: ${`val`::class.simpleName ?: ""}")
 
                 //TODO: Does this mess up any of our other plans?
                 return `val`.uncast().getString()!!

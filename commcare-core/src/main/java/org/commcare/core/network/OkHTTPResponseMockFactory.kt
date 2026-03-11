@@ -6,6 +6,7 @@ import okhttp3.Request
 import okhttp3.ResponseBody
 import retrofit2.Response
 import org.javarosa.core.io.PlatformInputStream
+import kotlin.jvm.JvmStatic
 
 /**
  * Response Factory for OkHTTP Response

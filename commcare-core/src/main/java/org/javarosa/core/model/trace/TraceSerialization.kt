@@ -1,5 +1,6 @@
 package org.javarosa.core.model.trace
 
+import kotlin.jvm.JvmStatic
 /**
  * Serializes an evaluation trace into a raw string for command line or other
  * debugging purposes.

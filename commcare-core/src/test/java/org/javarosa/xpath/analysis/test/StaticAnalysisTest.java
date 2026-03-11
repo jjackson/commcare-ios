@@ -81,7 +81,7 @@ public class StaticAnalysisTest {
         // Test the length of the result with list accumulation, just to ensure it gets them all
         List<String> parsedInstancesList =
                 (new InstanceNameAccumulatingAnalyzer()).accumulateAsList(
-                        XPathParseTool.parseXPath(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP));
+                        XPathParseTool.INSTANCE.parseXPath(RIDICULOUS_RELEVANCY_CONDITION_FROM_REAL_APP));
         assertEquals(27, parsedInstancesList.size());
     }
 
@@ -120,7 +120,7 @@ public class StaticAnalysisTest {
 
         if (baseContextString != null) {
             TreeReference baseContextRef =
-                    ((XPathPathExpr)XPathParseTool.parseXPath(baseContextString)).getReference();
+                    ((XPathPathExpr)XPathParseTool.INSTANCE.parseXPath(baseContextString)).getReference();
             analyzer = new InstanceNameAccumulatingAnalyzer(baseContextRef);
         } else {
             analyzer = new InstanceNameAccumulatingAnalyzer();
@@ -135,7 +135,7 @@ public class StaticAnalysisTest {
         }
 
         Set<String> parsedInstancesSet =
-                analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
+                analyzer.accumulate(XPathParseTool.INSTANCE.parseXPath(expressionString));
         assertEquals(expectedInstancesSet, parsedInstancesSet);
     }
 
@@ -165,7 +165,7 @@ public class StaticAnalysisTest {
     private void testReferencesMainInstance(String expressionString, boolean expectedResult) throws XPathSyntaxException {
         ReferencesMainInstanceAnalyzer analyzer = new ReferencesMainInstanceAnalyzer();
         try {
-            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
+            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.INSTANCE.parseXPath(expressionString)));
         } catch (AnalysisInvalidException e) {
             fail("Encountered Analysis Invalid exception: " + e.getMessage());
         }
@@ -188,7 +188,7 @@ public class StaticAnalysisTest {
     private void testContainsUncacheable(String expressionString, boolean expectedResult) throws XPathSyntaxException {
         ContainsUncacheableExpressionAnalyzer analyzer = new ContainsUncacheableExpressionAnalyzer();
         try {
-            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.parseXPath(expressionString)));
+            assertEquals(expectedResult, analyzer.computeResult(XPathParseTool.INSTANCE.parseXPath(expressionString)));
         } catch (AnalysisInvalidException e) {
             fail("Encountered Analysis Invalid exception: " + e.getMessage());
         }
@@ -226,7 +226,7 @@ public class StaticAnalysisTest {
         }
 
         Set<Integer> parsedTypesSet =
-                analyzer.accumulate(XPathParseTool.parseXPath(expressionString));
+                analyzer.accumulate(XPathParseTool.INSTANCE.parseXPath(expressionString));
         assertEquals(expectedTypesSet, parsedTypesSet);
     }
 

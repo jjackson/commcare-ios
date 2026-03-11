@@ -3,6 +3,7 @@ package org.javarosa.core.util.externalizable
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 // List of objects of single (non-polymorphic) type
 class ExtWrapList : ExternalizableWrapper {

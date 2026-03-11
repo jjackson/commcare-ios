@@ -24,6 +24,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Calendar
 
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmStatic
 
 /**
  * Text objects are a model for holding strings which

@@ -133,8 +133,8 @@ class SuiteInstaller : CacheInstaller<Suite>() {
                 }
             }
         } catch (exc: Exception) {
-            System.out.println("fail: " + exc.message)
-            System.out.println("fail: " + exc.toString())
+            println("fail: " + exc.message)
+            println("fail: " + exc.toString())
         }
         return problemList.size != 0
     }

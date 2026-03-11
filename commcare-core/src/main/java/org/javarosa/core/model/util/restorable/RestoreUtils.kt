@@ -11,6 +11,8 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathConditional
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 object RestoreUtils {
     @JvmField

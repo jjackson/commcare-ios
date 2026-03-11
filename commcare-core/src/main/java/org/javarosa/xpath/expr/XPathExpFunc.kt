@@ -3,6 +3,7 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
+import kotlin.math.exp
 
 open class XPathExpFunc : XPathFuncExpr {
     constructor() {
@@ -14,7 +15,7 @@ open class XPathExpFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Math.exp(FunctionUtils.toDouble(evaluatedArgs[0]))
+        return exp(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

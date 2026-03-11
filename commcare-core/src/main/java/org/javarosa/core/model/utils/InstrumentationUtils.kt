@@ -3,6 +3,7 @@ package org.javarosa.core.model.utils
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.model.trace.EvaluationTraceReporter
 import org.javarosa.core.model.trace.TraceSerialization
+import kotlin.jvm.JvmStatic
 
 /**
  * Utility functions for instrumentation in the engine

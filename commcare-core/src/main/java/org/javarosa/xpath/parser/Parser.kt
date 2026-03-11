@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathQName
@@ -15,7 +14,6 @@ import org.javarosa.xpath.parser.ast.ASTNodeUnaryOp
 
 object Parser {
 
-    @JvmStatic
     @Throws(XPathSyntaxException::class)
     fun parse(tokens: List<Token>): XPathExpression? {
         val tree = buildParseTree(tokens)

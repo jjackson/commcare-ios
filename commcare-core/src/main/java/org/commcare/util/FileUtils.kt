@@ -12,6 +12,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import java.time.Instant
+import kotlin.jvm.JvmStatic
 
 /**
  * Common file operations

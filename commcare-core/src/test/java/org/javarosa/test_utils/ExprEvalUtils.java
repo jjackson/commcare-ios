@@ -55,7 +55,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            expr = XPathParseTool.parseXPath(rawExpr);
+            expr = XPathParseTool.INSTANCE.parseXPath(rawExpr);
         } catch (XPathSyntaxException xpse) {
             return "Parsing syntax error for " + rawExpr;
         }
@@ -65,7 +65,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            Object result = FunctionUtils.unpack(expr.eval(model, evalCtx));
+            Object result = FunctionUtils.Companion.unpack(expr.eval(model, evalCtx));
 
             if (exceptionExpected) {
                 return "Expected exception, expression : " + rawExpr;
@@ -112,8 +112,8 @@ public class ExprEvalUtils {
                                    String input)
             throws XPathSyntaxException {
         XPathExpression expr;
-        expr = XPathParseTool.parseXPath(input);
-        return FunctionUtils.unpack(expr.eval(evalContext));
+        expr = XPathParseTool.INSTANCE.parseXPath(input);
+        return FunctionUtils.Companion.unpack(expr.eval(evalContext));
     }
 
     public static void testEval(String expr, EvaluationContext ec, Object expected) {
@@ -133,7 +133,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            xpe = XPathParseTool.parseXPath(expr);
+            xpe = XPathParseTool.INSTANCE.parseXPath(expr);
         } catch (XPathSyntaxException xpse) {
         }
 
@@ -142,7 +142,7 @@ public class ExprEvalUtils {
         }
 
         try {
-            Object result = FunctionUtils.unpack(xpe.eval(model, ec));
+            Object result = FunctionUtils.Companion.unpack(xpe.eval(model, ec));
             if (tolerance != DOUBLE_TOLERANCE) {
                 System.out.println(expr + " = " + result);
             }
@@ -179,7 +179,7 @@ public class ExprEvalUtils {
     public static FormInstance loadInstance(String formPath) {
         FormInstance instance = null;
         try {
-            instance = InstanceUtils.loadFormInstance(formPath);
+            instance = InstanceUtils.INSTANCE.loadFormInstance(formPath);
         } catch (IOException e) {
             fail("Unable to load form at " + formPath);
         } catch (InvalidStructureException e) {

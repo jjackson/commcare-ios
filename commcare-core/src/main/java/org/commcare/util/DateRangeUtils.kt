@@ -5,6 +5,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.Locale
+import kotlin.jvm.JvmStatic
 
 object DateRangeUtils {
 

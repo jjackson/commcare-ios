@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
+import kotlin.jvm.JvmField
 
 /**
  * @author Clayton Sims

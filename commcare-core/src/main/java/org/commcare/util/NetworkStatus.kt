@@ -3,6 +3,7 @@ package org.commcare.util
 import org.commcare.core.network.CommCareNetworkServiceGenerator
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
 
 /**
  * @author $|-|!˅@M

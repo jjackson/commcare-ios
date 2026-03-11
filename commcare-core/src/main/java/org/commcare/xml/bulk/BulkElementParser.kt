@@ -9,6 +9,7 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * A bulk element parser reads multiple types of the same transaction together into a buffer of

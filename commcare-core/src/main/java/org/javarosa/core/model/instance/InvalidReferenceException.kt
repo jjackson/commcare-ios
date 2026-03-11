@@ -1,5 +1,6 @@
 package org.javarosa.core.model.instance
 
+import kotlin.jvm.JvmField
 /**
  * An Invalid Reference exception is thrown whenever
  * a valid TreeReference is expected by an operation.

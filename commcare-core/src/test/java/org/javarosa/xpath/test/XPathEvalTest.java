@@ -50,7 +50,7 @@ public class XPathEvalTest {
         }
 
         try {
-            xpe = XPathParseTool.parseXPath(expr);
+            xpe = XPathParseTool.INSTANCE.parseXPath(expr);
         } catch (XPathSyntaxException e) {
             assertExceptionExpected(exceptionExpected, expected, e);
             return;
@@ -61,7 +61,7 @@ public class XPathEvalTest {
         }
 
         try {
-            Object result = FunctionUtils.unpack(xpe.eval(model, ec));
+            Object result = FunctionUtils.Companion.unpack(xpe.eval(model, ec));
 
             if (exceptionExpected) {
                 fail("Expected exception, expression : " + expr);
@@ -90,13 +90,13 @@ public class XPathEvalTest {
             ec = new EvaluationContext(model);
         }
 
-        xpe = XPathParseTool.parseXPath(expr);
+        xpe = XPathParseTool.INSTANCE.parseXPath(expr);
 
         if (xpe == null) {
             fail("Null expression or syntax error " + expr);
         }
 
-        return FunctionUtils.unpack(xpe.eval(model, ec));
+        return FunctionUtils.Companion.unpack(xpe.eval(model, ec));
     }
 
     private void assertExceptionExpected(boolean exceptionExpected, Object expected, Exception xpex) {
@@ -112,11 +112,11 @@ public class XPathEvalTest {
 
     @Test
     public void testTypeCoercion() {
-        Object str = FunctionUtils.InferType("notadouble");
+        Object str = FunctionUtils.Companion.InferType("notadouble");
         Assert.assertTrue("'notadouble' coerced to the wrong type, "
                 + str.getClass().toString(), str instanceof String);
 
-        Object d = FunctionUtils.InferType("5.0");
+        Object d = FunctionUtils.Companion.InferType("5.0");
 
         Assert.assertTrue("'5.0' coerced to the wrong type, "
                 + d.getClass().toString(), d instanceof Double);
@@ -824,14 +824,14 @@ public class XPathEvalTest {
     }
 
     public void testStringOutput(String xPathInput) throws XPathSyntaxException {
-        XPathExpression expr = XPathParseTool.parseXPath(xPathInput);
+        XPathExpression expr = XPathParseTool.INSTANCE.parseXPath(xPathInput);
         Assert.assertEquals(xPathInput,expr.toPrettyString());
     }
 
 
     @Test
     public void testDoNotInferScientificNotationAsDouble() {
-        Object dbl = FunctionUtils.InferType("100E5");
+        Object dbl = FunctionUtils.Companion.InferType("100E5");
         Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
                 XPathEqExpr.Companion.testEquality(dbl, "100E5"));
     }
@@ -893,12 +893,12 @@ public class XPathEvalTest {
             Object result = evalExpr("encrypt-string('" + message + "','" +
                                      keyString + "','" + algorithm + "')",
                                      null, ec);
-            String resultString = FunctionUtils.toString(result);
+            String resultString = FunctionUtils.Companion.toString(result);
 
             Object decryptedObject = evalExpr("decrypt-string('" + resultString + "','" +
                             keyString + "','" + algorithm + "')",
                     null, ec);
-            String decryptedMessage = FunctionUtils.toString(decryptedObject);
+            String decryptedMessage = FunctionUtils.Companion.toString(decryptedObject);
             if (!message.equals(decryptedMessage)) {
                 fail("Expected decrypted message " + message + ", got " +
                      decryptedMessage);
