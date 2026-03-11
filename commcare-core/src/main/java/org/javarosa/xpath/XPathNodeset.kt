@@ -1,6 +1,4 @@
 package org.javarosa.xpath
-import kotlin.jvm.JvmStatic
-import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
@@ -31,10 +29,8 @@ open class XPathNodeset {
 
     private var nodes: ArrayList<TreeReference>? = null
 
-    @JvmField
-    protected var instance: DataInstance<*>? = null
+    protected var _instance: DataInstance<*>? = null
 
-    @JvmField
     protected var ec: EvaluationContext? = null
 
     private var pathEvaluated: String? = null
@@ -46,7 +42,7 @@ open class XPathNodeset {
      * for lazy evaluation
      */
     protected constructor(instance: DataInstance<*>?, ec: EvaluationContext?) {
-        this.instance = instance
+        this._instance = instance
         this.ec = ec
     }
 
@@ -111,11 +107,11 @@ open class XPathNodeset {
     }
 
     fun getInstance(): DataInstance<*>? {
-        return instance
+        return _instance
     }
 
     protected open fun getValAt(i: Int): Any? {
-        return XPathPathExpr.getRefValue(instance!!, ec!!, getRefAt(i))
+        return XPathPathExpr.getRefValue(_instance!!, ec!!, getRefAt(i))
     }
 
     protected open fun getInvalidNodesetException(): XPathTypeMismatchException {
@@ -147,18 +143,16 @@ open class XPathNodeset {
     }
 
     companion object {
-        @JvmStatic
         fun constructInvalidPathNodeset(pathEvaluated: String?, originalPath: String?): XPathNodeset {
             val nodeset = XPathNodeset()
             nodeset.nodes = null
-            nodeset.instance = null
+            nodeset._instance = null
             nodeset.ec = null
             nodeset.pathEvaluated = pathEvaluated
             nodeset.originalPath = originalPath
             return nodeset
         }
 
-        @JvmStatic
         fun printNodeContents(nodes: ArrayList<TreeReference>): String {
             val sb = StringBuffer()
             for (i in 0 until nodes.size) {

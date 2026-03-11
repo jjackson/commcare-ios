@@ -9,10 +9,8 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
 
 abstract class XPathUnaryOpExpr : XPathOpExpr {
-    @JvmField
     var a: XPathExpression? = null
 
     constructor() // for deserialization of children

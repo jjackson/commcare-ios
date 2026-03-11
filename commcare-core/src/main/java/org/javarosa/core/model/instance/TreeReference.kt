@@ -1,6 +1,5 @@
 package org.javarosa.core.model.instance
 
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.util.externalizable.DeserializationException
@@ -22,14 +21,12 @@ class TreeReference : Externalizable, XPathAnalyzable {
 
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private var refLevel: Int = 0
-    @JvmField
     internal var contextType: Int = 0
 
     /**
      * Name of the reference's root, if it is a non-main instance, otherwise
      * null.
      */
-    @JvmField
     internal var instanceName: String? = null
 
     private var data: ArrayList<TreeReferenceLevel>? = null
@@ -806,7 +803,6 @@ class TreeReference : Externalizable, XPathAnalyzable {
         const val CONTEXT_ORIGINAL: Int = 2
         const val CONTEXT_INSTANCE: Int = 4
 
-        @JvmField
         val CONTEXT_TYPES: IntArray =
             intArrayOf(CONTEXT_ABSOLUTE, CONTEXT_INHERITED, CONTEXT_ORIGINAL, CONTEXT_INSTANCE)
 
@@ -839,14 +835,12 @@ class TreeReference : Externalizable, XPathAnalyzable {
          *
          * @return a reference that represents a base 'current()' path
          */
-        @JvmStatic
         fun baseCurrentRef(): TreeReference {
             val currentRef = TreeReference(null, 0, CONTEXT_ORIGINAL)
             currentRef.contextType = CONTEXT_ORIGINAL
             return currentRef
         }
 
-        @JvmStatic
         fun buildRefFromTreeElement(elem: AbstractTreeElement?): TreeReference {
             var elem = elem
             var ref = selfRef()

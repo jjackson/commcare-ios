@@ -26,7 +26,6 @@ object LocalizerManager {
 
     private var useThreadLocal: Boolean = false
 
-    @JvmStatic
     fun getGlobalLocalizer(): Localizer? {
         return if (useThreadLocal) {
             threadLocalLocalizer.get()
@@ -35,7 +34,6 @@ object LocalizerManager {
         }
     }
 
-    @JvmStatic
     fun init(force: Boolean) {
         if (useThreadLocal) {
             if (threadLocalLocalizer.get() == null || force) {
@@ -48,12 +46,10 @@ object LocalizerManager {
         }
     }
 
-    @JvmStatic
     fun setUseThreadLocalStrategy(useThreadLocal: Boolean) {
         this.useThreadLocal = useThreadLocal
     }
 
-    @JvmStatic
     fun clearInstance() {
         threadLocalLocalizer.set(null)
         staticLocalizer = null

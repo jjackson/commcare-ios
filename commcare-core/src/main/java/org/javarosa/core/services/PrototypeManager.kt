@@ -17,7 +17,6 @@ object PrototypeManager {
 
     private var useThreadLocalStrategy: Boolean = false
 
-    @JvmStatic
     fun useThreadLocalStrategy(useThreadLocal: Boolean) {
         useThreadLocalStrategy = useThreadLocal
     }
@@ -34,7 +33,6 @@ object PrototypeManager {
         rebuild()
     }
 
-    @JvmStatic
     fun registerPrototypes(classNames: Array<String>) {
         for (className in classNames) {
             registerPrototype(className)
@@ -49,7 +47,6 @@ object PrototypeManager {
         }
     }
 
-    @JvmStatic
     fun getDefault(): PrototypeFactory? {
         if (getCurrentStaticFactory() == null) {
             rebuild()

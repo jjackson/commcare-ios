@@ -20,7 +20,6 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 class XPathConditional : IConditionExpr {
 
@@ -138,7 +137,6 @@ class XPathConditional : IConditionExpr {
          * @param originalContextRef Context reference pointing to the nodeset
          *                           reference; used for expanding 'current()'
          */
-        @JvmStatic
         private fun getExprsTriggersAccumulator(
             expr: XPathExpression,
             triggers: ArrayList<TreeReference>,

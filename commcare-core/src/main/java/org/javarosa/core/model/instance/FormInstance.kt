@@ -255,7 +255,6 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
         const val META_XMLNS: String = "XMLNS"
         const val META_ID: String = "instance_id"
 
-        @JvmStatic
         fun isHomogeneous(a: TreeElement, b: TreeElement): Boolean {
             if (a.isLeaf && b.isLeaf) {
                 return true
