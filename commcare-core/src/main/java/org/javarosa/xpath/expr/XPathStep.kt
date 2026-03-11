@@ -2,15 +2,15 @@ package org.javarosa.xpath.expr
 
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 class XPathStep : Externalizable {
     @JvmField
@@ -115,13 +115,13 @@ class XPathStep : Externalizable {
                 TEST_NAMESPACE_WILDCARD -> if (namespace != other.namespace) {
                     return false
                 }
-                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!ExtUtil.equals(literal, other.literal, false)) {
+                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!SerializationHelpers.nullEquals(literal, other.literal, false)) {
                     return false
                 }
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ExtUtil.arrayEquals(predicates as Array<Any?>, other.predicates as Array<Any?>, false)
+            return SerializationHelpers.arrayEquals(predicates as Array<Any?>, other.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -160,13 +160,13 @@ class XPathStep : Externalizable {
                 TEST_NAMESPACE_WILDCARD -> if (namespace != o.namespace) {
                     return false
                 }
-                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!ExtUtil.equals(literal, o.literal, false)) {
+                TEST_TYPE_PROCESSING_INSTRUCTION -> if (!SerializationHelpers.nullEquals(literal, o.literal, false)) {
                     return false
                 }
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
+            return SerializationHelpers.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -186,36 +186,35 @@ class XPathStep : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        axis = ExtUtil.readInt(`in`)
-        test = ExtUtil.readInt(`in`)
+        axis = SerializationHelpers.readInt(`in`)
+        test = SerializationHelpers.readInt(`in`)
 
         when (test) {
-            TEST_NAME -> name = ExtUtil.read(`in`, XPathQName::class.java, pf) as XPathQName
-            TEST_NAMESPACE_WILDCARD -> namespace = ExtUtil.readString(`in`)
-            TEST_TYPE_PROCESSING_INSTRUCTION -> literal = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
+            TEST_NAME -> name = SerializationHelpers.readExternalizable(`in`, pf) { XPathQName() }
+            TEST_NAMESPACE_WILDCARD -> namespace = SerializationHelpers.readString(`in`)
+            TEST_TYPE_PROCESSING_INSTRUCTION -> literal = SerializationHelpers.readNullableString(`in`, pf)
         }
 
-        @Suppress("UNCHECKED_CAST")
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
+        val v = SerializationHelpers.readListPoly(`in`, pf)
         predicates = Array(v.size) { i -> v[i] as XPathExpression }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, axis.toLong())
-        ExtUtil.writeNumeric(out, test.toLong())
+        SerializationHelpers.writeNumeric(out, axis.toLong())
+        SerializationHelpers.writeNumeric(out, test.toLong())
 
         when (test) {
-            TEST_NAME -> ExtUtil.write(out, name!!)
-            TEST_NAMESPACE_WILDCARD -> ExtUtil.writeString(out, namespace!!)
-            TEST_TYPE_PROCESSING_INSTRUCTION -> ExtUtil.write(out, ExtWrapNullable(literal))
+            TEST_NAME -> SerializationHelpers.write(out, name!!)
+            TEST_NAMESPACE_WILDCARD -> SerializationHelpers.writeString(out, namespace!!)
+            TEST_TYPE_PROCESSING_INSTRUCTION -> SerializationHelpers.writeNullable(out, literal)
         }
 
         val v = ArrayList<XPathExpression>()
         for (predicate in predicates) {
             v.add(predicate)
         }
-        ExtUtil.write(out, ExtWrapListPoly(v))
+        SerializationHelpers.writeListPoly(out, v)
     }
 
     fun intern(): XPathStep {

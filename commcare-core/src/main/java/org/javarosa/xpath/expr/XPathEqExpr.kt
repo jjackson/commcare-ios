@@ -3,12 +3,13 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
 
 class XPathEqExpr : XPathBinaryOpExpr {
     private var isEqOp: Boolean = false
@@ -34,7 +35,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        isEqOp = ExtUtil.readBool(`in`)
+        isEqOp = SerializationHelpers.readBool(`in`)
         readExpressions(`in`, pf)
 
         if (isEqOp) {
@@ -42,14 +43,14 @@ class XPathEqExpr : XPathBinaryOpExpr {
         } else {
             op = NEQ
         }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeBool(out, isEqOp)
+        SerializationHelpers.writeBool(out, isEqOp)
         writeExpressions(out)
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.write(out, cacheState)
     }
 
     override fun toPrettyString(): String {

@@ -1,4 +1,5 @@
 package org.javarosa.xpath
+import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.instance.TreeReference
 

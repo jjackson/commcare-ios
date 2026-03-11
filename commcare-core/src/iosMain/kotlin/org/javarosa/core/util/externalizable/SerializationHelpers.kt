@@ -1,0 +1,175 @@
+package org.javarosa.core.util.externalizable
+
+import org.javarosa.core.model.utils.PlatformDate
+
+/**
+ * iOS implementation of SerializationHelpers.
+ * Implements the serialization protocol directly, compatible with JVM wire format.
+ */
+actual object SerializationHelpers {
+
+    actual fun readNumeric(`in`: PlatformDataInputStream): Long {
+        val w = ExtWrapIntEncodingUniform()
+        w.readExternal(`in`, PrototypeFactory())
+        return w.`val` as Long
+    }
+
+    actual fun writeNumeric(out: PlatformDataOutputStream, v: Long) {
+        val w = ExtWrapIntEncodingUniform(v)
+        w.writeExternal(out)
+    }
+
+    actual fun readInt(`in`: PlatformDataInputStream): Int {
+        return readNumeric(`in`).toInt()
+    }
+
+    actual fun readString(`in`: PlatformDataInputStream): String {
+        return `in`.readUTF()
+    }
+
+    actual fun writeString(out: PlatformDataOutputStream, s: String) {
+        out.writeUTF(s)
+    }
+
+    actual fun readBool(`in`: PlatformDataInputStream): Boolean {
+        return `in`.readBoolean()
+    }
+
+    actual fun writeBool(out: PlatformDataOutputStream, b: Boolean) {
+        out.writeBoolean(b)
+    }
+
+    actual fun readDecimal(`in`: PlatformDataInputStream): Double {
+        return `in`.readDouble()
+    }
+
+    actual fun writeDecimal(out: PlatformDataOutputStream, d: Double) {
+        out.writeDouble(d)
+    }
+
+    actual fun write(out: PlatformDataOutputStream, data: Any) {
+        when (data) {
+            is Externalizable -> data.writeExternal(out)
+            is Byte -> writeNumeric(out, data.toLong())
+            is Short -> writeNumeric(out, data.toLong())
+            is Int -> writeNumeric(out, data.toLong())
+            is Long -> writeNumeric(out, data)
+            is Char -> out.writeChar(data.code)
+            is Float -> writeDecimal(out, data.toDouble())
+            is Double -> writeDecimal(out, data)
+            is Boolean -> writeBool(out, data)
+            is String -> writeString(out, data)
+            is PlatformDate -> writeNumeric(out, data.getTime())
+            is ByteArray -> {
+                writeNumeric(out, data.size.toLong())
+                if (data.isNotEmpty()) out.write(data)
+            }
+            else -> throw IllegalArgumentException("Not a serializable datatype: ${data::class.simpleName}")
+        }
+    }
+
+    actual fun <T : Externalizable> readExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T {
+        val instance = creator()
+        instance.readExternal(`in`, pf)
+        return instance
+    }
+
+    actual fun readTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any {
+        val tag = ByteArray(PrototypeFactory.getClassHashSize())
+        `in`.read(tag, 0, tag.size)
+
+        if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
+            throw DeserializationException(
+                "Wrapper tags in tagged serialization not yet supported on iOS"
+            )
+        }
+
+        val obj = pf.getInstance(tag)
+        if (obj is Externalizable) {
+            obj.readExternal(`in`, pf)
+        }
+        return obj
+    }
+
+    actual fun writeTagged(out: PlatformDataOutputStream, obj: Any) {
+        // On iOS, we need the PrototypeFactory to compute the class hash
+        // For now, throw — tagged writes require platform-specific hash computation
+        throw UnsupportedOperationException(
+            "Tagged serialization writes not yet supported on iOS"
+        )
+    }
+
+    actual fun readListPoly(`in`: PlatformDataInputStream, pf: PrototypeFactory): ArrayList<Any?> {
+        val size = readNumeric(`in`).toInt()
+        val list = ArrayList<Any?>(size)
+        for (i in 0 until size) {
+            list.add(readTagged(`in`, pf))
+        }
+        return list
+    }
+
+    actual fun writeListPoly(out: PlatformDataOutputStream, list: List<*>) {
+        writeNumeric(out, list.size.toLong())
+        for (item in list) {
+            writeTagged(out, item!!)
+        }
+    }
+
+    actual fun <T : Externalizable> readList(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): ArrayList<T> {
+        val size = readNumeric(`in`).toInt()
+        val list = ArrayList<T>(size)
+        for (i in 0 until size) {
+            val item = creator()
+            item.readExternal(`in`, pf)
+            list.add(item)
+        }
+        return list
+    }
+
+    actual fun writeList(out: PlatformDataOutputStream, list: List<*>) {
+        writeNumeric(out, list.size.toLong())
+        for (item in list) {
+            write(out, item!!)
+        }
+    }
+
+    actual fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String? {
+        return if (`in`.readBoolean()) readString(`in`) else null
+    }
+
+    actual fun writeNullable(out: PlatformDataOutputStream, value: Any?) {
+        if (value != null) {
+            out.writeBoolean(true)
+            write(out, value)
+        } else {
+            out.writeBoolean(false)
+        }
+    }
+
+    actual fun arrayEquals(a: Array<Any?>, b: Array<Any?>, unwrap: Boolean): Boolean {
+        if (a.size != b.size) return false
+        for (i in a.indices) {
+            if (!nullEquals(a[i], b[i], unwrap)) return false
+        }
+        return true
+    }
+
+    actual fun nullEquals(a: Any?, b: Any?, unwrap: Boolean): Boolean {
+        val av = if (unwrap) unwrapValue(a) else a
+        val bv = if (unwrap) unwrapValue(b) else b
+        if (av == null) return bv == null
+        return av == bv
+    }
+
+    private fun unwrapValue(o: Any?): Any? {
+        return if (o is ExternalizableWrapper) o.baseValue() else o
+    }
+}

@@ -1,4 +1,5 @@
 package org.javarosa.xpath.parser
+import kotlin.jvm.JvmStatic
 
 import org.javarosa.xpath.expr.XPathQName
 
@@ -74,7 +75,7 @@ object Lexer {
                     skip = 2
                 } else if (isDigit(d)) {
                     skip = matchNumeric(expr, i)
-                    token = Token(Token.NUM, java.lang.Double.valueOf(expr.substring(i, i + skip)))
+                    token = Token(Token.NUM, expr.substring(i, i + skip).toDouble())
                 } else {
                     token = Token(Token.DOT)
                 }
@@ -115,7 +116,7 @@ object Lexer {
                 }
             } else if (isDigit(c)) {
                 skip = matchNumeric(expr, i)
-                token = Token(Token.NUM, java.lang.Double.valueOf(expr.substring(i, i + skip)))
+                token = Token(Token.NUM, expr.substring(i, i + skip).toDouble())
             } else if (context == LEX_CONTEXT_VAL && (isAlpha(c) || c == '_'.code)) {
                 val len = matchQName(expr, i)
                 val name = expr.substring(i, i + len)
@@ -157,11 +158,11 @@ object Lexer {
     @Throws(XPathSyntaxException::class)
     private fun badParse(expr: String, i: Int, c: Char) {
         val start = "\u034E$c"
-        val preContext = (if (Math.max(0, i - CONTEXT_LENGTH) != 0) "..." else "") +
-                expr.substring(Math.max(0, i - CONTEXT_LENGTH), Math.max(0, i)).trim()
+        val preContext = (if (maxOf(0, i - CONTEXT_LENGTH) != 0) "..." else "") +
+                expr.substring(maxOf(0, i - CONTEXT_LENGTH), maxOf(0, i)).trim()
         val postcontext = if (i == expr.length - 1) "" else
-            expr.substring(Math.min(i + 1, expr.length - 1), Math.min(i + CONTEXT_LENGTH, expr.length)).trim() +
-                    (if (Math.min(i + CONTEXT_LENGTH, expr.length) != expr.length) "..." else "")
+            expr.substring(minOf(i + 1, expr.length - 1), minOf(i + CONTEXT_LENGTH, expr.length)).trim() +
+                    (if (minOf(i + CONTEXT_LENGTH, expr.length) != expr.length) "..." else "")
 
         throw XPathSyntaxException("Couldn't understand the expression starting at this point: " + (preContext + start + postcontext))
     }
@@ -219,10 +220,10 @@ object Lexer {
     }
 
     private fun isDigit(c: Int): Boolean {
-        return c >= 0 && Character.isDigit(c.toChar())
+        return c >= 0 && c.toChar().isDigit()
     }
 
     private fun isAlpha(c: Int): Boolean {
-        return c >= 0 && (Character.isLowerCase(c.toChar()) || Character.isUpperCase(c.toChar()))
+        return c >= 0 && c.toChar().isLetter()
     }
 }

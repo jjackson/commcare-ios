@@ -1,4 +1,5 @@
 package org.javarosa.xpath.analysis
+import kotlin.jvm.JvmField
 
 /**
  * A type of XPathAnalyzer that can evaluate an XPath expression for whether a given condition

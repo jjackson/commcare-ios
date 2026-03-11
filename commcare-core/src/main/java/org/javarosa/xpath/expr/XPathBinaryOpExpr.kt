@@ -4,15 +4,15 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 abstract class XPathBinaryOpExpr : XPathOpExpr {
     @JvmField
@@ -46,28 +46,28 @@ abstract class XPathBinaryOpExpr : XPathOpExpr {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        op = ExtUtil.readInt(`in`)
+        op = SerializationHelpers.readInt(`in`)
         readExpressions(`in`, pf)
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     protected open fun readExpressions(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        a = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        b = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
+        a = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        b = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, op.toLong())
+        SerializationHelpers.writeNumeric(out, op.toLong())
         writeExpressions(out)
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.write(out, cacheState)
     }
 
     @Throws(PlatformIOException::class)
     protected open fun writeExpressions(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(a!!))
-        ExtUtil.write(out, ExtWrapTagged(b!!))
+        SerializationHelpers.writeTagged(out, a!!)
+        SerializationHelpers.writeTagged(out, b!!)
     }
 
     @Throws(UnpivotableExpressionException::class)

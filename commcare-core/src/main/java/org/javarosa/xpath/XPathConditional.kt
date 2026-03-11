@@ -7,9 +7,8 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathBinaryOpExpr
 import org.javarosa.xpath.expr.XPathExpression
@@ -20,6 +19,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 class XPathConditional : IConditionExpr {
 
@@ -106,14 +107,14 @@ class XPathConditional : IConditionExpr {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        expr = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        hasNow = ExtUtil.readBool(`in`)
+        expr = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        hasNow = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapTagged(expr!!))
-        ExtUtil.writeBool(out, hasNow)
+        SerializationHelpers.writeTagged(out, expr!!)
+        SerializationHelpers.writeBool(out, hasNow)
     }
 
     override fun toString(): String {

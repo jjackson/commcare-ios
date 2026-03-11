@@ -1,13 +1,14 @@
 package org.javarosa.xpath.expr
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * Holder object for all of the state values an InFormCacheableExpr needs to keep track of
@@ -27,19 +28,19 @@ open class CacheableExprState : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        computedCacheability = ExtUtil.readBool(`in`)
-        exprIsCacheable = ExtUtil.readBool(`in`)
-        computedContextTypes = ExtUtil.readBool(`in`)
-        contextRefIsRelevant = ExtUtil.readBool(`in`)
-        originalContextRefIsRelevant = ExtUtil.readBool(`in`)
+        computedCacheability = SerializationHelpers.readBool(`in`)
+        exprIsCacheable = SerializationHelpers.readBool(`in`)
+        computedContextTypes = SerializationHelpers.readBool(`in`)
+        contextRefIsRelevant = SerializationHelpers.readBool(`in`)
+        originalContextRefIsRelevant = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeBool(out, computedCacheability)
-        ExtUtil.writeBool(out, exprIsCacheable)
-        ExtUtil.writeBool(out, computedContextTypes)
-        ExtUtil.writeBool(out, contextRefIsRelevant)
-        ExtUtil.writeBool(out, originalContextRefIsRelevant)
+        SerializationHelpers.writeBool(out, computedCacheability)
+        SerializationHelpers.writeBool(out, exprIsCacheable)
+        SerializationHelpers.writeBool(out, computedContextTypes)
+        SerializationHelpers.writeBool(out, contextRefIsRelevant)
+        SerializationHelpers.writeBool(out, originalContextRefIsRelevant)
     }
 }

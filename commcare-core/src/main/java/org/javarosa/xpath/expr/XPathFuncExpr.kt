@@ -5,9 +5,8 @@ import org.javarosa.core.model.condition.IFunctionHandler
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
@@ -16,6 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * Base class for xpath function expressions.
@@ -110,7 +110,7 @@ abstract class XPathFuncExpr : XPathExpression {
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ExtUtil.arrayEquals(args as Array<Any?>, o.args as Array<Any?>, false)
+            return SerializationHelpers.arrayEquals(args as Array<Any?>, o.args as Array<Any?>, false)
         } else {
             return false
         }
@@ -126,25 +126,25 @@ abstract class XPathFuncExpr : XPathExpression {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        expectedArgCount = ExtUtil.readInt(`in`)
-        evaluateArgsFirst = ExtUtil.readBool(`in`)
+        expectedArgCount = SerializationHelpers.readInt(`in`)
+        evaluateArgsFirst = SerializationHelpers.readBool(`in`)
 
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
+        val v = SerializationHelpers.readListPoly(`in`, pf)
         args = Array(v.size) { i -> v[i] as XPathExpression }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, expectedArgCount)
-        ExtUtil.write(out, evaluateArgsFirst)
+        SerializationHelpers.write(out, expectedArgCount)
+        SerializationHelpers.write(out, evaluateArgsFirst)
 
         val v = ArrayList<XPathExpression>()
         for (arg in args) {
             v.add(arg)
         }
-        ExtUtil.write(out, ExtWrapListPoly(v))
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.writeListPoly(out, v)
+        SerializationHelpers.write(out, cacheState)
     }
 
     @Throws(UnpivotableExpressionException::class)

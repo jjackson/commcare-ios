@@ -1,4 +1,5 @@
 package org.javarosa.xpath.parser.ast
+import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathNumericLiteral

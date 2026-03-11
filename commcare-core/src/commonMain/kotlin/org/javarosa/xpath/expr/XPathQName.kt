@@ -1,14 +1,14 @@
 package org.javarosa.xpath.expr
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * An XPathQName is string literal that meets the requirements to be an element or attribute
@@ -64,7 +64,7 @@ class XPathQName : Externalizable {
             if (cachedHashCode != other.hashCode()) {
                 return false
             }
-            return ExtUtil.equals(namespace, other.namespace, false) && name == other.name
+            return SerializationHelpers.nullEquals(namespace, other.namespace, false) && name == other.name
         } else {
             return false
         }
@@ -72,14 +72,14 @@ class XPathQName : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        namespace = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        name = ExtUtil.readString(`in`)
+        namespace = SerializationHelpers.readNullableString(`in`, pf)
+        name = SerializationHelpers.readString(`in`)
         cacheCode()
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapNullable(namespace))
-        ExtUtil.writeString(out, name!!)
+        SerializationHelpers.writeNullable(out, namespace)
+        SerializationHelpers.writeString(out, name!!)
     }
 }
