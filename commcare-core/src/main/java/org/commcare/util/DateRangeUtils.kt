@@ -3,7 +3,7 @@ package org.commcare.util
 import org.commcare.modern.util.Pair
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 import java.util.Locale
 
 object DateRangeUtils {
@@ -40,7 +40,7 @@ object DateRangeUtils {
     }
 
     @Suppress("DEPRECATION")
-    private fun getTimeFromDateOffsettingTz(date: Date): Long {
+    private fun getTimeFromDateOffsettingTz(date: PlatformDate): Long {
         return date.time - date.timezoneOffset * 60 * 1000
     }
 
@@ -85,6 +85,6 @@ object DateRangeUtils {
     // Converts given time as yyyy-mm-dd
     @JvmStatic
     fun getDateFromTime(time: Long): String {
-        return SimpleDateFormat(DATE_FORMAT, Locale.US).format(Date(time))
+        return SimpleDateFormat(DATE_FORMAT, Locale.US).format(PlatformDate(time))
     }
 }

@@ -14,7 +14,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * Custom function that is dispatched at runtime
@@ -126,7 +126,7 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
                                 typed[i] = FunctionUtils.toNumeric(args[i])
                             } else if (prototype[i] == String::class.java) {
                                 typed[i] = FunctionUtils.toString(args[i])
-                            } else if (prototype[i] == Date::class.java) {
+                            } else if (prototype[i] == PlatformDate::class.java) {
                                 typed[i] = FunctionUtils.toDate(args[i])
                             }
                         } catch (xptme: XPathTypeMismatchException) {
