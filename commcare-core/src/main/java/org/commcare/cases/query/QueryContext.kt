@@ -137,20 +137,6 @@ open class QueryContext {
         return cache.getQueryCacheOrNull(cacheType)
     }
 
-    /**
-     * Java-compatible overload that accepts Class<T> and uses reflection to create instances.
-     * Prefer the KClass version with factory lambda for new Kotlin code.
-     */
-    fun <T : QueryCache> getQueryCache(cacheType: Class<T>): T {
-        return cache.getQueryCache(cacheType.kotlin) {
-            try {
-                cacheType.getDeclaredConstructor().newInstance()
-            } catch (e: Exception) {
-                throw RuntimeException("Couldn't create cache $cacheType", e)
-            }
-        }
-    }
-
     fun setHackyOriginalContextBody(hackyOriginalContextBody: CurrentModelQuerySet?) {
         if (hackyOriginalContextBody != null) {
             getQueryCache(QuerySetCache::class) { QuerySetCache() }

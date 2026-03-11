@@ -118,7 +118,7 @@ public class IndexedFixtureTests {
         EvaluationContext ecForTest = ec.spawnWithCleanLifecycle();
 
         QueryContext context = ecForTest.getCurrentQueryContext();
-        ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
+        ScopeLimitedReferenceRequestCache cache = org.commcare.cases.query.QueryContextJvmKt.getQueryCache(context, ScopeLimitedReferenceRequestCache.class);
 
         String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";
         XPathExpression expr = XPathParseTool.INSTANCE.parseXPath(exprString);
