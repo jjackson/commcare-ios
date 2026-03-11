@@ -10,7 +10,7 @@ import org.javarosa.core.model.instance.InvalidReferenceException
 import org.javarosa.core.model.instance.TreeElement
 
 
-import datadog.trace.api.Trace
+import org.javarosa.core.model.trace.PlatformTrace
 import kotlin.jvm.JvmStatic
 
 /**
@@ -48,7 +48,7 @@ class FormEntryController {
      *
      * @return OK if save was successful, error if a constraint was violated.
      */
-    @Trace
+    @PlatformTrace
     fun answerQuestion(index: FormIndex, data: IAnswerData?): Int {
         val q = model.getQuestionPrompt(index).getQuestion()
 

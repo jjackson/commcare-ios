@@ -22,7 +22,7 @@ import org.javarosa.core.util.UnregisteredLocaleException
 import org.javarosa.xform.parse.XFormParser
 
 
-import datadog.trace.api.Trace
+import org.javarosa.core.model.trace.PlatformTrace
 
 /**
  * This class gives you all the information you need to display a question when
@@ -204,7 +204,7 @@ open class FormEntryPrompt : FormEntryCaption {
         return getSelectChoices(true)
     }
 
-    @Trace
+    @PlatformTrace
     open fun getSelectChoices(shouldAttemptDynamicPopulation: Boolean): ArrayList<SelectChoice>? {
         val q = getQuestion()
         val itemset = q.getDynamicChoices()

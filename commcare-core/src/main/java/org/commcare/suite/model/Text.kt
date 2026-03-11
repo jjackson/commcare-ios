@@ -1,6 +1,5 @@
 package org.commcare.suite.model
 
-import io.reactivex.Single
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.IFunctionHandler
 import org.javarosa.core.model.utils.DateUtils
@@ -266,18 +265,10 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
      *
      * The query evaluation will be abandoned if disposed.
      */
-    fun getDisposableSingleForEvaluation(ec: EvaluationContext?): Single<String> {
+    fun getDisposableSingleForEvaluation(ec: EvaluationContext?): PlatformSingle<String> {
         val abandonableContext = ec!!.spawnWithCleanLifecycle()
-
-        val toCancel = arrayOfNulls<Thread>(1)
-        return Single.fromCallable {
-            toCancel[0] = Thread.currentThread()
+        return platformSingleFromCallable {
             evaluate(abandonableContext)
-        }.doOnDispose {
-            if (toCancel[0] != null) {
-                toCancel[0]!!.interrupt()
-                toCancel[0] = null
-            }
         }
     }
 
