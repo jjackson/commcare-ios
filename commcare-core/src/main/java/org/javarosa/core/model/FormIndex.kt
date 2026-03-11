@@ -242,7 +242,7 @@ class FormIndex : Externalizable {
 
     fun compareTo(o: Any?): Int {
         if (o !is FormIndex)
-            throw IllegalArgumentException("Attempt to compare Object of type ${o!!.javaClass.name} to a FormIndex")
+            throw IllegalArgumentException("Attempt to compare Object of type ${o!!::class.simpleName} to a FormIndex")
 
         val a = this
         val b = o

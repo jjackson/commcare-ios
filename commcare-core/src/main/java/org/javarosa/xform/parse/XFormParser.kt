@@ -289,7 +289,7 @@ class XFormParser {
                 }
             }
             if (hasElements && hasText) {
-                System.out.println("Warning: instance node '" + node.name + "' contains both elements and text as children; text ignored")
+                println("Warning: instance node '" + node.name + "' contains both elements and text as children; text ignored")
             }
 
             // check for repeat templating
@@ -613,7 +613,7 @@ class XFormParser {
                 doc.parse(parser)
             } catch (e: PlatformXmlParserException) {
                 val errorMsg = "XML Syntax Error at Line: ${e.lineNumber}, Column: ${e.columnNumber}!"
-                System.err.println(errorMsg)
+                org.javarosa.core.util.platformStdErrPrintln(errorMsg)
                 e.printStackTrace()
                 throw XFormParseException(errorMsg)
             } catch (e: PlatformIOException) {
@@ -621,14 +621,14 @@ class XFormParser {
                 throw e
             } catch (e: Exception) {
                 val errorMsg = "Unhandled Exception while Parsing XForm"
-                System.err.println(errorMsg)
+                org.javarosa.core.util.platformStdErrPrintln(errorMsg)
                 e.printStackTrace()
                 throw XFormParseException(errorMsg)
             } finally {
                 try {
                     reader.close()
                 } catch (e: PlatformIOException) {
-                    System.out.println("Error closing reader")
+                    println("Error closing reader")
                     e.printStackTrace()
                 }
             }
@@ -1409,7 +1409,7 @@ class XFormParser {
                     )
                 }
             } catch (el: RuntimeException) {
-                System.out.println(getVagueLocation(e))
+                println(getVagueLocation(e))
                 throw el
             }
         } else {
@@ -1569,7 +1569,7 @@ class XFormParser {
                 if (NAMESPACE_HTML == child.namespace) {
                     sb.append(XFormSerializer.elementToString(child))
                 } else {
-                    System.out.println(
+                    println(
                         "Unrecognized tag inside of text: <${child.name}>. " +
                                 "Did you intend to use HTML markup? If so, ensure that the element is defined in " +
                                 "the HTML namespace."
@@ -2105,7 +2105,7 @@ class XFormParser {
             if (key.startsWith("$textID;")) {
                 val textForm = key.substring(key.indexOf(";") + 1, key.length)
                 if (!itextKnownForms.contains(textForm)) {
-                    System.out.println("adding unexpected special itext form: $textForm to list of expected forms")
+                    println("adding unexpected special itext form: $textForm to list of expected forms")
                     itextKnownForms.add(textForm)
                 }
                 return true
@@ -2520,7 +2520,7 @@ class XFormParser {
             val ref = DataInstance.unpackReference(bind.reference!!)
 
             if (ref.size() == 0) {
-                System.out.println("Cannot bind to '/'; ignoring bind...")
+                println("Cannot bind to '/'; ignoring bind...")
                 bindings.removeAt(i)
                 i--
             } else {

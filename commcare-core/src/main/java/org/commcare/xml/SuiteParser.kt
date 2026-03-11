@@ -174,7 +174,7 @@ open class SuiteParser : ElementParser<Suite> {
                             val endpoint = EndpointParser(parser).parse()
                             endpoints[endpoint.id!!] = endpoint
                         }
-                        else -> System.out.println("Unrecognized Tag: ${parser.getName()}")
+                        else -> println("Unrecognized Tag: ${parser.getName()}")
                     }
                 }
                 eventType = parser.next()

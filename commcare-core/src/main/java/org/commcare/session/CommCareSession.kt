@@ -965,7 +965,7 @@ open class CommCareSession {
             }
         }
         if (stepId == -1) {
-            System.out.println("I don't think this should be possible...")
+            println("I don't think this should be possible...")
             return null
         }
 

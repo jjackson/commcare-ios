@@ -38,7 +38,7 @@ class Property : Persistable, IMetaData {
         val nameindex = fullString.indexOf(",")
         value = ArrayList()
         if (nameindex == -1) {
-            System.out.println("WARNING: Property in RMS with no value:$fullString")
+            println("WARNING: Property in RMS with no value:$fullString")
             name = fullString.substring(0, fullString.length)
         } else {
             name = fullString.substring(0, nameindex)

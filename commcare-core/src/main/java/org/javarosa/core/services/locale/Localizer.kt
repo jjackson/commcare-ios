@@ -440,7 +440,7 @@ class Localizer @JvmOverloads constructor(
             while (i != -1) {
                 val j = text.indexOf("}", i)
                 if (j == -1) {
-                    System.err.println("Warning: unterminated \${...} arg")
+                    org.javarosa.core.util.platformStdErrPrintln("Warning: unterminated \${...} arg")
                     break
                 }
 
@@ -470,7 +470,7 @@ class Localizer @JvmOverloads constructor(
 
                 // abort if no closing bracket
                 if (j == -1) {
-                    System.err.println("Warning: unterminated \${...} arg")
+                    org.javarosa.core.util.platformStdErrPrintln("Warning: unterminated \${...} arg")
                     break
                 }
 

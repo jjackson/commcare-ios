@@ -338,7 +338,7 @@ open class FormEntryPrompt : FormEntryCaption {
         } catch (nlt: NoLocalizedTextException) {
             //use fallback
         } catch (ule: UnregisteredLocaleException) {
-            System.err.println("Warning: No Locale set yet (while attempting to localizeText())")
+            org.javarosa.core.util.platformStdErrPrintln("Warning: No Locale set yet (while attempting to localizeText())")
         }
 
         return fallbackText

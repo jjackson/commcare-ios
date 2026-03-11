@@ -1052,7 +1052,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                             return ""
                         }
 
-                        System.out.println("here!!")
+                        println("here!!")
 
                         val choices = q.getChoices()!!
                         for (ch in choices) {
@@ -1123,7 +1123,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                     try {
                         ix = argName.toInt()
                     } catch (nfe: NumberFormatException) {
-                        System.err.println("Warning: expect arguments to be numeric [$argName]")
+                        org.javarosa.core.util.platformStdErrPrintln("Warning: expect arguments to be numeric [$argName]")
                     }
 
                     if (ix < 0 || ix >= outputFragments.size) {

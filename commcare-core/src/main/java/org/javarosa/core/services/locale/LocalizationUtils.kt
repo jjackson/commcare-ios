@@ -50,7 +50,7 @@ object LocalizationUtils {
         val equalIndex = line.indexOf('=')
         if (equalIndex == -1) {
             if (line.trim() != "") {
-                System.out.println("Invalid line (#$curline) read: $line")
+                println("Invalid line (#$curline) read: $line")
             }
         } else {
             //Check to see if there's anything after the '=' first. Otherwise there

@@ -26,7 +26,7 @@ class XFormUtils {
         fun getFormFromResource(resource: String): FormDef? {
             val `is` = System::class.java.getResourceAsStream(resource)
             if (`is` == null) {
-                System.err.println("Can't find form resource \"$resource\". Is it in the JAR?")
+                org.javarosa.core.util.platformStdErrPrintln("Can't find form resource \"$resource\". Is it in the JAR?")
                 return null
             }
 
@@ -54,7 +54,7 @@ class XFormUtils {
             try {
                 isr = InputStreamReader(inputStream, "UTF-8")
             } catch (uee: UnsupportedEncodingException) {
-                System.out.println("UTF 8 encoding unavailable, trying default encoding")
+                println("UTF 8 encoding unavailable, trying default encoding")
                 isr = InputStreamReader(inputStream)
             }
 
@@ -73,7 +73,7 @@ class XFormUtils {
                 try {
                     isr.close()
                 } catch (e: PlatformIOException) {
-                    System.err.println("IO Exception while closing stream.")
+                    org.javarosa.core.util.platformStdErrPrintln("IO Exception while closing stream.")
                     e.printStackTrace()
                 }
             }
@@ -91,7 +91,7 @@ class XFormUtils {
             try {
                 isr = InputStreamReader(inputStream, "UTF-8")
             } catch (uee: UnsupportedEncodingException) {
-                System.out.println("UTF 8 encoding unavailable, trying default encoding")
+                println("UTF 8 encoding unavailable, trying default encoding")
                 isr = InputStreamReader(inputStream)
             }
 
@@ -106,7 +106,7 @@ class XFormUtils {
                 try {
                     isr.close()
                 } catch (e: PlatformIOException) {
-                    System.err.println("IO Exception while closing stream.")
+                    org.javarosa.core.util.platformStdErrPrintln("IO Exception while closing stream.")
                     e.printStackTrace()
                 }
             }
