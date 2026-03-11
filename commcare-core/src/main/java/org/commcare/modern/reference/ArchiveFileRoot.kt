@@ -6,7 +6,6 @@ import org.javarosa.core.reference.ReferenceFactory
 import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.PropertyUtils
 
-import java.util.HashMap
 import java.util.zip.ZipFile
 
 /**

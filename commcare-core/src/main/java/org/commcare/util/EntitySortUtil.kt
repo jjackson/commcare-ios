@@ -4,7 +4,7 @@ import org.commcare.cases.entity.Entity
 import org.commcare.cases.util.StringUtils
 import org.commcare.modern.util.Pair
 import org.javarosa.core.model.instance.TreeReference
-import java.util.Collections
+
 import java.util.Locale
 
 object EntitySortUtil {
@@ -56,7 +56,7 @@ object EntitySortUtil {
         }
         // If fuzzy search is enabled need to re-sort based on edit distance
         if (isFuzzySearchEnabled) {
-            Collections.sort(matchScores) { lhs, rhs -> lhs.second - rhs.second }
+            matchScores.sortWith { lhs, rhs -> lhs.second - rhs.second }
         }
 
         for (match in matchScores) {

@@ -23,7 +23,6 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
-import java.util.LinkedHashSet
 
 /**
  * Helper methods for procedures which are common to different Tree model

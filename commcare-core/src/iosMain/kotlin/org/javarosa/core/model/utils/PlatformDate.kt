@@ -21,10 +21,10 @@ actual class PlatformDate actual constructor() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformDate) return false
-        return time == other.time
+        return millis == other.millis
     }
 
-    override fun hashCode(): Int = time.hashCode()
+    override fun hashCode(): Int = millis.hashCode()
 
-    override fun toString(): String = "PlatformDate(time=$time)"
+    override fun toString(): String = "PlatformDate(millis=$millis)"
 }

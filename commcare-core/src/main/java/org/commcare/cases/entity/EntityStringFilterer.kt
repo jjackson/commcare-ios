@@ -4,7 +4,6 @@ import org.commcare.modern.util.Pair
 import org.commcare.util.EntityProvider
 import org.commcare.util.EntitySortUtil
 import org.javarosa.core.model.instance.TreeReference
-import java.util.ArrayList
 import java.util.Locale
 
 /**

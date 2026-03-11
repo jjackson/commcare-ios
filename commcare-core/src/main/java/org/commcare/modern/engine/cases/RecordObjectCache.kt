@@ -2,7 +2,6 @@ package org.commcare.modern.engine.cases
 
 import org.commcare.cases.query.QueryCache
 
-import java.util.HashMap
 
 /**
  * A straightforward cache object query cache. Stores objects by their record ID.

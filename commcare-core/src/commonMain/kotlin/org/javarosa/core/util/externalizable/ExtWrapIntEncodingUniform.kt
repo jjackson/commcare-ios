@@ -60,10 +60,12 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
         }
     }
 
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         // do nothing
     }
 
+    @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: PlatformDataOutputStream) {
         // do nothing
     }

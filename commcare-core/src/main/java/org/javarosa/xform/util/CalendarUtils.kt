@@ -7,7 +7,6 @@ import org.javarosa.core.model.utils.DateUtils
 
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.Calendar
-import java.util.HashMap
 import java.util.TimeZone
 
 class CalendarUtils {

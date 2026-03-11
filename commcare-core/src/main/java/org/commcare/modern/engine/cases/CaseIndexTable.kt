@@ -3,8 +3,6 @@ package org.commcare.modern.engine.cases
 import org.commcare.cases.model.Case
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet
 
-import java.util.HashMap
-import java.util.LinkedHashSet
 
 /**
  * Created by willpride on 2/21/17.

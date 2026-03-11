@@ -12,7 +12,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Collections
 
 /**
  * Data class for single value query data elements
@@ -43,9 +42,9 @@ class ValueQueryData : QueryData {
 
     override fun getValues(context: EvaluationContext): Iterable<String> {
         return if (excludeExpr == null || !(excludeExpr!!.eval(context) as Boolean)) {
-            Collections.singletonList(FunctionUtils.toString(ref!!.eval(context)))
+            listOf(FunctionUtils.toString(ref!!.eval(context)))
         } else {
-            Collections.emptyList()
+            emptyList()
         }
     }
 

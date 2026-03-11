@@ -34,7 +34,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.NoSuchElementException
 
 /**
  * The CaseXML Parser is responsible for processing and performing
@@ -139,7 +138,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     }
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
-    private fun createCase(caseId: String, modified: java.util.Date, userId: String?): Case {
+    private fun createCase(caseId: String, modified: org.javarosa.core.model.utils.PlatformDate, userId: String?): Case {
         val data = arrayOfNulls<String>(3)
         var caseForBlock: Case? = null
 

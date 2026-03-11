@@ -2,6 +2,8 @@
 
 package org.javarosa.core.io
 
+import org.javarosa.core.util.externalizable.PlatformIOException
+
 /**
  * Platform-abstracted output stream for writing binary data.
  * On JVM, this is a typealias to java.io.OutputStream.
@@ -10,10 +12,15 @@ package org.javarosa.core.io
  * Do not construct directly — use [createByteArrayOutputStream] factory.
  */
 expect abstract class PlatformOutputStream() {
+    @Throws(PlatformIOException::class)
     abstract fun write(v: Int)
+    @Throws(PlatformIOException::class)
     open fun write(b: ByteArray)
+    @Throws(PlatformIOException::class)
     open fun write(b: ByteArray, off: Int, len: Int)
+    @Throws(PlatformIOException::class)
     open fun flush()
+    @Throws(PlatformIOException::class)
     open fun close()
 }
 

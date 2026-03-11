@@ -16,7 +16,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.Externalizable
-import java.util.LinkedHashSet
 
 /**
  * Instance root for storage-backed instances such as the case and ledger DBs

@@ -9,7 +9,6 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.LinkedHashMap
 
 /**
  * A bulk element parser reads multiple types of the same transaction together into a buffer of

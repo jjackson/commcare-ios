@@ -6,7 +6,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import java.io.IOException
 import java.io.InputStream
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * Element Parser is the core parsing element for XML files. Implementations
@@ -186,7 +186,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
      * returns a valid date, or null (if tolerated).
      */
     @Throws(InvalidStructureException::class)
-    protected fun getDateAttribute(attributeName: String, nullOk: Boolean): Date? {
+    protected fun getDateAttribute(attributeName: String, nullOk: Boolean): PlatformDate? {
         val dateValue = parser.getAttributeValue(null, attributeName)
         if (dateValue == null && !nullOk) {
             throw InvalidStructureException(
@@ -203,7 +203,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
         }
     }
 
-    protected open fun parseDateTime(dateValue: String?): Date? {
+    protected open fun parseDateTime(dateValue: String?): PlatformDate? {
         if (dateValue == null) return null
         return DateUtils.parseDateTime(dateValue)
     }

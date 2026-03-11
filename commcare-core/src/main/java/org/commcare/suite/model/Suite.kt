@@ -11,8 +11,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.ArrayList
-import java.util.HashMap
 
 /**
  * Suites are containers for a set of actions,

@@ -7,8 +7,6 @@ import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.Externalizable
 
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.HashMap
-import java.util.HashSet
 
 /**
  * Setup of platform-agnostic DB helper functions IE for generating SQL

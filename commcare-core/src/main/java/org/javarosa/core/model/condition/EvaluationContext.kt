@@ -25,7 +25,6 @@ import org.javarosa.xpath.XPathMissingInstanceException
 import org.javarosa.xpath.expr.ExpressionCacher
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.expr.XPathExpression
-import java.util.ArrayList
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -260,7 +259,7 @@ class EvaluationContext {
         if (value is Boolean ||
             value is Double ||
             value is String ||
-            value is java.util.Date ||
+            value is org.javarosa.core.model.utils.PlatformDate ||
             value is IExprDataType) {
             variables[name] = value
             return

@@ -20,7 +20,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
-import java.util.LinkedHashSet
 
 /**
  * The root element for the `<casedb>` abstract type. All children are

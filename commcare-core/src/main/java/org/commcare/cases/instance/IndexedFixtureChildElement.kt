@@ -12,9 +12,6 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.model.xform.XPathReference
-import java.util.HashMap
-import java.util.HashSet
-import java.util.LinkedHashSet
 
 /**
  * Child TreeElement of an indexed fixture whose data is loaded from a DB.

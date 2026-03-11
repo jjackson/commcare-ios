@@ -23,7 +23,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.Calendar
-import java.util.Collections
+
 import org.javarosa.core.model.utils.PlatformDate
 
 /**
@@ -214,7 +214,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
             throw RuntimeException("Too many arguments - Text params only support 10")
         }
 
-        Collections.sort(keys) { s1, s2 -> s1.compareTo(s2) }
+        keys.sortWith { s1, s2 -> s1.compareTo(s2) }
         return keys
     }
 
