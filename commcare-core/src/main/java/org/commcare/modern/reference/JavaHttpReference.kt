@@ -5,8 +5,8 @@ import org.commcare.util.NetworkStatus
 import org.javarosa.core.reference.Reference
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -24,12 +24,12 @@ class JavaHttpReference(private val uri: String) : Reference {
     }
 
     @Throws(PlatformIOException::class)
-    override fun getOutputStream(): OutputStream {
+    override fun getOutputStream(): PlatformOutputStream {
         throw PlatformIOException("Http references are read only!")
     }
 
     @Throws(PlatformIOException::class)
-    override fun getStream(): InputStream {
+    override fun getStream(): PlatformInputStream {
         try {
             val url = URL(uri)
             val conn = url.openConnection() as HttpURLConnection

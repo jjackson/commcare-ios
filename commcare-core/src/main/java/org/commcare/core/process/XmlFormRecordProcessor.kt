@@ -9,7 +9,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * Utility methods for processing XML transactions against a user sandbox.
@@ -29,7 +29,7 @@ object XmlFormRecordProcessor {
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
-    fun process(sandbox: UserSandbox, stream: InputStream) {
+    fun process(sandbox: UserSandbox, stream: PlatformInputStream) {
         process(stream, TransactionParserFactory { parser ->
             if (LedgerXmlParsers.STOCK_XML_NAMESPACE == parser.namespace) {
                 LedgerXmlParsers(parser, sandbox.getLedgerStorage())
@@ -48,7 +48,7 @@ object XmlFormRecordProcessor {
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
-    fun process(stream: InputStream, factory: TransactionParserFactory) {
+    fun process(stream: PlatformInputStream, factory: TransactionParserFactory) {
         val parser = DataModelPullParser(stream, factory, true, true)
         parser.parse()
     }

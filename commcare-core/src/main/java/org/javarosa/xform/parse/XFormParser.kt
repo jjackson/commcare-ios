@@ -50,7 +50,7 @@ import org.kxml2.kdom.Node
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
 import java.io.Reader
 
@@ -717,7 +717,7 @@ class XFormParser {
         }
 
         @JvmStatic
-        fun restoreDataModel(input: InputStream, restorableType: Class<*>?): FormInstance {
+        fun restoreDataModel(input: PlatformInputStream, restorableType: Class<*>?): FormInstance {
             val doc = getXMLDocument(InputStreamReader(input))
                 ?: throw RuntimeException("syntax error in XML instance; could not parse")
             return restoreDataModel(doc, restorableType)

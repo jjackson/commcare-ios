@@ -8,7 +8,7 @@ import org.javarosa.xform.parse.XFormParserFactory
 import org.kxml2.kdom.Element
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
 import java.io.UnsupportedEncodingException
 
@@ -42,10 +42,10 @@ class XFormUtils {
         @JvmStatic
         @Throws(XFormParseException::class)
         fun getFormFromInputStream(
-            `is`: InputStream,
+            `is`: PlatformInputStream,
             extensionParsers: ArrayList<QuestionExtensionParser>
         ): FormDef {
-            var inputStream: InputStream = `is`
+            var inputStream: PlatformInputStream = `is`
             var isr: InputStreamReader
 
             //Buffer the incoming data, since it's coming from disk.
@@ -81,8 +81,8 @@ class XFormUtils {
 
         @JvmStatic
         @Throws(XFormParseException::class)
-        fun getFormFromInputStream(`is`: InputStream): FormDef {
-            var inputStream: InputStream = `is`
+        fun getFormFromInputStream(`is`: PlatformInputStream): FormDef {
+            var inputStream: PlatformInputStream = `is`
             var isr: InputStreamReader
 
             //Buffer the incoming data, since it's coming from disk.

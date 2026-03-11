@@ -7,8 +7,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.util.Date
@@ -38,7 +38,7 @@ internal class FileBitCache(
     }
 
     @Throws(PlatformIOException::class)
-    override fun getCacheStream(): OutputStream {
+    override fun getCacheStream(): PlatformOutputStream {
         // generate write key/cipher
         try {
             val encrypter = Cipher.getInstance("AES")
@@ -62,7 +62,7 @@ internal class FileBitCache(
     }
 
     @Throws(PlatformIOException::class)
-    override fun retrieveCache(): InputStream {
+    override fun retrieveCache(): PlatformInputStream {
         try {
             // generate read key/cipher
             val decrypter = Cipher.getInstance("AES")

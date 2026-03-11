@@ -15,13 +15,13 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * @author ctsims
  */
 class ProfileParser(
-    suiteStream: InputStream,
+    suiteStream: PlatformInputStream,
     private val instance: CommCarePlatform?,
     private var table: ResourceTable,
     private var resourceId: String,

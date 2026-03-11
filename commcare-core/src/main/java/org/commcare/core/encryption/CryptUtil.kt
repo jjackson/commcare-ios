@@ -1,8 +1,9 @@
 package org.commcare.core.encryption
 
 import org.javarosa.core.io.StreamsUtil
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.io.createByteArrayOutputStream
+import org.javarosa.core.io.byteArrayOutputStreamToBytes
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.nio.charset.StandardCharsets
 import java.security.InvalidKeyException
@@ -70,10 +71,10 @@ object CryptUtil {
 
     @JvmStatic
     fun encrypt(input: ByteArray, cipher: Cipher): ByteArray {
-        val bis = ByteArrayInputStream(input)
+        val bis = createByteArrayInputStream(input)
         val cis = CipherInputStream(bis, cipher)
 
-        val bos = ByteArrayOutputStream()
+        val bos = createByteArrayOutputStream()
 
         try {
             StreamsUtil.writeFromInputToOutputNew(cis, bos)
@@ -81,7 +82,7 @@ object CryptUtil {
             throw RuntimeException(e)
         }
 
-        return bos.toByteArray()
+        return byteArrayOutputStreamToBytes(bos)
     }
 
     @JvmStatic

@@ -3,11 +3,11 @@ package org.javarosa.core.services.transport.payload
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.io.ByteArrayInputStream
+import org.javarosa.core.io.createByteArrayInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * A ByteArrayPayload is a simple payload consisting of a
@@ -46,8 +46,8 @@ class ByteArrayPayload : IDataPayload {
         this.type = IDataPayload.PAYLOAD_TYPE_XML
     }
 
-    override fun getPayloadStream(): InputStream {
-        return ByteArrayInputStream(payload)
+    override fun getPayloadStream(): PlatformInputStream {
+        return createByteArrayInputStream(payload)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)

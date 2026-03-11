@@ -5,7 +5,8 @@ import org.kxml2.kdom.Document
 import org.kxml2.kdom.Element
 import org.xmlpull.v1.XmlSerializer
 
-import java.io.ByteArrayOutputStream
+import org.javarosa.core.io.createByteArrayOutputStream
+import org.javarosa.core.io.byteArrayOutputStreamToBytes
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStreamWriter
@@ -17,13 +18,13 @@ class XFormSerializer {
         fun elementToString(e: Element): String? {
             val serializer = KXmlSerializer()
 
-            val bos = ByteArrayOutputStream()
+            val bos = createByteArrayOutputStream()
             val dos = DataOutputStream(bos)
             try {
                 serializer.setOutput(dos, null)
                 e.write(serializer)
                 serializer.flush()
-                return String(bos.toByteArray(), Charsets.UTF_8)
+                return String(byteArrayOutputStreamToBytes(bos), Charsets.UTF_8)
             } catch (uce: UnsupportedEncodingException) {
                 uce.printStackTrace()
             } catch (ex: Exception) {
@@ -58,12 +59,12 @@ class XFormSerializer {
                     }
                 }
             }
-            val bos = ByteArrayOutputStream()
+            val bos = createByteArrayOutputStream()
             val osw = OutputStreamWriter(bos, "UTF-8")
             serializer.setOutput(osw)
             doc.write(serializer)
             serializer.flush()
-            return bos.toByteArray()
+            return byteArrayOutputStreamToBytes(bos)
         }
     }
 

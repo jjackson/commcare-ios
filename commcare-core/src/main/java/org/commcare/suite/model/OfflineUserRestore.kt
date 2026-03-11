@@ -17,11 +17,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.kxml2.io.KXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 
-import java.io.ByteArrayInputStream
+import org.javarosa.core.io.createByteArrayInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 import java.io.UnsupportedEncodingException
 
 /**
@@ -49,7 +49,7 @@ class OfflineUserRestore : Persistable {
     }
 
     @Throws(PlatformIOException::class, InvalidReferenceException::class)
-    fun getRestoreStream(): InputStream {
+    fun getRestoreStream(): PlatformInputStream {
         return if (reference != null) {
             // user restore xml was installed to a file
             getStreamFromReference()
@@ -59,16 +59,16 @@ class OfflineUserRestore : Persistable {
         }
     }
 
-    private fun getInMemoryStream(): InputStream {
+    private fun getInMemoryStream(): PlatformInputStream {
         try {
-            return ByteArrayInputStream(restore!!.toByteArray(charset("UTF-8")))
+            return createByteArrayInputStream(restore!!.toByteArray(charset("UTF-8")))
         } catch (e: UnsupportedEncodingException) {
             throw RuntimeException(e)
         }
     }
 
     @Throws(InvalidReferenceException::class, PlatformIOException::class)
-    private fun getStreamFromReference(): InputStream {
+    private fun getStreamFromReference(): PlatformInputStream {
         val local = ReferenceManager.instance().DeriveReference(reference)
         return local.getStream()
     }
@@ -147,7 +147,7 @@ class OfflineUserRestore : Persistable {
             UnfullfilledRequirementsException::class, PlatformIOException::class, InvalidStructureException::class,
             PlatformXmlParserException::class, InvalidReferenceException::class
         )
-        fun buildInMemoryUserRestore(restoreStream: InputStream): OfflineUserRestore {
+        fun buildInMemoryUserRestore(restoreStream: PlatformInputStream): OfflineUserRestore {
             val offlineUserRestore = OfflineUserRestore()
             val restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream)
             offlineUserRestore.restore = String(restoreBytes)

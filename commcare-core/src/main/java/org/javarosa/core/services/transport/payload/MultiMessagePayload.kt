@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
+import org.javarosa.core.io.PlatformInputStream
 
 /**
  * @author Clayton Sims
@@ -45,7 +45,7 @@ class MultiMessagePayload : IDataPayload {
     }
 
     @Throws(PlatformIOException::class)
-    override fun getPayloadStream(): InputStream {
+    override fun getPayloadStream(): PlatformInputStream {
         val bigStream = MultiInputStream()
         val en = payloads.iterator()
         while (en.hasNext()) {

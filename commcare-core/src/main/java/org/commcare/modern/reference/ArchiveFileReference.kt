@@ -3,8 +3,8 @@ package org.commcare.modern.reference
 import org.javarosa.core.reference.Reference
 
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.InputStream
-import java.io.OutputStream
+import org.javarosa.core.io.PlatformInputStream
+import org.javarosa.core.io.PlatformOutputStream
 import java.util.zip.ZipFile
 
 /**
@@ -30,12 +30,12 @@ class ArchiveFileReference(
     }
 
     @Throws(PlatformIOException::class)
-    override fun getOutputStream(): OutputStream {
+    override fun getOutputStream(): PlatformOutputStream {
         throw PlatformIOException("Archive references are read only!")
     }
 
     @Throws(PlatformIOException::class)
-    override fun getStream(): InputStream {
+    override fun getStream(): PlatformInputStream {
         try {
             return mZipFile.getInputStream(mZipFile.getEntry(archiveURI))
         } catch (e: NullPointerException) {
