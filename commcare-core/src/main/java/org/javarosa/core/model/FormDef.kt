@@ -48,6 +48,7 @@ import org.javarosa.core.model.trace.PlatformTrace
 import org.javarosa.core.model.trace.setActiveSpanTag
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -1019,7 +1020,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                 }
 
                 override fun getPrototypes(): ArrayList<Any> {
-                    val proto = arrayOf<Class<*>>(String::class.java)
+                    val proto = arrayOf<Any>(String::class)
                     val v = ArrayList<Any>()
                     v.add(proto)
                     return v
@@ -1073,7 +1074,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
                 }
 
                 override fun getPrototypes(): ArrayList<Any> {
-                    val proto = arrayOf<Class<*>>(String::class.java, String::class.java)
+                    val proto = arrayOf<Any>(String::class, String::class)
                     val v = ArrayList<Any>()
                     v.add(proto)
                     return v
@@ -1590,21 +1591,13 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <X : XFormExtension> getExtension(extension: Class<X>): X {
+    fun <X : XFormExtension> getExtension(extension: KClass<X>, factory: () -> X): X {
         for (ex in extensions) {
-            if (ex.javaClass.isAssignableFrom(extension)) {
+            if (extension.isInstance(ex)) {
                 return ex as X
             }
         }
-        val newEx: X
-        try {
-            @Suppress("DEPRECATION")
-            newEx = extension.newInstance()
-        } catch (e: InstantiationException) {
-            throw RuntimeException("Illegally Structured XForm Extension " + extension.name)
-        } catch (e: IllegalAccessException) {
-            throw RuntimeException("Illegally Structured XForm Extension " + extension.name)
-        }
+        val newEx = factory()
         extensions.add(newEx)
         return newEx
     }

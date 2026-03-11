@@ -118,9 +118,9 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
 
                         override fun getPrototypes(): ArrayList<Any> {
                             val format = ArrayList<Any>()
-                            val prototypes = arrayOf<Class<*>>(
-                                PlatformDate::class.java,
-                                String::class.java
+                            val prototypes = arrayOf<Any>(
+                                PlatformDate::class,
+                                String::class
                             )
                             format.add(prototypes)
                             return format
@@ -140,7 +140,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
 
                         override fun getPrototypes(): ArrayList<Any> {
                             val format = ArrayList<Any>()
-                            val prototypes = arrayOf<Class<*>>()
+                            val prototypes = arrayOf<Any>()
                             format.add(prototypes)
                             return format
                         }

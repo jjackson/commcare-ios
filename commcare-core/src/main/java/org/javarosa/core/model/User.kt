@@ -141,12 +141,12 @@ class User : Persistable, Restorable, IMetaData {
     }
 
     override fun templateData(dm: FormInstance, parentRef: TreeReference) {
-        RestoreUtils.applyDataType(dm, "name", parentRef, String::class.java)
-        RestoreUtils.applyDataType(dm, "pass", parentRef, String::class.java)
-        RestoreUtils.applyDataType(dm, "type", parentRef, String::class.java)
-        RestoreUtils.applyDataType(dm, "user-id", parentRef, Int::class.java)
-        RestoreUtils.applyDataType(dm, "uuid", parentRef, String::class.java)
-        RestoreUtils.applyDataType(dm, "remember", parentRef, Boolean::class.java)
+        RestoreUtils.applyDataType(dm, "name", parentRef, String::class)
+        RestoreUtils.applyDataType(dm, "pass", parentRef, String::class)
+        RestoreUtils.applyDataType(dm, "type", parentRef, String::class)
+        RestoreUtils.applyDataType(dm, "user-id", parentRef, Int::class)
+        RestoreUtils.applyDataType(dm, "uuid", parentRef, String::class)
+        RestoreUtils.applyDataType(dm, "remember", parentRef, Boolean::class)
     }
 
     override fun getMetaData(fieldName: String): Any {

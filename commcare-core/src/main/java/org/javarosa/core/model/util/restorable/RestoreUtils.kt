@@ -13,6 +13,7 @@ import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 object RestoreUtils {
     @JvmField
@@ -37,16 +38,15 @@ object RestoreUtils {
     }
 
     //used for incoming data
-    private fun getDataType(c: Class<*>): Int {
+    private fun getDataType(c: KClass<*>): Int {
         return when (c) {
-            String::class.java -> Constants.DATATYPE_TEXT
-            Integer::class.java, Int::class.java -> Constants.DATATYPE_INTEGER
-            java.lang.Long::class.java, Long::class.java -> Constants.DATATYPE_LONG
-            java.lang.Float::class.java, Float::class.java,
-            java.lang.Double::class.java, Double::class.java -> Constants.DATATYPE_DECIMAL
-            PlatformDate::class.java -> Constants.DATATYPE_DATE
-            java.lang.Boolean::class.java, Boolean::class.java -> Constants.DATATYPE_TEXT
-            else -> throw RuntimeException("Can't handle data type ${c.name}")
+            String::class -> Constants.DATATYPE_TEXT
+            Int::class -> Constants.DATATYPE_INTEGER
+            Long::class -> Constants.DATATYPE_LONG
+            Float::class, Double::class -> Constants.DATATYPE_DECIMAL
+            PlatformDate::class -> Constants.DATATYPE_DATE
+            Boolean::class -> Constants.DATATYPE_TEXT
+            else -> throw RuntimeException("Can't handle data type ${c.qualifiedName}")
         }
     }
 
@@ -67,7 +67,7 @@ object RestoreUtils {
     }
 
     @JvmStatic
-    fun applyDataType(dm: FormInstance, path: String, parent: TreeReference, type: Class<*>) {
+    fun applyDataType(dm: FormInstance, path: String, parent: TreeReference, type: KClass<*>) {
         val dataType = getDataType(type)
         val ref = childRef(path, parent)
 
@@ -83,11 +83,11 @@ object RestoreUtils {
         var resolvedParent = parent
         if (resolvedParent == null) {
             resolvedParent = topRef(dm)
-            applyDataType(dm, "timestamp", resolvedParent, PlatformDate::class.java)
+            applyDataType(dm, "timestamp", resolvedParent, PlatformDate::class)
         }
 
         if (r is Persistable) {
-            applyDataType(dm, RECORD_ID_TAG, resolvedParent, Integer::class.java)
+            applyDataType(dm, RECORD_ID_TAG, resolvedParent, Int::class)
         }
 
         r.templateData(dm, resolvedParent)

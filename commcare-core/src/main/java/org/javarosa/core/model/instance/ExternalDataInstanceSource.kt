@@ -42,7 +42,7 @@ class ExternalDataInstanceSource : InstanceRoot, Externalizable {
     ) {
         if (sourceUri == null && storageReferenceId == null) {
             throw RuntimeException(
-                javaClass.canonicalName +
+                this::class.qualifiedName +
                         " must be initialised with one of sourceUri or storageReferenceId"
             )
         }
