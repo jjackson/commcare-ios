@@ -3,9 +3,8 @@ package org.javarosa.core.model.data
 import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -74,17 +73,17 @@ class SelectMultiData : IAnswerData {
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        vs = ExtUtil.read(`in`, ExtWrapList(Selection::class.java), pf) as ArrayList<Selection>
+        vs = SerializationHelpers.readList(`in`, pf) { Selection() } as ArrayList<Selection>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(vs!!))
+        SerializationHelpers.writeList(out, vs!!)
     }
 
     override fun uncast(): UncastData {
         val en = vs!!.iterator()
-        val selectString = StringBuffer()
+        val selectString = StringBuilder()
 
         while (en.hasNext()) {
             val selection = en.next()

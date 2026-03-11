@@ -23,7 +23,7 @@ abstract class XPathExpression : InFormCacheableExpr(), Externalizable {
      */
     open fun eval(model: DataInstance<*>?, evalContext: EvaluationContext): Any {
         evalContext.openTrace(this)
-        if (Thread.interrupted()) {
+        if (org.javarosa.core.util.PlatformThread.interrupted()) {
             throw RequestAbandonedException()
         }
 

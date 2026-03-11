@@ -70,7 +70,7 @@ abstract class XPathFuncExpr : XPathExpression {
     protected abstract fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
 
         sb.append("{func-expr:")
         sb.append(name)
@@ -86,7 +86,7 @@ abstract class XPathFuncExpr : XPathExpression {
     }
 
     override fun toPrettyString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         sb.append(name).append("(")
         for (i in args.indices) {
             sb.append(args[i].toPrettyString())

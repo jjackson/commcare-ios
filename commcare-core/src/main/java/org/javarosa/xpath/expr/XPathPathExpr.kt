@@ -223,7 +223,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
 
         sb.append("{path-expr:")
         when (initContext) {
@@ -365,7 +365,7 @@ class XPathPathExpr : XPathExpression {
 
     fun toDebugString(): String {
         try {
-            val sb = StringBuffer()
+            val sb = StringBuilder()
 
             when (initContext) {
                 INIT_CONTEXT_ROOT -> sb.append("/")
@@ -451,7 +451,7 @@ class XPathPathExpr : XPathExpression {
             } else if (`val` is GeoPointData) {
                 return `val`.uncast().getString()!!
             } else {
-                System.out.println("warning: unrecognized data type in xpath expr: ${`val`.javaClass.name}")
+                System.out.println("warning: unrecognized data type in xpath expr: ${`val`::class.simpleName ?: ""}")
 
                 //TODO: Does this mess up any of our other plans?
                 return `val`.uncast().getString()!!

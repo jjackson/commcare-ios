@@ -1,5 +1,7 @@
 package org.javarosa.core.model.condition
 
+import kotlin.jvm.JvmField
+
 import org.javarosa.core.util.ListMultimap
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper
@@ -575,7 +577,7 @@ class EvaluationContext {
     }
 
     fun resolveReference(qualifiedRef: TreeReference): AbstractTreeElement? {
-        if (Thread.interrupted()) {
+        if (org.javarosa.core.util.PlatformThread.interrupted()) {
             throw RequestAbandonedException()
         }
         var resolveInstance: DataInstance<*>? = this.getMainInstance()

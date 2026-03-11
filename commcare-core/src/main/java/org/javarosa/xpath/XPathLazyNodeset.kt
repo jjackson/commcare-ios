@@ -89,14 +89,14 @@ class XPathLazyNodeset(
 
             // TODO: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
             // the same way, although invalid multiplicities should be fine.
-            try {
+            return try {
                 //TODO: This doesn't handle templated nodes (repeats which may exist in the future)
                 //figure out if we can roll that in easily. For now the catch handles it
-                return XPathPathExpr.getRefValue(instance!!, ec!!, unExpandedRef)
+                XPathPathExpr.getRefValue(instance!!, ec!!, unExpandedRef)
             } catch (xpe: XPathException) {
                 //This isn't really a best effort attempt, so if we can, see if evaluating cleanly works.
                 performEvaluation()
-                return super.unpack()
+                super.unpack()
             }
         }
     }

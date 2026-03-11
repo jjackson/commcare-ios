@@ -18,8 +18,8 @@ package org.javarosa.core.model.data
 
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -60,12 +60,12 @@ class TimeData : IAnswerData {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        setValue(ExtUtil.readDate(`in`))
+        setValue(PlatformDate(SerializationHelpers.readNumeric(`in`)))
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeDate(out, d!!)
+        SerializationHelpers.writeNumeric(out, d!!.time)
     }
 
     override fun uncast(): UncastData {

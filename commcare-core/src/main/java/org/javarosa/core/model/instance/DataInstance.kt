@@ -1,5 +1,8 @@
 package org.javarosa.core.model.instance
 
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper
 import org.commcare.cases.util.QueryUtils
 import org.javarosa.core.model.condition.EvaluationContext
@@ -7,9 +10,8 @@ import org.javarosa.core.model.utils.CacheHost
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.LocalCacheTable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -260,18 +262,19 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        recordid = ExtUtil.readInt(`in`)
-        formId = ExtUtil.readInt(`in`)
-        name = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        instanceid = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        recordid = SerializationHelpers.readInt(`in`)
+        formId = SerializationHelpers.readInt(`in`)
+        name = SerializationHelpers.readNullableString(`in`, pf)
+        val rawInstanceId = SerializationHelpers.readString(`in`)
+        instanceid = if (rawInstanceId.isEmpty()) null else rawInstanceId
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, recordid.toLong())
-        ExtUtil.writeNumeric(out, formId.toLong())
-        ExtUtil.write(out, ExtWrapNullable(name))
-        ExtUtil.write(out, ExtUtil.emptyIfNull(instanceid))
+        SerializationHelpers.writeNumeric(out, recordid.toLong())
+        SerializationHelpers.writeNumeric(out, formId.toLong())
+        SerializationHelpers.writeNullable(out, name)
+        SerializationHelpers.write(out, instanceid ?: "")
     }
 
     override fun getID(): Int = recordid

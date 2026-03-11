@@ -1,12 +1,14 @@
 package org.javarosa.core.model.instance
 
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+
 import org.javarosa.core.util.ArrayUtilities
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
@@ -68,19 +70,19 @@ class TreeReferenceLevel : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        multiplicity = ExtUtil.readInt(`in`)
+        val rawName = SerializationHelpers.readString(`in`)
+        name = if (rawName.isEmpty()) null else rawName
+        multiplicity = SerializationHelpers.readInt(`in`)
         @Suppress("UNCHECKED_CAST")
-        predicates = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<XPathExpression>
-        )
+        val rawPredicates = SerializationHelpers.readListPoly(`in`, pf) as ArrayList<XPathExpression>
+        predicates = if (rawPredicates.isEmpty()) null else rawPredicates
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
-        ExtUtil.writeNumeric(out, multiplicity.toLong())
-        ExtUtil.write(out, ExtWrapListPoly(ExtUtil.emptyIfNull(predicates)))
+        SerializationHelpers.writeString(out, name ?: "")
+        SerializationHelpers.writeNumeric(out, multiplicity.toLong())
+        SerializationHelpers.writeListPoly(out, predicates ?: ArrayList<Any>())
     }
 
     override fun hashCode(): Int {

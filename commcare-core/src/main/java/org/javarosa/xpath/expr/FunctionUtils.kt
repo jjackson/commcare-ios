@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.CacheTable
@@ -108,7 +109,7 @@ class FunctionUtils {
                 return toString(nodeset)
             }
 
-            val sb = StringBuffer()
+            val sb = StringBuilder()
             sb.append("{nodeset: ")
             for (i in 0 until nodeset.size()) {
                 val ref = nodeset.getRefAt(i).toString(true)
@@ -173,7 +174,7 @@ class FunctionUtils {
                 `val` = o
             } else if (o is Double) {
                 val d = o
-                `val` = Math.abs(d) > 1.0e-12 && !d.isNaN()
+                `val` = kotlin.math.abs(d) > 1.0e-12 && !d.isNaN()
             } else if (o is String) {
                 `val` = o.length > 0
             } else if (o is PlatformDate) {
@@ -299,11 +300,11 @@ class FunctionUtils {
                 val d = o
                 if (d.isNaN()) {
                     `val` = "NaN"
-                } else if (Math.abs(d) < 1.0e-12) {
+                } else if (kotlin.math.abs(d) < 1.0e-12) {
                     `val` = "0"
                 } else if (d.isInfinite()) {
                     `val` = (if (d < 0) "-" else "") + "Infinity"
-                } else if (Math.abs(d - d.toInt()) < 1.0e-12) {
+                } else if (kotlin.math.abs(d - d.toInt()) < 1.0e-12) {
                     `val` = d.toInt().toString()
                 } else {
                     `val` = d.toString()
@@ -322,7 +323,7 @@ class FunctionUtils {
                 if (o == null) {
                     throw XPathTypeMismatchException("attempt to cast null value to string")
                 } else {
-                    throw XPathTypeMismatchException("converting object of type ${o.javaClass} to string")
+                    throw XPathTypeMismatchException("converting object of type ${o::class} to string")
                 }
             }
         }
@@ -370,7 +371,7 @@ class FunctionUtils {
             } else if (o is PlatformDate) {
                 return DateUtils.roundDate(o)
             } else {
-                val type = if (o == null) "null" else o.javaClass.name
+                val type = if (o == null) "null" else o::class.simpleName ?: ""
                 throw XPathTypeMismatchException("converting unexpected type $type to date")
             }
         }
