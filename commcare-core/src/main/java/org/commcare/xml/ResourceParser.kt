@@ -5,12 +5,12 @@ import org.commcare.resources.model.Resource.Companion.LAZY_VAL_FALSE
 import org.commcare.resources.model.ResourceLocation
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ResourceParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     val maximumAuthority: Int
 ) : ElementParser<Resource>(parser) {
 
@@ -18,7 +18,7 @@ class ResourceParser(
     override fun parse(): Resource {
         checkNode("resource")
 
-        val id = parser.getAttributeValue(null, "id")
+        val id = parser.getAttributeValue(null, "id")!!
         val version = parseInt(parser.getAttributeValue(null, "version"))
 
         val descriptor = parser.getAttributeValue(null, "descriptor")
@@ -28,8 +28,8 @@ class ResourceParser(
 
         while (nextTagInBlock("resource")) {
             //New Location
-            val sAuthority = parser.getAttributeValue(null, "authority")
-            val location = parser.nextText()
+            val sAuthority = parser.getAttributeValue(null, "authority")!!
+            val location = parser.nextText()!!
             var authority = Resource.RESOURCE_AUTHORITY_REMOTE
             if (sAuthority.lowercase() == "local") {
                 authority = Resource.RESOURCE_AUTHORITY_LOCAL

@@ -1,5 +1,7 @@
 package org.javarosa.engine.xml;
 
+import org.javarosa.xml.JvmXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -25,7 +27,7 @@ import java.io.InputStream;
  *
  */
 public abstract class ElementParser<T> {
-    protected final KXmlParser parser;
+    protected final PlatformXmlParser parser;
 
     int level = 0;
 
@@ -39,11 +41,11 @@ public abstract class ElementParser<T> {
      * other than invalid CommCare XML Structures.
      */
     public ElementParser(InputStream suiteStream) throws IOException{
-        parser = new KXmlParser();
+        KXmlParser kxml = new KXmlParser();
         try {
-            parser.setInput(suiteStream,"UTF-8");
-            parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
-            parser.next();
+            kxml.setInput(suiteStream,"UTF-8");
+            kxml.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
+            kxml.next();
 
         } catch (XmlPullParserException e) {
             // TODO Auto-generated catch block
@@ -51,6 +53,7 @@ public abstract class ElementParser<T> {
         } catch (IllegalArgumentException e) {
             throw new IOException(e.getMessage());
         }
+        parser = new JvmXmlParser(kxml);
     }
 
     /**
@@ -60,7 +63,7 @@ public abstract class ElementParser<T> {
      * position of the top level element that represents this
      * element's XML structure.
      */
-    public ElementParser(KXmlParser parser) {
+    public ElementParser(PlatformXmlParser parser) {
         this.parser = parser;
         level = parser.getDepth();
     }
@@ -119,17 +122,17 @@ public abstract class ElementParser<T> {
 
             //eventType = parser.nextTag();
             eventType = parser.next();
-            if(eventType == KXmlParser.TEXT && parser.isWhitespace()) {   // skip whitespace
+            if(eventType == PlatformXmlParser.TEXT && parser.isWhitespace()) {   // skip whitespace
                  eventType = parser.next();
             }
 
-            if(eventType == KXmlParser.START_DOCUMENT) {
+            if(eventType == PlatformXmlParser.START_DOCUMENT) {
                 //
-            } else if(eventType == KXmlParser.END_DOCUMENT) {
+            } else if(eventType == PlatformXmlParser.END_DOCUMENT) {
                 return false;
-            } else if(eventType == KXmlParser.START_TAG) {
+            } else if(eventType == PlatformXmlParser.START_TAG) {
                 return true;
-            } else if(eventType == KXmlParser.END_TAG) {
+            } else if(eventType == PlatformXmlParser.END_TAG) {
                 //If we've reached the end of the current node path,
                 //return false (signaling that the parsing action should end).
                 if(parser.getName().toLowerCase().equals(terminal.toLowerCase())) { return false; }
@@ -137,7 +140,7 @@ public abstract class ElementParser<T> {
                 else if(parser.getDepth() >= level) { return nextTagInBlock(terminal); }
                 //if we're below the limit, get out.
                 else { return false; }
-            } else if(eventType == KXmlParser.TEXT) {
+            } else if(eventType == PlatformXmlParser.TEXT) {
                 return true;
             }
             return true;
@@ -226,21 +229,21 @@ public abstract class ElementParser<T> {
 
     public void skipBlock(String tag) throws XmlPullParserException, IOException {
 
-        while(parser.getEventType() != KXmlParser.END_DOCUMENT) {
+        while(parser.getEventType() != PlatformXmlParser.END_DOCUMENT) {
             int eventType;
             eventType = parser.next();
 
-            if(eventType == KXmlParser.START_DOCUMENT) {
+            if(eventType == PlatformXmlParser.START_DOCUMENT) {
 
-            } else if(eventType == KXmlParser.END_DOCUMENT) {
+            } else if(eventType == PlatformXmlParser.END_DOCUMENT) {
                 return;
-            } else if(eventType == KXmlParser.START_TAG) {
+            } else if(eventType == PlatformXmlParser.START_TAG) {
 
-            } else if(eventType == KXmlParser.END_TAG) {
+            } else if(eventType == PlatformXmlParser.END_TAG) {
                 if(parser.getName().equals(tag)) {
                     return;
                 }
-            } else if(eventType == KXmlParser.TEXT) {
+            } else if(eventType == PlatformXmlParser.TEXT) {
 
             }
         }
@@ -248,7 +251,7 @@ public abstract class ElementParser<T> {
 
     protected int nextNonWhitespace() throws XmlPullParserException, IOException {
         int ret = parser.next();
-        if(ret == KXmlParser.TEXT && parser.isWhitespace()) {
+        if(ret == PlatformXmlParser.TEXT && parser.isWhitespace()) {
             ret = parser.next();
         }
         return ret;

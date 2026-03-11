@@ -6,14 +6,14 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parser) {
+class AssertionSetParser(parser: PlatformXmlParser) : ElementParser<AssertionSet>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): AssertionSet {

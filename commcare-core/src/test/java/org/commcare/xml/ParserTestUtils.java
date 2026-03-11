@@ -1,7 +1,7 @@
 package org.commcare.xml;
 
 import org.javarosa.xml.ElementParser;
-import org.kxml2.io.KXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Constructor;
@@ -15,7 +15,7 @@ public class ParserTestUtils {
     public static <T extends CommCareElementParser> T buildParser(String xml, Class<T> parserClass) {
         return buildParser(xml, (xmlParser) -> {
             try {
-                Constructor<T> constructor = parserClass.getConstructor(KXmlParser.class);
+                Constructor<T> constructor = parserClass.getConstructor(PlatformXmlParser.class);
                 return constructor.newInstance(xmlParser);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -23,10 +23,10 @@ public class ParserTestUtils {
         });
     }
 
-    public static <T extends CommCareElementParser> T buildParser(String xml, Function<KXmlParser, T> builder) {
+    public static <T extends CommCareElementParser> T buildParser(String xml, Function<PlatformXmlParser, T> builder) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
-            KXmlParser parser = ElementParser.instantiateParser(inputStream);
+            PlatformXmlParser parser = ElementParser.instantiateParser(inputStream);
             return builder.apply(parser);
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -15,16 +15,16 @@ class XmlParserTest {
         val xml = "<root>hello</root>"
         val parser = createXmlParser(xml.encodeToByteArray())
 
-        assertEquals(PlatformXmlParser.START_DOCUMENT, parser.getEventType())
+        assertEquals(PlatformXmlParser.START_DOCUMENT, parser.eventType)
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next())
-        assertEquals("root", parser.getName())
+        assertEquals("root", parser.name)
 
         assertEquals(PlatformXmlParser.TEXT, parser.next())
-        assertEquals("hello", parser.getText())
+        assertEquals("hello", parser.text)
 
         assertEquals(PlatformXmlParser.END_TAG, parser.next())
-        assertEquals("root", parser.getName())
+        assertEquals("root", parser.name)
 
         assertEquals(PlatformXmlParser.END_DOCUMENT, parser.next())
     }
@@ -35,8 +35,8 @@ class XmlParserTest {
         val parser = createXmlParser(xml.encodeToByteArray())
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next())
-        assertEquals("item", parser.getName())
-        assertEquals(2, parser.getAttributeCount())
+        assertEquals("item", parser.name)
+        assertEquals(2, parser.attributeCount)
         assertEquals("123", parser.getAttributeValue(null, "id"))
         assertEquals("case", parser.getAttributeValue(null, "type"))
     }
@@ -58,9 +58,9 @@ class XmlParserTest {
         var foundCaseName = false
         var caseNameText: String? = null
         while (parser.next() != PlatformXmlParser.END_DOCUMENT) {
-            if (parser.getEventType() == PlatformXmlParser.START_TAG && parser.getName() == "case_name") {
+            if (parser.eventType == PlatformXmlParser.START_TAG && parser.name == "case_name") {
                 parser.next() // TEXT
-                caseNameText = parser.getText()
+                caseNameText = parser.text
                 foundCaseName = true
                 break
             }
@@ -76,19 +76,19 @@ class XmlParserTest {
         val parser = createXmlParser(xml.encodeToByteArray())
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next()) // data
-        assertEquals("data", parser.getName())
+        assertEquals("data", parser.name)
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next()) // empty
-        assertEquals("empty", parser.getName())
+        assertEquals("empty", parser.name)
 
         assertEquals(PlatformXmlParser.END_TAG, parser.next()) // /empty
-        assertEquals("empty", parser.getName())
+        assertEquals("empty", parser.name)
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next()) // next
-        assertEquals("next", parser.getName())
+        assertEquals("next", parser.name)
 
         assertEquals(PlatformXmlParser.TEXT, parser.next())
-        assertEquals("ok", parser.getText())
+        assertEquals("ok", parser.text)
     }
 
     @Test
@@ -97,12 +97,12 @@ class XmlParserTest {
         val parser = createXmlParser(xml.encodeToByteArray())
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next())
-        assertEquals("html", parser.getName())
-        assertEquals("http://www.w3.org/1999/xhtml", parser.getNamespace())
+        assertEquals("html", parser.name)
+        assertEquals("http://www.w3.org/1999/xhtml", parser.namespace)
 
         assertEquals(PlatformXmlParser.START_TAG, parser.next())
-        assertEquals("body", parser.getName())
-        assertEquals("http://www.w3.org/1999/xhtml", parser.getNamespace())
+        assertEquals("body", parser.name)
+        assertEquals("http://www.w3.org/1999/xhtml", parser.namespace)
     }
 
     @Test
@@ -112,7 +112,7 @@ class XmlParserTest {
 
         parser.next() // START_TAG
         parser.next() // TEXT
-        assertEquals("1 < 2 & 3 > 0", parser.getText())
+        assertEquals("1 < 2 & 3 > 0", parser.text)
     }
 
     @Test
@@ -122,7 +122,7 @@ class XmlParserTest {
 
         parser.next() // START_TAG
         parser.next() // TEXT (CDATA content)
-        assertEquals("<not>xml</not>", parser.getText())
+        assertEquals("<not>xml</not>", parser.text)
     }
 
     @Test
@@ -153,8 +153,8 @@ class XmlParserTest {
         // Verify we can walk the entire XForm without errors
         val elementNames = mutableListOf<String>()
         while (parser.next() != PlatformXmlParser.END_DOCUMENT) {
-            if (parser.getEventType() == PlatformXmlParser.START_TAG) {
-                elementNames.add(parser.getName()!!)
+            if (parser.eventType == PlatformXmlParser.START_TAG) {
+                elementNames.add(parser.name!!)
             }
         }
 
@@ -178,7 +178,7 @@ class XmlParserTest {
         // Verify correct event sequence regardless of depth reporting details
         val events = mutableListOf<Pair<Int, String?>>()
         while (parser.next() != PlatformXmlParser.END_DOCUMENT) {
-            events.add(Pair(parser.getEventType(), parser.getName()))
+            events.add(Pair(parser.eventType, parser.name))
         }
 
         assertEquals(PlatformXmlParser.START_TAG, events[0].first)

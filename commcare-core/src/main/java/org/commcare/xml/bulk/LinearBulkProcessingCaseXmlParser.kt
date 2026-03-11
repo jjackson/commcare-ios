@@ -2,7 +2,7 @@ package org.commcare.xml.bulk
 
 import org.commcare.cases.model.Case
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.LinkedHashMap
@@ -19,7 +19,7 @@ import java.util.LinkedHashMap
  * Created by ctsims on 3/14/2017.
  */
 open class LinearBulkProcessingCaseXmlParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val storage: IStorageUtilityIndexed<Case>
 ) : BulkProcessingCaseXmlParser(parser) {
 

@@ -12,14 +12,14 @@ import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(parser) {
+open class DetailParser(parser: PlatformXmlParser) : CommCareElementParser<Detail>(parser) {
 
     companion object {
         private const val NAME_NO_ITEMS_TEXT = "no_items_text"
@@ -46,7 +46,7 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
         getNextTagInBlock("title")
         val title: DisplayUnit
 
-        if ("text" == parser.name.lowercase()) {
+        if ("text" == parser.name!!.lowercase()) {
             title = DisplayUnit(TextParser(parser).parse())
         } else {
             title = parseDisplayBlock()
@@ -66,37 +66,37 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
         var detailGroup: DetailGroup? = null
 
         while (nextTagInBlock("detail")) {
-            if (GlobalParser.NAME_GLOBAL == parser.name.lowercase()) {
+            if (GlobalParser.NAME_GLOBAL == parser.name!!.lowercase()) {
                 checkNode(GlobalParser.NAME_GLOBAL)
                 global = GlobalParser(parser).parse()
                 parser.nextTag()
             }
-            if ("lookup" == parser.name.lowercase()) {
+            if ("lookup" == parser.name!!.lowercase()) {
                 checkNode("lookup")
                 callout = CalloutParser(parser).parse()
                 parser.nextTag()
             }
-            if (NAME_NO_ITEMS_TEXT == parser.name.lowercase()) {
+            if (NAME_NO_ITEMS_TEXT == parser.name!!.lowercase()) {
                 checkNode("no_items_text")
                 getNextTagInBlock("no_items_text")
-                if ("text" == parser.name.lowercase()) {
+                if ("text" == parser.name!!.lowercase()) {
                     noItemsText = TextParser(parser).parse()
                 }
                 continue
             }
-            if ("select_text" == parser.name.lowercase()) {
+            if ("select_text" == parser.name!!.lowercase()) {
                 checkNode("select_text")
                 getNextTagInBlock("select_text")
-                if ("text" == parser.name.lowercase()) {
+                if ("text" == parser.name!!.lowercase()) {
                     selectText = TextParser(parser).parse()
                 }
                 continue
             }
-            if ("variables" == parser.name.lowercase()) {
+            if ("variables" == parser.name!!.lowercase()) {
                 while (nextTagInBlock("variables")) {
                     val function = parser.getAttributeValue(null, "function")
                         ?: throw InvalidStructureException(
-                            "No function in variable declaration for variable ${parser.name}", parser
+                            "No function in variable declaration for variable ${parser.name!!}", parser
                         )
                     try {
                         XPathParseTool.parseXPath(function)
@@ -106,15 +106,15 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
                             "Invalid XPath function $function. ${e.message}", parser
                         )
                     }
-                    variables[parser.name] = function
+                    variables[parser.name!!] = function
                 }
                 continue
             }
-            if ("focus" == parser.name.lowercase()) {
+            if ("focus" == parser.name!!.lowercase()) {
                 focusFunction = parser.getAttributeValue(null, "function")
                 if (focusFunction == null) {
                     throw InvalidStructureException(
-                        "No function in focus declaration ${parser.name}", parser
+                        "No function in focus declaration ${parser.name!!}", parser
                     )
                 }
                 try {
@@ -127,15 +127,15 @@ open class DetailParser(parser: KXmlParser) : CommCareElementParser<Detail>(pars
                 }
                 continue
             }
-            if (ActionParser.NAME_ACTION.equals(parser.name, ignoreCase = true)) {
+            if (ActionParser.NAME_ACTION.equals(parser.name!!, ignoreCase = true)) {
                 actions.add(ActionParser(parser).parse())
                 continue
             }
-            if (DetailGroupParser.NAME_GROUP.equals(parser.name, ignoreCase = true)) {
+            if (DetailGroupParser.NAME_GROUP.equals(parser.name!!, ignoreCase = true)) {
                 detailGroup = DetailGroupParser(parser).parse()
                 continue
             }
-            if (parser.name == "detail") {
+            if (parser.name!! == "detail") {
                 subdetails.add(getDetailParser().parse())
             } else {
                 val detailField = DetailFieldParser(parser, getGraphParser(), id).parse()

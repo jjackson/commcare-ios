@@ -13,7 +13,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
@@ -94,8 +94,8 @@ open class SuiteParser : ElementParser<Suite> {
 
             var eventType = parser.eventType
             do {
-                if (eventType == KXmlParser.START_TAG) {
-                    val tagName = parser.name.lowercase()
+                if (eventType == PlatformXmlParser.START_TAG) {
+                    val tagName = parser.name!!.lowercase()
                     when (tagName) {
                         "entry" -> {
                             val entry = EntryParser.buildEntryParser(parser).parse()
@@ -110,7 +110,7 @@ open class SuiteParser : ElementParser<Suite> {
                             entries[remoteRequestEntry.commandId!!] = remoteRequestEntry
                         }
                         "locale" -> {
-                            val localeKey = parser.getAttributeValue(null, "language")
+                            val localeKey = parser.getAttributeValue(null, "language")!!
                             parser.nextTag()
                             val localeResource = ResourceParser(parser, maximumResourceAuthority).parse()
                             if (!skipResources) {
@@ -122,7 +122,7 @@ open class SuiteParser : ElementParser<Suite> {
                             }
                         }
                         "media" -> {
-                            val path = parser.getAttributeValue(null, "path")
+                            val path = parser.getAttributeValue(null, "path")!!
                             while (this.nextTagInBlock("media")) {
                                 val mediaResource = ResourceParser(parser, maximumResourceAuthority).parse()
                                 if (!skipResources) {
@@ -178,7 +178,7 @@ open class SuiteParser : ElementParser<Suite> {
                     }
                 }
                 eventType = parser.next()
-            } while (eventType != KXmlParser.END_DOCUMENT)
+            } while (eventType != PlatformXmlParser.END_DOCUMENT)
 
             return Suite(version, details, entries, menus, endpoints)
         } catch (e: PlatformXmlParserException) {

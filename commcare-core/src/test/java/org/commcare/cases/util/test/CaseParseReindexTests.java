@@ -10,9 +10,9 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.xml.CaseXmlParser;
+import org.javarosa.xml.PlatformXmlParser;
 import org.junit.Before;
 import org.junit.Test;
-import org.kxml2.io.KXmlParser;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -79,7 +79,7 @@ public class CaseParseReindexTests {
                     CaseXmlParser created = null;
 
                     @Override
-                    public TransactionParser<Case> getParser(KXmlParser parser) {
+                    public TransactionParser<Case> getParser(PlatformXmlParser parser) {
                         if (created == null) {
                             created = new CaseXmlParser(parser, sandbox.getCaseStorage()) {
                                 @Override

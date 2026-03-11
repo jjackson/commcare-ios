@@ -14,7 +14,7 @@ import org.commcare.suite.model.Text
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
@@ -23,7 +23,7 @@ import java.net.URL
 /**
  * @author ctsims
  */
-class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatum>(parser) {
+class SessionDatumParser(parser: PlatformXmlParser) : CommCareElementParser<SessionDatum>(parser) {
 
     companion object {
         const val DEFAULT_MAX_SELECT_VAL: Int = 100
@@ -98,7 +98,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
             }
         }
 
-        while (parser.next() == KXmlParser.TEXT) {
+        while (parser.next() == PlatformXmlParser.TEXT) {
             // consume text nodes
         }
 
@@ -142,7 +142,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
             if ("data" == tagName) {
                 hiddenQueryValues.add(QueryDataParser(parser).parse())
             } else if ("prompt" == tagName) {
-                val key = parser.getAttributeValue(null, "key")
+                val key = parser.getAttributeValue(null, "key")!!
                 userQueryPrompts[key] = QueryPromptParser(parser).parse()
             } else if ("title" == tagName) {
                 nextTagInBlock("title")

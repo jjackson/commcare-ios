@@ -12,14 +12,14 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Created by jschweers on 1/28/2016.
  */
-open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parser) {
+open class GraphParser(parser: PlatformXmlParser) : ElementParser<DetailTemplate>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Graph {
@@ -91,9 +91,9 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
             if (parser.name == "text") {
                 val id = parser.getAttributeValue(null, "id")
                 val t = textParser.parse()
-                data.setConfiguration(id, t)
+                data.setConfiguration(id!!, t)
             }
-        } while (parser.eventType != KXmlParser.END_TAG || parser.name != "configuration")
+        } while (parser.eventType != PlatformXmlParser.END_TAG || parser.name != "configuration")
     }
 
     /*
@@ -124,7 +124,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
             (series as BubbleSeries).setRadius(parseFunction("radius"))
         }
 
-        while (parser.eventType != KXmlParser.END_TAG || parser.name != "series") {
+        while (parser.eventType != PlatformXmlParser.END_TAG || parser.name != "series") {
             parser.nextTag()
         }
 
@@ -141,7 +141,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
     @Throws(InvalidStructureException::class)
     private fun parseFunction(name: String): String {
         checkNode(name)
-        val function = parser.getAttributeValue(null, "function")
+        val function = parser.getAttributeValue(null, "function")!!
         try {
             XPathParseTool.parseXPath(function)
         } catch (e: XPathSyntaxException) {
@@ -159,6 +159,6 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
     private fun nextStartTag() {
         do {
             parser.nextTag()
-        } while (parser.eventType != KXmlParser.START_TAG)
+        } while (parser.eventType != PlatformXmlParser.START_TAG)
     }
 }

@@ -47,7 +47,6 @@ import org.kxml2.io.KXmlParser
 import org.kxml2.kdom.Document
 import org.kxml2.kdom.Element
 import org.kxml2.kdom.Node
-import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
@@ -609,7 +608,7 @@ class XFormParser {
                 }
 
                 parser.setInput(reader)
-                parser.setFeature(PlatformXmlParser.FEATURE_PROCESS_NAMESPACES, true)
+                parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true)
                 doc.parse(parser)
             } catch (e: PlatformXmlParserException) {
                 val errorMsg = "XML Syntax Error at Line: ${e.lineNumber}, Column: ${e.columnNumber}!"

@@ -3,7 +3,7 @@ package org.commcare.xml
 import org.commcare.suite.model.DetailField.Builder
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -15,7 +15,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  */
 class StyleParser(
     val builder: Builder,
-    parser: KXmlParser
+    parser: PlatformXmlParser
 ) : ElementParser<Int>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)

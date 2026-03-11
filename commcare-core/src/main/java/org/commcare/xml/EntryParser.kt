@@ -18,7 +18,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
@@ -28,7 +28,7 @@ import java.net.URL
  * @author ctsims
  */
 class EntryParser private constructor(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val parserBlockTag: String
 ) : CommCareElementParser<Entry>(parser) {
 
@@ -38,17 +38,17 @@ class EntryParser private constructor(
         const val REMOTE_REQUEST_TAG: String = "remote-request"
 
         @JvmStatic
-        fun buildViewParser(parser: KXmlParser): EntryParser {
+        fun buildViewParser(parser: PlatformXmlParser): EntryParser {
             return EntryParser(parser, VIEW_ENTRY_TAG)
         }
 
         @JvmStatic
-        fun buildEntryParser(parser: KXmlParser): EntryParser {
+        fun buildEntryParser(parser: PlatformXmlParser): EntryParser {
             return EntryParser(parser, FORM_ENTRY_TAG)
         }
 
         @JvmStatic
-        fun buildRemoteSyncParser(parser: KXmlParser): EntryParser {
+        fun buildRemoteSyncParser(parser: PlatformXmlParser): EntryParser {
             return EntryParser(parser, REMOTE_REQUEST_TAG)
         }
     }
@@ -71,14 +71,14 @@ class EntryParser private constructor(
         var post: PostRequest? = null
 
         while (nextTagInBlock(parserBlockTag)) {
-            val tagName = parser.name
+            val tagName = parser.name!!
             if ("form" == tagName) {
                 if (parserBlockTag == VIEW_ENTRY_TAG) {
                     throw InvalidStructureException("<$parserBlockTag>'s cannot specify XForms!!", parser)
                 }
                 xFormNamespace = parser.nextText()
             } else if ("command" == tagName) {
-                commandId = parser.getAttributeValue(null, "id")
+                commandId = parser.getAttributeValue(null, "id")!!
                 display = parseCommandDisplay()
             } else if ("instance" == tagName.lowercase()) {
                 ParseInstance.parseInstance(instances, parser)
@@ -128,7 +128,7 @@ class EntryParser private constructor(
     private fun parseCommandDisplay(): DisplayUnit? {
         parser.nextTag()
         var display: DisplayUnit? = null
-        val tagName = parser.name
+        val tagName = parser.name!!
         if ("text" == tagName) {
             display = DisplayUnit(TextParser(parser).parse())
         } else if ("display" == tagName) {

@@ -28,7 +28,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.util.externalizable.SerializationLimitationException
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 
 import java.util.Date
 import java.util.LinkedHashMap
@@ -43,7 +43,7 @@ import java.util.LinkedHashMap
  *
  * Created by ctsims on 3/14/2017.
  */
-abstract class BulkProcessingCaseXmlParser(parser: KXmlParser) :
+abstract class BulkProcessingCaseXmlParser(parser: PlatformXmlParser) :
     BulkElementParser<Case>(parser), CaseIndexChangeListener {
 
     override fun requestModelReadsForElement(

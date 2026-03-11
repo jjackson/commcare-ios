@@ -12,11 +12,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
-class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>(parser) {
+class QueryPromptParser(parser: PlatformXmlParser) : CommCareElementParser<QueryPrompt>(parser) {
 
     companion object {
         private const val NAME_PROMPT = "prompt"
