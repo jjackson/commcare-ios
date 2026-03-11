@@ -6,8 +6,8 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -45,14 +45,14 @@ class FormEntry : Entry {
     override fun getPostRequest(): PostRequest? = post
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
         this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         this.post = ExtUtil.read(`in`, ExtWrapNullable(PostRequest::class.java), pf) as PostRequest?
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace))
         ExtUtil.write(out, ExtWrapNullable(post))

@@ -4,8 +4,8 @@ import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.ByteArrayInputStream
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
@@ -51,17 +51,17 @@ class ByteArrayPayload : IDataPayload {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val length = `in`.readInt()
         if (length > 0) {
             this.payload = ByteArray(length)
-            `in`.read(this.payload)
+            `in`.readFully(this.payload)
         }
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         out.writeInt(payload.size)
         if (payload.isNotEmpty()) {
             out.write(payload)

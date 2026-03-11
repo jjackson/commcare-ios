@@ -12,8 +12,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xform.parse.XFormParser
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -186,7 +186,7 @@ class QuestionDef : IFormElement {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(dis: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(dis: PlatformDataInputStream, pf: PrototypeFactory) {
         setID(ExtUtil.readInt(dis))
         binding = ExtUtil.read(dis, ExtWrapNullable(ExtWrapTagged()), pf) as XPathReference?
         setAppearanceAttr(ExtUtil.read(dis, ExtWrapNullable(String::class.java), pf) as String?)
@@ -205,7 +205,7 @@ class QuestionDef : IFormElement {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(dos: DataOutputStream) {
+    override fun writeExternal(dos: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(dos, getID().toLong())
         val currentBinding = binding
         ExtUtil.write(dos, ExtWrapNullable(if (currentBinding == null) null else ExtWrapTagged(currentBinding)))

@@ -11,8 +11,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -59,7 +59,7 @@ class ListQueryData : QueryData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         _key = ExtUtil.readString(`in`)
         nodeset = ExtUtil.read(`in`, TreeReference::class.java, pf) as TreeReference
         ref = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathPathExpr
@@ -67,7 +67,7 @@ class ListQueryData : QueryData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, _key)
         ExtUtil.write(out, nodeset)
         ExtUtil.write(out, ExtWrapTagged(ref!!))

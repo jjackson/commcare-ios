@@ -1,3 +1,5 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.api.ClassNameHasher
@@ -10,7 +12,7 @@ import java.util.HashSet
  * their hash codes. To use a non-default hasher, use one of the overriding constructors
  * or call setStaticHasher().
  */
-open class PrototypeFactory {
+actual open class PrototypeFactory : Any {
 
     private var classes: ArrayList<Class<*>>? = null
     private var hashes: ArrayList<ByteArray>? = null
@@ -21,7 +23,7 @@ open class PrototypeFactory {
     @JvmField
     protected var initialized: Boolean
 
-    constructor() : this(null, null)
+    actual constructor() : this(null as HashSet<String>?)
 
     constructor(classNames: HashSet<String>?) {
         this.classNames = classNames

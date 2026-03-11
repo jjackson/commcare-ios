@@ -32,8 +32,8 @@ import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.text.MessageFormat
 
@@ -309,7 +309,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         initContext = ExtUtil.readInt(`in`)
         if (initContext == INIT_CONTEXT_EXPR) {
             filtExpr = ExtUtil.read(`in`, XPathFilterExpr::class.java, pf) as XPathFilterExpr
@@ -321,7 +321,7 @@ class XPathPathExpr : XPathExpression {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeNumeric(out, initContext.toLong())
         if (initContext == INIT_CONTEXT_EXPR) {
             ExtUtil.write(out, filtExpr!!)

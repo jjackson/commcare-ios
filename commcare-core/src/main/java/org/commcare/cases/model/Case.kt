@@ -10,8 +10,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMapPoly
 import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 
@@ -144,7 +144,7 @@ open class Case : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         typeId = ExtUtil.readString(`in`)
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
@@ -158,7 +158,7 @@ open class Case : Persistable, IMetaData {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, typeId ?: "")
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id))
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))

@@ -1,15 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
-
-/**
- * issues
- *
- * * conflicting constructors... null(listwrapper())... confuses listwrapper as type, even though it contains val
- */
-
 /**
  * constructor guidelines: each child of this class should follow these rules with its constructors
  *
@@ -22,7 +12,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  */
 abstract class ExternalizableWrapper : Externalizable {
     /* core data that is being wrapped; will be null when shell wrapper is created for deserialization */
-    @JvmField
     var `val`: Any? = null
 
     /* create a copy of a wrapper, but with new val (but all the same type annotations */
@@ -30,17 +19,17 @@ abstract class ExternalizableWrapper : Externalizable {
 
     /* deserialize the state of the externalizable wrapper */
     @Throws(PlatformIOException::class, DeserializationException::class)
-    abstract fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory)
+    abstract fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory)
 
     /* serialize the state of the externalizable wrapper (type information only, not value) */
     @Throws(PlatformIOException::class)
-    abstract fun metaWriteExternal(out: DataOutputStream)
+    abstract fun metaWriteExternal(out: PlatformDataOutputStream)
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    abstract override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory)
+    abstract override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory)
 
     @Throws(PlatformIOException::class)
-    abstract override fun writeExternal(out: DataOutputStream)
+    abstract override fun writeExternal(out: PlatformDataOutputStream)
 
     fun baseValue(): Any? {
         var baseVal = `val`

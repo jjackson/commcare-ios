@@ -11,8 +11,8 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xpath.expr.XPathExpression
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -233,7 +233,7 @@ abstract class Triggerable : Externalizable {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(input: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(input: PlatformDataInputStream, pf: PrototypeFactory) {
         expr = ExtUtil.read(input, ExtWrapTagged(), pf) as IConditionExpr
         contextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
         originalContextRef = ExtUtil.read(input, TreeReference::class.java, pf) as TreeReference
@@ -243,7 +243,7 @@ abstract class Triggerable : Externalizable {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.write(out, ExtWrapTagged(expr!!))
         ExtUtil.write(out, contextRef!!)
         ExtUtil.write(out, originalContextRef!!)

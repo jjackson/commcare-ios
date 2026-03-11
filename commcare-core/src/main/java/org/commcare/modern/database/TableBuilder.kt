@@ -7,8 +7,7 @@ import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.Externalizable
 
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.HashMap
 import java.util.HashSet
@@ -184,13 +183,13 @@ open class TableBuilder {
 
         @JvmStatic
         fun toBlob(externalizable: Externalizable): ByteArray {
-            val bos = ByteArrayOutputStream()
+            val dos = PlatformDataOutputStream()
             try {
-                externalizable.writeExternal(DataOutputStream(bos))
+                externalizable.writeExternal(dos)
             } catch (e: PlatformIOException) {
                 throw RuntimeException("Failed to serialize externalizable $externalizable for content values wth exception $e")
             }
-            return bos.toByteArray()
+            return dos.toByteArray()
         }
 
         /**

@@ -24,8 +24,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
 
@@ -273,7 +273,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         locale = ExtUtil.readString(`in`)
         localReference = ExtUtil.readString(`in`)
         @Suppress("UNCHECKED_CAST")
@@ -283,7 +283,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, locale)
         ExtUtil.writeString(out, localReference)
         ExtUtil.write(out, ExtWrapMap(ExtUtil.emptyIfNull(cache)))

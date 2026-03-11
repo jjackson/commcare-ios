@@ -12,8 +12,8 @@ import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.FunctionUtils
 import org.javarosa.xpath.parser.XPathSyntaxException
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
@@ -101,7 +101,7 @@ class Callout : Externalizable, DetailTemplate {
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         displayName = ExtUtil.readString(`in`)
         actionName = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
         image = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
@@ -113,7 +113,7 @@ class Callout : Externalizable, DetailTemplate {
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         ExtUtil.writeString(out, displayName!!)
         ExtUtil.write(out, ExtWrapNullable(actionName))
         ExtUtil.write(out, ExtWrapNullable(image))

@@ -1,7 +1,7 @@
 package org.javarosa.core.util.externalizable
 
-import java.io.DataInputStream
-import java.io.DataOutputStream
+import org.javarosa.core.util.externalizable.PlatformDataInputStream
+import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapTagged : ExternalizableWrapper {
@@ -22,23 +22,23 @@ class ExtWrapTagged : ExternalizableWrapper {
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
-    override fun readExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val type = readTag(`in`, pf)
         `val` = ExtUtil.read(`in`, type, pf)
     }
 
     @Throws(PlatformIOException::class)
-    override fun writeExternal(out: DataOutputStream) {
+    override fun writeExternal(out: PlatformDataOutputStream) {
         val localVal = `val`!!
         writeTag(out, localVal)
         ExtUtil.write(out, localVal)
     }
 
-    override fun metaReadExternal(`in`: DataInputStream, pf: PrototypeFactory) {
+    override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         throw RuntimeException("Tagged wrapper should never be tagged")
     }
 
-    override fun metaWriteExternal(out: DataOutputStream) {
+    override fun metaWriteExternal(out: PlatformDataOutputStream) {
         throw RuntimeException("Tagged wrapper should never be tagged")
     }
 
@@ -56,7 +56,7 @@ class ExtWrapTagged : ExternalizableWrapper {
 
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
-        fun readTag(`in`: DataInputStream, pf: PrototypeFactory): ExternalizableWrapper {
+        fun readTag(`in`: PlatformDataInputStream, pf: PrototypeFactory): ExternalizableWrapper {
             val tag = ByteArray(PrototypeFactory.getClassHashSize())
             `in`.read(tag, 0, tag.size)
 
@@ -98,7 +98,7 @@ class ExtWrapTagged : ExternalizableWrapper {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeTag(out: DataOutputStream, o: Any) {
+        fun writeTag(out: PlatformDataOutputStream, o: Any) {
             var obj = o
             if (obj is ExternalizableWrapper && obj !is ExtWrapBase) {
                 out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize())
