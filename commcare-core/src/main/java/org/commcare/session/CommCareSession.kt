@@ -24,7 +24,7 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory
 import org.javarosa.core.services.locale.Localizer
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
+import org.javarosa.core.services.PrototypeManager
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathParseTool
@@ -1063,11 +1063,11 @@ open class CommCareSession {
             inputStream: PlatformDataInputStream
         ): CommCareSession {
             val restoredFrame = SessionFrame()
-            restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes())
+            restoredFrame.readExternal(inputStream, PrototypeManager.getDefault()!!)
 
             val restoredSession = CommCareSession(ccPlatform)
             restoredSession.frame = restoredFrame
-            val frames = SerializationHelpers.readList(inputStream, ExtUtil.defaultPrototypes()) { SessionFrame() }
+            val frames = SerializationHelpers.readList(inputStream, PrototypeManager.getDefault()!!) { SessionFrame() }
             val stackFrames = ArrayDeque<SessionFrame>()
             while (frames.isNotEmpty()) {
                 val lastElement = frames.last()
