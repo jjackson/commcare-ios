@@ -24,10 +24,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 class TimeData : IAnswerData {
-    var d: Date? = null
+    var d: PlatformDate? = null
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -35,23 +35,23 @@ class TimeData : IAnswerData {
      */
     constructor()
 
-    constructor(d: Date) {
+    constructor(d: PlatformDate) {
         setValue(d)
     }
 
     override fun clone(): IAnswerData {
-        return TimeData(Date(d!!.time))
+        return TimeData(PlatformDate(d!!.time))
     }
 
     override fun setValue(o: Any?) {
         if (o == null) {
             throw NullPointerException("Attempt to set an IAnswerData class to null.")
         }
-        d = Date((o as Date).time)
+        d = PlatformDate((o as PlatformDate).time)
     }
 
     override fun getValue(): Any {
-        return Date(d!!.time)
+        return PlatformDate(d!!.time)
     }
 
     override fun getDisplayText(): String {

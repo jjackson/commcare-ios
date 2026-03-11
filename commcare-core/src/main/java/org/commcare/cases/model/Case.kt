@@ -13,7 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * NOTE: All new fields should be added to the case class using the "data" class,
@@ -37,7 +37,7 @@ open class Case : Persistable, IMetaData {
     protected var closed: Boolean = false
 
     @JvmField
-    protected var dateOpened: Date? = null
+    protected var dateOpened: PlatformDate? = null
 
     @JvmField
     protected var recordId: Int = 0
@@ -52,14 +52,14 @@ open class Case : Persistable, IMetaData {
      * NOTE: This constructor is for serialization only.
      */
     constructor() {
-        dateOpened = Date()
+        dateOpened = PlatformDate()
     }
 
     constructor(name: String?, typeId: String?) {
         setID(-1)
         this.name = name
         this.typeId = typeId
-        dateOpened = Date()
+        dateOpened = PlatformDate()
         setLastModified(dateOpened!!)
     }
 
@@ -137,9 +137,9 @@ open class Case : Persistable, IMetaData {
 
     fun getCaseId(): String? = id
 
-    fun getDateOpened(): Date? = dateOpened
+    fun getDateOpened(): PlatformDate? = dateOpened
 
-    fun setDateOpened(dateOpened: Date?) {
+    fun setDateOpened(dateOpened: PlatformDate?) {
         this.dateOpened = dateOpened
     }
 
@@ -149,7 +149,7 @@ open class Case : Persistable, IMetaData {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
         closed = ExtUtil.readBool(`in`)
-        dateOpened = ExtUtil.read(`in`, ExtWrapNullable(Date::class.java), pf) as Date?
+        dateOpened = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
         recordId = ExtUtil.readInt(`in`)
         @Suppress("UNCHECKED_CAST")
         indices = ExtUtil.read(`in`, ExtWrapList(CaseIndex::class.java), pf) as ArrayList<CaseIndex>
@@ -291,15 +291,15 @@ open class Case : Persistable, IMetaData {
     // ugh, adding stuff to case models sucks. Need to code up a transition scheme in android so we
     // can stop having shitty models.
 
-    fun setLastModified(lastModified: Date) {
+    fun setLastModified(lastModified: PlatformDate) {
         data[LAST_MODIFIED] = lastModified
     }
 
-    fun getLastModified(): Date? {
+    fun getLastModified(): PlatformDate? {
         if (!data.containsKey(LAST_MODIFIED)) {
             return getDateOpened()
         }
-        return data[LAST_MODIFIED] as? Date
+        return data[LAST_MODIFIED] as? PlatformDate
     }
 
     /**

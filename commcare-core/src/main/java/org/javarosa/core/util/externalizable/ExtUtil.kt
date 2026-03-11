@@ -9,7 +9,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.UTFDataFormatException
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 class ExtUtil {
     companion object {
@@ -53,7 +53,7 @@ class ExtUtil {
                 is Double -> writeDecimal(out, data)
                 is Boolean -> writeBool(out, data)
                 is String -> writeString(out, data)
-                is Date -> writeDate(out, data)
+                is PlatformDate -> writeDate(out, data)
                 is ByteArray -> writeBytes(out, data)
                 else -> throw ClassCastException("Not a serializable datatype: " + data.javaClass.name)
             }
@@ -108,7 +108,7 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun writeDate(out: DataOutputStream, `val`: Date) {
+        fun writeDate(out: DataOutputStream, `val`: PlatformDate) {
             writeNumeric(out, `val`.time)
             // time zone?
         }
@@ -143,7 +143,7 @@ class ExtUtil {
                 type == java.lang.Double::class.java -> readDecimal(`in`)
                 type == java.lang.Boolean::class.java -> readBool(`in`)
                 type == String::class.java -> readString(`in`)
-                type == Date::class.java -> readDate(`in`)
+                type == PlatformDate::class.java -> readDate(`in`)
                 type == ByteArray::class.java -> readBytes(`in`)
                 else -> throw ClassCastException("Not a deserializable datatype: " + type.name)
             }
@@ -227,8 +227,8 @@ class ExtUtil {
 
         @JvmStatic
         @Throws(PlatformIOException::class)
-        fun readDate(`in`: DataInputStream): Date {
-            return Date(readNumeric(`in`))
+        fun readDate(`in`: DataInputStream): PlatformDate {
+            return PlatformDate(readNumeric(`in`))
             // time zone?
         }
 
