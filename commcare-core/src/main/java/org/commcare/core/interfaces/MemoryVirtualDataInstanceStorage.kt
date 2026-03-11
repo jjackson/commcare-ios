@@ -1,7 +1,7 @@
 package org.commcare.core.interfaces
 
 import org.javarosa.core.model.instance.ExternalDataInstance
-import java.util.UUID
+import kotlin.random.Random
 
 /**
  * In memory implementation of VirtualDataInstanceStorage for use in the CLI and tests.
@@ -11,7 +11,13 @@ open class MemoryVirtualDataInstanceStorage : VirtualDataInstanceStorage {
     private val storage: MutableMap<String, ExternalDataInstance> = HashMap()
 
     override fun write(dataInstance: ExternalDataInstance): String {
-        val key = UUID.randomUUID().toString()
+        val key = buildString {
+            val chars = "0123456789abcdef"
+            repeat(32) { i ->
+                if (i == 8 || i == 12 || i == 16 || i == 20) append('-')
+                append(chars[Random.nextInt(chars.length)])
+            }
+        }
         storage[key] = dataInstance
         return key
     }

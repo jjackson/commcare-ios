@@ -5,7 +5,6 @@ import org.commcare.cases.util.StringUtils
 import org.commcare.modern.util.Pair
 import org.javarosa.core.model.instance.TreeReference
 
-import java.util.Locale
 import kotlin.jvm.JvmStatic
 
 object EntitySortUtil {
@@ -14,7 +13,6 @@ object EntitySortUtil {
     fun sortEntities(
         fullEntityList: List<Entity<TreeReference>>,
         searchTerms: Array<String>,
-        currentLocale: Locale,
         isFuzzySearchEnabled: Boolean,
         matchScores: ArrayList<Pair<Int, Int>>,
         matchList: MutableList<Entity<TreeReference>>,
@@ -31,7 +29,7 @@ object EntitySortUtil {
                 var normalizedFilter = StringUtils.normalize(filter)
                 for (i in 0 until e.getNumFields()) {
                     val field = e.getNormalizedField(i)
-                    if ("" != field && field.lowercase(currentLocale).contains(normalizedFilter)) {
+                    if ("" != field && field.lowercase().contains(normalizedFilter)) {
                         add = true
                         break
                     } else if (isFuzzySearchEnabled) {
