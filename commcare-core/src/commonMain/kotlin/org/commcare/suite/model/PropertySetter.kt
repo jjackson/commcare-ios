@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
+import kotlin.jvm.JvmField
 
 /**
  * This is just a tiny little struct to make it reasonable to maintain
