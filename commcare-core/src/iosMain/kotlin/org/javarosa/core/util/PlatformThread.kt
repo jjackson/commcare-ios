@@ -9,7 +9,7 @@ actual object PlatformThread {
     }
 
     actual fun sleep(millis: Long) {
-        platform.posix.usleep((millis * 1000u).toUInt())
+        platform.posix.usleep((millis * 1000).toUInt())
     }
 
     actual fun startThread(block: () -> Unit) {
