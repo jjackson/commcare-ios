@@ -50,10 +50,7 @@ class StorageManager(factory: IStorageIndexedFactory) {
                 return
             } else {
                 throw RuntimeException(
-                    String.format(
-                        "Attempting to change storage type for key %s from type %s to type %s.",
-                        key, storageRegistry[key]!!.getPrototype().name, type.name
-                    )
+                    "Attempting to change storage type for key $key from type ${storageRegistry[key]!!.getPrototype().name} to type ${type.name}."
                 )
             }
         }

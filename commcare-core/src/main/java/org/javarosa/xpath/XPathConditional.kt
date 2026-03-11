@@ -51,10 +51,8 @@ class XPathConditional : IConditionExpr {
             if (xpath != null) {
                 throw XPathUnsupportedException(xpath)
             } else {
-                val contextMessage = String.format(
-                    "Error calculating expression: \"%s\", being calculated for \"%s\"",
-                    expr!!.toPrettyString(), evalContext!!.contextRef
-                )
+                val contextMessage =
+                    "Error calculating expression: \"${expr!!.toPrettyString()}\", being calculated for \"${evalContext!!.contextRef}\""
                 throw XPathUnsupportedException(contextMessage)
             }
         }

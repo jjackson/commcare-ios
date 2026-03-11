@@ -85,17 +85,12 @@ class StackFrameStep : Externalizable {
 
     fun addDataInstanceSource(source: ExternalDataInstanceSource) {
         Objects.requireNonNull(
-            source, String.format(
-                "Unable to add null instance data source to stack frame step '%s'", getId()
-            )
+            source, "Unable to add null instance data source to stack frame step '${getId()}'"
         )
         val reference = source.getReference()
         if (dataInstanceSources.containsKey(reference)) {
             throw RuntimeException(
-                String.format(
-                    "ArrayDeque frame step '%s' already contains an instance with the reference '%s'",
-                    getId(), reference
-                )
+                "ArrayDeque frame step '${getId()}' already contains an instance with the reference '$reference'"
             )
         }
         dataInstanceSources[reference!!] = source
@@ -157,7 +152,7 @@ class StackFrameStep : Externalizable {
     fun getExtra(key: String): Any? {
         val values = extras.get(key)
         if (values.size > 1) {
-            throw RuntimeException(String.format("Multiple extras found with key %s", key))
+            throw RuntimeException("Multiple extras found with key $key")
         }
         return try {
             values.iterator().next()

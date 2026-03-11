@@ -675,19 +675,15 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     }
 
     private fun expireReferenceCache() {
-        synchronized(refCache) {
-            refCache[0] = null
-        }
+        refCache[0] = null
     }
 
     // return the tree reference that corresponds to this tree element
     override fun getRef(): TreeReference {
-        synchronized(refCache) {
-            if (refCache[0] == null) {
-                refCache[0] = TreeReference.buildRefFromTreeElement(this)
-            }
-            return refCache[0]!!
+        if (refCache[0] == null) {
+            refCache[0] = TreeReference.buildRefFromTreeElement(this)
         }
+        return refCache[0]!!
     }
 
     fun getPreloadHandler(): String? = preloadHandler

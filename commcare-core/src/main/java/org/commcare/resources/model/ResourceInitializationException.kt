@@ -7,10 +7,7 @@ class ResourceInitializationException(
     r: Resource,
     reason: Exception
 ) : Exception(
-    String.format(
-        "Initialization failed for resource with id %s (%s) due to the following exception: %s",
-        r.getResourceId(), r.getDescriptor(), reason.message
-    )
+    "Initialization failed for resource with id ${r.getResourceId()} (${r.getDescriptor()}) due to the following exception: ${reason.message}"
 ) {
     private val resource: Resource = r
 

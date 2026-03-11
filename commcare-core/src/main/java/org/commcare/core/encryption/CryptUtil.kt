@@ -108,7 +108,7 @@ object CryptUtil {
         val hash = digest.digest(value.toByteArray(StandardCharsets.UTF_8))
         val sb = StringBuilder()
         for (b in hash) {
-            sb.append(String.format("%x", b))
+            sb.append(b.toString(16))
         }
         return sb.toString()
     }

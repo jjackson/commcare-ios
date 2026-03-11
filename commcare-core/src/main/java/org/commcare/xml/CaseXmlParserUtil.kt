@@ -42,7 +42,7 @@ class CaseXmlParserUtil {
         @Throws(InvalidStructureException::class)
         fun validateMandatoryProperty(key: String, value: Any?, caseId: String, parser: PlatformXmlParser) {
             if (value == null || value == "") {
-                val error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId)
+                val error = "The $key attribute of a <case> $caseId wasn't set"
                 throw InvalidStructureException.readableInvalidStructureException(error, parser)
             }
         }
@@ -115,11 +115,8 @@ class CaseXmlParserUtil {
                     relationship = CaseIndex.RELATIONSHIP_CHILD
                 } else if ("" == relationship) {
                     throw InvalidStructureException(
-                        String.format(
-                            "Invalid Case Transaction for Case[%s]: Attempt to add a '' relationship type to "
-                                    + "entity[%s]",
-                            caseId, value
-                        )
+                        "Invalid Case Transaction for Case[$caseId]: Attempt to add a '' relationship type to " +
+                                "entity[$value]"
                     )
                 }
 

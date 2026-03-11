@@ -41,10 +41,7 @@ class ArchiveFileReference(
         } catch (e: NullPointerException) {
             val reference = mZipFile.name ?: ""
             val re = RuntimeException(
-                String.format(
-                    "ZipFile %s threw NullPointerException with URI %s in archive with GUID %s.",
-                    reference, archiveURI, guid
-                )
+                "ZipFile $reference threw NullPointerException with URI $archiveURI in archive with GUID $guid."
             )
             re.initCause(e)
             throw re

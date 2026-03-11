@@ -258,10 +258,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
             if (canLoadRecordFromGroup(recordSetCache, storageCacheName, recordId)) {
                 val tranche = recordSetCache!!.getRecordSetForRecordId(storageCacheKey, recordId)!!
                 val loadTrace = EvaluationTrace(
-                    String.format(
-                        "Model [%s]: Bulk Load [%s}",
-                        this.storageCacheName, tranche.first
-                    )
+                    "Model [${this.storageCacheName}]: Bulk Load [${tranche.first}}"
                 )
 
                 val body = tranche.second
@@ -281,7 +278,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
      * storage. This is the "Safe" fallback behavior for lookups.
      */
     protected fun getElementSingular(recordId: Int, context: QueryContext?): Model {
-        val trace = EvaluationTrace(String.format("Model [%s]: Singular Load", storageCacheName))
+        val trace = EvaluationTrace("Model [$storageCacheName]: Singular Load")
 
         val m = storage.read(recordId)
 

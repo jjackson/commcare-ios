@@ -353,7 +353,7 @@ abstract class StorageBackedTreeRoot<T : AbstractTreeElement> : AbstractTreeElem
             ids = mIndexResultCache[cacheKey]!!
         } else {
             val trace = EvaluationTrace(
-                String.format("Storage [%s] Key Lookup [%s]", storageTreeName, keyDescription)
+                "Storage [$storageTreeName] Key Lookup [$keyDescription]"
             )
             ids = LinkedHashSet()
             storage.getIDsForValues(namesArray, valuesArray, inverseNames, inverseValues, ids)
