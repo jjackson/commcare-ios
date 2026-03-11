@@ -1,6 +1,6 @@
 package org.javarosa.core.util
 
-import java.util.Random
+import kotlin.jvm.JvmStatic
 
 object PropertyUtils {
 
@@ -12,7 +12,7 @@ object PropertyUtils {
     @JvmStatic
     fun genUUID(): String {
         return randHex(8) + "-" + randHex(4) + "-4" + randHex(3) + "-" +
-                Integer.toString(8 + MathUtils.getRand().nextInt(4), 16) + randHex(3) + "-" + randHex(12)
+                (8 + MathUtils.getRand().nextInt(4)).toString(16) + randHex(3) + "-" + randHex(12)
     }
 
     /**
@@ -26,16 +26,16 @@ object PropertyUtils {
     fun genGUID(len: Int): String {
         val guid = StringBuilder()
         for (i in 0 until len) { // 25 == 128 bits of entropy
-            guid.append(Integer.toString(MathUtils.getRand().nextInt(36), 36))
+            guid.append(MathUtils.getRand().nextInt(36).toString(36))
         }
         return guid.toString().uppercase()
     }
 
     private fun randHex(len: Int): String {
         val ret = StringBuilder()
-        val r: Random = MathUtils.getRand()
+        val r = MathUtils.getRand()
         for (i in 0 until len) {
-            ret.append(Integer.toString(r.nextInt(16), 16))
+            ret.append(r.nextInt(16).toString(16))
         }
         return ret.toString()
     }
