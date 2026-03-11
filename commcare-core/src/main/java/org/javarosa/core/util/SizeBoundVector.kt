@@ -1,5 +1,6 @@
 package org.javarosa.core.util
 
+import kotlin.jvm.JvmField
 
 /**
  * Only use for J2ME Compatible Vectors

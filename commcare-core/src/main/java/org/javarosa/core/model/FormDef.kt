@@ -46,6 +46,8 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import datadog.trace.api.Trace
 import io.opentracing.util.GlobalTracer
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Definition of a form. This has some meta data about the form definition and a

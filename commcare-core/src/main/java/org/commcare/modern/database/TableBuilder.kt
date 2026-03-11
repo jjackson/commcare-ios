@@ -9,6 +9,9 @@ import org.javarosa.core.util.externalizable.Externalizable
 
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
+import kotlin.math.ceil
+import kotlin.math.min
 
 /**
  * Functions for generating CommCare SQL statements based on classes
@@ -209,13 +212,13 @@ open class TableBuilder {
             val ops = ArrayList<Pair<String, Array<String>>>()
 
             //figure out how many iterations we'll need
-            val numIterations = Math.ceil(input.size.toDouble() / maxArgs).toInt()
+            val numIterations = ceil(input.size.toDouble() / maxArgs).toInt()
 
             val iterator = input.iterator()
 
             for (currentRound in 0 until numIterations) {
                 val startPoint = currentRound * maxArgs
-                val lastIndex = Math.min((currentRound + 1) * maxArgs, input.size)
+                val lastIndex = min((currentRound + 1) * maxArgs, input.size)
                 val stringBuilder = StringBuilder("(")
                 for (i in startPoint until lastIndex) {
                     stringBuilder.append(questionMark)
@@ -248,13 +251,13 @@ open class TableBuilder {
             val ops = ArrayList<Pair<String, Array<String>>>()
 
             //figure out how many iterations we'll need
-            val numIterations = Math.ceil(input.size().toDouble() / maxArgs).toInt()
+            val numIterations = ceil(input.size().toDouble() / maxArgs).toInt()
 
             val iterator = input.iterator()
 
             for (currentRound in 0 until numIterations) {
                 val startPoint = currentRound * maxArgs
-                val lastIndex = Math.min((currentRound + 1) * maxArgs, input.size())
+                val lastIndex = min((currentRound + 1) * maxArgs, input.size())
                 val stringBuilder = StringBuilder("(")
                 for (i in startPoint until lastIndex) {
                     stringBuilder.append("?,")

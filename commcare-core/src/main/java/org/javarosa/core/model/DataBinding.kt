@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.Condition
 import org.javarosa.core.model.condition.IConditionExpr
 import org.javarosa.core.model.condition.Recalculate
 import org.javarosa.model.xform.XPathReference
+import kotlin.jvm.JvmField
 
 /**
  * A data binding is an object that represents how a

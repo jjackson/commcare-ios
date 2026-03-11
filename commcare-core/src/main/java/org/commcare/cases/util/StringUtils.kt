@@ -2,6 +2,7 @@ package org.commcare.cases.util
 
 import org.commcare.modern.util.Pair
 import java.text.Normalizer
+import kotlin.jvm.JvmStatic
 
 /**
  * Created by willpride on 10/27/16.

@@ -23,6 +23,8 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.LocalCacheTable
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional

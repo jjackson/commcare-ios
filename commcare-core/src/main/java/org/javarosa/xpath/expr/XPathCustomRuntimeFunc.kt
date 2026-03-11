@@ -15,6 +15,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmStatic
 
 /**
  * Custom function that is dispatched at runtime

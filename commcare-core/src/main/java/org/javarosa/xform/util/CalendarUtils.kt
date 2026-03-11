@@ -8,6 +8,7 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.Calendar
 import java.util.TimeZone
+import kotlin.jvm.JvmStatic
 
 class CalendarUtils {
     companion object {

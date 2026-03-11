@@ -3,6 +3,7 @@ package org.javarosa.core.model.utils
 import org.gavaghan.geodesy.Ellipsoid
 import org.gavaghan.geodesy.GeodeticCalculator
 import org.gavaghan.geodesy.GlobalCoordinates
+import kotlin.jvm.JvmStatic
 
 /**
  * Utility class for creating, validating, and interacting with geographic polygons

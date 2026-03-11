@@ -4,6 +4,7 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.util.OrderedHashtable
+import kotlin.jvm.JvmStatic
 
 object SessionInstanceBuilder {
     const val KEY_LAST_QUERY_STRING: String = "LAST_QUERY_STRING"

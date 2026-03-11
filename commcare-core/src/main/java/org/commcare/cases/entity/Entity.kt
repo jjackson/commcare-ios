@@ -1,6 +1,7 @@
 package org.commcare.cases.entity
 
 import org.commcare.cases.util.StringUtils
+import kotlin.jvm.JvmField
 
 /**
  * @author ctsims

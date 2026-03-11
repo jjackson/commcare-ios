@@ -2,6 +2,7 @@ package org.commcare.util
 
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.instance.TreeReference
+import kotlin.jvm.JvmStatic
 
 /**
  * @author $|-|!˅@M

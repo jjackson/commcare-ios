@@ -10,6 +10,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
+import kotlin.jvm.JvmStatic
 
 /**
  * Utility methods for processing XML transactions against a user sandbox.

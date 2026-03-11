@@ -31,6 +31,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.net.URL
 import java.text.ParseException
+import kotlin.jvm.JvmStatic
 
 /**
  * Manager for remote query datums; get/answer user prompts and build

@@ -3,6 +3,7 @@ package org.javarosa.form.api
 import org.javarosa.core.model.FormIndex
 import org.javarosa.core.model.data.AnswerDataFactory
 import org.javarosa.core.model.data.UncastData
+import kotlin.jvm.JvmStatic
 
 /**
  * Replay form entry session. Steps through form, applying answers from the

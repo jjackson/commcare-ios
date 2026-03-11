@@ -2,6 +2,10 @@ package org.javarosa.core.model.utils
 
 import org.gavaghan.geodesy.GlobalCoordinates
 import org.javarosa.core.model.data.GeoPointData
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+import kotlin.math.asin
+import kotlin.math.sqrt
 
 /**
  * Static utility methods for GeoPointData.
@@ -52,7 +56,7 @@ object GeoPointUtils {
      * The argument must be in [0, 1], and the result is positive.
      */
     private fun arcHav(x: Double): Double {
-        return 2 * Math.asin(Math.sqrt(x))
+        return 2 * asin(sqrt(x))
     }
 
     /**

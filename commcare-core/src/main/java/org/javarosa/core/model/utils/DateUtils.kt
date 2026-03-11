@@ -9,6 +9,10 @@ import java.util.Arrays
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmOverloads
+import kotlin.math.abs
 
 /**
  * Static utility methods for Dates in j2me
@@ -319,7 +323,7 @@ object DateUtils {
             //Start with sign
             val offsetSign = if (offset > 0) "+" else "-"
 
-            val value = Math.abs(offset) / 1000 / 60
+            val value = abs(offset) / 1000 / 60
 
             val hrs = intPad(value / 60, 2)
             val mins = if (value % 60 != 0) ":" + intPad(value % 60, 2) else ""
@@ -467,11 +471,11 @@ object DateUtils {
         } else if (hours == 0) {
             offsetStr = "Z"
         } else {
-            offsetStr = "-" + intPad(Math.abs(hours), 2)
+            offsetStr = "-" + intPad(abs(hours), 2)
         }
 
         val totalMinutes = offsetInMillis / 1000 / 60
-        val remainderMinutes = Math.abs(totalMinutes) % 60
+        val remainderMinutes = abs(totalMinutes) % 60
         if (remainderMinutes != 0) {
             offsetStr += ":" + intPad(remainderMinutes, 2)
         }

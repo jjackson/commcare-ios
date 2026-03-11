@@ -13,6 +13,7 @@ import org.javarosa.model.xform.XPathReference
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * The definition of a group in a form or questionaire.

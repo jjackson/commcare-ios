@@ -12,6 +12,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.emptyIfNull
+import kotlin.jvm.JvmField
 
 class SelectChoice : Externalizable {
 

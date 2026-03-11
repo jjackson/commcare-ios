@@ -15,6 +15,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current

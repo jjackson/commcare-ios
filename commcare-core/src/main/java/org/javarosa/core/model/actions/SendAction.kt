@@ -15,6 +15,7 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
+import kotlin.jvm.JvmStatic
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing

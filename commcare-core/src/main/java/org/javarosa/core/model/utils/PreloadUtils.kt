@@ -9,6 +9,7 @@ import org.javarosa.core.model.data.SelectMultiData
 import org.javarosa.core.model.data.StringData
 import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmStatic
 
 /**
  * @author Clayton Sims

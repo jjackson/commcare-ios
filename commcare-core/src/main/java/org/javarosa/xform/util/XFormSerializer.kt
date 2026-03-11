@@ -10,6 +10,7 @@ import java.io.DataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.OutputStreamWriter
 import java.io.UnsupportedEncodingException
+import kotlin.jvm.JvmStatic
 
 class XFormSerializer {
     companion object {

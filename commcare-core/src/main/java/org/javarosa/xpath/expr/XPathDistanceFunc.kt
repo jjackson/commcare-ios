@@ -36,7 +36,7 @@ open class XPathDistanceFunc : XPathFuncExpr {
             val unpackedTo = FunctionUtils.unpack(to) as String?
 
             if (unpackedFrom == null || "" == unpackedFrom || unpackedTo == null || "" == unpackedTo) {
-                return java.lang.Double.valueOf(-1.0)
+                return -1.0
             }
 
             try {
@@ -44,7 +44,7 @@ open class XPathDistanceFunc : XPathFuncExpr {
                 val castedFrom = GeoPointData().cast(UncastData(unpackedFrom))
                 val castedTo = GeoPointData().cast(UncastData(unpackedTo))
 
-                return java.lang.Double.valueOf(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo))
+                return GeoPointUtils.computeDistanceBetween(castedFrom, castedTo)
             } catch (e: NumberFormatException) {
                 throw XPathTypeMismatchException(
                     "distance() function requires arguments containing " +

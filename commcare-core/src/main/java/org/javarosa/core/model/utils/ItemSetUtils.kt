@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.ReducingTraceReporter
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer
+import kotlin.jvm.JvmStatic
 
 // helper class for common functions related to @code{ItemsetBinding}
 object ItemSetUtils {

@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
+import kotlin.jvm.JvmStatic
 
 /**
  * Describes one form entry action used to replay form entry.

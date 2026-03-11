@@ -1,6 +1,7 @@
 package org.commcare.core.graph.util
 
 import java.util.Locale
+import kotlin.jvm.JvmStatic
 
 /**
  * These functions are copied directly from android.graphics.Color for use in the core

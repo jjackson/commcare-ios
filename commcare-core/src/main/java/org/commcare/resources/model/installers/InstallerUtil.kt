@@ -6,6 +6,7 @@ import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.SizeBoundUniqueVector
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
 
 object InstallerUtil {
 

@@ -3,6 +3,7 @@ package org.commcare.cases.util
 import org.commcare.cases.model.Case
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.MD5
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

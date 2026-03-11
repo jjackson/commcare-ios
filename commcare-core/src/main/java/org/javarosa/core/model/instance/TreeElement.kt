@@ -20,6 +20,8 @@ import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * An element of a FormInstance.

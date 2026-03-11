@@ -17,6 +17,7 @@
 package org.javarosa.xform.parse
 
 import org.kxml2.kdom.Element
+import kotlin.jvm.JvmField
 
 /**
  * Exception thrown when an XForms Parsing error occurs.

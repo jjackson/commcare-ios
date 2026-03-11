@@ -2,6 +2,7 @@ package org.javarosa.core.services.locale
 
 import org.javarosa.core.reference.ReferenceDataSource
 import org.javarosa.core.util.NoLocalizedTextException
+import kotlin.jvm.JvmStatic
 
 object Localization {
 

@@ -1,6 +1,7 @@
 package org.javarosa.core.model.data
 
 import org.javarosa.core.model.Constants
+import kotlin.jvm.JvmStatic
 
 /**
  * This is not a factory, actually, since there's no drop-in component model, but

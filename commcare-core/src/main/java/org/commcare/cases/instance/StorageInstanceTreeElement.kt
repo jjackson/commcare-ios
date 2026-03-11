@@ -16,6 +16,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.Interner
 import org.javarosa.core.util.externalizable.Externalizable
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Instance root for storage-backed instances such as the case and ledger DBs

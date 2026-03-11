@@ -17,7 +17,7 @@ open class XPathCountFunc : XPathFuncExpr {
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         if (evaluatedArgs[0] is XPathNodeset) {
-            return java.lang.Double.valueOf((evaluatedArgs[0] as XPathNodeset).size().toDouble())
+            return (evaluatedArgs[0] as XPathNodeset).size().toDouble()
         } else {
             throw XPathTypeMismatchException("uses an invalid reference inside a count function")
         }

@@ -16,6 +16,7 @@
 package org.commcare.modern.util
 
 import java.lang.reflect.Modifier
+import kotlin.jvm.JvmStatic
 
 object Objects {
 

@@ -11,6 +11,7 @@ import org.commcare.modern.engine.cases.CaseIndexTable
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.xpath.expr.XPathExpression
+import kotlin.jvm.JvmField
 
 
 /**

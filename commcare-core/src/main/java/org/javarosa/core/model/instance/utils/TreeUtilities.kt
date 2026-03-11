@@ -23,6 +23,7 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
+import kotlin.jvm.JvmStatic
 
 /**
  * Helper methods for procedures which are common to different Tree model

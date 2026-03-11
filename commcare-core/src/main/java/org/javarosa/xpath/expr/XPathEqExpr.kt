@@ -9,6 +9,7 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.math.abs
 class XPathEqExpr : XPathBinaryOpExpr {
     private var isEqOp: Boolean = false
 
@@ -103,7 +104,7 @@ class XPathEqExpr : XPathBinaryOpExpr {
 
                 val fa = a as Double
                 val fb = b as Double
-                eq = Math.abs(fa - fb) < 1.0e-12
+                eq = abs(fa - fb) < 1.0e-12
             } else {
                 a = FunctionUtils.toString(a)
                 b = FunctionUtils.toString(b)

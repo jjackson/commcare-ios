@@ -8,6 +8,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
+import kotlin.jvm.JvmStatic
 
 /**
  * Created by wpride1 on 8/11/15.

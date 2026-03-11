@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
+import kotlin.jvm.JvmField
 
 /**
  * A Root Translator is a simple reference factory which doesn't

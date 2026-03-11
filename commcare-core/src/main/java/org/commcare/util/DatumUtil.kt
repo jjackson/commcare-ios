@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
+import kotlin.jvm.JvmStatic
 
 /**
  * Utils for getting values for datums

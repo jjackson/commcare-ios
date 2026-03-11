@@ -3,6 +3,7 @@ package org.commcare.cases.entity
 import org.commcare.suite.model.Detail
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
+import kotlin.jvm.JvmStatic
 
 /**
  * Created by amstone326 on 3/2/17.

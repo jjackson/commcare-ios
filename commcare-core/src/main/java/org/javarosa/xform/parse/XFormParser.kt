@@ -53,6 +53,8 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
 import java.io.Reader
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.

@@ -4,6 +4,8 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.parser.XPathSyntaxException
+import kotlin.math.max
+import kotlin.math.min
 
 open class XPathSubstrFunc : XPathFuncExpr {
     constructor() {
@@ -55,8 +57,8 @@ open class XPathSubstrFunc : XPathFuncExpr {
             if (end < 0) {
                 end = len + end
             }
-            start = Math.min(Math.max(0, start), end)
-            end = Math.min(Math.max(0, end), end)
+            start = min(max(0, start), end)
+            end = min(max(0, end), end)
 
             return if (start <= end && end <= len) s.substring(start, end) else ""
         }

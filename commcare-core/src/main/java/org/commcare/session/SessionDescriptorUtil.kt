@@ -1,5 +1,6 @@
 package org.commcare.session
 
+import kotlin.jvm.JvmStatic
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */

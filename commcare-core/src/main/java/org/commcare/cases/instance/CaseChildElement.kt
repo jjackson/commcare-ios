@@ -11,6 +11,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.utils.PreloadUtils
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

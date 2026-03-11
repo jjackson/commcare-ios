@@ -6,6 +6,7 @@ import org.javarosa.model.xform.DataModelSerializer
 import org.javarosa.xml.createXmlSerializer
 import org.javarosa.xpath.XPathNodeset
 import java.nio.charset.StandardCharsets
+import kotlin.jvm.JvmStatic
 
 /**
  * JVM-only utility for serializing XPath expression results to output streams.

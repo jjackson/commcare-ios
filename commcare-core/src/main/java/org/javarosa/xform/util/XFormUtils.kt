@@ -11,6 +11,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
 import java.io.UnsupportedEncodingException
+import kotlin.jvm.JvmStatic
 
 /**
  * Static Utility methods pertaining to XForms.

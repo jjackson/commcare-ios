@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.XPathArityException
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.parser.XPathSyntaxException
+import kotlin.math.max
 
 open class XPathMaxFunc : XPathFuncExpr {
     constructor() {
@@ -45,7 +46,7 @@ open class XPathMaxFunc : XPathFuncExpr {
 
             var max = Double.NEGATIVE_INFINITY
             for (argVal in argVals) {
-                max = Math.max(max, FunctionUtils.toNumeric(argVal))
+                max = max(max, FunctionUtils.toNumeric(argVal))
             }
             return max
         }

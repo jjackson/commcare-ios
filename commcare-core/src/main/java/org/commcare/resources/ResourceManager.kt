@@ -12,6 +12,8 @@ import org.commcare.util.CommCarePlatform
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
 import org.javarosa.xml.util.UnfullfilledRequirementsException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Resource table install and update logic.

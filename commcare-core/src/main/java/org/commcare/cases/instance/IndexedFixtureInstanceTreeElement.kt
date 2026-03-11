@@ -7,6 +7,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.expr.XPathPathExpr
+import kotlin.jvm.JvmField
 
 /**
  * The root element for the an indexed fixture data instance:

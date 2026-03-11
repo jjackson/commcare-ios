@@ -9,6 +9,7 @@ import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.model.instance.utils.TreeUtilities
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

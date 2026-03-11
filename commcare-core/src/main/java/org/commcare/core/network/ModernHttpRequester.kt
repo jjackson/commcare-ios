@@ -16,6 +16,8 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * Make http get/post requests with query params encoded in get url or post

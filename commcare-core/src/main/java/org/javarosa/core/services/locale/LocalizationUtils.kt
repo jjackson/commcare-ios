@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
 import java.io.InputStreamReader
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

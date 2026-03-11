@@ -1,6 +1,7 @@
 package org.commcare.core.network.bitcache
 
 import java.io.File
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims

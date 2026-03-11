@@ -9,6 +9,8 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmOverloads
 
 /**
  * The Localizer object maintains mappings for locale ID's and Object

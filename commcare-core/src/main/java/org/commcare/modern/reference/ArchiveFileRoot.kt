@@ -7,6 +7,7 @@ import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.util.PropertyUtils
 
 import java.util.zip.ZipFile
+import kotlin.jvm.JvmStatic
 
 /**
  * @author wspride

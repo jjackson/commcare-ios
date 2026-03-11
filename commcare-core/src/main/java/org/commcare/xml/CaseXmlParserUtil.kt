@@ -7,6 +7,7 @@ import org.javarosa.xml.util.ActionableInvalidStructureException
 import org.javarosa.xml.util.InvalidCasePropertyLengthException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
+import kotlin.jvm.JvmStatic
 
 class CaseXmlParserUtil {
     companion object {

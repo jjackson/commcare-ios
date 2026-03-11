@@ -25,6 +25,7 @@ import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.io.PlatformInputStream
 import java.io.UnsupportedEncodingException
+import kotlin.jvm.JvmStatic
 
 /**
  * User restore xml file sometimes present in apps.

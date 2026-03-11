@@ -27,7 +27,7 @@ open class XPathCountSelectedFunc : XPathFuncExpr {
             throw XPathTypeMismatchException("count-selected argument was not a select list")
         }
 
-        return java.lang.Double.valueOf(DataUtil.splitOnSpaces(evalResult).size.toDouble())
+        return DataUtil.splitOnSpaces(evalResult).size.toDouble()
     }
 
     companion object {

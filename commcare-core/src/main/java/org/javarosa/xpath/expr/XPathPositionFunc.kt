@@ -38,7 +38,7 @@ open class XPathPositionFunc : XPathFuncExpr {
                 }
             }
         } else if (evalContext.getContextPosition() != -1) {
-            return java.lang.Double.valueOf(evalContext.getContextPosition().toDouble())
+            return evalContext.getContextPosition().toDouble()
         } else {
             return position(evalContext.contextRef!!)
         }
@@ -50,7 +50,7 @@ open class XPathPositionFunc : XPathFuncExpr {
         private const val EXPECTED_ARG_COUNT: Int = -1
 
         private fun position(refAt: TreeReference): Double {
-            return java.lang.Double.valueOf(refAt.getMultLast().toDouble())
+            return refAt.getMultLast().toDouble()
         }
     }
 }

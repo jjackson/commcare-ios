@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.model.xform.XPathReference
 import org.javarosa.xpath.XPathConditional
 import org.javarosa.xpath.expr.XPathPathExpr
+import kotlin.jvm.JvmStatic
 
 class ItemSetParsingUtils {
     companion object {

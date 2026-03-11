@@ -11,6 +11,7 @@ import org.javarosa.model.xform.XFormSerializingVisitor
 import org.javarosa.model.xform.XPathReference
 
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
