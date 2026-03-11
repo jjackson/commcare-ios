@@ -77,15 +77,15 @@ commcare-ios/
 |------|-------|-------|-------|--------|
 | 1 | Replace JVM collections | 265 | #64 | Done (PR #74) |
 | 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Open |
-| 3 | Replace Date and regex | ~32 | #66 | Open |
-| 4 | Abstract serialization framework | ~10 new | #67 | Open |
+| 3 | Replace Date and regex | ~32 | #66 | Done (PR #100) |
+| 4 | Abstract serialization framework | ~10 new | #67 | Done (PR #101) |
 | 5 | Extend java.io abstractions | ~160 | #68 | Open |
 | 6 | Move XPath engine to commonMain | ~80 | #69 | Open |
 | 7 | Move XForm/cases/session to commonMain | ~150+ | #70 | Open |
 | 8 | Real iOS platform implementations | ~10 | #71 | Open |
 | 9 | Integration testing and validation | ~5 new | #72 | Open |
 
-**Next wave**: Wave 2 (Issue #65) — can run in parallel with Waves 3 and 4.
+**Next wave**: Wave 5 (Issue #68) — Extend java.io abstractions. Waves 2 and 5 can proceed in parallel.
 
 **Dependency graph:** Wave 1 first (most pervasive). Waves 2-3 can parallel with Wave 4. Wave 5 after Wave 4. Waves 6-7 after 1-5. Waves 8-9 after 7.
 
@@ -117,6 +117,7 @@ commcare-ios/
 - **Phase 2 KMP migration learnings**: `docs/learnings/2026-03-10-wave6-7-kmp-migration-learnings.md` — compileCommonMainKotlinMetadata strictness, transitive dependency bottleneck, PlatformIOException typealias
 - **iOS CI learnings**: `docs/learnings/2026-03-10-ios-ci-learnings.md` — iOS-specific API differences, commonMain visibility from app module, CI strategy
 - **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
+- **Phase 3 Wave 4 learnings**: `docs/learnings/2026-03-11-wave4-serialization-framework-learnings.md` — Class<*> as fundamental blocker, extension function shadowing, ExtUtil inlining workaround, PrototypeFactory expect/actual pattern
 
 ## Kotlin Conversion Checklist
 
