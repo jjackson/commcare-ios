@@ -31,8 +31,8 @@ open class EntityStringFilterer(
     open fun buildMatchList(): List<Entity<TreeReference>> {
         while (!nodeFactory.isEntitySetReady) {
             try {
-                Thread.sleep(100)
-            } catch (e: InterruptedException) {
+                org.javarosa.core.util.PlatformThread.sleep(100)
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }

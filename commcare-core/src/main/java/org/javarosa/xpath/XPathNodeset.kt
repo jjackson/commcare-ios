@@ -154,7 +154,7 @@ open class XPathNodeset {
         }
 
         fun printNodeContents(nodes: ArrayList<TreeReference>): String {
-            val sb = StringBuffer()
+            val sb = StringBuilder()
             for (i in 0 until nodes.size) {
                 sb.append(nodes[i].toString())
                 if (i < nodes.size - 1) {

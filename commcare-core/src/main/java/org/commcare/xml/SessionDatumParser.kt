@@ -64,7 +64,7 @@ class SessionDatumParser(parser: PlatformXmlParser) : CommCareElementParser<Sess
             var maxSelectValue = DEFAULT_MAX_SELECT_VAL
             if (!StringUtils.isEmpty(maxSelectValueStr)) {
                 try {
-                    maxSelectValue = Integer.parseInt(maxSelectValueStr)
+                    maxSelectValue = maxSelectValueStr!!.toInt()
                 } catch (e: NumberFormatException) {
                     throw InvalidStructureException(
                         "Invalid value $maxSelectValueStr"

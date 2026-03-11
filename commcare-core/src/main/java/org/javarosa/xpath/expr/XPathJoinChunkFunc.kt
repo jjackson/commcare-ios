@@ -50,8 +50,8 @@ open class XPathJoinChunkFunc : XPathFuncExpr {
         fun join(oSep: Any?, oChunkSize: Any?, argVals: Array<Any?>): String {
             val sep = FunctionUtils.toString(oSep)
             val chunkSize = FunctionUtils.toInt(oChunkSize).toInt()
-            val intermediateBuffer = StringBuffer()
-            val outputBuffer = StringBuffer()
+            val intermediateBuffer = StringBuilder()
+            val outputBuffer = StringBuilder()
 
             for (i in argVals.indices) {
                 intermediateBuffer.append(FunctionUtils.toString(argVals[i]))

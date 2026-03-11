@@ -7,6 +7,6 @@ package org.javarosa.core.reference
  *
  * @author ctsims
  */
-class InvalidReferenceException(message: String, private val reference: String) : Exception(message) {
-    fun getReferenceString(): String = reference
+class InvalidReferenceException(message: String, private val reference: String?) : Exception(message) {
+    fun getReferenceString(): String? = reference
 }

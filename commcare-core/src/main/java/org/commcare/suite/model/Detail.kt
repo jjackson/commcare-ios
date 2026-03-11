@@ -130,7 +130,7 @@ class Detail : Externalizable {
 
         if (fitAcross != null) {
             try {
-                this.numEntitiesToDisplayPerRow = Integer.parseInt(fitAcross)
+                this.numEntitiesToDisplayPerRow = fitAcross.toInt()
             } catch (e: NumberFormatException) {
                 numEntitiesToDisplayPerRow = 1
             }

@@ -175,7 +175,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
             )
         }
         try {
-            return Integer.parseInt(value)
+            return value.toInt()
         } catch (nfe: NumberFormatException) {
             throw InvalidStructureException.readableInvalidStructureException(
                 "Expected an integer value, found \"$value\" instead", parser
@@ -220,7 +220,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
         PlatformXmlParserException::class,
         UnfullfilledRequirementsException::class
     )
-    abstract fun parse(): T
+    abstract fun parse(): T?
 
     @Throws(PlatformXmlParserException::class, IOException::class)
     open fun skipBlock(tag: String) {

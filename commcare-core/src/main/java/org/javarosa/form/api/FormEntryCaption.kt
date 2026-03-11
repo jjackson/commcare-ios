@@ -274,7 +274,7 @@ open class FormEntryCaption {
 
         val vars = HashMap<String, Any>()
         vars["name"] = title ?: ""
-        vars["n"] = Integer.valueOf(count)
+        vars["n"] = count
         return form!!.fillTemplateString(caption!!, index!!.getReference()!!, vars)
     }
 

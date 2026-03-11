@@ -37,7 +37,7 @@ class XPathStep : Externalizable {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
 
         sb.append("{step:")
         sb.append(axisStr(axis))
@@ -59,7 +59,7 @@ class XPathStep : Externalizable {
     }
 
     fun toPrettyString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         var axisPrint = axisStr(axis) ?: ""
         var intermediate = "::"
         var testPrint = testStr() ?: ""

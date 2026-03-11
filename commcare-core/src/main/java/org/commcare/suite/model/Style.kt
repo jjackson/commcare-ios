@@ -18,7 +18,7 @@ class Style {
         val fontSizeStr = detail.getFontSize()
         if (fontSizeStr != null) {
             try {
-                setFontSize(Integer.parseInt(fontSizeStr))
+                setFontSize(fontSizeStr.toInt())
             } catch (nfe: NumberFormatException) {
                 setFontSize(12)
             }
@@ -27,7 +27,7 @@ class Style {
         val widthHintStr = detail.getTemplateWidthHint()
         if (widthHintStr != null) {
             try {
-                setWidthHint(Integer.parseInt(widthHintStr))
+                setWidthHint(widthHintStr.toInt())
             } catch (nfe: NumberFormatException) {
                 setWidthHint(-1)
             }

@@ -14,7 +14,7 @@ open class XPathFalseFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, false)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return java.lang.Boolean.FALSE
+        return false
     }
 
     companion object {

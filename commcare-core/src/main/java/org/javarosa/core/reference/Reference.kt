@@ -1,8 +1,8 @@
-package org.javarosa.core.reference;
+package org.javarosa.core.reference
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * A Reference is essentially a pointer to interact in a limited
@@ -16,30 +16,31 @@ import java.io.OutputStream;
  *
  * @author ctsims
  */
-public interface Reference {
+interface Reference {
     /**
      * @return True if the binary does (or might) exist at
      * the remote location. False if the binary definitely
      * does not exist.
      * @throws IOException If there is a problem identifying
-     *                     the status of the resource
+     * the status of the resource
      */
-    boolean doesBinaryExist() throws IOException;
+    @Throws(IOException::class)
+    fun doesBinaryExist(): Boolean
 
     /**
      * @return A Stream of data which is the binary resource's
      * definition.
      * @throws IOException If there is a problem reading the
-     *                     stream.
+     * stream.
      */
-    InputStream getStream() throws IOException;
-
+    @Throws(IOException::class)
+    fun getStream(): InputStream
 
     /**
      * @return A URI which will evaluate to this same reference
      * in the future.
      */
-    String getURI();
+    fun getURI(): String
 
     /**
      * @return A URI which may or may not exist in the local context
@@ -47,31 +48,30 @@ public interface Reference {
      * used with caution: There is no guarantee that a local URI
      * can be constructed or used in a general way.
      */
-    String getLocalURI();
+    fun getLocalURI(): String?
 
     /**
      * @return True if the remote data is only available to
      * be read from (using getStream), False if the remote
      * data can also be modified or written to.
      */
-    boolean isReadOnly();
-
-    //Should possibly throw another type of exception here
-    //for invalid reference operation (Read only)
+    fun isReadOnly(): Boolean
 
     /**
      * @return A stream which can be written to at the
      * reference location to define the binary content there.
      * @throws IOException If there is a problem writing or the
-     *                     reference is read only
+     * reference is read only
      */
-    OutputStream getOutputStream() throws IOException;
+    @Throws(IOException::class)
+    fun getOutputStream(): OutputStream
 
     /**
      * Removes the binary data located by this reference.
      *
      * @throws IOException If there is a problem deleting or the
-     *                     reference is read only
+     * reference is read only
      */
-    void remove() throws IOException;
+    @Throws(IOException::class)
+    fun remove()
 }

@@ -1,5 +1,6 @@
 package org.javarosa.xpath.expr
 
+import kotlin.math.tan
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
@@ -14,7 +15,7 @@ open class XPathTanFunc : XPathFuncExpr {
     constructor(args: Array<XPathExpression>) : super(NAME, args, EXPECTED_ARG_COUNT, true)
 
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
-        return Math.tan(FunctionUtils.toDouble(evaluatedArgs[0]))
+        return tan(FunctionUtils.toDouble(evaluatedArgs[0]))
     }
 
     companion object {

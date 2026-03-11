@@ -73,7 +73,7 @@ class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         sb.append("[")
         val e = orderedKeys()
         while (e.hasNext()) {

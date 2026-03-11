@@ -405,7 +405,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
             var i = 0
             for (txt in text) {
                 // TODO: Probably a more efficient way to do this...
-                t.arguments!![Integer.toHexString(i)] = txt
+                t.arguments!![i.toString(16)] = txt
                 i++
             }
             t.type = TEXT_TYPE_COMPOSITE

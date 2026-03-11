@@ -34,7 +34,7 @@ class XPathFilterExpr : XPathExpression {
     }
 
     override fun toString(): String {
-        val sb = StringBuffer()
+        val sb = StringBuilder()
 
         sb.append("{filt-expr:")
         sb.append(x.toString())
