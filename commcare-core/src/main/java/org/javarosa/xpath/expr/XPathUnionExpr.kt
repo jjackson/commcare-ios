@@ -3,8 +3,8 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathUnsupportedException
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -28,14 +28,14 @@ class XPathUnionExpr : XPathBinaryOpExpr {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         readExpressions(`in`, pf)
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
         op = -1
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         writeExpressions(out)
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.write(out, cacheState)
     }
 
     override fun toPrettyString(): String {

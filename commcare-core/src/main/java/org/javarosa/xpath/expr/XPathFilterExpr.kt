@@ -4,10 +4,8 @@ import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapListPoly
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.XPathUnsupportedException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
@@ -15,6 +13,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 /**
  * This construct, whose syntax is of the form '(filter-expr pred1 pred2 ...)',
@@ -56,7 +55,7 @@ class XPathFilterExpr : XPathExpression {
     override fun equals(o: Any?): Boolean {
         if (o is XPathFilterExpr) {
             @Suppress("UNCHECKED_CAST")
-            return x == o.x && ExtUtil.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
+            return x == o.x && SerializationHelpers.arrayEquals(predicates as Array<Any?>, o.predicates as Array<Any?>, false)
         } else {
             return false
         }
@@ -72,11 +71,11 @@ class XPathFilterExpr : XPathExpression {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        x = ExtUtil.read(`in`, ExtWrapTagged(), pf) as XPathExpression
-        val v = ExtUtil.read(`in`, ExtWrapListPoly(), pf) as ArrayList<*>
+        x = SerializationHelpers.readTagged(`in`, pf) as XPathExpression
+        val v = SerializationHelpers.readListPoly(`in`, pf)
 
         predicates = Array(v.size) { i -> v[i] as XPathExpression }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
@@ -86,9 +85,9 @@ class XPathFilterExpr : XPathExpression {
             v.add(predicate)
         }
 
-        ExtUtil.write(out, ExtWrapTagged(x!!))
-        ExtUtil.write(out, ExtWrapListPoly(v))
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.writeTagged(out, x!!)
+        SerializationHelpers.writeListPoly(out, v)
+        SerializationHelpers.write(out, cacheState)
     }
 
     @Throws(UnpivotableExpressionException::class)

@@ -19,9 +19,8 @@ import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xform.util.XFormAnswerDataSerializer
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathLazyNodeset
@@ -36,6 +35,8 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.formatMessage
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 class XPathPathExpr : XPathExpression {
     private var templatePathChecked = false
@@ -249,7 +250,7 @@ class XPathPathExpr : XPathExpression {
             }
 
             @Suppress("UNCHECKED_CAST")
-            return ExtUtil.arrayEquals(steps as Array<Any?>, o.steps as Array<Any?>, false) && (initContext != INIT_CONTEXT_EXPR || filtExpr == o.filtExpr)
+            return SerializationHelpers.arrayEquals(steps as Array<Any?>, o.steps as Array<Any?>, false) && (initContext != INIT_CONTEXT_EXPR || filtExpr == o.filtExpr)
         } else {
             return false
         }
@@ -310,29 +311,29 @@ class XPathPathExpr : XPathExpression {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        initContext = ExtUtil.readInt(`in`)
+        initContext = SerializationHelpers.readInt(`in`)
         if (initContext == INIT_CONTEXT_EXPR) {
-            filtExpr = ExtUtil.read(`in`, XPathFilterExpr::class.java, pf) as XPathFilterExpr
+            filtExpr = SerializationHelpers.readExternalizable(`in`, pf) { XPathFilterExpr() }
         }
 
-        val v = ExtUtil.read(`in`, ExtWrapList(XPathStep::class.java), pf) as ArrayList<*>
+        val v = SerializationHelpers.readList(`in`, pf) { XPathStep() }
         steps = Array(v.size) { i -> (v[i] as XPathStep).intern() }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, initContext.toLong())
+        SerializationHelpers.writeNumeric(out, initContext.toLong())
         if (initContext == INIT_CONTEXT_EXPR) {
-            ExtUtil.write(out, filtExpr!!)
+            SerializationHelpers.write(out, filtExpr!!)
         }
 
         val v = ArrayList<XPathStep>()
         for (step in steps) {
             v.add(step)
         }
-        ExtUtil.write(out, ExtWrapList(v))
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.writeList(out, v)
+        SerializationHelpers.write(out, cacheState)
     }
 
     @Throws(UnpivotableExpressionException::class)

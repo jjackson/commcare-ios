@@ -3,14 +3,15 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.XPathAnalyzer
 
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
+import kotlin.jvm.JvmField
 
 class XPathNumericLiteral : XPathExpression {
     @JvmField
@@ -24,49 +25,49 @@ class XPathNumericLiteral : XPathExpression {
     }
 
     override fun evalRaw(model: DataInstance<*>?, evalContext: EvaluationContext): Any {
-        return java.lang.Double.valueOf(d)
+        return d
     }
 
     override fun toString(): String {
-        return "{num:${java.lang.Double.toString(d)}}"
+        return "{num:${d.toString()}}"
     }
 
     override fun equals(o: Any?): Boolean {
         if (o is XPathNumericLiteral) {
-            return if (java.lang.Double.isNaN(d)) java.lang.Double.isNaN(o.d) else d == o.d
+            return if (d.isNaN()) o.d.isNaN() else d == o.d
         } else {
             return false
         }
     }
 
     override fun hashCode(): Int {
-        return java.lang.Long.valueOf(java.lang.Double.doubleToLongBits(d)).hashCode()
+        return d.toBits().hashCode()
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (`in`.readByte() == 0x00.toByte()) {
-            d = ExtUtil.readNumeric(`in`).toDouble()
+            d = SerializationHelpers.readNumeric(`in`).toDouble()
         } else {
-            d = ExtUtil.readDecimal(`in`)
+            d = SerializationHelpers.readDecimal(`in`)
         }
-        cacheState = ExtUtil.read(`in`, CacheableExprState::class.java, pf) as CacheableExprState
+        cacheState = SerializationHelpers.readExternalizable(`in`, pf) { CacheableExprState() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         if (d == d.toInt().toDouble()) {
             out.writeByte(0x00)
-            ExtUtil.writeNumeric(out, d.toLong())
+            SerializationHelpers.writeNumeric(out, d.toLong())
         } else {
             out.writeByte(0x01)
-            ExtUtil.writeDecimal(out, d)
+            SerializationHelpers.writeDecimal(out, d)
         }
-        ExtUtil.write(out, cacheState)
+        SerializationHelpers.write(out, cacheState)
     }
 
     override fun toPrettyString(): String {
-        return java.lang.Double.toString(d)
+        return d.toString()
     }
 
     @Throws(AnalysisInvalidException::class)

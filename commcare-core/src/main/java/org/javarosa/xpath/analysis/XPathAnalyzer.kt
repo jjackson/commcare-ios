@@ -1,4 +1,5 @@
 package org.javarosa.xpath.analysis
+import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference

@@ -1,4 +1,5 @@
 package org.javarosa.xpath
+import kotlin.jvm.JvmStatic
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.Lexer

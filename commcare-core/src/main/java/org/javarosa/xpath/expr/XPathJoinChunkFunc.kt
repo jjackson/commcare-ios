@@ -1,4 +1,5 @@
 package org.javarosa.xpath.expr
+import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
