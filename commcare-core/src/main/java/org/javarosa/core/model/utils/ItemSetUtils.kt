@@ -13,7 +13,6 @@ import org.javarosa.core.model.trace.ReducingTraceReporter
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.analysis.AnalysisInvalidException
 import org.javarosa.xpath.analysis.TreeReferenceAccumulatingAnalyzer
-import javax.annotation.Nullable
 
 // helper class for common functions related to @code{ItemsetBinding}
 object ItemSetUtils {
@@ -39,9 +38,9 @@ object ItemSetUtils {
     @JvmStatic
     fun populateDynamicChoices(
         itemset: ItemsetBinding,
-        @Nullable curQRef: TreeReference?,
+        curQRef: TreeReference?,
         evaluationContext: EvaluationContext,
-        @Nullable mainInstance: FormInstance?,
+        mainInstance: FormInstance?,
         profileEnabled: Boolean
     ) {
         val formInstance: DataInstance<*>?
@@ -184,7 +183,7 @@ object ItemSetUtils {
         choiceRef: TreeReference,
         itemset: ItemsetBinding,
         formInstance: DataInstance<*>,
-        @Nullable mainInstance: FormInstance?,
+        mainInstance: FormInstance?,
         ec: EvaluationContext,
         index: Int
     ): SelectChoice {

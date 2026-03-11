@@ -1,6 +1,5 @@
 package org.javarosa.core.io
 
-import java.io.Closeable
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 class StreamsUtil {
@@ -180,7 +179,16 @@ class StreamsUtil {
         }
 
         @JvmStatic
-        fun closeStream(stream: Closeable?) {
+        fun closeStream(stream: PlatformInputStream?) {
+            try {
+                stream?.close()
+            } catch (e: PlatformIOException) {
+                e.printStackTrace()
+            }
+        }
+
+        @JvmStatic
+        fun closeStream(stream: PlatformOutputStream?) {
             try {
                 stream?.close()
             } catch (e: PlatformIOException) {
