@@ -33,6 +33,10 @@ class JvmXmlSerializer : PlatformXmlSerializer {
         serializer.endDocument()
     }
 
+    override fun setPrefix(prefix: String, namespace: String) {
+        serializer.setPrefix(prefix, namespace)
+    }
+
     override fun startTag(namespace: String?, name: String): PlatformXmlSerializer {
         serializer.startTag(namespace, name)
         return this
