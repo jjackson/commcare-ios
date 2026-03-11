@@ -13,7 +13,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
@@ -92,10 +92,10 @@ open class SuiteParser : ElementParser<Suite> {
         try {
             parser.next()
 
-            var eventType = parser.eventType
+            var eventType = parser.getEventType()
             do {
-                if (eventType == KXmlParser.START_TAG) {
-                    val tagName = parser.name.lowercase()
+                if (eventType == PlatformXmlParser.START_TAG) {
+                    val tagName = parser.getName()!!.lowercase()
                     when (tagName) {
                         "entry" -> {
                             val entry = EntryParser.buildEntryParser(parser).parse()
@@ -116,7 +116,7 @@ open class SuiteParser : ElementParser<Suite> {
                             if (!skipResources) {
                                 table.addResource(
                                     localeResource,
-                                    table.getInstallers().getLocaleFileInstaller(localeKey),
+                                    table.getInstallers().getLocaleFileInstaller(localeKey!!),
                                     resourceGuid
                                 )
                             }
@@ -128,7 +128,7 @@ open class SuiteParser : ElementParser<Suite> {
                                 if (!skipResources) {
                                     table.addResource(
                                         mediaResource,
-                                        table.getInstallers().getMediaInstaller(path),
+                                        table.getInstallers().getMediaInstaller(path!!),
                                         resourceGuid
                                     )
                                 }
@@ -174,11 +174,11 @@ open class SuiteParser : ElementParser<Suite> {
                             val endpoint = EndpointParser(parser).parse()
                             endpoints[endpoint.id!!] = endpoint
                         }
-                        else -> System.out.println("Unrecognized Tag: ${parser.name}")
+                        else -> System.out.println("Unrecognized Tag: ${parser.getName()}")
                     }
                 }
                 eventType = parser.next()
-            } while (eventType != KXmlParser.END_DOCUMENT)
+            } while (eventType != PlatformXmlParser.END_DOCUMENT)
 
             return Suite(version, details, entries, menus, endpoints)
         } catch (e: PlatformXmlParserException) {

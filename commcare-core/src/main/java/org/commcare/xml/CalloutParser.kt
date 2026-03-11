@@ -4,7 +4,7 @@ import org.commcare.suite.model.Callout
 import org.commcare.suite.model.DetailField
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -14,7 +14,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  *
  * @author wspride
  */
-class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
+class CalloutParser(parser: PlatformXmlParser) : ElementParser<Callout>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Callout {
@@ -29,11 +29,11 @@ class CalloutParser(parser: KXmlParser) : ElementParser<Callout>(parser) {
         var responseDetailField: DetailField? = null
 
         while (nextTagInBlock("lookup")) {
-            val tagName = parser.name
+            val tagName = parser.getName()
             if ("extra" == tagName) {
-                extras[parser.getAttributeValue(null, "key")] = parser.getAttributeValue(null, "value")
+                extras[parser.getAttributeValue(null, "key")!!] = parser.getAttributeValue(null, "value")!!
             } else if ("response" == tagName) {
-                responses.add(parser.getAttributeValue(null, "key"))
+                responses.add(parser.getAttributeValue(null, "key")!!)
             } else if ("field" == tagName) {
                 responseDetailField = DetailFieldParser(parser, null, "'lookup callout detail field'").parse()
             }

@@ -20,6 +20,10 @@ interface PlatformXmlParser {
     fun getAttributePrefix(index: Int): String?
     fun getAttributeValue(index: Int): String
     fun getNamespace(prefix: String?): String
+    fun getPrefix(): String?
+    fun getPositionDescription(): String
+    fun nextText(): String
+    fun nextTag(): Int
 
     companion object {
         const val START_DOCUMENT = 0

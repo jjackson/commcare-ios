@@ -3,7 +3,7 @@ package org.commcare.xml
 import org.commcare.data.xml.TransactionParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -16,7 +16,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 abstract class BestEffortBlockParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val elements: Array<String>
 ) : TransactionParser<HashMap<String, String>>(parser) {
 
@@ -28,21 +28,21 @@ abstract class BestEffortBlockParser(
         PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): HashMap<String, String> {
-        val name = parser.name
+        val name = parser.getName()
         val ret = HashMap<String, String>()
 
         var expecting = false
         var expected: String? = null
         while (this.nextTagInBlock(name)) {
             if (expecting) {
-                if (parser.eventType == KXmlParser.TEXT) {
-                    ret[expected!!] = parser.text
+                if (parser.getEventType() == PlatformXmlParser.TEXT) {
+                    ret[expected!!] = parser.getText()!!
                 }
                 expecting = false
             }
             if (matches()) {
                 expecting = true
-                expected = parser.name
+                expected = parser.getName()
             }
         }
         commit(ret)
@@ -50,7 +50,7 @@ abstract class BestEffortBlockParser(
     }
 
     private fun matches(): Boolean {
-        val name = parser.name
+        val name = parser.getName()
         for (elementName in elements) {
             if (elementName == name) {
                 return true

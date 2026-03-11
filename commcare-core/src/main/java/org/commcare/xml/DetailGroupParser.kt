@@ -5,11 +5,11 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
-class DetailGroupParser(parser: KXmlParser) : CommCareElementParser<DetailGroup>(parser) {
+class DetailGroupParser(parser: PlatformXmlParser) : CommCareElementParser<DetailGroup>(parser) {
 
     companion object {
         const val NAME_GROUP: String = "group"
@@ -24,7 +24,7 @@ class DetailGroupParser(parser: KXmlParser) : CommCareElementParser<DetailGroup>
         val function: XPathExpression
         if (functionStr == null) {
             throw InvalidStructureException(
-                "No function in detail group declaration ${parser.name}",
+                "No function in detail group declaration ${parser.getName()}",
                 parser
             )
         }

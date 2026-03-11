@@ -4,14 +4,14 @@ import org.commcare.suite.model.DisplayUnit
 import org.commcare.suite.model.GeoOverlay
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parses the defintion for a [GeoOverlay] element
  */
-internal class GeoOverlayParser(parser: KXmlParser) : ElementParser<GeoOverlay>(parser) {
+internal class GeoOverlayParser(parser: PlatformXmlParser) : ElementParser<GeoOverlay>(parser) {
 
     companion object {
         @JvmField
@@ -25,7 +25,7 @@ internal class GeoOverlayParser(parser: KXmlParser) : ElementParser<GeoOverlay>(
         var title: DisplayUnit? = null
         var coordinates: DisplayUnit? = null
         while (nextTagInBlock(NAME_GEO_OVERLAY)) {
-            val tagName = parser.name.lowercase()
+            val tagName = parser.getName()!!.lowercase()
             if (NAME_COORDINATES.contentEquals(tagName)) {
                 nextTagInBlock(NAME_COORDINATES)
                 coordinates = DisplayUnit(TextParser(parser).parse())

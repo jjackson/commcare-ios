@@ -4,6 +4,9 @@ import org.javarosa.core.util.Interner
 import org.kxml2.io.KXmlParser
 
 /**
+ * Wraps KXmlParser to intern (cache) all returned strings for memory efficiency.
+ * Used by XFormParser.getXMLDocument() which interfaces with kxml2's DOM (Document/Element).
+ *
  * @author ctsims
  */
 class InterningKXmlParser(private val stringCache: Interner<String>) : KXmlParser() {

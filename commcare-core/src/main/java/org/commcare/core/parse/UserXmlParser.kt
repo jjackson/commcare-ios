@@ -6,7 +6,7 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -17,9 +17,9 @@ open class UserXmlParser : TransactionParser<User> {
 
     private var storage: IStorageUtilityIndexed<User>? = null
 
-    constructor(parser: KXmlParser) : super(parser)
+    constructor(parser: PlatformXmlParser) : super(parser)
 
-    constructor(parser: KXmlParser, storage: IStorageUtilityIndexed<User>) : super(parser) {
+    constructor(parser: PlatformXmlParser, storage: IStorageUtilityIndexed<User>) : super(parser) {
         this.storage = storage
     }
 
@@ -58,7 +58,7 @@ open class UserXmlParser : TransactionParser<User> {
 
         // Now look for optional components
         while (this.nextTagInBlock("registration")) {
-            val tag = parser.name.lowercase()
+            val tag = parser.getName()!!.lowercase()
 
             if (tag == "registering_phone_id") {
                 parser.nextText()
@@ -71,7 +71,7 @@ open class UserXmlParser : TransactionParser<User> {
                     val key = this.parser.getAttributeValue(null, "key")
                     val value = this.parser.nextText()
 
-                    u.setProperty(key, value)
+                    u.setProperty(key!!, value)
                 }
 
                 // This should be the last block in the registration stuff...

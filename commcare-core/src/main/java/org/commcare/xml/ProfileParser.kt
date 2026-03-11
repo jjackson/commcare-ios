@@ -12,7 +12,7 @@ import org.javarosa.core.util.PropertyUtils
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
@@ -52,10 +52,10 @@ class ProfileParser(
         try {
             parser.next()
             var eventType: Int
-            eventType = parser.eventType
+            eventType = parser.getEventType()
             do {
-                if (eventType == KXmlParser.START_TAG) {
-                    when (parser.name.lowercase()) {
+                if (eventType == PlatformXmlParser.START_TAG) {
+                    when (parser.getName()!!.lowercase()) {
                         "property" -> parseProperty(profile)
                         "root" -> {
                             val root = RootParser(this.parser).parse()
@@ -64,11 +64,11 @@ class ProfileParser(
                         "login" -> parseLogin()
                         "features" -> parseFeatures(profile)
                         "suite" -> parseSuite()
-                        else -> System.out.println("Unrecognized Tag: ${parser.name}")
+                        else -> System.out.println("Unrecognized Tag: ${parser.getName()}")
                     }
                 }
                 eventType = parser.next()
-            } while (eventType != KXmlParser.END_DOCUMENT)
+            } while (eventType != PlatformXmlParser.END_DOCUMENT)
 
             return profile
         } catch (e: PlatformXmlParserException) {
@@ -171,7 +171,7 @@ class ProfileParser(
         val key = parser.getAttributeValue(null, "key")
         val value = parser.getAttributeValue(null, "value")
         val force = parser.getAttributeValue(null, "force")
-        addPropertySetter(profile, key, value, force)
+        addPropertySetter(profile, key!!, value!!, force)
     }
 
     private fun addPropertySetter(profile: Profile, key: String, value: String, force: String?) {
@@ -197,7 +197,7 @@ class ProfileParser(
     @Throws(PlatformXmlParserException::class, PlatformIOException::class, InvalidStructureException::class)
     private fun parseFeatures(profile: Profile) {
         while (nextTagInBlock("features")) {
-            val tag = parser.name.lowercase()
+            val tag = parser.getName()!!.lowercase()
             val active = parser.getAttributeValue(null, "active")
             var isActive = false
             if (active != null && active.lowercase() == "true") {
@@ -214,14 +214,14 @@ class ProfileParser(
                 //nothing (yet)
             } else if (tag == "users") {
                 while (nextTagInBlock("users")) {
-                    if (parser.name.lowercase() == "registration") {
+                    if (parser.getName()!!.lowercase() == "registration") {
                         profile.addPropertySetter("user_reg_namespace", parser.nextText(), true)
-                    } else if (parser.name.lowercase() == "logo") {
+                    } else if (parser.getName()!!.lowercase() == "logo") {
                         val logo = parser.nextText()
                         profile.addPropertySetter("cc_login_image", logo, true)
                     } else {
                         throw InvalidStructureException(
-                            "Unrecognized tag ${parser.name} inside of users feature block", parser
+                            "Unrecognized tag ${parser.getName()} inside of users feature block", parser
                         )
                     }
                 }
@@ -241,7 +241,7 @@ class ProfileParser(
     private fun parseCredentials(): ArrayList<Credential> {
         val appCredentials = ArrayList<Credential>()
         while (nextTagInBlock(NAME_CREDENTIALS)) {
-            val tag = parser.name.lowercase()
+            val tag = parser.getName()!!.lowercase()
             if (tag == NAME_CREDENTIAL) {
                 val level = parser.getAttributeValue(null, ATTR_CREDENTIAL_LEVEL)
                 val type = parser.getAttributeValue(null, ATTR_CREDENTIAL_TYPE)
@@ -261,7 +261,7 @@ class ProfileParser(
     private fun parseDependencies(): ArrayList<AndroidPackageDependency> {
         val appDependencies = ArrayList<AndroidPackageDependency>()
         while (nextTagInBlock(NAME_DEPENDENCIES)) {
-            val tag = parser.name.lowercase()
+            val tag = parser.getName()!!.lowercase()
             if (tag == NAME_ANDROID_PACKAGE) {
                 val appId = parser.getAttributeValue(null, ATTR_ID)
                     ?: throw InvalidStructureException("No id defined for app dependency")

@@ -31,9 +31,9 @@ object XmlFormRecordProcessor {
     )
     fun process(sandbox: UserSandbox, stream: InputStream) {
         process(stream, TransactionParserFactory { parser ->
-            if (LedgerXmlParsers.STOCK_XML_NAMESPACE == parser.namespace) {
+            if (LedgerXmlParsers.STOCK_XML_NAMESPACE == parser.getNamespace()) {
                 LedgerXmlParsers(parser, sandbox.getLedgerStorage())
-            } else if ("case".equals(parser.name, ignoreCase = true)) {
+            } else if ("case".equals(parser.getName(), ignoreCase = true)) {
                 CaseXmlParser(parser, sandbox.getCaseStorage())
             } else {
                 null

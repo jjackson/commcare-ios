@@ -8,8 +8,8 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.model.xform.DataModelSerializer;
-import org.kxml2.io.KXmlSerializer;
-
+import org.javarosa.xml.PlatformXmlSerializer;
+import org.javarosa.xml.PlatformXmlSerializerJvmKt;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -22,18 +22,15 @@ import java.util.HashMap;
 public class MockupSerializer {
     final String XMLNS = "http://javarosa.org/mockup";
 
-    final KXmlSerializer s;
+    final PlatformXmlSerializer s;
     Mockup mockup;
 
     public MockupSerializer(OutputStream o, Mockup m) throws IOException {
-        s = new KXmlSerializer();
-        s.setOutput(o, "UTF-8");
-        s.setPrefix("", XMLNS);
+        s = PlatformXmlSerializerJvmKt.createXmlSerializer(o, "UTF-8");
         this.mockup = m;
     }
 
     public void serialize() throws IOException {
-        s.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
         s.startDocument("UTF-8", null);
         s.startTag(XMLNS, "mockup");
 

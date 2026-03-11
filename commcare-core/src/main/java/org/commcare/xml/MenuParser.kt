@@ -8,14 +8,14 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
+class MenuParser(parser: PlatformXmlParser) : CommCareElementParser<Menu>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Menu {
@@ -44,9 +44,9 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
         getNextTagInBlock("menu")
 
         var display: DisplayUnit? = null
-        if (parser.name == "text") {
+        if (parser.getName() == "text") {
             display = DisplayUnit(TextParser(parser).parse())
-        } else if (parser.name == "display") {
+        } else if (parser.getName() == "display") {
             display = parseDisplayBlock()
             //check that we have a commandText;
             if (display.getText() == null)
@@ -58,9 +58,9 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
         val commandIds = ArrayList<String>()
         val relevantExprs = ArrayList<String?>()
         while (nextTagInBlock("menu")) {
-            val tagName = parser.name
+            val tagName = parser.getName()
             if (tagName == "command") {
-                commandIds.add(parser.getAttributeValue(null, "id"))
+                commandIds.add(parser.getAttributeValue(null, "id")!!)
                 val relevantExpr = parser.getAttributeValue(null, "relevant")
                 if (relevantExpr == null) {
                     relevantExprs.add(null)
@@ -74,14 +74,14 @@ class MenuParser(parser: KXmlParser) : CommCareElementParser<Menu>(parser) {
                         throw InvalidStructureException("Bad XPath Expression {$relevantExpr}", parser)
                     }
                 }
-            } else if (tagName.lowercase() == "instance") {
+            } else if (tagName!!.lowercase() == "instance") {
                 ParseInstance.parseInstance(instances, parser)
             } else if (tagName == "assertions") {
                 try {
                     assertions = AssertionSetParser(parser).parse()
                 } catch (e: InvalidStructureException) {
                     e.printStackTrace()
-                    throw InvalidStructureException(e.message, parser)
+                    throw InvalidStructureException(e.message ?: "", parser)
                 }
             }
         }
