@@ -5,7 +5,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.model.xform.DataModelSerializer
 import org.javarosa.xml.createXmlSerializer
 import org.javarosa.xpath.XPathNodeset
-import java.nio.charset.StandardCharsets
 import kotlin.jvm.JvmStatic
 
 /**
@@ -20,7 +19,7 @@ object XPathResultSerializer {
         if (value is XPathNodeset && !isLeafNode(value)) {
             serializeElements(value, output)
         } else {
-            output.write(FunctionUtils.toString(value).toByteArray(StandardCharsets.UTF_8))
+            output.write(FunctionUtils.toString(value).toByteArray(Charsets.UTF_8))
         }
     }
 

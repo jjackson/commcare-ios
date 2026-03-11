@@ -4,7 +4,6 @@ import org.commcare.modern.util.Pair
 import org.commcare.util.EntityProvider
 import org.commcare.util.EntitySortUtil
 import org.javarosa.core.model.instance.TreeReference
-import java.util.Locale
 import kotlin.jvm.JvmField
 
 /**
@@ -37,11 +36,9 @@ open class EntityStringFilterer(
             }
         }
 
-        val currentLocale = Locale.getDefault()
         EntitySortUtil.sortEntities(
             fullEntityList,
             searchTerms!!,
-            currentLocale,
             isFuzzySearchEnabled,
             matchScores,
             matchList,

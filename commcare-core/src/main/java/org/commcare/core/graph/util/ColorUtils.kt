@@ -1,6 +1,5 @@
 package org.commcare.core.graph.util
 
-import java.util.Locale
 import kotlin.jvm.JvmStatic
 
 /**
@@ -59,7 +58,7 @@ object ColorUtils {
             }
             return color.toInt()
         } else {
-            val color = sColorNameMap[colorString.lowercase(Locale.ROOT)]
+            val color = sColorNameMap[colorString.lowercase()]
             if (color != null) {
                 return color
             }
