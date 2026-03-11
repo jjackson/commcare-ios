@@ -1,5 +1,4 @@
 package org.javarosa.xpath.analysis
-import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
@@ -14,15 +13,10 @@ import org.javarosa.xpath.expr.XPathFuncExpr
  */
 abstract class XPathAnalyzer {
 
-    @JvmField
     internal var originalContextRef: TreeReference? = null
-    @JvmField
     internal var contextRef: TreeReference? = null
-    @JvmField
     protected var subAnalyzers: MutableList<XPathAnalyzer> = ArrayList()
-    @JvmField
     protected var isSubAnalyzer: Boolean = false
-    @JvmField
     protected var shortCircuit: Boolean = false
 
     protected fun setContext(context: EvaluationContext) {

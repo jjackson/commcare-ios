@@ -1,6 +1,4 @@
 package org.javarosa.xpath.expr
-import kotlin.jvm.JvmStatic
-import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
@@ -19,7 +17,6 @@ import org.javarosa.xpath.analysis.XPathAnalyzable
 abstract class InFormCacheableExpr : XPathAnalyzable {
 
     private var justRetrieved: Any? = null
-    @JvmField
     var cacheState: CacheableExprState = CacheableExprState()
 
     internal fun isCached(ec: EvaluationContext): Boolean {
@@ -98,13 +95,11 @@ abstract class InFormCacheableExpr : XPathAnalyzable {
     }
 
     companion object {
-        @JvmStatic
         @Throws(AnalysisInvalidException::class)
         fun referencesMainFormInstance(expr: XPathAnalyzable, ec: EvaluationContext): Boolean {
             return ReferencesMainInstanceAnalyzer(ec).computeResult(expr)
         }
 
-        @JvmStatic
         @Throws(AnalysisInvalidException::class)
         fun containsUncacheableSubExpression(expr: XPathAnalyzable, ec: EvaluationContext): Boolean {
             return ContainsUncacheableExpressionAnalyzer(ec).computeResult(expr)

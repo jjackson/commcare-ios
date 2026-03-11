@@ -78,11 +78,11 @@ public class FormTranslationFormatter {
                     try {
                         int nArg = Integer.parseInt(arg);
                         XPathConditional expr = (XPathConditional) f.getOutputFragments().get((nArg));
-                        //println(sb, indent + 1, expr.xpath);
+                        //println(sb, indent + 1, expr.getXpath());
                         if(!techStrings.containsKey(Integer.valueOf(nArg))) {
                             techStrings.put(Integer.valueOf(nArg),new String[locales.length + 1]);
                         }
-                        techStrings.get(Integer.valueOf(nArg))[index] = expr.xpath;
+                        techStrings.get(Integer.valueOf(nArg))[index] = expr.getXpath();
 
                     } catch (NumberFormatException e) {
                         messages.append("Error!").append(e.getMessage());

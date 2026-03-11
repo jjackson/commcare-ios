@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathArithExpr
 import org.javarosa.xpath.expr.XPathBinaryOpExpr
@@ -13,13 +12,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodeBinaryOp : ASTNode() {
 
-    @JvmField
     var associativity: Int = 0
 
-    @JvmField
     var exprs: List<out ASTNode> = ArrayList()
 
-    @JvmField
     var ops: MutableList<Int> = ArrayList()
 
     override fun getChildren(): List<out ASTNode> {

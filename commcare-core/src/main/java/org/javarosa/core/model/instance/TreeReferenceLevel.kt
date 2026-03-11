@@ -1,7 +1,5 @@
 package org.javarosa.core.model.instance
 
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.util.ArrayUtilities
 import org.javarosa.core.util.Interner
@@ -157,13 +155,11 @@ class TreeReferenceLevel : Externalizable {
         private var refs: Interner<TreeReferenceLevel>? = null
 
         // Do we want to keep a cache of all reference levels?
-        @JvmField
         val treeRefLevelInterningEnabled: Boolean = true
 
         /**
          * Used by J2ME
          */
-        @JvmStatic
         fun attachCacheTable(cacheTable: Interner<TreeReferenceLevel>?) {
             refs = cacheTable
         }

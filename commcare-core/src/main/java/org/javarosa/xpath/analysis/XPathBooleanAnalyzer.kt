@@ -1,5 +1,4 @@
 package org.javarosa.xpath.analysis
-import kotlin.jvm.JvmField
 
 /**
  * A type of XPathAnalyzer that can evaluate an XPath expression for whether a given condition
@@ -13,7 +12,6 @@ import kotlin.jvm.JvmField
  */
 abstract class XPathBooleanAnalyzer : XPathAnalyzer() {
 
-    @JvmField
     protected var result: Boolean = getDefaultValue()
 
     protected abstract fun getDefaultValue(): Boolean

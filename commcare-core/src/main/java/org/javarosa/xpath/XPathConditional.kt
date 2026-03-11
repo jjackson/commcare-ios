@@ -19,13 +19,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
-
 class XPathConditional : IConditionExpr {
 
     private var expr: XPathExpression? = null
 
-    @JvmField
     var xpath: String? = null //not serialized!
 
     private var hasNow: Boolean = false //indicates whether this XpathConditional contains the now() function (used for timestamping)

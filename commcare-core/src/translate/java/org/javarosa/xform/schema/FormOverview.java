@@ -280,7 +280,7 @@ public class FormOverview {
     }
 
     private static String printCondition (IConditionExpr c) {
-        String expr = ((XPathConditional)c).xpath;
+        String expr = ((XPathConditional)c).getXpath();
 
         return (expr != null ? expr : "condition unavailable");
     }

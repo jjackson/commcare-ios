@@ -1,5 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathNumericLiteral
@@ -11,7 +10,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodeAbstractExpr : ASTNode() {
 
-    @JvmField
     var content: MutableList<Any> = ArrayList()
 
     override fun getChildren(): List<ASTNode> {
@@ -131,10 +129,8 @@ class ASTNodeAbstractExpr : ASTNode() {
     }
 
     class Partition {
-        @JvmField
         val pieces: MutableList<ASTNodeAbstractExpr> = ArrayList()
 
-        @JvmField
         val separators: MutableList<Int> = ArrayList()
     }
 

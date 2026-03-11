@@ -1,5 +1,4 @@
 package org.javarosa.xpath.expr
-import kotlin.jvm.JvmStatic
 
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
@@ -34,7 +33,6 @@ open class XPathJsonPropertyFunc : XPathFuncExpr {
          * Returns the value of the property name passed in from the stringified json object passed in.
          * Returns a blank string if the property does not exist on the stringified json object.
          */
-        @JvmStatic
         @Throws(JSONException::class)
         fun getJsonProperty(stringifiedJsonObject: String, propertyName: String): String {
             var value = ""

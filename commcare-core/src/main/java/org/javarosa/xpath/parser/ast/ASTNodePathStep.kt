@@ -1,6 +1,4 @@
 package org.javarosa.xpath.parser.ast
-import kotlin.jvm.JvmStatic
-import kotlin.jvm.JvmField
 
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathQName
@@ -10,25 +8,18 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 
 class ASTNodePathStep : ASTNode() {
 
-    @JvmField
     var axisType: Int = 0
 
-    @JvmField
     var axisVal: Int = 0
 
-    @JvmField
     var nodeTestType: Int = 0
 
-    @JvmField
     var nodeTestFunc: ASTNodeFunctionCall? = null
 
-    @JvmField
     var nodeTestQName: XPathQName? = null
 
-    @JvmField
     var nodeTestNamespace: String? = null
 
-    @JvmField
     val predicates: ArrayList<ASTNode> = ArrayList()
 
     override fun getChildren(): ArrayList<ASTNode> {
@@ -97,7 +88,6 @@ class ASTNodePathStep : ASTNode() {
         const val NODE_TEST_TYPE_ABBR_DBL_DOT = 5
         const val NODE_TEST_TYPE_FUNC = 6
 
-        @JvmStatic
         fun validateAxisName(axisName: String): Int {
             return when (axisName) {
                 "child" -> XPathStep.AXIS_CHILD
@@ -117,7 +107,6 @@ class ASTNodePathStep : ASTNode() {
             }
         }
 
-        @JvmStatic
         fun validateNodeTypeTest(f: ASTNodeFunctionCall): Boolean {
             val name = f.name.toString()
             if (name == "node" || name == "text" || name == "comment" || name == "processing-instruction") {

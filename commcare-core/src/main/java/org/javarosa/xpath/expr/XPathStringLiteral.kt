@@ -11,10 +11,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmField
-
 class XPathStringLiteral : XPathExpression {
-    @JvmField
     var s: String = ""
 
     @Suppress("unused")

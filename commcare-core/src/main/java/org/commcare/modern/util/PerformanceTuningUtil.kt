@@ -1,6 +1,5 @@
 package org.commcare.modern.util
 
-import kotlin.jvm.JvmStatic
 
 /**
  * A catch-all for centralizing hooks and state for tuning on performance optimizations which may
@@ -21,7 +20,6 @@ object PerformanceTuningUtil {
      * is roughly the number of cases which can be expected to reliably fit into memory without
      * lowering the available heap sufficiently to introduce stability concerns.
      */
-    @JvmStatic
     fun updateMaxPrefetchCaseBlock(newMaxSize: Int) {
         MAX_PREFETCH_CASE_BLOCK = newMaxSize
     }
@@ -30,7 +28,6 @@ object PerformanceTuningUtil {
      * @return A heuristic for the largest safe value for block prefetch based on the
      * current device runtime.
      */
-    @JvmStatic
     fun guessLargestSupportedBulkCaseFetchSizeFromHeap(): Int {
         val rt = Runtime.getRuntime()
         val maxMemory = rt.maxMemory()
@@ -41,7 +38,6 @@ object PerformanceTuningUtil {
      * @return A heuristic for the largest safe value for block prefetch based on a provided
      * amount of memory which should be available for optimizations.
      */
-    @JvmStatic
     fun guessLargestSupportedBulkCaseFetchSizeFromHeap(availableMemoryInBytes: Long): Int {
         // NOTE: These are just tuned from experience and testing on mobile devices around values
         // which prevent them from running out of memory. It would be well worth it in the
@@ -62,7 +58,6 @@ object PerformanceTuningUtil {
     /**
      * @return The maximum number of cases which will be included in a "Pre-Fetch Batch".
      */
-    @JvmStatic
     fun getMaxPrefetchCaseBlock(): Int {
         if (MAX_PREFETCH_CASE_BLOCK == -1) {
             updateMaxPrefetchCaseBlock(guessLargestSupportedBulkCaseFetchSizeFromHeap())

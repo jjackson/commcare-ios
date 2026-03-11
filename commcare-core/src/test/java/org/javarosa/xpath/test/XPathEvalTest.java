@@ -833,7 +833,7 @@ public class XPathEvalTest {
     public void testDoNotInferScientificNotationAsDouble() {
         Object dbl = FunctionUtils.InferType("100E5");
         Assert.assertTrue("We should not evaluate strings with scientific notation as doubles",
-                XPathEqExpr.testEquality(dbl, "100E5"));
+                XPathEqExpr.Companion.testEquality(dbl, "100E5"));
     }
 
     @Test
@@ -957,7 +957,7 @@ public class XPathEvalTest {
             if (!(predicates.get(0) instanceof XPathNumericLiteral)) {
                 throw new IllegalArgumentException("only position [] predicates allowed");
             }
-            double d = ((XPathNumericLiteral)predicates.get(0)).d;
+            double d = ((XPathNumericLiteral)predicates.get(0)).getD();
             if (d != (double)((int)d)) {
                 throw new IllegalArgumentException("invalid position: " + d);
             }

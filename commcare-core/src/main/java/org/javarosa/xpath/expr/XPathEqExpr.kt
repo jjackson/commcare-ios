@@ -9,8 +9,6 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmStatic
-
 class XPathEqExpr : XPathBinaryOpExpr {
     private var isEqOp: Boolean = false
 
@@ -81,7 +79,6 @@ class XPathEqExpr : XPathBinaryOpExpr {
          * @param bval XPath Value
          * @return true if the two values are equal, false otherwise
          */
-        @JvmStatic
         fun testEquality(aval: Any?, bval: Any?): Boolean {
             var a = aval
             var b = bval
