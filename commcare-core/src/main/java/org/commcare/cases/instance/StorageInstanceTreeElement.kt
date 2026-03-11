@@ -83,7 +83,6 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
         return null
     }
 
-    @Synchronized
     protected open fun loadElements() {
         if (elements != null) {
             return

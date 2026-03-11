@@ -1,5 +1,6 @@
 package org.commcare.cases.instance
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.ledger.Ledger
 import org.commcare.cases.query.QueryContext
 import org.javarosa.core.model.condition.EvaluationContext
@@ -58,7 +59,7 @@ class LedgerChildElement : StorageBackedChildElement<Ledger> {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty!!
         }
-        synchronized(parent.treeCache) {
+        platformSynchronized(parent.treeCache) {
             val element = parent.treeCache.retrieve(recordId)
             if (element != null) {
                 return element

@@ -1,5 +1,6 @@
 package org.commcare.cases.entity
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.entity.EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION
 import org.commcare.suite.model.Detail
 import org.commcare.suite.model.DetailField
@@ -96,7 +97,7 @@ class AsyncNodeEntityFactory(
         } else {
             // otherwise we want to show the entity list asap and hence want to offload the loading cache part to a separate
             // thread while caching any uncached data later on UI thread during Adapter's getView
-            synchronized(mAsyncLock) {
+            platformSynchronized(mAsyncLock) {
                 if (mAsyncPrimingThread == null) {
                     mAsyncPrimingThread = Thread { primeCache() }
                     mAsyncPrimingThread!!.start()
@@ -160,7 +161,7 @@ class AsyncNodeEntityFactory(
     }
 
     override fun isEntitySetReadyInternal(): Boolean {
-        synchronized(mAsyncLock) {
+        platformSynchronized(mAsyncLock) {
             return mAsyncPrimingThread == null || !mAsyncPrimingThread!!.isAlive
         }
     }

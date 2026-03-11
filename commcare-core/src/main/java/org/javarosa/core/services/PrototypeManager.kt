@@ -1,5 +1,6 @@
 package org.javarosa.core.services
 
+import org.javarosa.core.util.platformSynchronized
 import org.javarosa.core.util.externalizable.CannotCreateObjectException
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import kotlin.jvm.JvmStatic
@@ -66,7 +67,7 @@ object PrototypeManager {
             }
             return
         }
-        synchronized(currentStaticFactory) {
+        platformSynchronized(currentStaticFactory) {
             if (useThreadLocalStrategy) {
                 @Suppress("UNCHECKED_CAST")
                 threadLocalPrototypeFactory.set(PrototypeFactory(globalPrototypes.clone() as HashSet<String>))

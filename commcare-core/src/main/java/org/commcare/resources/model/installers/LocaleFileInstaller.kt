@@ -178,7 +178,6 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
                 }
             } catch (e: PlatformIOException) {
                 val exception = UnreliableSourceException(r, e.message)
-                exception.initCause(e)
                 throw exception
             } finally {
                 try {

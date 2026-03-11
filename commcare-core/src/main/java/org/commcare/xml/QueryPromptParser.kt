@@ -157,7 +157,6 @@ class QueryPromptParser(parser: PlatformXmlParser) : CommCareElementParser<Query
                 val toThrow = InvalidStructureException(
                     "Invalid XPath Expression in QueryPrompt ${e.message}", parser
                 )
-                toThrow.initCause(e)
                 throw toThrow
             }
         }

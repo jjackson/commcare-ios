@@ -1,5 +1,6 @@
 package org.commcare.cases.instance
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.model.StorageIndexedTreeElementModel
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitive
@@ -36,7 +37,7 @@ class IndexedFixtureChildElement internal constructor(
             return empty!!
         }
 
-        synchronized(parent.treeCache) {
+        platformSynchronized(parent.treeCache) {
             val partialMatch = detectAndProcessLimitedScopeResponse(recordId, context)
             if (partialMatch != null) {
                 return partialMatch

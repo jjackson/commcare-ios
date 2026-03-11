@@ -127,7 +127,6 @@ class SetValueAction : Action {
                 val ne = XPathTypeMismatchException(
                     "Invalid data type in setvalue event targetting |${targetReference}|\nError: $e"
                 )
-                ne.initCause(e)
                 throw ne
             }
             model.setValue(targetData, targetReference!!)

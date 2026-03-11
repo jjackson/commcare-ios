@@ -1,5 +1,6 @@
 package org.commcare.resources
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.resources.model.InstallCancelled
 import org.commcare.resources.model.InstallCancelledException
 import org.commcare.resources.model.Resource
@@ -52,7 +53,7 @@ open class ResourceManager(
             global: ResourceTable, forceInstall: Boolean,
             authorityForProfile: Int, resourceInstallContext: ResourceInstallContext
         ) {
-            synchronized(platform) {
+            platformSynchronized(platform) {
                 if (!global.isReady()) {
                     global.prepareResources(null, platform, resourceInstallContext)
                 }
@@ -122,7 +123,7 @@ open class ResourceManager(
         profileRef: String, clearProgress: Boolean,
         resourceInstallContext: ResourceInstallContext
     ) {
-        synchronized(this.platform) {
+        platformSynchronized(this.platform) {
             ensureMasterTableValid()
 
             if (clearProgress) {
@@ -204,7 +205,7 @@ open class ResourceManager(
         InstallCancelledException::class
     )
     fun prepareUpgradeResources(resourceInstallContext: ResourceInstallContext) {
-        synchronized(platform) {
+        platformSynchronized(platform) {
             ensureMasterTableValid()
 
             // TODO: Table's acceptable states here may be incomplete
@@ -232,7 +233,7 @@ open class ResourceManager(
         ResourceInitializationException::class
     )
     fun upgrade() {
-        synchronized(platform) {
+        platformSynchronized(platform) {
             var upgradeSuccess = false
             try {
                 Logger.log(LogTypes.TYPE_RESOURCES, "Upgrade table fetched, beginning upgrade")

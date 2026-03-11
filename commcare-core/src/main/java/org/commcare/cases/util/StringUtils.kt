@@ -24,7 +24,6 @@ object StringUtils {
      * like accents.
      */
     @JvmStatic
-    @Synchronized
     fun normalize(input: String): String {
         if (normalizationCache == null) {
             normalizationCache = LruCache(cacheSize)

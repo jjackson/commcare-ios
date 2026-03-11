@@ -96,7 +96,6 @@ class XPathCustomRuntimeFunc : XPathFuncExpr {
                 //With static expr's we streat the ArityException as a parse exception to catch it at
                 //the appropriate time. Here we need to rethrow as a dynamic exception
                 val wrapped = XPathTypeMismatchException(ex.message)
-                wrapped.initCause(ex)
                 throw wrapped
             }
         }

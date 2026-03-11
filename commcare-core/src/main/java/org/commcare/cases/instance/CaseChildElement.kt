@@ -1,5 +1,6 @@
 package org.commcare.cases.instance
 
+import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.model.Case
 import org.commcare.cases.model.CaseIndex
 import org.commcare.cases.query.QueryContext
@@ -80,7 +81,7 @@ class CaseChildElement : StorageBackedChildElement<Case>, QuerySensitive {
         if (recordId == TreeReference.INDEX_TEMPLATE) {
             return empty!!
         }
-        synchronized(parent.treeCache) {
+        platformSynchronized(parent.treeCache) {
             val element = parent.treeCache.retrieve(recordId)
             if (element != null) {
                 return element

@@ -47,7 +47,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * head of the queue. This returns null if a value is not cached and cannot
      * be created.
      */
-    @Synchronized
     fun get(key: K): V? {
         requireNotNull(key) { "key == null" }
 
@@ -77,7 +76,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * @return the previous value mapped by [key]. Although that entry is
      *     no longer cached, it has not been passed to [entryEvicted].
      */
-    @Synchronized
     fun put(key: K, value: V): V? {
         requireNotNull(key) { "key == null" }
         requireNotNull(value) { "value == null" }
@@ -114,7 +112,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * @return the previous value mapped by [key]. Although that entry is
      *     no longer cached, it has not been passed to [entryEvicted].
      */
-    @Synchronized
     fun remove(key: K): V? {
         requireNotNull(key) { "key == null" }
         val previous = map.remove(key)
@@ -159,7 +156,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     /**
      * Clear the cache, calling [entryEvicted] on each removed entry.
      */
-    @Synchronized
     fun evictAll() {
         trimToSize(-1) // -1 will evict 0-sized elements
     }
@@ -169,7 +165,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * of entries in the cache. For all other caches, this returns the sum of
      * the sizes of the entries in this cache.
      */
-    @Synchronized
     fun size(): Int {
         return size
     }
@@ -179,7 +174,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * number of entries in the cache. For all other caches, this returns the
      * maximum sum of the sizes of the entries in this cache.
      */
-    @Synchronized
     fun maxSize(): Int {
         return maxSize
     }
@@ -187,7 +181,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     /**
      * Returns the number of times [get] returned a value.
      */
-    @Synchronized
     fun hitCount(): Int {
         return hitCount
     }
@@ -196,7 +189,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * Returns the number of times [get] returned null or required a new
      * value to be created.
      */
-    @Synchronized
     fun missCount(): Int {
         return missCount
     }
@@ -204,7 +196,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     /**
      * Returns the number of times [create] returned a value.
      */
-    @Synchronized
     fun createCount(): Int {
         return createCount
     }
@@ -212,7 +203,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     /**
      * Returns the number of times [put] was called.
      */
-    @Synchronized
     fun putCount(): Int {
         return putCount
     }
@@ -220,7 +210,6 @@ open class LruCache<K, V>(private var maxSize: Int) {
     /**
      * Returns the number of values that have been evicted.
      */
-    @Synchronized
     fun evictionCount(): Int {
         return evictionCount
     }
@@ -229,12 +218,10 @@ open class LruCache<K, V>(private var maxSize: Int) {
      * Returns a copy of the current contents of the cache, ordered from least
      * recently accessed to most recently accessed.
      */
-    @Synchronized
     fun snapshot(): Map<K, V> {
         return LinkedHashMap(map)
     }
 
-    @Synchronized
     override fun toString(): String {
         val accesses = hitCount + missCount
         val hitPercent = if (accesses != 0) 100 * hitCount / accesses else 0

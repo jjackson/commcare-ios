@@ -92,7 +92,6 @@ open class SessionFrame : Externalizable {
      * This snapshot can be referenced later to compare the eventual state
      * of the frame to an earlier point
      */
-    @Synchronized
     fun captureSnapshot() {
         snapshot.clear()
         for (s in steps) {
@@ -108,7 +107,6 @@ open class SessionFrame : Externalizable {
      * Compatibility is determined by checking that each step in the previous
      * snapshot is matched by an identical step in the current snapshot.
      */
-    @Synchronized
     fun isSnapshotIncompatible(): Boolean {
         // No snapshot, can't be incompatible.
         if (snapshot.isEmpty()) {
@@ -130,7 +128,6 @@ open class SessionFrame : Externalizable {
         return false
     }
 
-    @Synchronized
     fun clearSnapshot() {
         this.snapshot.clear()
     }
@@ -150,7 +147,6 @@ open class SessionFrame : Externalizable {
         dead = true
     }
 
-    @Synchronized
     fun addExtraTopStep(key: String, value: Any) {
         if (steps.isNotEmpty()) {
             val topStep = steps[steps.size - 1]
@@ -158,7 +154,6 @@ open class SessionFrame : Externalizable {
         }
     }
 
-    @Synchronized
     fun removeExtraTopStep(key: String) {
         if (steps.isNotEmpty()) {
             val topStep = steps[steps.size - 1]
@@ -166,7 +161,6 @@ open class SessionFrame : Externalizable {
         }
     }
 
-    @Synchronized
     fun getTopStep(): StackFrameStep? {
         if (steps.isNotEmpty()) {
             return steps[steps.size - 1]

@@ -41,7 +41,6 @@ class CaseDataInstance : ExternalDataInstance {
         private var caseDbSpecTemplate: TreeElement? = null
         private const val CASEDB_WILD_CARD = "CASEDB_WILD_CARD"
 
-        @Synchronized
         private fun loadTemplateSpecLazily() {
             val errorMsg = "Failed to load casedb template spec xml file " +
                     "while checking if case related xpath follows the template structure."
