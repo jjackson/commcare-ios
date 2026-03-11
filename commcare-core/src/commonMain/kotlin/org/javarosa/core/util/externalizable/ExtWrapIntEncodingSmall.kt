@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
@@ -16,7 +13,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
 
     /* serialization */
 
-    @JvmOverloads
+    
     constructor(l: Long, bias: Int = DEFAULT_BIAS) {
         `val` = l
         this.bias = bias
@@ -25,13 +22,13 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
     /* deserialization */
 
     // need the garbage param or else it conflicts with (long) constructor
-    @JvmOverloads
+    
     constructor(bias: Int = DEFAULT_BIAS) {
         this.bias = bias
     }
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
-        return ExtWrapIntEncodingSmall(ExtUtil.toLong(`val`!!), bias)
+        return ExtWrapIntEncodingSmall(numericToLong(`val`!!), bias)
     }
 
     @Throws(PlatformIOException::class)
@@ -56,7 +53,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
      */
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        val n = ExtUtil.toInt(`val` as Long)
+        val n = numericToInt(`val` as Long)
 
         if (n >= -bias && n < 255 - bias) {
             val adjusted = n + bias

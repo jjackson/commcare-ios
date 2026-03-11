@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
 
@@ -17,7 +14,7 @@ class ExtWrapIntEncodingUniform : ExtWrapIntEncoding {
     constructor()
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
-        return ExtWrapIntEncodingUniform(ExtUtil.toLong(`val`!!))
+        return ExtWrapIntEncodingUniform(numericToLong(`val`!!))
     }
 
     @Throws(PlatformIOException::class)
