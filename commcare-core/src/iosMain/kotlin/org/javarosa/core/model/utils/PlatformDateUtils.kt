@@ -1,18 +1,9 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package org.javarosa.core.model.utils
 
-import platform.Foundation.NSCalendar
-import platform.Foundation.NSCalendarUnitDay
-import platform.Foundation.NSCalendarUnitHour
-import platform.Foundation.NSCalendarUnitMinute
-import platform.Foundation.NSCalendarUnitMonth
-import platform.Foundation.NSCalendarUnitSecond
-import platform.Foundation.NSCalendarUnitYear
-import platform.Foundation.NSDate
-import platform.Foundation.NSDateFormatter
-import platform.Foundation.NSTimeZone
-import platform.Foundation.timeIntervalSince1970
+import platform.Foundation.*
 
 actual object PlatformDateUtils {
     private const val MS_PER_DAY = 86400000.0
@@ -42,7 +33,7 @@ actual object PlatformDateUtils {
 
     actual fun getDate(year: Int, month: Int, day: Int): PlatformDate? {
         val cal = NSCalendar.currentCalendar
-        val components = platform.Foundation.NSDateComponents()
+        val components = NSDateComponents()
         components.year = year.toLong()
         components.month = month.toLong()
         components.day = day.toLong()
