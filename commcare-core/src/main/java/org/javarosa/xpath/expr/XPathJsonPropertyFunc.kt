@@ -3,8 +3,7 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.json.JSONException
-import org.json.JSONObject
+import org.commcare.util.jsonGetString
 
 /**
  * Utility for hidden values as geocoder receivers
@@ -33,17 +32,8 @@ open class XPathJsonPropertyFunc : XPathFuncExpr {
          * Returns the value of the property name passed in from the stringified json object passed in.
          * Returns a blank string if the property does not exist on the stringified json object.
          */
-        @Throws(JSONException::class)
         fun getJsonProperty(stringifiedJsonObject: String, propertyName: String): String {
-            var value = ""
-            try {
-                val parsedObject = JSONObject(stringifiedJsonObject)
-                value = parsedObject.getString(propertyName)
-            } catch (e: JSONException) {
-                return value
-            }
-
-            return value
+            return jsonGetString(stringifiedJsonObject, propertyName) ?: ""
         }
     }
 }
