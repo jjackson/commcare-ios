@@ -37,6 +37,8 @@ kotlin {
                     dependencies {
                         implementation(main.compileDependencyFiles + main.output.classesDirs)
                         implementation(test.compileDependencyFiles + test.output.classesDirs)
+                        // Include test resources on classpath (MockApp uses getResourceAsStream)
+                        implementation(files("src/test/resources", "src/main/resources"))
                         implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.16")
                     }
                 }
@@ -123,6 +125,7 @@ benchmark {
             iterations = 10
             iterationTime = 1000
             iterationTimeUnit = "ms"
+            mode = "avgt"
             outputTimeUnit = "ms"
             reportFormat = "json"
         }
