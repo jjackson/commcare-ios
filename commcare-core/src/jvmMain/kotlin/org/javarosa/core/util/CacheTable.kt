@@ -1,21 +1,14 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package org.javarosa.core.util
 
 import java.lang.ref.WeakReference
 
 /**
- * A Cache Table is a self-purging weak reference store that can be used
- * to maintain a cache of objects keyed by a dynamic type.
- *
- * Cache tables will automatically clean up references to freed weak references
- * on an internal schedule, and compact the table size to maintain as small
- * of a footprint as possible.
- *
- * Cache tables are only available with Weak References to maintain compatibility
- * with j2me runtimes.
- *
- * @author ctsims
+ * JVM implementation of CacheTable using WeakReference-backed storage
+ * with a background cleaner thread for automatic memory management.
  */
-open class CacheTable<T, K> {
+actual open class CacheTable<T, K> {
     private var totalAdditions = 0
 
     @JvmField
@@ -26,7 +19,7 @@ open class CacheTable<T, K> {
         registerCache(this)
     }
 
-    open fun retrieve(key: T): K? {
+    actual open fun retrieve(key: T): K? {
         synchronized(this) {
             if (!currentTable.containsKey(key)) {
                 return null
@@ -39,14 +32,14 @@ open class CacheTable<T, K> {
         }
     }
 
-    open fun register(key: T, item: K) {
+    actual open fun register(key: T, item: K) {
         synchronized(this) {
             currentTable[key] = WeakReference(item)
             totalAdditions++
         }
     }
 
-    fun clear() {
+    actual fun clear() {
         currentTable.clear()
         caches.clear()
     }
@@ -70,19 +63,13 @@ open class CacheTable<T, K> {
                             while (en.hasNext()) {
                                 val key = en.next()
                                 synchronized(cache) {
-                                    // See whether or not the cached reference has been cleared by the GC
                                     if (table[key]?.get() == null) {
-                                        // If so, remove the entry, it's no longer useful.
                                         table.remove(key)
                                     }
                                 }
                             }
 
                             synchronized(cache) {
-                                // See if our current size is 25% the size of the largest size we've been
-                                // and compact (clone to a new table) if so, since the table maintains the
-                                // largest size it has ever been.
-                                // TODO: 50 is a super arbitrary upper bound
                                 if (cache.totalAdditions > 50 &&
                                     cache.totalAdditions - cache.currentTable.size > (cache.currentTable.size shr 2)
                                 ) {

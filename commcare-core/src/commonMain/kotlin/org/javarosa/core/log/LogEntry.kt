@@ -1,17 +1,15 @@
 package org.javarosa.core.log
 
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.model.utils.PlatformDate
+import kotlin.jvm.JvmField
 
-/**
- * @author Clayton Sims
- */
 open class LogEntry : Externalizable {
 
     @JvmField
@@ -39,16 +37,16 @@ open class LogEntry : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        time = ExtUtil.readDate(`in`)
-        type = ExtUtil.readString(`in`)
-        message = ExtUtil.readString(`in`)
+        time = PlatformDate(`in`.readLong())
+        type = SerializationHelpers.readString(`in`)
+        message = SerializationHelpers.readString(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeDate(out, time!!)
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(type))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(message))
+        out.writeLong(time!!.getTime())
+        SerializationHelpers.writeString(out, type ?: "")
+        SerializationHelpers.writeString(out, message ?: "")
     }
 
     companion object {
