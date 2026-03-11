@@ -260,7 +260,7 @@ class EvaluationContext {
         if (value is Boolean ||
             value is Double ||
             value is String ||
-            value is java.util.Date ||
+            value is org.javarosa.core.model.utils.PlatformDate ||
             value is IExprDataType) {
             variables[name] = value
             return

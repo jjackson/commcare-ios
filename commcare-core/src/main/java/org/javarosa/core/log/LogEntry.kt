@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import java.util.Date
+import org.javarosa.core.model.utils.PlatformDate
 
 /**
  * @author Clayton Sims
@@ -15,7 +15,7 @@ import java.util.Date
 open class LogEntry : Externalizable {
 
     @JvmField
-    protected var time: Date? = null
+    protected var time: PlatformDate? = null
 
     @JvmField
     protected var type: String? = null
@@ -27,13 +27,13 @@ open class LogEntry : Externalizable {
         // for externalization
     }
 
-    constructor(type: String?, message: String?, time: Date?) {
+    constructor(type: String?, message: String?, time: PlatformDate?) {
         this.time = time
         this.type = type
         this.message = message
     }
 
-    fun getTime(): Date? = time
+    fun getTime(): PlatformDate? = time
     fun getType(): String? = type
     fun getMessage(): String? = message
 

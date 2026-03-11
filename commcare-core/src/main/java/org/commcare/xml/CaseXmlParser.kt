@@ -139,7 +139,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
     }
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
-    private fun createCase(caseId: String, modified: java.util.Date, userId: String?): Case {
+    private fun createCase(caseId: String, modified: org.javarosa.core.model.utils.PlatformDate, userId: String?): Case {
         val data = arrayOfNulls<String>(3)
         var caseForBlock: Case? = null
 
