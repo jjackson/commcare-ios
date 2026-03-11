@@ -3,11 +3,20 @@ package org.javarosa.xml
 /**
  * Pure Kotlin XML serializer for iOS (Kotlin/Native).
  * Generates well-formed XML with proper escaping and namespace support.
+ *
+ * Namespace handling mirrors kxml2's KXmlSerializer behavior:
+ * - Call setPrefix() before startTag() to declare xmlns attributes
+ * - startTag/endTag/attribute use namespace URIs to resolve prefixed names
  */
 class IosXmlSerializer : PlatformXmlSerializer {
     private val sb = StringBuilder()
     private var inTag = false
     private var hasContent = false
+
+    // namespace URI -> prefix (e.g., "http://www.w3.org/1999/xhtml" -> "h")
+    private val namespaceToPrefix = mutableMapOf<String, String>()
+    // Pending prefix declarations to emit as xmlns attributes on the next startTag
+    private val pendingPrefixes = mutableListOf<Pair<String, String>>()
 
     override fun startDocument(encoding: String?, standalone: Boolean?) {
         sb.append("<?xml version=\"1.0\"")
@@ -24,27 +33,44 @@ class IosXmlSerializer : PlatformXmlSerializer {
         // Nothing needed
     }
 
+    override fun setPrefix(prefix: String, namespace: String) {
+        pendingPrefixes.add(prefix to namespace)
+        namespaceToPrefix[namespace] = prefix
+    }
+
     override fun startTag(namespace: String?, name: String): PlatformXmlSerializer {
         closeOpenTag()
-        sb.append("<$name")
+        sb.append("<${qualifiedName(namespace, name)}")
+
+        // Emit pending xmlns declarations
+        for ((prefix, ns) in pendingPrefixes) {
+            if (prefix.isEmpty()) {
+                sb.append(" xmlns=\"${escapeAttributeValue(ns)}\"")
+            } else {
+                sb.append(" xmlns:$prefix=\"${escapeAttributeValue(ns)}\"")
+            }
+        }
+        pendingPrefixes.clear()
+
         inTag = true
         hasContent = false
         return this
     }
 
     override fun endTag(namespace: String?, name: String): PlatformXmlSerializer {
+        val qName = qualifiedName(namespace, name)
         if (inTag && !hasContent) {
             sb.append(" />")
             inTag = false
         } else {
             closeOpenTag()
-            sb.append("</$name>")
+            sb.append("</$qName>")
         }
         return this
     }
 
     override fun attribute(namespace: String?, name: String, value: String): PlatformXmlSerializer {
-        sb.append(" $name=\"${escapeAttributeValue(value)}\"")
+        sb.append(" ${qualifiedName(namespace, name)}=\"${escapeAttributeValue(value)}\"")
         return this
     }
 
@@ -61,6 +87,12 @@ class IosXmlSerializer : PlatformXmlSerializer {
     override fun toByteArray(): ByteArray {
         flush()
         return sb.toString().encodeToByteArray()
+    }
+
+    private fun qualifiedName(namespace: String?, localName: String): String {
+        if (namespace == null) return localName
+        val prefix = namespaceToPrefix[namespace] ?: return localName
+        return if (prefix.isEmpty()) localName else "$prefix:$localName"
     }
 
     private fun closeOpenTag() {

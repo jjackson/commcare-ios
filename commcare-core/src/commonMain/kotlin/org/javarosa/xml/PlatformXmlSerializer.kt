@@ -8,6 +8,7 @@ package org.javarosa.xml
 interface PlatformXmlSerializer {
     fun startDocument(encoding: String?, standalone: Boolean?)
     fun endDocument()
+    fun setPrefix(prefix: String, namespace: String)
     fun startTag(namespace: String?, name: String): PlatformXmlSerializer
     fun endTag(namespace: String?, name: String): PlatformXmlSerializer
     fun attribute(namespace: String?, name: String, value: String): PlatformXmlSerializer
