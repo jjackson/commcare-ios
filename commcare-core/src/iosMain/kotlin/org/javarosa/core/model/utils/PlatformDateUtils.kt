@@ -27,7 +27,7 @@ actual object PlatformDateUtils {
 
     actual fun formatDate(d: PlatformDate, format: Int): String {
         val formatter = NSDateFormatter()
-        formatter.timeZone = NSTimeZone.localTimeZone
+        formatter.timeZone = NSTimeZone.systemTimeZone
         when (format) {
             FORMAT_ISO8601 -> formatter.dateFormat = "yyyy-MM-dd"
             else -> formatter.dateFormat = "yyyy-MM-dd"
@@ -56,7 +56,7 @@ actual object PlatformDateUtils {
     actual fun parseDateTime(s: String): PlatformDate? {
         val patterns = listOf("yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.SSS")
         val formatter = NSDateFormatter()
-        formatter.timeZone = NSTimeZone.localTimeZone
+        formatter.timeZone = NSTimeZone.systemTimeZone
         for (pattern in patterns) {
             formatter.dateFormat = pattern
             val nsDate = formatter.dateFromString(s)
