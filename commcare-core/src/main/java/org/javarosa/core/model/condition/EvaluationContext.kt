@@ -15,7 +15,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.core.model.instance.TreeReference
-import org.javarosa.core.model.instance.utils.TreeUtilities
+import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.core.model.trace.BulkEvaluationTrace
 import org.javarosa.core.model.trace.EvaluationTrace
 import org.javarosa.core.model.trace.EvaluationTraceReporter
@@ -821,7 +821,15 @@ class EvaluationContext {
                         val instanceId = existing.getInstanceId()
                         var root = newInstance.getRoot() as TreeElement
                         if (instanceId != name) {
-                            root = TreeUtilities.renameInstance(root, instanceId)
+                            root = root.deepCopy(false)
+                            root.accept(object : ITreeVisitor {
+                                override fun visit(tree: FormInstance) {
+                                    throw RuntimeException("Not implemented")
+                                }
+                                override fun visit(element: AbstractTreeElement) {
+                                    (element as TreeElement).setInstanceName(instanceId)
+                                }
+                            })
                         }
                         root.setParent(existing.getBase())
                         existing.copyFromSource(ConcreteInstanceRoot(root))
