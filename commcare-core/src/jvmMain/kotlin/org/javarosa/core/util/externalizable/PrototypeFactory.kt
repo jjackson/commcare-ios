@@ -128,7 +128,7 @@ actual open class PrototypeFactory : Any {
         return null
     }
 
-    open fun getInstance(hash: ByteArray): Any {
+    actual open fun getInstance(hash: ByteArray): Any {
         return getInstance(getClass(hash)!!)
     }
 
@@ -137,7 +137,7 @@ actual open class PrototypeFactory : Any {
         hashes!!.add(hash)
     }
 
-    companion object {
+    actual companion object {
         private var mStaticHasher: Hasher? = null
 
         @JvmStatic
@@ -157,7 +157,7 @@ actual open class PrototypeFactory : Any {
         }
 
         @JvmStatic
-        fun compareHash(a: ByteArray, b: ByteArray): Boolean {
+        actual fun compareHash(a: ByteArray, b: ByteArray): Boolean {
             if (a.size != b.size) {
                 return false
             }
@@ -177,12 +177,12 @@ actual open class PrototypeFactory : Any {
         }
 
         @JvmStatic
-        fun getClassHashSize(): Int {
+        actual fun getClassHashSize(): Int {
             return mStaticHasher!!.getHashSize()
         }
 
         @JvmStatic
-        fun getWrapperTag(): ByteArray {
+        actual fun getWrapperTag(): ByteArray {
             val bytes = ByteArray(getClassHashSize())
             for (i in bytes.indices) {
                 bytes[i] = 0xff.toByte()

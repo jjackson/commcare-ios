@@ -21,7 +21,6 @@ actual open class PrototypeFactory actual constructor() {
      */
     fun registerFactory(className: String, factory: () -> Externalizable) {
         factories[className] = factory
-        // Also register by hash for hash-based lookup
         val hash = computeHash(className)
         hashToName[hash.toList()] = className
     }
@@ -38,7 +37,7 @@ actual open class PrototypeFactory actual constructor() {
     /**
      * Create a new instance of a registered type by hash.
      */
-    fun getInstance(hash: ByteArray): Externalizable {
+    actual open fun getInstance(hash: ByteArray): Any {
         val name = hashToName[hash.toList()]
             ?: throw CannotCreateObjectException("No class registered for hash")
         return getInstance(name)
@@ -46,14 +45,35 @@ actual open class PrototypeFactory actual constructor() {
 
     /**
      * Simple hash computation matching Java's ClassNameHasher behavior.
-     * Computes a hash of the class name for serialization lookup.
      */
     private fun computeHash(className: String): ByteArray {
         val bytes = className.encodeToByteArray()
-        val hash = ByteArray(4)
+        val hash = ByteArray(DEFAULT_HASH_SIZE)
         for (i in bytes.indices) {
-            hash[i % 4] = (hash[i % 4].toInt() xor bytes[i].toInt()).toByte()
+            hash[i % DEFAULT_HASH_SIZE] = (hash[i % DEFAULT_HASH_SIZE].toInt() xor bytes[i].toInt()).toByte()
         }
         return hash
+    }
+
+    actual companion object {
+        private const val DEFAULT_HASH_SIZE = 4
+
+        actual fun compareHash(a: ByteArray, b: ByteArray): Boolean {
+            if (a.size != b.size) return false
+            for (i in a.indices) {
+                if (a[i] != b[i]) return false
+            }
+            return true
+        }
+
+        actual fun getWrapperTag(): ByteArray {
+            val bytes = ByteArray(getClassHashSize())
+            for (i in bytes.indices) {
+                bytes[i] = 0xff.toByte()
+            }
+            return bytes
+        }
+
+        actual fun getClassHashSize(): Int = DEFAULT_HASH_SIZE
     }
 }

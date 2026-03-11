@@ -3,7 +3,31 @@
 package org.javarosa.core.util.externalizable
 
 /**
- * Minimal expect declaration for PrototypeFactory so that Externalizable can reference it
- * from commonMain. The full JVM implementation with Class<*>-based registration lives in jvmMain.
+ * Factory for creating instances of serializable types by their hash codes.
+ *
+ * On JVM: Uses Class.forName + newInstance() with a Hasher-based registration system.
+ * On iOS: Uses a pre-registered map of factory lambdas keyed by class name.
  */
-expect open class PrototypeFactory()
+expect open class PrototypeFactory() {
+    /**
+     * Create a new instance of a registered type by its hash.
+     */
+    open fun getInstance(hash: ByteArray): Any
+
+    companion object {
+        /**
+         * Compare two hash byte arrays for equality.
+         */
+        fun compareHash(a: ByteArray, b: ByteArray): Boolean
+
+        /**
+         * Get the reserved wrapper tag (all 0xFF bytes).
+         */
+        fun getWrapperTag(): ByteArray
+
+        /**
+         * Get the size of class hash codes in bytes.
+         */
+        fun getClassHashSize(): Int
+    }
+}
