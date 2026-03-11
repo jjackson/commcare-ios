@@ -4,7 +4,7 @@ import org.commcare.suite.model.DisplayUnit
 import org.commcare.suite.model.Text
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -14,7 +14,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  *
  * @author Phillip Mates
  */
-abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(parser) {
+abstract class CommCareElementParser<T>(parser: PlatformXmlParser) : ElementParser<T>(parser) {
 
     /**
      * Build a DisplayUnit object by parsing the contents of a display tag.
@@ -28,7 +28,7 @@ abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(p
         var hintText: Text? = null
 
         while (nextTagInBlock("display")) {
-            if (parser.name == "text") {
+            if (parser.getName() == "text") {
                 val attributeValue = parser.getAttributeValue(null, "form")
                 if ("image" == attributeValue) {
                     imageValue = TextParser(parser).parse()
@@ -39,7 +39,7 @@ abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(p
                 } else {
                     displayText = TextParser(parser).parse()
                 }
-            } else if ("media" == parser.name) {
+            } else if ("media" == parser.getName()) {
                 val imagePath = parser.getAttributeValue(null, "image")
                 if (imagePath != null) {
                     imageValue = Text.PlainText(imagePath)
@@ -51,7 +51,7 @@ abstract class CommCareElementParser<T>(parser: KXmlParser) : ElementParser<T>(p
                 }
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
-            } else if ("hint" == parser.name) {
+            } else if ("hint" == parser.getName()) {
                 while (nextTagInBlock("hint")) {
                     hintText = TextParser(parser).parse()
                 }

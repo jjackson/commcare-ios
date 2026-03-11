@@ -6,14 +6,14 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parser) {
+class AssertionSetParser(parser: PlatformXmlParser) : ElementParser<AssertionSet>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): AssertionSet {
@@ -23,7 +23,7 @@ class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parse
         val messages = ArrayList<Text>()
 
         while (nextTagInBlock("assertions")) {
-            if (parser.name == "assert") {
+            if (parser.getName() == "assert") {
                 val test = parser.getAttributeValue(null, "test")
                     ?: throw InvalidStructureException("<assert> element must have a test attribute!", parser)
                 try {
@@ -37,7 +37,7 @@ class AssertionSetParser(parser: KXmlParser) : ElementParser<AssertionSet>(parse
                 tests.add(test)
                 messages.add(message)
             } else {
-                throw InvalidStructureException("Unknown test : ${parser.name}", parser)
+                throw InvalidStructureException("Unknown test : ${parser.getName()}", parser)
             }
         }
         return AssertionSet(tests, messages)

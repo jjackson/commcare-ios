@@ -12,11 +12,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
-class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>(parser) {
+class QueryPromptParser(parser: PlatformXmlParser) : CommCareElementParser<QueryPrompt>(parser) {
 
     companion object {
         private const val NAME_PROMPT = "prompt"
@@ -66,13 +66,13 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         var validation: QueryPromptCondition? = null
         var required: QueryPromptCondition? = null
         while (nextTagInBlock(NAME_PROMPT)) {
-            if (NAME_DISPLAY.equals(parser.name, ignoreCase = true)) {
+            if (NAME_DISPLAY.equals(parser.getName(), ignoreCase = true)) {
                 display = parseDisplayBlock()
-            } else if (NAME_ITEMSET.equals(parser.name, ignoreCase = true)) {
+            } else if (NAME_ITEMSET.equals(parser.getName(), ignoreCase = true)) {
                 itemsetBinding = parseItemset()
-            } else if (NAME_VALIDATION.equals(parser.name, ignoreCase = true)) {
+            } else if (NAME_VALIDATION.equals(parser.getName(), ignoreCase = true)) {
                 validation = parseValidationBlock(key)
-            } else if (NAME_REQUIRED.equals(parser.name, ignoreCase = true)) {
+            } else if (NAME_REQUIRED.equals(parser.getName(), ignoreCase = true)) {
                 if (oldRequired != null) {
                     throw InvalidStructureException(
                         "Both required attribute and <required> node present for prompt $key"
@@ -100,11 +100,11 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         val test = xpathPropertyValue(testStr)
         var message: Text? = null
         while (nextTagInBlock(NAME_REQUIRED)) {
-            if (parser.name == NAME_TEXT) {
+            if (parser.getName() == NAME_TEXT) {
                 message = TextParser(parser).parse()
             } else {
                 throw InvalidStructureException(
-                    "Unrecognised node ${parser.name} in <required> for prompt $key"
+                    "Unrecognised node ${parser.getName()} in <required> for prompt $key"
                 )
             }
         }
@@ -118,11 +118,11 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         val test = xpathPropertyValue(testStr)
         var message: Text? = null
         while (nextTagInBlock(NAME_VALIDATION)) {
-            if (parser.name == NAME_TEXT) {
+            if (parser.getName() == NAME_TEXT) {
                 message = TextParser(parser).parse()
             } else {
                 throw InvalidStructureException(
-                    "Unrecognised node ${parser.name}in validation for prompt $key"
+                    "Unrecognised node ${parser.getName()}in validation for prompt $key"
                 )
             }
         }
@@ -136,11 +136,11 @@ class QueryPromptParser(parser: KXmlParser) : CommCareElementParser<QueryPrompt>
         val nodesetStr = parser.getAttributeValue(null, ATTR_NODESET)
         ItemSetParsingUtils.setNodeset(itemset, nodesetStr, NAME_ITEMSET)
         while (nextTagInBlock(NAME_ITEMSET)) {
-            if (NAME_LABEL == parser.name) {
+            if (NAME_LABEL == parser.getName()) {
                 ItemSetParsingUtils.setLabel(itemset, parser.getAttributeValue(null, ATTR_REF))
-            } else if (NAME_VALUE == parser.name) {
+            } else if (NAME_VALUE == parser.getName()) {
                 ItemSetParsingUtils.setValue(itemset, parser.getAttributeValue(null, ATTR_REF))
-            } else if (NAME_SORT == parser.name) {
+            } else if (NAME_SORT == parser.getName()) {
                 ItemSetParsingUtils.setSort(itemset, parser.getAttributeValue(null, ATTR_REF))
             }
         }

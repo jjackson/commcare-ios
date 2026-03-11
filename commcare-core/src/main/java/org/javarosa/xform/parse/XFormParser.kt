@@ -609,7 +609,7 @@ class XFormParser {
                 }
 
                 parser.setInput(reader)
-                parser.setFeature(PlatformXmlParser.FEATURE_PROCESS_NAMESPACES, true)
+                parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true)
                 doc.parse(parser)
             } catch (e: PlatformXmlParserException) {
                 val errorMsg = "XML Syntax Error at Line: ${e.lineNumber}, Column: ${e.columnNumber}!"

@@ -5,7 +5,7 @@ import org.commcare.data.xml.TransactionParser
 import org.commcare.data.xml.TransactionParserFactory
 import org.commcare.modern.engine.cases.CaseIndexTable
 import org.commcare.xml.bulk.BulkCaseInstanceXmlParser
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 
 /**
  * Transaction factory for parsing the case instance xml as defined in
@@ -28,7 +28,7 @@ class CaseInstanceXmlTransactionParserFactory(
         return object : TransactionParserFactory {
             var created: BulkCaseInstanceXmlParser? = null
 
-            override fun getParser(parser: KXmlParser): TransactionParser<*> {
+            override fun getParser(parser: PlatformXmlParser): TransactionParser<*> {
                 if (created == null) {
                     created = BulkCaseInstanceXmlParser(parser, sandbox.getCaseStorage(), caseIndexTable)
                 }
@@ -37,8 +37,8 @@ class CaseInstanceXmlTransactionParserFactory(
         }
     }
 
-    override fun getParser(parser: KXmlParser): TransactionParser<*>? {
-        val name = parser.name
+    override fun getParser(parser: PlatformXmlParser): TransactionParser<*>? {
+        val name = parser.getName()
         if ("case".equals(name, ignoreCase = true)) {
             return caseParser.getParser(parser)
         }

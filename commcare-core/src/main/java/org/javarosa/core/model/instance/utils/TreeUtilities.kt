@@ -19,7 +19,7 @@ import org.javarosa.xpath.expr.XPathEqExpr
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.xpath.expr.XPathStringLiteral
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.io.InputStream
@@ -314,7 +314,7 @@ object TreeUtilities {
         InvalidStructureException::class
     )
     fun xmlStreamToTreeElement(stream: InputStream?, instanceId: String?): TreeElement {
-        val baseParser = ElementParser.instantiateParser(stream)
+        val baseParser = ElementParser.instantiateParser(stream!!)
         return TreeElementParser(baseParser, 0, instanceId).parse()
     }
 }

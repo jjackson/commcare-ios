@@ -9,7 +9,7 @@ import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.xml.TreeElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
@@ -20,7 +20,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 open class FixtureXmlParser(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     private val overwrite: Boolean,
     @JvmField var storage: IStorageUtilityIndexed<FormInstance>
 ) : TransactionParser<FormInstance>(parser) {

@@ -3,7 +3,6 @@ package org.javarosa.xform.util
 import org.kxml2.io.KXmlSerializer
 import org.kxml2.kdom.Document
 import org.kxml2.kdom.Element
-import org.xmlpull.v1.XmlSerializer
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
@@ -48,9 +47,9 @@ class XFormSerializer {
         fun getUtfBytesFromDocument(doc: Document): ByteArray {
             val serializer = object : KXmlSerializer() {
                 @Throws(PlatformIOException::class)
-                override fun text(text: String): XmlSerializer {
+                override fun text(text: String): KXmlSerializer {
                     try {
-                        return super.text(text)
+                        return super.text(text) as KXmlSerializer
                     } catch (e: IllegalArgumentException) {
                         // certain versions of Android have trouble encoding
                         // unicode characters that require "surrogates".

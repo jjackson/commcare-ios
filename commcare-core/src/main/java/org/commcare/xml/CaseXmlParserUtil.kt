@@ -6,7 +6,7 @@ import org.javarosa.core.model.instance.TreeElement
 import org.javarosa.xml.util.ActionableInvalidStructureException
 import org.javarosa.xml.util.InvalidCasePropertyLengthException
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 
 class CaseXmlParserUtil {
     companion object {
@@ -40,7 +40,7 @@ class CaseXmlParserUtil {
 
         @JvmStatic
         @Throws(InvalidStructureException::class)
-        fun validateMandatoryProperty(key: String, value: Any?, caseId: String, parser: KXmlParser) {
+        fun validateMandatoryProperty(key: String, value: Any?, caseId: String, parser: PlatformXmlParser) {
             if (value == null || value == "") {
                 val error = String.format("The %s attribute of a <case> %s wasn't set", key, caseId)
                 throw InvalidStructureException.readableInvalidStructureException(error, parser)

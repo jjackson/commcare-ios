@@ -12,39 +12,39 @@ import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Created by jschweers on 1/28/2016.
  */
-open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parser) {
+open class GraphParser(parser: PlatformXmlParser) : ElementParser<DetailTemplate>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): Graph {
         val graph = Graph()
         val type = parser.getAttributeValue(null, "type")
             ?: throw InvalidStructureException(
-                "Expected attribute @type for element <${parser.name}>", parser
+                "Expected attribute @type for element <${parser.getName()}>", parser
             )
         graph.setType(type)
 
-        val entryLevel = parser.depth
+        val entryLevel = parser.getDepth()
         do {
             // <graph> contains an optional <configuration>, 0 to many <series>,
             // and 0 to many <annotation>, in any order.
             parser.nextTag()
-            if (parser.name == "configuration") {
+            if (parser.getName() == "configuration") {
                 parseConfiguration(graph)
             }
-            if (parser.name == "series") {
+            if (parser.getName() == "series") {
                 graph.addSeries(parseSeries(type))
             }
-            if (parser.name == "annotation") {
+            if (parser.getName() == "annotation") {
                 parseAnnotation(graph)
             }
-        } while (parser.depth > entryLevel)
+        } while (parser.getDepth() > entryLevel)
 
         return graph
     }
@@ -88,12 +88,12 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
         val textParser = TextParser(parser)
         do {
             parser.nextTag()
-            if (parser.name == "text") {
+            if (parser.getName() == "text") {
                 val id = parser.getAttributeValue(null, "id")
                 val t = textParser.parse()
-                data.setConfiguration(id, t)
+                data.setConfiguration(id!!, t)
             }
-        } while (parser.eventType != KXmlParser.END_TAG || parser.name != "configuration")
+        } while (parser.getEventType() != PlatformXmlParser.END_TAG || parser.getName() != "configuration")
     }
 
     /*
@@ -107,7 +107,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
         val series = if (type == GraphUtil.TYPE_BUBBLE) BubbleSeries(nodeSet) else XYSeries(nodeSet)
 
         nextStartTag()
-        if (parser.name == "configuration") {
+        if (parser.getName() == "configuration") {
             parseConfiguration(series)
             nextStartTag()
         }
@@ -124,7 +124,7 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
             (series as BubbleSeries).setRadius(parseFunction("radius"))
         }
 
-        while (parser.eventType != KXmlParser.END_TAG || parser.name != "series") {
+        while (parser.getEventType() != PlatformXmlParser.END_TAG || parser.getName() != "series") {
             parser.nextTag()
         }
 
@@ -143,13 +143,13 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
         checkNode(name)
         val function = parser.getAttributeValue(null, "function")
         try {
-            XPathParseTool.parseXPath(function)
+            XPathParseTool.parseXPath(function!!)
         } catch (e: XPathSyntaxException) {
             throw InvalidStructureException(
                 "Invalid $name function in graph: $function. ${e.message}", parser
             )
         }
-        return function
+        return function!!
     }
 
     /*
@@ -159,6 +159,6 @@ open class GraphParser(parser: KXmlParser) : ElementParser<DetailTemplate>(parse
     private fun nextStartTag() {
         do {
             parser.nextTag()
-        } while (parser.eventType != KXmlParser.START_TAG)
+        } while (parser.getEventType() != PlatformXmlParser.START_TAG)
     }
 }

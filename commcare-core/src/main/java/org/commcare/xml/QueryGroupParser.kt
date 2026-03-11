@@ -4,11 +4,11 @@ import org.commcare.suite.model.DisplayUnit
 import org.commcare.suite.model.QueryGroup
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
-class QueryGroupParser(parser: KXmlParser) : CommCareElementParser<QueryGroup>(parser) {
+class QueryGroupParser(parser: PlatformXmlParser) : CommCareElementParser<QueryGroup>(parser) {
 
     companion object {
         const val NAME_GROUP: String = "group"
@@ -27,11 +27,11 @@ class QueryGroupParser(parser: KXmlParser) : CommCareElementParser<QueryGroup>(p
         var display: DisplayUnit? = null
 
         while (nextTagInBlock(NAME_GROUP)) {
-            if (NAME_DISPLAY.equals(parser.name, ignoreCase = true)) {
+            if (NAME_DISPLAY.equals(parser.getName(), ignoreCase = true)) {
                 display = parseDisplayBlock()
             } else {
                 throw InvalidStructureException(
-                    "Unrecognised node ${parser.name}in validation for group $key"
+                    "Unrecognised node ${parser.getName()}in validation for group $key"
                 )
             }
         }

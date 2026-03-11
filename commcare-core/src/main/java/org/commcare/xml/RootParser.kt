@@ -3,14 +3,14 @@ package org.commcare.xml
 import org.javarosa.core.reference.RootTranslator
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-class RootParser(parser: KXmlParser) : ElementParser<RootTranslator>(parser) {
+class RootParser(parser: PlatformXmlParser) : ElementParser<RootTranslator>(parser) {
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): RootTranslator {
@@ -22,7 +22,7 @@ class RootParser(parser: KXmlParser) : ElementParser<RootTranslator>(parser) {
         //Get the child or error out if none exists
         getNextTagInBlock("root")
 
-        val referenceType = parser.name.lowercase()
+        val referenceType = parser.getName()!!.lowercase()
         val path = parser.getAttributeValue(null, "path")
         return when (referenceType) {
             "filesystem" -> RootTranslator("jr://$id/", "jr://file$path")

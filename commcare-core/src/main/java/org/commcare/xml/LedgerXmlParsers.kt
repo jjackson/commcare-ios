@@ -6,7 +6,7 @@ import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.util.NoSuchElementException
@@ -18,7 +18,7 @@ import java.util.NoSuchElementException
  * @author ctsims
  */
 class LedgerXmlParsers(
-    parser: KXmlParser,
+    parser: PlatformXmlParser,
     val storage: IStorageUtilityIndexed<Ledger>
 ) : TransactionParser<Array<Ledger>>(parser) {
 
@@ -40,7 +40,7 @@ class LedgerXmlParsers(
     override fun parse(): Array<Ledger> {
         this.checkNode(arrayOf(TAG_BALANCE, TRANSFER))
 
-        val name = parser.name.lowercase()
+        val name = parser.getName()!!.lowercase()
 
         val toWrite = ArrayList<Ledger>()
 
@@ -63,7 +63,7 @@ class LedgerXmlParsers(
             if (sectionId == null) {
                 //Complex case: we need to update multiple sections on a per-entry basis
                 while (this.nextTagInBlock(TAG_BALANCE)) {
-                    object : ElementParser<Array<Ledger>?>(this.parser) {
+                    object : ElementParser<Array<Ledger>?>(this@LedgerXmlParsers.parser) {
                         @Throws(
                             InvalidStructureException::class, PlatformIOException::class,
                             PlatformXmlParserException::class
@@ -84,7 +84,7 @@ class LedgerXmlParsers(
                                 }
                                 val quantity = this.parseInt(quantityString)
 
-                                ledger.setEntry(sectionId, productId, quantity)
+                                ledger.setEntry(sectionId, productId!!, quantity)
                             }
                             return null
                         }
@@ -124,7 +124,7 @@ class LedgerXmlParsers(
 
             if (sectionId == null) {
                 while (this.nextTagInBlock(TRANSFER)) {
-                    object : ElementParser<Array<Ledger>?>(this.parser) {
+                    object : ElementParser<Array<Ledger>?>(this@LedgerXmlParsers.parser) {
                         @Throws(
                             InvalidStructureException::class, PlatformIOException::class,
                             PlatformXmlParserException::class
@@ -146,11 +146,11 @@ class LedgerXmlParsers(
                                 val quantity = this.parseInt(quantityString)
 
                                 sourceLeger?.setEntry(
-                                    sectionId, productId,
+                                    sectionId, productId!!,
                                     sourceLeger.getEntry(sectionId, productId) - quantity
                                 )
                                 destinationLedger?.setEntry(
-                                    sectionId, productId,
+                                    sectionId, productId!!,
                                     destinationLedger.getEntry(sectionId, productId) + quantity
                                 )
                             }
@@ -195,22 +195,6 @@ class LedgerXmlParsers(
         commit(tw)
 
         return tw
-    }
-
-    @Throws(InvalidStructureException::class)
-    override fun parseInt(value: String?): Int {
-        if (value == null) {
-            throw InvalidStructureException.readableInvalidStructureException(
-                "Ledger Quantities must be integers, found null text instead", parser
-            )
-        }
-        try {
-            return Integer.parseInt(value)
-        } catch (nfe: NumberFormatException) {
-            throw InvalidStructureException.readableInvalidStructureException(
-                "Ledger Quantities must be integers, found \"$value\" instead", parser
-            )
-        }
     }
 
     @Throws(PlatformIOException::class)

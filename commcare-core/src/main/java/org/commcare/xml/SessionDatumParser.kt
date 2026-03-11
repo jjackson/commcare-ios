@@ -14,7 +14,7 @@ import org.commcare.suite.model.Text
 import org.javarosa.core.util.OrderedHashtable
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import java.net.MalformedURLException
@@ -23,7 +23,7 @@ import java.net.URL
 /**
  * @author ctsims
  */
-class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatum>(parser) {
+class SessionDatumParser(parser: PlatformXmlParser) : CommCareElementParser<SessionDatum>(parser) {
 
     companion object {
         const val DEFAULT_MAX_SELECT_VAL: Int = 100
@@ -34,7 +34,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
         PlatformXmlParserException::class, UnfullfilledRequirementsException::class
     )
     override fun parse(): SessionDatum {
-        val name = parser.name
+        val name = parser.getName()
         if ("query" == name) {
             return parseRemoteQueryDatum()
         }
@@ -43,7 +43,7 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
             throw InvalidStructureException(
                 "Expected one of <instance-datum>, <datum> or <form> data in <session> block,"
                         + " instead found "
-                        + this.parser.name + ">", this.parser
+                        + this.parser.getName() + ">", this.parser
             )
         }
 
@@ -91,14 +91,14 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
                 )
             }
         } else {
-            datum = if ("form" == this.parser.name) {
+            datum = if ("form" == this.parser.getName()) {
                 FormIdDatum(calculate)
             } else {
                 ComputedDatum(id, calculate)
             }
         }
 
-        while (parser.next() == KXmlParser.TEXT) {
+        while (parser.next() == PlatformXmlParser.TEXT) {
             // consume text nodes
         }
 
@@ -138,12 +138,12 @@ class SessionDatumParser(parser: KXmlParser) : CommCareElementParser<SessionDatu
         val groupPrompts = HashMap<String, QueryGroup>()
         val hiddenQueryValues = ArrayList<QueryData>()
         while (nextTagInBlock("query")) {
-            val tagName = parser.name
+            val tagName = parser.getName()
             if ("data" == tagName) {
                 hiddenQueryValues.add(QueryDataParser(parser).parse())
             } else if ("prompt" == tagName) {
                 val key = parser.getAttributeValue(null, "key")
-                userQueryPrompts[key] = QueryPromptParser(parser).parse()
+                userQueryPrompts[key!!] = QueryPromptParser(parser).parse()
             } else if ("title" == tagName) {
                 nextTagInBlock("title")
                 title = TextParser(parser).parse()

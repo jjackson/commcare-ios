@@ -5,14 +5,14 @@ import org.commcare.suite.model.StackOperation
 import org.javarosa.xml.ElementParser
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * @author ctsims
  */
-class StackOpParser(parser: KXmlParser) : ElementParser<StackOperation>(parser) {
+class StackOpParser(parser: PlatformXmlParser) : ElementParser<StackOperation>(parser) {
 
     companion object {
         const val NAME_STACK: String = "stack"
@@ -20,7 +20,7 @@ class StackOpParser(parser: KXmlParser) : ElementParser<StackOperation>(parser) 
 
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     override fun parse(): StackOperation {
-        val operation = parser.name
+        val operation = parser.getName()
 
         val ifConditional = parser.getAttributeValue(null, "if")
 

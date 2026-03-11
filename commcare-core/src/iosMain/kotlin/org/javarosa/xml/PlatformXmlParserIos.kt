@@ -99,6 +99,39 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
     override fun getAttributePrefix(index: Int): String? = attributes[index].prefix
     override fun getAttributeValue(index: Int): String = attributes[index].value
 
+    override fun getPrefix(): String? = currentPrefix
+
+    override fun getPositionDescription(): String =
+        "position $pos, depth $depth, event $eventType" +
+            (if (currentName != null) ", name=$currentName" else "")
+
+    override fun nextText(): String {
+        if (eventType != PlatformXmlParser.START_TAG) {
+            throw PlatformXmlParserException("parser must be on START_TAG to read next text")
+        }
+        val result = StringBuilder()
+        var event = next()
+        while (event == PlatformXmlParser.TEXT) {
+            result.append(currentText ?: "")
+            event = next()
+        }
+        if (event != PlatformXmlParser.END_TAG) {
+            throw PlatformXmlParserException("expected END_TAG after text content")
+        }
+        return result.toString()
+    }
+
+    override fun nextTag(): Int {
+        var event = next()
+        while (event == PlatformXmlParser.TEXT && isWhitespace()) {
+            event = next()
+        }
+        if (event != PlatformXmlParser.START_TAG && event != PlatformXmlParser.END_TAG) {
+            throw PlatformXmlParserException("expected START_TAG or END_TAG, got $event")
+        }
+        return event
+    }
+
     override fun getNamespace(prefix: String?): String {
         val p = prefix ?: ""
         for (i in namespaceStack.indices.reversed()) {

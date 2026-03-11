@@ -8,14 +8,14 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xpath.XPathParseTool
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.parser.XPathSyntaxException
-import org.kxml2.io.KXmlParser
+import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
  * Parser for parsing `<data>` elements
  */
-class QueryDataParser(parser: KXmlParser) : CommCareElementParser<QueryData>(parser) {
+class QueryDataParser(parser: PlatformXmlParser) : CommCareElementParser<QueryData>(parser) {
 
     companion object {
         @JvmStatic
