@@ -16,8 +16,8 @@ public class DateDataTests {
 
     @Before
     public void setUp() {
-        today = DateUtils.roundDate(new Date());
-        notToday = DateUtils.roundDate(new Date(today.getTime() - today.getTime() / 2));
+        today = DateUtils.INSTANCE.roundDate(new Date());
+        notToday = DateUtils.INSTANCE.roundDate(new Date(today.getTime() - today.getTime() / 2));
     }
 
     @Test

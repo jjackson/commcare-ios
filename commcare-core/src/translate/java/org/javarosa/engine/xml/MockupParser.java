@@ -41,7 +41,7 @@ public class MockupParser extends ElementParser<Mockup> {
                             //nothing, use the current date
                         } else {
                             try {
-                                Date d = DateUtils.parseDate(dateText);
+                                Date d = DateUtils.INSTANCE.parseDate(dateText);
                                 if(d == null) {
                                     throw new InvalidStructureException("Bad <date> in context: '" + dateText + "'", parser);
                                 }

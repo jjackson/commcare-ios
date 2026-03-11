@@ -1,9 +1,7 @@
 package org.javarosa.core.model.utils
 
-import java.util.TimeZone
-
 /**
- * Created by amstone326 on 1/5/18.
+ * Provider for timezone information. Can be overridden to force a specific timezone.
  */
 open class TimezoneProvider {
 
@@ -11,7 +9,7 @@ open class TimezoneProvider {
         return -1
     }
 
-    open fun getTimezone(): TimeZone? {
+    open fun getTimezoneId(): String? {
         return null
     }
 }

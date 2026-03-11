@@ -286,18 +286,18 @@ public class XPathEvalTest {
         testEval("substr('hello',0,-1)", null, null, "hell");
         testEval("substr('',0,1)", null, null, "");
         testEval("substr('hello',0,8)", null, null, "");
-        testEval("date('2000-01-01')", null, null, DateUtils.getDate(2000, 1, 1));
-        testEval("date('1945-04-26')", null, null, DateUtils.getDate(1945, 4, 26));
-        testEval("date('1996-02-29')", null, null, DateUtils.getDate(1996, 2, 29));
+        testEval("date('2000-01-01')", null, null, DateUtils.INSTANCE.getDate(2000, 1, 1));
+        testEval("date('1945-04-26')", null, null, DateUtils.INSTANCE.getDate(1945, 4, 26));
+        testEval("date('1996-02-29')", null, null, DateUtils.INSTANCE.getDate(1996, 2, 29));
         testEval("date('1983-09-31')", null, null, new XPathTypeMismatchException());
         testEval("date('not a date')", null, null, new XPathTypeMismatchException());
-        testEval("date(0)", null, null, DateUtils.getDate(1970, 1, 1));
-        testEval("date(6.5)", null, null, DateUtils.getDate(1970, 1, 7));
-        testEval("date(1)", null, null, DateUtils.getDate(1970, 1, 2));
-        testEval("date(-1)", null, null, DateUtils.getDate(1969, 12, 31));
-        testEval("date(14127)", null, null, DateUtils.getDate(2008, 9, 5));
-        testEval("date(-10252)", null, null, DateUtils.getDate(1941, 12, 7));
-        testEval("date(date('1989-11-09'))", null, null, DateUtils.getDate(1989, 11, 9));
+        testEval("date(0)", null, null, DateUtils.INSTANCE.getDate(1970, 1, 1));
+        testEval("date(6.5)", null, null, DateUtils.INSTANCE.getDate(1970, 1, 7));
+        testEval("date(1)", null, null, DateUtils.INSTANCE.getDate(1970, 1, 2));
+        testEval("date(-1)", null, null, DateUtils.INSTANCE.getDate(1969, 12, 31));
+        testEval("date(14127)", null, null, DateUtils.INSTANCE.getDate(2008, 9, 5));
+        testEval("date(-10252)", null, null, DateUtils.INSTANCE.getDate(1941, 12, 7));
+        testEval("date(date('1989-11-09'))", null, null, DateUtils.INSTANCE.getDate(1989, 11, 9));
         testEval("date(true())", null, null, new XPathTypeMismatchException());
         testEval("date(convertible())", null, ec, new XPathTypeMismatchException());
         testEval("format-date-for-calendar('', 'ethiopian')", null, null, "");
@@ -346,21 +346,21 @@ public class XPathEvalTest {
         testEval("min(5.5)", null, null, Double.valueOf(5.5));
         testEval("min(-2,-3)", null, null, Double.valueOf(-3));
         testEval("min(2,-3)", null, null, Double.valueOf(-3));
-        testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-01-01"));
+        testEval("date(min(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.INSTANCE.parseDate("2012-01-01"));
 
         testEval("max(5.5, 0.5)", null, null, Double.valueOf(5.5));
         testEval("max(0.5)", null, null, Double.valueOf(0.5));
         testEval("max(-2,-3)", null, null, Double.valueOf(-2));
         testEval("max(2,-3)", null, null, Double.valueOf(2));
-        testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.parseDate("2012-02-05"));
+        testEval("date(max(date('2012-02-05'), date('2012-01-01')))", null, null, DateUtils.INSTANCE.parseDate("2012-02-05"));
 
 
         // Test that taking the min or max of date-strings works, but still fails properly for
         // numeric strings that are not dates
         testEval("min('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
-                Double.valueOf(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-01-01"))));
+                Double.valueOf(DateUtils.INSTANCE.daysSinceEpoch(DateUtils.INSTANCE.parseDate("2012-01-01"))));
         testEval("max('2012-02-05', '2012-01-01', '2012-04-20')", null, null,
-                Double.valueOf(DateUtils.daysSinceEpoch(DateUtils.parseDate("2012-04-20"))));
+                Double.valueOf(DateUtils.INSTANCE.daysSinceEpoch(DateUtils.INSTANCE.parseDate("2012-04-20"))));
         testEval("max('-1-02-05', '2012-01-01', '2012-04-20')", null, null,
                 Double.valueOf(Double.NaN));
         testEval("max('02-05', '2012-01-01', '2012-04-20')", null, null,
@@ -1261,7 +1261,7 @@ public class XPathEvalTest {
             int lastIndex = Math.max(fullName.lastIndexOf('.'), fullName.lastIndexOf('$'));
             sb.append(fullName.substring(lastIndex + 1, fullName.length()));
             sb.append(":");
-            sb.append(oa[i] instanceof Date ? DateUtils.formatDate((Date)oa[i], DateUtils.FORMAT_ISO8601) : oa[i].toString());
+            sb.append(oa[i] instanceof Date ? DateUtils.INSTANCE.formatDate((Date)oa[i], DateUtils.FORMAT_ISO8601) : oa[i].toString());
             if (i < oa.length - 1)
                 sb.append(",");
         }

@@ -41,7 +41,7 @@ public class MockupSerializer {
             s.startTag(XMLNS, "context");
             if(mockup.getDate() != null){
                 s.startTag(XMLNS, "date");
-                s.text(DateUtils.formatDate(mockup.getDate(), DateUtils.FORMAT_ISO8601));
+                s.text(DateUtils.INSTANCE.formatDate(mockup.getDate(), DateUtils.FORMAT_ISO8601));
                 s.endTag(XMLNS, "date");
             }
 

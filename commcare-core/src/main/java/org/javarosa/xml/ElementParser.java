@@ -286,7 +286,7 @@ public abstract class ElementParser<T> {
     }
 
     protected Date parseDateTime(String dateValue) {
-        return DateUtils.parseDateTime(dateValue);
+        return DateUtils.INSTANCE.parseDateTime(dateValue);
     }
 
 

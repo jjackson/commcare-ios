@@ -387,8 +387,8 @@ class CalendarUtils {
             cd.time = date
             if (timezone != null) {
                 cd.timeZone = TimeZone.getTimeZone(timezone)
-            } else if (DateUtils.timezone() != null) {
-                cd.timeZone = DateUtils.timezone()
+            } else if (DateUtils.timezoneId() != null) {
+                cd.timeZone = TimeZone.getTimeZone(DateUtils.timezoneId())
             }
             val dateInMillis = cd.time.time
             return fromMillis(dateInMillis, cd.timeZone)

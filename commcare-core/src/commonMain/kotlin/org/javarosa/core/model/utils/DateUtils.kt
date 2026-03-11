@@ -1,15 +1,8 @@
 package org.javarosa.core.model.utils
 
-import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.MathUtils
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Arrays
-import java.util.Calendar
-import org.javarosa.core.model.utils.PlatformDate
-import java.util.TimeZone
-import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 /**
  * Static utility methods for Dates in j2me
@@ -17,7 +10,7 @@ import java.util.concurrent.TimeUnit
  * @author Clayton Sims
  */
 object DateUtils {
-    private val MONTH_OFFSET = 1 - Calendar.JANUARY
+    private const val MONTH_OFFSET = 1
 
     const val FORMAT_ISO8601: Int = 1
     const val FORMAT_ISO8601_WALL_TIME: Int = 10
@@ -30,45 +23,43 @@ object DateUtils {
     private var defaultCalendarStrings = CalendarStrings()
     private var tzProvider = TimezoneProvider()
 
-    @JvmField
-    val HOUR_IN_MS: Long = TimeUnit.HOURS.toMillis(1)
-    @JvmField
-    val DAY_IN_MS: Long = TimeUnit.DAYS.toMillis(1)
+    val HOUR_IN_MS: Long = 3_600_000L
+    val DAY_IN_MS: Long = 86_400_000L
 
     private val EPOCH_DATE: PlatformDate = getDate(1970, 1, 1)!!
 
-    private val EPOCH_TIME: Long = roundDate(EPOCH_DATE).time
+    private val EPOCH_TIME: Long = roundDate(EPOCH_DATE).getTime()
 
-    class CalendarStrings @JvmOverloads constructor(
-        @JvmField var monthNamesLong: Array<String> = arrayOf(
+    class CalendarStrings(
+        var monthNamesLong: Array<String> = arrayOf(
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ),
-        @JvmField var monthNamesShort: Array<String> = arrayOf(
+        var monthNamesShort: Array<String> = arrayOf(
             "Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
         ),
-        @JvmField var dayNamesLong: Array<String> = arrayOf(
+        var dayNamesLong: Array<String> = arrayOf(
             "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
         ),
-        @JvmField var dayNamesShort: Array<String> = arrayOf(
+        var dayNamesShort: Array<String> = arrayOf(
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
         )
     )
 
     class DateFields {
-        @JvmField var year: Int = 1970
-        @JvmField var month: Int = 1    //1-12
-        @JvmField var day: Int = 1      //1-31
-        @JvmField var hour: Int = 0     //0-23
-        @JvmField var minute: Int = 0   //0-59
-        @JvmField var second: Int = 0   //0-59
-        @JvmField var secTicks: Int = 0 //0-999 (ms)
-        @JvmField var timezoneOffsetInMillis: Int = 0 //(ms)
+        var year: Int = 1970
+        var month: Int = 1    //1-12
+        var day: Int = 1      //1-31
+        var hour: Int = 0     //0-23
+        var minute: Int = 0   //0-59
+        var second: Int = 0   //0-59
+        var secTicks: Int = 0 //0-999 (ms)
+        var timezoneOffsetInMillis: Int = 0 //(ms)
         var noValidation: Boolean = false // true or false. Set to true when using foreign calendars
 
         /** NOTE: CANNOT BE USED TO SPECIFY A DATE  */
-        @JvmField var dow: Int = 0     //1-7;
+        var dow: Int = 0     //1-7;
 
         fun check(): Boolean {
             return noValidation ||
@@ -78,12 +69,10 @@ object DateUtils {
     }
 
     // Used by Formplayer
-    @JvmStatic
     fun setTimezoneProvider(provider: TimezoneProvider) {
         tzProvider = provider
     }
 
-    @JvmStatic
     fun resetTimezoneProvider() {
         tzProvider = TimezoneProvider()
     }
@@ -92,12 +81,10 @@ object DateUtils {
         return tzProvider.getTimezoneOffsetMillis()
     }
 
-    @JvmStatic
-    fun timezone(): TimeZone? {
-        return tzProvider.getTimezone()
+    fun timezoneId(): String? {
+        return tzProvider.getTimezoneId()
     }
 
-    @JvmStatic
     fun getFieldsForNonGregorianCalendar(year: Int, monthOfYear: Int, dayOfMonth: Int): DateFields {
         val nonGregorian = DateFields()
         nonGregorian.year = year
@@ -106,44 +93,41 @@ object DateUtils {
         return nonGregorian
     }
 
-    @JvmStatic
     fun getFields(d: PlatformDate): DateFields {
         return getFields(d, null as String?)
     }
 
-    @JvmStatic
     fun getFields(d: PlatformDate, timezone: String?): DateFields {
-        val cd = Calendar.getInstance()
-        cd.time = d
-        if (timezone != null) {
-            cd.timeZone = TimeZone.getTimeZone(timezone)
-        } else if (timezone() != null) {
-            cd.timeZone = timezone()
-        } else if (timezoneOffset() != -1) {
-            return getFields(d, timezoneOffset())
+        val tzId = timezone ?: timezoneId()
+        if (tzId == null && timezoneOffset() != -1) {
+            return getFieldsWithOffset(d, timezoneOffset())
         }
-        return getFields(cd, cd.timeZone.getOffset(d.time))
+        val arr = platformExtractFields(d, tzId)
+        return fieldsFromArray(arr)
     }
 
-    private fun getFields(d: PlatformDate, timezoneOffset: Int): DateFields {
-        val cd = Calendar.getInstance()
-        cd.timeZone = TimeZone.getTimeZone("UTC")
-        cd.time = d
-        cd.add(Calendar.MILLISECOND, timezoneOffset)
-        return getFields(cd, timezoneOffset)
-    }
-
-    private fun getFields(cal: Calendar, timezoneOffset: Int): DateFields {
-        val fields = DateFields()
-        fields.year = cal.get(Calendar.YEAR)
-        fields.month = cal.get(Calendar.MONTH) + MONTH_OFFSET
-        fields.day = cal.get(Calendar.DAY_OF_MONTH)
-        fields.hour = cal.get(Calendar.HOUR_OF_DAY)
-        fields.minute = cal.get(Calendar.MINUTE)
-        fields.second = cal.get(Calendar.SECOND)
-        fields.secTicks = cal.get(Calendar.MILLISECOND)
-        fields.dow = cal.get(Calendar.DAY_OF_WEEK)
+    private fun getFieldsWithOffset(d: PlatformDate, timezoneOffset: Int): DateFields {
+        // Extract in UTC, then apply offset
+        val arr = platformExtractFields(
+            PlatformDate(d.getTime() + timezoneOffset),
+            "UTC"
+        )
+        val fields = fieldsFromArray(arr)
         fields.timezoneOffsetInMillis = timezoneOffset
+        return fields
+    }
+
+    private fun fieldsFromArray(arr: IntArray): DateFields {
+        val fields = DateFields()
+        fields.year = arr[0]
+        fields.month = arr[1]
+        fields.day = arr[2]
+        fields.hour = arr[3]
+        fields.minute = arr[4]
+        fields.second = arr[5]
+        fields.secTicks = arr[6]
+        fields.dow = arr[7]
+        fields.timezoneOffsetInMillis = arr[8]
         return fields
     }
 
@@ -152,7 +136,6 @@ object DateUtils {
      *
      * @return Date or null, depending if arguments are in the valid date range
      */
-    @JvmStatic
     fun getDate(year: Int, month: Int, day: Int): PlatformDate? {
         val f = DateFields()
         f.year = year
@@ -165,7 +148,6 @@ object DateUtils {
      * Turn DateField information into Date object, using default
      * timezone.
      */
-    @JvmStatic
     fun getDate(df: DateFields): PlatformDate {
         return getDate(df, null)!!
     }
@@ -175,47 +157,28 @@ object DateUtils {
      * timezone into account.
      */
     private fun getDate(df: DateFields, timezone: String?): PlatformDate? {
-        val cd = Calendar.getInstance()
-
-        if (timezone != null) {
-            cd.timeZone = TimeZone.getTimeZone(timezone)
-        } else if (timezone() != null) {
-            cd.timeZone = timezone()
-        } else if (timezoneOffset() != -1) {
-            return getDate(df, timezoneOffset())
+        val tzId = timezone ?: timezoneId()
+        if (tzId == null && timezoneOffset() != -1) {
+            return getDateWithOffset(df, timezoneOffset())
         }
-
-        cd.set(Calendar.YEAR, df.year)
-        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET)
-        cd.set(Calendar.DAY_OF_MONTH, df.day)
-        cd.set(Calendar.HOUR_OF_DAY, df.hour)
-        cd.set(Calendar.MINUTE, df.minute)
-        cd.set(Calendar.SECOND, df.second)
-        cd.set(Calendar.MILLISECOND, df.secTicks)
-
-        return cd.time
+        return platformCreateDate(
+            df.year, df.month, df.day,
+            df.hour, df.minute, df.second, df.secTicks,
+            tzId
+        )
     }
 
-    private fun getDate(df: DateFields, timezoneOffset: Int): PlatformDate {
-        val cd = Calendar.getInstance()
-        cd.timeZone = TimeZone.getTimeZone("UTC")
-
-        cd.set(Calendar.YEAR, df.year)
-        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET)
-        cd.set(Calendar.DAY_OF_MONTH, df.day)
-        cd.set(Calendar.HOUR_OF_DAY, df.hour)
-        cd.set(Calendar.MINUTE, df.minute)
-        cd.set(Calendar.SECOND, df.second)
-        cd.set(Calendar.MILLISECOND, df.secTicks)
-
-        cd.add(Calendar.MILLISECOND, -1 * timezoneOffset)
-
-        return cd.time
+    private fun getDateWithOffset(df: DateFields, timezoneOffset: Int): PlatformDate {
+        val utcDate = platformCreateDate(
+            df.year, df.month, df.day,
+            df.hour, df.minute, df.second, df.secTicks,
+            "UTC"
+        )
+        return PlatformDate(utcDate.getTime() - timezoneOffset)
     }
 
     /* ==== FORMATTING DATES/TIMES TO STANDARD STRINGS ==== */
 
-    @JvmStatic
     fun formatDateTime(d: PlatformDate?, format: Int): String {
         if (d == null) {
             return ""
@@ -233,12 +196,10 @@ object DateUtils {
         return formatDate(fields, format) + delim + formatTime(fields, format)
     }
 
-    @JvmStatic
     fun formatDate(d: PlatformDate?, format: Int): String {
         return if (d == null) "" else formatDate(getFields(d, if (format == FORMAT_TIMESTAMP_HTTP) "UTC" else null), format)!!
     }
 
-    @JvmStatic
     fun formatTime(d: PlatformDate?, format: Int): String {
         return if (d == null) "" else formatTime(getFields(d, if (format == FORMAT_TIMESTAMP_HTTP) "UTC" else null), format)!!
     }
@@ -310,7 +271,7 @@ object DateUtils {
             offset = timezoneOffset()
         } else {
             //Time Zone ops (1 in the first field corresponds to 'CE' ERA)
-            offset = TimeZone.getDefault().getOffset(1, f.year, f.month - 1, f.day, f.dow, 0)
+            offset = platformGetDefaultTimezoneOffsetMs(1, f.year, f.month - 1, f.day, f.dow, 0)
         }
 
         //NOTE: offset is in millis
@@ -320,7 +281,7 @@ object DateUtils {
             //Start with sign
             val offsetSign = if (offset > 0) "+" else "-"
 
-            val value = Math.abs(offset) / 1000 / 60
+            val value = abs(offset) / 1000 / 60
 
             val hrs = intPad(value / 60, 2)
             val mins = if (value % 60 != 0) ":" + intPad(value % 60, 2) else ""
@@ -338,17 +299,14 @@ object DateUtils {
         return "${intPad(f.hour, 2)}${intPad(f.minute, 2)}${intPad(f.second, 2)}"
     }
 
-    @JvmStatic
     fun format(d: PlatformDate, format: String): String {
         return format(getFields(d), format)
     }
 
-    @JvmStatic
     fun format(f: DateFields, format: String): String {
         return format(f, format, defaultCalendarStrings)
     }
 
-    @JvmStatic
     fun format(f: DateFields, format: String, stringsSource: CalendarStrings): String {
         val sb = StringBuilder()
 
@@ -398,7 +356,6 @@ object DateUtils {
 
     /* ==== PARSING DATES/TIMES FROM STANDARD STRINGS ==== */
 
-    @JvmStatic
     fun parseDateTime(str: String): PlatformDate? {
         val fields = DateFields()
         val i = str.indexOf("T")
@@ -414,7 +371,6 @@ object DateUtils {
         return getDate(fields)
     }
 
-    @JvmStatic
     fun parseDate(str: String): PlatformDate? {
         val fields = DateFields()
         if (!parseDateAndStore(str, fields)) {
@@ -440,12 +396,10 @@ object DateUtils {
         return df.check()
     }
 
-    @JvmStatic
     fun parseTime(str: String): PlatformDate? {
         return parseTime(str, false)
     }
 
-    @JvmStatic
     fun parseTime(str: String, ignoreTimezone: Boolean): PlatformDate? {
         var timeStr = str
         if (!ignoreTimezone && (timezoneOffset() != -1 && !timeStr.contains("+") && !timeStr.contains("-") && !timeStr.contains("Z"))) {
@@ -459,7 +413,6 @@ object DateUtils {
         return getDate(fields)
     }
 
-    @JvmStatic
     fun getOffsetInStandardFormat(offsetInMillis: Int): String {
         val hours = offsetInMillis / 1000 / 60 / 60
         var offsetStr: String
@@ -468,11 +421,11 @@ object DateUtils {
         } else if (hours == 0) {
             offsetStr = "Z"
         } else {
-            offsetStr = "-" + intPad(Math.abs(hours), 2)
+            offsetStr = "-" + intPad(abs(hours), 2)
         }
 
         val totalMinutes = offsetInMillis / 1000 / 60
-        val remainderMinutes = Math.abs(totalMinutes) % 60
+        val remainderMinutes = abs(totalMinutes) % 60
         if (remainderMinutes != 0) {
             offsetStr += ":" + intPad(remainderMinutes, 2)
         }
@@ -531,16 +484,12 @@ object DateUtils {
         }
 
         // Now apply any relevant offsets from the timezone.
-        val c = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val utcDate = getDate(df, "UTC")!!
+        val adjustedTime = utcDate.getTime() + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000)
+        val localDate = PlatformDate(adjustedTime)
 
-        c.time = PlatformDate(getDate(df, "UTC")!!.time + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000))
-
-        // c is now in the timezone of the parsed value, so put
-        // it in the local timezone.
-
-        c.timeZone = TimeZone.getDefault()
-
-        val adjusted = getFields(c.time)
+        // Extract fields in local timezone
+        val adjusted = getFields(localDate)
 
         df.hour = adjusted.hour
         df.minute = adjusted.minute
@@ -568,7 +517,7 @@ object DateUtils {
                 // only grab prefix of seconds piece that includes digits and decimal(s)
                 while (idx < secStr.length) {
                     val ch = secStr[idx]
-                    if (!Character.isDigit(ch) && ch != '.') break
+                    if (!ch.isDigit() && ch != '.') break
                     idx++
                 }
                 secStr = secStr.substring(0, idx)
@@ -589,29 +538,33 @@ object DateUtils {
     /**
      * @return new Date object with same date but time set to midnight (in current timezone)
      */
-    @JvmStatic
     fun roundDate(d: PlatformDate): PlatformDate {
         val f = getFields(d)
         return getDate(f.year, f.month, f.day)!!
     }
 
-    @JvmStatic
     fun today(): PlatformDate {
         return roundDate(PlatformDate())
     }
 
     /* ==== CALENDAR FUNCTIONS ==== */
 
-    @JvmStatic
+    // Month constants (0-based, matching java.util.Calendar)
+    private const val JANUARY = 0
+    private const val FEBRUARY = 1
+    private const val APRIL = 3
+    private const val JUNE = 5
+    private const val SEPTEMBER = 8
+    private const val NOVEMBER = 10
+
     fun daysInMonth(month: Int, year: Int): Int {
         return when (month) {
-            Calendar.APRIL, Calendar.JUNE, Calendar.SEPTEMBER, Calendar.NOVEMBER -> 30
-            Calendar.FEBRUARY -> 28 + (if (isLeap(year)) 1 else 0)
+            APRIL, JUNE, SEPTEMBER, NOVEMBER -> 30
+            FEBRUARY -> 28 + (if (isLeap(year)) 1 else 0)
             else -> 31
         }
     }
 
-    @JvmStatic
     fun isLeap(year: Int): Boolean {
         return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
     }
@@ -623,19 +576,18 @@ object DateUtils {
         val daysAgo = daysSinceEpoch(PlatformDate()) - daysSinceEpoch(d)
 
         return when {
-            daysAgo == 0 -> Localization.get("date.today")
-            daysAgo == 1 -> Localization.get("date.yesterday")
-            daysAgo == 2 -> Localization.get("date.twoago", arrayOf(daysAgo.toString()))
-            daysAgo in 3..6 -> Localization.get("date.nago", arrayOf(daysAgo.toString()))
-            daysAgo == -1 -> Localization.get("date.tomorrow")
-            daysAgo in -6..-2 -> Localization.get("date.nfromnow", arrayOf((-daysAgo).toString()))
+            daysAgo == 0 -> platformLocalize("date.today")
+            daysAgo == 1 -> platformLocalize("date.yesterday")
+            daysAgo == 2 -> platformLocalize("date.twoago", arrayOf(daysAgo.toString()))
+            daysAgo in 3..6 -> platformLocalize("date.nago", arrayOf(daysAgo.toString()))
+            daysAgo == -1 -> platformLocalize("date.tomorrow")
+            daysAgo in -6..-2 -> platformLocalize("date.nfromnow", arrayOf((-daysAgo).toString()))
             else -> formatDate(f, FORMAT_HUMAN_READABLE_SHORT)!!
         }
     }
 
     /* ==== DATE OPERATIONS ==== */
 
-    @JvmStatic
     fun getPastPeriodDate(
         ref: PlatformDate, type: String, start: String, beginning: Boolean,
         includeToday: Boolean, nAgo: Int
@@ -661,22 +613,10 @@ object DateUtils {
                 throw RuntimeException()
             }
 
-            val cd = Calendar.getInstance()
-            cd.time = ref
-
-            val current_dow = when (cd.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY -> 0
-                Calendar.MONDAY -> 1
-                Calendar.TUESDAY -> 2
-                Calendar.WEDNESDAY -> 3
-                Calendar.THURSDAY -> 4
-                Calendar.FRIDAY -> 5
-                Calendar.SATURDAY -> 6
-                else -> throw RuntimeException() //something is wrong
-            }
+            val current_dow = platformGetDayOfWeek(ref) - 1 // Convert 1-based to 0-based
 
             val diff = (((current_dow - target_dow) + (7 + offset)) % 7 - offset) + (7 * nAgo) - (if (beginning) 0 else 6) //booyah
-            d = PlatformDate(ref.time - diff * DAY_IN_MS)
+            d = PlatformDate(ref.getTime() - diff * DAY_IN_MS)
         } else if (type == "month") {
             //not supported
         } else {
@@ -686,54 +626,48 @@ object DateUtils {
         return d
     }
 
-    @JvmStatic
     fun getMonthsDifference(earlierDate: PlatformDate, laterDate: PlatformDate): Int {
-        val span = PlatformDate(laterDate.time - earlierDate.time)
+        val span = PlatformDate(laterDate.getTime() - earlierDate.getTime())
         val firstDate = PlatformDate(0)
-        val calendar = Calendar.getInstance()
-        calendar.time = firstDate
-        val firstYear = calendar.get(Calendar.YEAR)
-        val firstMonth = calendar.get(Calendar.MONTH)
 
-        calendar.time = span
-        val spanYear = calendar.get(Calendar.YEAR)
-        val spanMonth = calendar.get(Calendar.MONTH)
+        val firstFields = platformExtractFields(firstDate, null)
+        val spanFields = platformExtractFields(span, null)
+
+        val firstYear = firstFields[0]
+        val firstMonth = firstFields[1]
+        val spanYear = spanFields[0]
+        val spanMonth = spanFields[1]
+
         return (spanYear - firstYear) * 12 + (spanMonth - firstMonth)
     }
 
-    @JvmStatic
     fun daysSinceEpoch(date: PlatformDate): Int {
-        return MathUtils.divLongNotSuck(roundDate(date).time - EPOCH_TIME + DAY_IN_MS / 2, DAY_IN_MS).toInt()
+        return MathUtils.divLongNotSuck(roundDate(date).getTime() - EPOCH_TIME + DAY_IN_MS / 2, DAY_IN_MS).toInt()
     }
 
-    @JvmStatic
     fun fractionalDaysSinceEpoch(a: PlatformDate): Double {
-        @Suppress("DEPRECATION")
-        val timeZoneAdjust = ((a.timezoneOffset - EPOCH_DATE.timezoneOffset) * 60 * 1000).toLong()
-        return ((a.time - EPOCH_DATE.time) - timeZoneAdjust) / DAY_IN_MS.toDouble()
+        val timeZoneAdjust = ((platformGetTimezoneOffsetMinutes(a) - platformGetTimezoneOffsetMinutes(EPOCH_DATE)) * 60 * 1000).toLong()
+        return ((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / DAY_IN_MS.toDouble()
     }
 
     /**
      * add n days to date d
      */
-    @JvmStatic
     fun dateAdd(d: PlatformDate, n: Int): PlatformDate {
-        return roundDate(PlatformDate(roundDate(d).time + DAY_IN_MS * n + DAY_IN_MS / 2))
+        return roundDate(PlatformDate(roundDate(d).getTime() + DAY_IN_MS * n + DAY_IN_MS / 2))
         //half-day offset is needed to handle differing DST offsets!
     }
 
     /**
      * return the number of days between a and b, positive if b is later than a
      */
-    @JvmStatic
     fun dateDiff(a: PlatformDate, b: PlatformDate): Int {
-        return MathUtils.divLongNotSuck(roundDate(b).time - roundDate(a).time + DAY_IN_MS / 2, DAY_IN_MS).toInt()
+        return MathUtils.divLongNotSuck(roundDate(b).getTime() - roundDate(a).getTime() + DAY_IN_MS / 2, DAY_IN_MS).toInt()
         //half-day offset is needed to handle differing DST offsets!
     }
 
     /* ==== UTILITY ==== */
 
-    @JvmStatic
     fun intPad(n: Int, pad: Int): String {
         var s = n.toString()
         while (s.length < pad)
@@ -747,37 +681,30 @@ object DateUtils {
 
     /* ==== GARBAGE (backward compatibility; too lazy to remove them now) ==== */
 
-    @JvmStatic
     fun formatDateToTimeStamp(date: PlatformDate?): String {
         return formatDateTime(date, FORMAT_ISO8601)
     }
 
-    @JvmStatic
     fun getShortStringValue(`val`: PlatformDate?): String {
         return formatDate(`val`, FORMAT_HUMAN_READABLE_SHORT)
     }
 
-    @JvmStatic
     fun getXMLStringValue(`val`: PlatformDate?): String {
         return formatDate(`val`, FORMAT_ISO8601)
     }
 
-    @JvmStatic
     fun get24HourTimeFromDate(d: PlatformDate?): String {
         return formatTime(d, FORMAT_HUMAN_READABLE_SHORT)
     }
 
-    @JvmStatic
     fun getDateFromString(value: String): PlatformDate? {
         return parseDate(value)
     }
 
-    @JvmStatic
     fun getDateTimeFromString(value: String): PlatformDate? {
         return parseDateTime(value)
     }
 
-    @JvmStatic
     fun stringContains(string: String?, substring: String?): Boolean {
         if (string == null || substring == null) {
             return false
@@ -785,15 +712,7 @@ object DateUtils {
         return string.contains(substring)
     }
 
-    // TODO: Move this method to DateUtils
-    @JvmStatic
     fun convertTimeInMsToISO8601(ms: Long): String {
-        return if (ms == 0L) {
-            ""
-        } else {
-            val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
-            df.timeZone = TimeZone.getTimeZone("UTC")
-            df.format(ms)
-        }
+        return platformFormatMsAsISO8601(ms)
     }
 }

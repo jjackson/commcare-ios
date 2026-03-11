@@ -31,7 +31,7 @@ public class DateUtilsTests {
      */
     @Test
     public void testGetXMLStringValueFormat() {
-        String currentDate = DateUtils.getXMLStringValue(currentTime);
+        String currentDate = DateUtils.INSTANCE.getXMLStringValue(currentTime);
         assertEquals("The date string was not of the proper length", currentDate.length(), "YYYY-MM-DD".length());
         assertEquals("The date string does not have proper year formatting", currentDate.indexOf("-"), "YYYY-".indexOf("-"));
 
@@ -118,7 +118,7 @@ public class DateUtilsTests {
 
     private void testTime(String in, long test) {
         try {
-            Date d = DateUtils.parseTime(in);
+            Date d = DateUtils.INSTANCE.parseTime(in);
 
             // getTime here should always assume that it's in the UTC context, since that's the
             // only available mode for j2me 1.3 (IE: Dates will always come out flat). We'll
@@ -136,7 +136,7 @@ public class DateUtilsTests {
 
     private long getOffset() {
         DateFields df = new DateFields();
-        Date d = DateUtils.getDate(df);
+        Date d = DateUtils.INSTANCE.getDate(df);
 
         return -d.getTime();
     }
@@ -176,8 +176,8 @@ public class DateUtilsTests {
 
     private void testCycle(Date in) {
         try {
-            String formatted = DateUtils.formatDateTime(in, DateUtils.FORMAT_ISO8601);
-            Date out = DateUtils.parseDateTime(formatted);
+            String formatted = DateUtils.INSTANCE.formatDateTime(in, DateUtils.FORMAT_ISO8601);
+            Date out = DateUtils.INSTANCE.parseDateTime(formatted);
             assertEquals("Fail:", in.getTime(), out.getTime());
         } catch (Exception e) {
             e.printStackTrace();
@@ -192,7 +192,7 @@ public class DateUtilsTests {
         Calendar novFifth2016 = Calendar.getInstance();
         novFifth2016.set(2016, Calendar.NOVEMBER, 5);
         Date novFifthDate = novFifth2016.getTime();
-        DateFields novFifth2016Fields = DateUtils.getFields(novFifthDate, null);
+        DateFields novFifth2016Fields = DateUtils.INSTANCE.getFields(novFifthDate, null);
         HashMap<String, String> escapesResults = new HashMap<>();
         escapesResults.put("%a", "Sat");
         escapesResults.put("%A", "Saturday");
@@ -205,13 +205,13 @@ public class DateUtilsTests {
 
         for (String escape : escapesResults.keySet()) {
             String result = escapesResults.get(escape);
-            String formatted = DateUtils.format(novFifth2016Fields, escape);
+            String formatted = DateUtils.INSTANCE.format(novFifth2016Fields, escape);
             assertEquals("Fail: '" + escape + "' rendered unexpectedly", result, formatted);
         }
 
         boolean didFail = false;
         try {
-            DateUtils.format(novFifth2016Fields, "%c");
+            DateUtils.INSTANCE.format(novFifth2016Fields, "%c");
         } catch (RuntimeException e) {
             didFail = true;
         }
@@ -232,22 +232,22 @@ public class DateUtilsTests {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         String expectedDateTime = "2017-01-02 02:00:00Z";
         assertEquals(expectedDateTime,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
 
         TimeZone.setDefault(TimeZone.getTimeZone("EST"));
         expectedDateTime = "2017-01-01 21:00:00-05";
         assertEquals(expectedDateTime,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
 
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Katmandu"));
         expectedDateTime = "2017-01-02 07:45:00+05:45";
         assertEquals(expectedDateTime,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
 
         TimeZone.setDefault(TimeZone.getTimeZone("IST"));
         expectedDateTime = "2017-01-02 07:30:00+05:30";
         assertEquals(expectedDateTime,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
 
         TimeZone.setDefault(null);
     }
@@ -262,17 +262,17 @@ public class DateUtilsTests {
         Date d = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
 
         tzProvider.setOffset(0);
         String expectedDateTime1HourAhead = "2017-01-02 02:00:00Z";
         assertEquals(expectedDateTime1HourAhead,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
 
         tzProvider.setOffset(HOUR_IN_MILLIS);
         expectedDateTime1HourAhead = "2017-01-02 03:00:00+01";
         assertEquals(expectedDateTime1HourAhead,
-                DateUtils.format(d, format));
+                DateUtils.INSTANCE.format(d, format));
     }
 
     @Test
@@ -283,24 +283,24 @@ public class DateUtilsTests {
         Date d = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
 
         tzProvider.setOffset(HOUR_IN_MILLIS);
         String expectedDateTime1HourAhead = "2017-01-02T03:00:00.000+01";
         assertEquals(expectedDateTime1HourAhead,
-                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDateTime(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(-3 * HOUR_IN_MILLIS);
         String expectedDateTime3HoursBehind = "2017-01-01T23:00:00.000-03";
         assertEquals(expectedDateTime3HoursBehind,
-                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDateTime(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(0);
         String expectedDateTimeUTC = "2017-01-02T02:00:00.000Z";
         assertEquals(expectedDateTimeUTC,
-                DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDateTime(d, DateUtils.FORMAT_ISO8601));
 
-        DateUtils.resetTimezoneProvider();
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     @Test
@@ -311,24 +311,24 @@ public class DateUtilsTests {
         Date d = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
 
         tzProvider.setOffset(HOUR_IN_MILLIS);
         String expectedDate1HourAhead = "2017-01-02";
         assertEquals(expectedDate1HourAhead,
-                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDate(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(-3 * HOUR_IN_MILLIS);
         String expectedDate3HoursBehind = "2017-01-01";
         assertEquals(expectedDate3HoursBehind,
-                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDate(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(0);
         String expectedDateUTC = "2017-01-02";
         assertEquals(expectedDateUTC,
-                DateUtils.formatDate(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatDate(d, DateUtils.FORMAT_ISO8601));
 
-        DateUtils.resetTimezoneProvider();
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     @Test
@@ -339,24 +339,24 @@ public class DateUtilsTests {
         Date d = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
 
         tzProvider.setOffset(HOUR_IN_MILLIS);
         String expectedTime1HourAhead = "03:00:00.000+01";
         assertEquals(expectedTime1HourAhead,
-                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatTime(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(-3 * HOUR_IN_MILLIS);
         String expectedTime3HoursBehind = "23:00:00.000-03";
         assertEquals(expectedTime3HoursBehind,
-                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatTime(d, DateUtils.FORMAT_ISO8601));
 
         tzProvider.setOffset(0);
         String expectedTimeUTC = "02:00:00.000Z";
         assertEquals(expectedTimeUTC,
-                DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
+                DateUtils.INSTANCE.formatTime(d, DateUtils.FORMAT_ISO8601));
 
-        DateUtils.resetTimezoneProvider();
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     @Test
@@ -376,11 +376,11 @@ public class DateUtilsTests {
         Date expectedDate = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
         tzProvider.setOffset(tz.getOffset(expectedDate.getTime()));
 
-        assertEquals(expectedDate.getTime(), DateUtils.parseTime("22:00").getTime());
-        DateUtils.resetTimezoneProvider();
+        assertEquals(expectedDate.getTime(), DateUtils.INSTANCE.parseTime("22:00").getTime());
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     @Test
@@ -400,12 +400,12 @@ public class DateUtilsTests {
         Date expectedDate = c.getTime();
 
         MockTimezoneProvider tzProvider = new MockTimezoneProvider();
-        DateUtils.setTimezoneProvider(tzProvider);
+        DateUtils.INSTANCE.setTimezoneProvider(tzProvider);
         tzProvider.setOffset(tz.getOffset(expectedDate.getTime()));
 
         assertEquals(expectedDate.getTime(),
-                DateUtils.parseDateTime("2017-01-02T02:00:00").getTime());
-        DateUtils.resetTimezoneProvider();
+                DateUtils.INSTANCE.parseDateTime("2017-01-02T02:00:00").getTime());
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     @Test
@@ -428,7 +428,7 @@ public class DateUtilsTests {
     }
 
     private static void offsetStringTestHelper(int offsetInMillis, String expectedOffsetString) {
-        assertEquals(expectedOffsetString, DateUtils.getOffsetInStandardFormat(offsetInMillis));
+        assertEquals(expectedOffsetString, DateUtils.INSTANCE.getOffsetInStandardFormat(offsetInMillis));
     }
 
 }

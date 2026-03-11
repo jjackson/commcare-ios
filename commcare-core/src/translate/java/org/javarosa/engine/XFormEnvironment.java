@@ -122,7 +122,7 @@ public class XFormEnvironment {
     }
 
     public void setToday(String dateString) {
-        hardCodedDate = DateUtils.parseDate(dateString);
+        hardCodedDate = DateUtils.INSTANCE.parseDate(dateString);
         System.out.println(hardCodedDate);
     }
 

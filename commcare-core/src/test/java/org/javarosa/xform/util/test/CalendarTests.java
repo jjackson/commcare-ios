@@ -57,28 +57,28 @@ public class CalendarTests {
     // millis <=> date is different in every timezone
     @Test
     public void testConvertToNepaliString() {
-        MockTimeZoneProvider mockTimeZoneProvider = new MockTimeZoneProvider(TimeZone.getTimeZone("Europe/Madrid"));
-        DateUtils.setTimezoneProvider(mockTimeZoneProvider);
-        TimeZone timeZone = mockTimeZoneProvider.timeZone;
+        MockTimeZoneProvider mockTimeZoneProvider = new MockTimeZoneProvider("Europe/Madrid");
+        DateUtils.INSTANCE.setTimezoneProvider(mockTimeZoneProvider);
+        TimeZone timeZone = TimeZone.getTimeZone(mockTimeZoneProvider.getTimezoneId());
         // this is what Nepali widget uses to calculate the millis from date fields
         long millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         String nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
 
 
-        mockTimeZoneProvider.setTimezone(TimeZone.getTimeZone("Asia/Kathmandu"));
-        timeZone = mockTimeZoneProvider.timeZone;
+        mockTimeZoneProvider.setTimezoneIdValue("Asia/Kathmandu");
+        timeZone = TimeZone.getTimeZone(mockTimeZoneProvider.getTimezoneId());
         millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
 
 
-        mockTimeZoneProvider.setTimezone(TimeZone.getTimeZone("America/Chicago"));
-        timeZone = mockTimeZoneProvider.timeZone;
+        mockTimeZoneProvider.setTimezoneIdValue("America/Chicago");
+        timeZone = TimeZone.getTimeZone(mockTimeZoneProvider.getTimezoneId());
         millis = CalendarUtils.toMillisFromJavaEpoch(2081, 6, 16, timeZone);
         nepaliDateStr = CalendarUtils.convertToNepaliString(new Date(millis), null);
         assertEquals( "16 Ashwin 2081", nepaliDateStr);
-        DateUtils.resetTimezoneProvider();
+        DateUtils.INSTANCE.resetTimezoneProvider();
     }
 
     private static void assertSameDate(UniversalDate a, UniversalDate b) {
@@ -151,21 +151,21 @@ public class CalendarTests {
         assertSameDate(nepaliDate, deserializedNepaliDate);
     }
 
-    private  class MockTimeZoneProvider extends TimezoneProvider {
+    private class MockTimeZoneProvider extends TimezoneProvider {
 
-        private TimeZone timeZone;
+        private String timezoneIdValue;
 
-        public MockTimeZoneProvider(TimeZone timeZone) {
-            this.timeZone = timeZone;
+        public MockTimeZoneProvider(String timezoneId) {
+            this.timezoneIdValue = timezoneId;
         }
 
-        public  void  setTimezone(TimeZone timeZone){
-            this.timeZone = timeZone;
+        public void setTimezoneIdValue(String timezoneId) {
+            this.timezoneIdValue = timezoneId;
         }
 
         @Override
-        public TimeZone getTimezone() {
-            return timeZone;
+        public String getTimezoneId() {
+            return timezoneIdValue;
         }
     }
 }
