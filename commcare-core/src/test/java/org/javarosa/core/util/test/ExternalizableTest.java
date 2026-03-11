@@ -17,6 +17,7 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.externalizable.SerializationLimitationException;
 import org.junit.Test;
@@ -127,8 +128,8 @@ public class ExternalizableTest {
     public void doTests() {
         //base types (built-in + externalizable)
 
-        PrototypeFactory pf = new PrototypeFactory();
-        PrototypeFactory.setStaticHasher(new ClassNameHasher());
+        JvmPrototypeFactory pf = new JvmPrototypeFactory();
+        JvmPrototypeFactory.setStaticHasher(new ClassNameHasher());
 
         testExternalizable("string", String.class);
         testExternalizable(Byte.valueOf((byte)0), Byte.class);

@@ -4,6 +4,7 @@ import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.JvmPrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -20,7 +21,7 @@ public class PersistableSandbox {
     private final PrototypeFactory factory;
     
     public PersistableSandbox() {
-        factory = new PrototypeFactory(new ClassNameHasher());
+        factory = new JvmPrototypeFactory(new ClassNameHasher());
     }
     
     public static <T extends Externalizable> byte[] serialize(T t) {

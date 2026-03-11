@@ -15,18 +15,24 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests that PlatformDataInputStream and PlatformDataOutputStream produce
  * byte-compatible output with java.io.DataInputStream/DataOutputStream.
+ *
+ * Since PlatformDataInputStream/PlatformDataOutputStream are now typealiases
+ * to java.io.DataInputStream/DataOutputStream on JVM, these tests verify
+ * basic round-trip correctness using the ByteArrayOutputStream/ByteArrayInputStream pattern.
  */
 public class PlatformStreamRoundTripTest {
 
     @Test
-    public void testRoundTripByte() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripByte() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeByte(0);
         out.writeByte(127);
         out.writeByte(-128);
         out.writeByte(255); // wraps to -1 as signed byte
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals((byte) 0, in.readByte());
         assertEquals((byte) 127, in.readByte());
         assertEquals((byte) -128, in.readByte());
@@ -35,16 +41,18 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripInt() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripInt() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeInt(0);
         out.writeInt(1);
         out.writeInt(-1);
         out.writeInt(Integer.MAX_VALUE);
         out.writeInt(Integer.MIN_VALUE);
         out.writeInt(0x12345678);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals(0, in.readInt());
         assertEquals(1, in.readInt());
         assertEquals(-1, in.readInt());
@@ -55,16 +63,18 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripLong() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripLong() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeLong(0L);
         out.writeLong(1L);
         out.writeLong(-1L);
         out.writeLong(Long.MAX_VALUE);
         out.writeLong(Long.MIN_VALUE);
         out.writeLong(0x123456789ABCDEF0L);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals(0L, in.readLong());
         assertEquals(1L, in.readLong());
         assertEquals(-1L, in.readLong());
@@ -75,14 +85,16 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripChar() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripChar() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeChar('A');
         out.writeChar('Z');
         out.writeChar('\u00E9'); // e-acute
         out.writeChar('\u4E16'); // Chinese character
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals('A', in.readChar());
         assertEquals('Z', in.readChar());
         assertEquals('\u00E9', in.readChar());
@@ -91,8 +103,9 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripDouble() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripDouble() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeDouble(0.0);
         out.writeDouble(1.0);
         out.writeDouble(-1.0);
@@ -102,8 +115,9 @@ public class PlatformStreamRoundTripTest {
         out.writeDouble(Double.NaN);
         out.writeDouble(Double.POSITIVE_INFINITY);
         out.writeDouble(Double.NEGATIVE_INFINITY);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals(0.0, in.readDouble(), 0.0);
         assertEquals(1.0, in.readDouble(), 0.0);
         assertEquals(-1.0, in.readDouble(), 0.0);
@@ -117,27 +131,31 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripBoolean() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripBoolean() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeBoolean(true);
         out.writeBoolean(false);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertTrue(in.readBoolean());
         assertFalse(in.readBoolean());
         in.close();
     }
 
     @Test
-    public void testRoundTripUTF() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testRoundTripUTF() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeUTF("Hello, World!");
         out.writeUTF("");
         out.writeUTF("café");
         out.writeUTF("\u4E16\u754C"); // "世界" (Chinese for "world")
         out.writeUTF("abc\u0000def"); // embedded null (modified UTF-8 edge case)
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals("Hello, World!", in.readUTF());
         assertEquals("", in.readUTF());
         assertEquals("café", in.readUTF());
@@ -147,12 +165,14 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripBytes() {
+    public void testRoundTripBytes() throws Exception {
         byte[] data = new byte[]{1, 2, 3, 4, 5, -1, -128, 127, 0};
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.write(data);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         byte[] result = new byte[data.length];
         in.readFully(result);
         assertArrayEquals(data, result);
@@ -160,12 +180,14 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testRoundTripPartialRead() {
+    public void testRoundTripPartialRead() throws Exception {
         byte[] data = new byte[]{10, 20, 30, 40, 50};
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.write(data);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         byte[] buf = new byte[3];
         int read = in.read(buf, 0, 3);
         assertEquals(3, read);
@@ -177,8 +199,9 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testMixedTypes() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testMixedTypes() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.writeInt(42);
         out.writeUTF("test");
         out.writeBoolean(true);
@@ -186,8 +209,9 @@ public class PlatformStreamRoundTripTest {
         out.writeLong(999999999999L);
         out.writeByte(0xFF);
         out.writeChar('X');
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals(42, in.readInt());
         assertEquals("test", in.readUTF());
         assertTrue(in.readBoolean());
@@ -201,7 +225,8 @@ public class PlatformStreamRoundTripTest {
 
     /**
      * Verify that Platform streams produce byte-identical output to java.io.Data*Stream.
-     * This ensures cross-platform serialization compatibility.
+     * Since they are now typealiases on JVM, this is trivially true but still worth
+     * keeping as a sanity check.
      */
     @Test
     public void testByteCompatibilityWithJavaIO() throws Exception {
@@ -218,8 +243,9 @@ public class PlatformStreamRoundTripTest {
         javaDos.flush();
         byte[] javaBytes = baos.toByteArray();
 
-        // Write using Platform streams
-        PlatformDataOutputStream platformDos = new PlatformDataOutputStream();
+        // Write using a second DataOutputStream (Platform streams are typealiases on JVM)
+        ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+        DataOutputStream platformDos = new DataOutputStream(baos2);
         platformDos.writeInt(42);
         platformDos.writeUTF("Hello");
         platformDos.writeBoolean(true);
@@ -227,13 +253,14 @@ public class PlatformStreamRoundTripTest {
         platformDos.writeLong(Long.MAX_VALUE);
         platformDos.writeChar('Z');
         platformDos.writeByte(99);
-        byte[] platformBytes = platformDos.toByteArray();
+        platformDos.flush();
+        byte[] platformBytes = baos2.toByteArray();
 
         // Byte-identical output
         assertArrayEquals(javaBytes, platformBytes);
 
-        // Read java.io bytes with Platform stream
-        PlatformDataInputStream platformDis = new PlatformDataInputStream(javaBytes);
+        // Read java.io bytes with a second DataInputStream
+        DataInputStream platformDis = new DataInputStream(new ByteArrayInputStream(javaBytes));
         assertEquals(42, platformDis.readInt());
         assertEquals("Hello", platformDis.readUTF());
         assertTrue(platformDis.readBoolean());
@@ -242,7 +269,7 @@ public class PlatformStreamRoundTripTest {
         assertEquals('Z', platformDis.readChar());
         assertEquals(99, platformDis.readByte());
 
-        // Read Platform bytes with java.io
+        // Read second stream bytes with java.io
         DataInputStream javaDis = new DataInputStream(new ByteArrayInputStream(platformBytes));
         assertEquals(42, javaDis.readInt());
         assertEquals("Hello", javaDis.readUTF());
@@ -254,12 +281,14 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testWritePartialByteArray() {
+    public void testWritePartialByteArray() throws Exception {
         byte[] data = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.write(data, 3, 4); // write bytes at indices 3,4,5,6
+        out.flush();
 
-        byte[] result = out.toByteArray();
+        byte[] result = baos.toByteArray();
         assertEquals(4, result.length);
         assertEquals(3, result[0]);
         assertEquals(4, result[1]);
@@ -268,11 +297,13 @@ public class PlatformStreamRoundTripTest {
     }
 
     @Test
-    public void testWriteSingleByte() {
-        PlatformDataOutputStream out = new PlatformDataOutputStream();
+    public void testWriteSingleByte() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
         out.write(0xAB);
+        out.flush();
 
-        PlatformDataInputStream in = new PlatformDataInputStream(out.toByteArray());
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(baos.toByteArray()));
         assertEquals((byte) 0xAB, in.readByte());
     }
 }

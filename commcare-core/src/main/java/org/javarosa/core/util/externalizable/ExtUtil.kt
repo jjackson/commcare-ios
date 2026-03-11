@@ -130,7 +130,7 @@ class ExtUtil {
         ): Any {
             return when {
                 Externalizable::class.java.isAssignableFrom(type) -> {
-                    val ext = PrototypeFactory.getInstance(type) as Externalizable
+                    val ext = JvmPrototypeFactory.getInstance(type) as Externalizable
                     ext.readExternal(`in`, pf ?: defaultPrototypes())
                     ext
                 }

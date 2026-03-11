@@ -70,7 +70,7 @@ class ExtWrapTagged : ExternalizableWrapper {
                     val t = e.next()
                     if (WRAPPER_CODES[t]!! == wrapperCode) {
                         try {
-                            type = PrototypeFactory.getInstance(t) as ExternalizableWrapper
+                            type = JvmPrototypeFactory.getInstance(t) as ExternalizableWrapper
                         } catch (ccoe: CannotCreateObjectException) {
                             throw CannotCreateObjectException(
                                 "Serious problem: cannot create built-in ExternalizableWrapper [${t.name}]"
@@ -87,7 +87,7 @@ class ExtWrapTagged : ExternalizableWrapper {
                 type.metaReadExternal(`in`, pf)
                 return type
             } else {
-                val type = pf.getClass(tag)
+                val type = (pf as JvmPrototypeFactory).getClass(tag)
                     ?: throw DeserializationException(
                         "No datatype registered to serialization code ${ExtUtil.printBytes(tag)}"
                     )
@@ -119,7 +119,7 @@ class ExtWrapTagged : ExternalizableWrapper {
                     type = obj.javaClass
                 }
 
-                val tag = PrototypeFactory.getClassHash(type) // cache this?
+                val tag = JvmPrototypeFactory.getClassHash(type) // cache this?
                 out.write(tag, 0, tag.size)
             }
         }
