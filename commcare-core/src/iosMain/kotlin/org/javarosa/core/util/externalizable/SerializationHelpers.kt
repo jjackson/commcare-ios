@@ -141,14 +141,80 @@ actual object SerializationHelpers {
         }
     }
 
+    actual fun readDate(`in`: PlatformDataInputStream): PlatformDate {
+        return PlatformDate(readNumeric(`in`))
+    }
+
+    actual fun writeDate(out: PlatformDataOutputStream, date: PlatformDate) {
+        writeNumeric(out, date.getTime())
+    }
+
+    actual fun readStringList(`in`: PlatformDataInputStream): ArrayList<String> {
+        val size = readNumeric(`in`).toInt()
+        val list = ArrayList<String>(size)
+        for (i in 0 until size) {
+            list.add(readString(`in`))
+        }
+        return list
+    }
+
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+        val size = readNumeric(`in`).toInt()
+        val map = HashMap<String, String>(size)
+        for (i in 0 until size) {
+            val key = readString(`in`)
+            val value = readString(`in`)
+            map[key] = value
+        }
+        return map
+    }
+
+    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        writeNumeric(out, map.size.toLong())
+        for ((key, value) in map) {
+            write(out, key!!)
+            write(out, value!!)
+        }
+    }
+
     actual fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String? {
         return if (`in`.readBoolean()) readString(`in`) else null
+    }
+
+    actual fun <T : Externalizable> readNullableExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T? {
+        if (!`in`.readBoolean()) return null
+        val instance = creator()
+        instance.readExternal(`in`, pf)
+        return instance
+    }
+
+    actual fun readNullableTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any? {
+        if (!`in`.readBoolean()) return null
+        return readTagged(`in`, pf)
+    }
+
+    actual fun readNullableDate(`in`: PlatformDataInputStream): PlatformDate? {
+        if (!`in`.readBoolean()) return null
+        return readDate(`in`)
     }
 
     actual fun writeNullable(out: PlatformDataOutputStream, value: Any?) {
         if (value != null) {
             out.writeBoolean(true)
             write(out, value)
+        } else {
+            out.writeBoolean(false)
+        }
+    }
+
+    actual fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?) {
+        if (value != null) {
+            out.writeBoolean(true)
+            writeTagged(out, value)
         } else {
             out.writeBoolean(false)
         }

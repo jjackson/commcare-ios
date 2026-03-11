@@ -132,7 +132,7 @@ class Recalculate : Triggerable {
                     DateData(`val`)
                 }
             } else {
-                throw RuntimeException("unrecognized data type in 'calculate' expression: " + `val`!!.javaClass.name)
+                throw RuntimeException("unrecognized data type in 'calculate' expression: " + (`val`!!::class.simpleName ?: "unknown"))
             }
         }
     }

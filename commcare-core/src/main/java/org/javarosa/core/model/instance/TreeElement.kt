@@ -10,12 +10,11 @@ import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.utils.ITreeVisitor
 import org.javarosa.core.model.instance.utils.TreeUtilities
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
-import org.javarosa.core.util.externalizable.ExtWrapNullable
-import org.javarosa.core.util.externalizable.ExtWrapTagged
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
+import org.javarosa.core.util.externalizable.nullIfEmpty
 import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.xpath.expr.XPathPathExpr
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
@@ -470,32 +469,30 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        multiplicity = ExtUtil.readInt(`in`)
-        flags = ExtUtil.readInt(`in`)
-        value = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IAnswerData?
+        name = nullIfEmpty(SerializationHelpers.readString(`in`))
+        multiplicity = SerializationHelpers.readInt(`in`)
+        flags = SerializationHelpers.readInt(`in`)
+        value = SerializationHelpers.readNullableTagged(`in`, pf) as IAnswerData?
 
         readChildrenFromExternal(`in`, pf)
 
-        dataType = ExtUtil.readInt(`in`)
-        instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        constraint = ExtUtil.read(
-            `in`, ExtWrapNullable(Constraint::class.java), pf
-        ) as Constraint?
-        preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        dataType = SerializationHelpers.readInt(`in`)
+        instanceName = nullIfEmpty(SerializationHelpers.readString(`in`))
+        constraint = SerializationHelpers.readNullableExternalizable(`in`, pf) { Constraint() }
+        preloadHandler = nullIfEmpty(SerializationHelpers.readString(`in`))
+        preloadParams = nullIfEmpty(SerializationHelpers.readString(`in`))
+        namespace = nullIfEmpty(SerializationHelpers.readString(`in`))
 
         readAttributesFromExternal(`in`, pf)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     private fun readChildrenFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        if (!ExtUtil.readBool(`in`)) {
+        if (!SerializationHelpers.readBool(`in`)) {
             children = null
         } else {
             children = ArrayList()
-            val numChildren = ExtUtil.readNumeric(`in`).toInt()
+            val numChildren = SerializationHelpers.readNumeric(`in`).toInt()
             for (i in 0 until numChildren) {
                 val child = TreeElement()
                 child.readExternal(`in`, pf)
@@ -507,11 +504,11 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     private fun readAttributesFromExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        if (!ExtUtil.readBool(`in`)) {
+        if (!SerializationHelpers.readBool(`in`)) {
             attributes = null
         } else {
             attributes = ArrayList()
-            val attrCount = ExtUtil.readNumeric(`in`).toInt()
+            val attrCount = SerializationHelpers.readNumeric(`in`).toInt()
             for (i in 0 until attrCount) {
                 val attr = TreeElement()
                 attr.readExternal(`in`, pf)
@@ -523,20 +520,20 @@ open class TreeElement : Externalizable, AbstractTreeElement {
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(name))
-        ExtUtil.writeNumeric(out, multiplicity.toLong())
-        ExtUtil.writeNumeric(out, flags.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(name))
+        SerializationHelpers.writeNumeric(out, multiplicity.toLong())
+        SerializationHelpers.writeNumeric(out, flags.toLong())
         val currentValue = value
-        ExtUtil.write(out, ExtWrapNullable(if (currentValue == null) null else ExtWrapTagged(currentValue)))
+        SerializationHelpers.writeNullableTagged(out, currentValue)
 
         writeChildrenToExternal(out)
 
-        ExtUtil.writeNumeric(out, dataType.toLong())
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceName))
-        ExtUtil.write(out, ExtWrapNullable(constraint)) // TODO: inefficient for repeats
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadHandler))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadParams))
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace))
+        SerializationHelpers.writeNumeric(out, dataType.toLong())
+        SerializationHelpers.writeString(out, emptyIfNull(instanceName))
+        SerializationHelpers.writeNullable(out, constraint) // TODO: inefficient for repeats
+        SerializationHelpers.writeString(out, emptyIfNull(preloadHandler))
+        SerializationHelpers.writeString(out, emptyIfNull(preloadParams))
+        SerializationHelpers.writeString(out, emptyIfNull(namespace))
 
         writeAttributesToExternal(out)
     }
@@ -544,10 +541,10 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     @Throws(PlatformIOException::class)
     private fun writeChildrenToExternal(out: PlatformDataOutputStream) {
         if (children == null) {
-            ExtUtil.writeBool(out, false)
+            SerializationHelpers.writeBool(out, false)
         } else {
-            ExtUtil.writeBool(out, true)
-            ExtUtil.writeNumeric(out, children!!.size.toLong())
+            SerializationHelpers.writeBool(out, true)
+            SerializationHelpers.writeNumeric(out, children!!.size.toLong())
             val en = children!!.iterator()
             while (en.hasNext()) {
                 val child = en.next() as TreeElement
@@ -559,10 +556,10 @@ open class TreeElement : Externalizable, AbstractTreeElement {
     @Throws(PlatformIOException::class)
     private fun writeAttributesToExternal(out: PlatformDataOutputStream) {
         if (attributes == null) {
-            ExtUtil.writeBool(out, false)
+            SerializationHelpers.writeBool(out, false)
         } else {
-            ExtUtil.writeBool(out, true)
-            ExtUtil.writeNumeric(out, attributes!!.size.toLong())
+            SerializationHelpers.writeBool(out, true)
+            SerializationHelpers.writeNumeric(out, attributes!!.size.toLong())
             val en = attributes!!.iterator()
             while (en.hasNext()) {
                 val attr = en.next() as TreeElement
@@ -898,44 +895,41 @@ open class TreeElement : Externalizable, AbstractTreeElement {
      */
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun readExternalMigration(`in`: PlatformDataInputStream, pf: PrototypeFactory?) {
-        name = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        multiplicity = ExtUtil.readInt(`in`)
-        flags = ExtUtil.readInt(`in`)
-        value = ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf) as IAnswerData?
+        name = nullIfEmpty(SerializationHelpers.readString(`in`))
+        multiplicity = SerializationHelpers.readInt(`in`)
+        flags = SerializationHelpers.readInt(`in`)
+        value = SerializationHelpers.readNullableTagged(`in`, pf!!) as IAnswerData?
 
-        if (!ExtUtil.readBool(`in`)) {
+        if (!SerializationHelpers.readBool(`in`)) {
             children = null
         } else {
             children = ArrayList()
-            val numChildren = ExtUtil.readNumeric(`in`).toInt()
+            val numChildren = SerializationHelpers.readNumeric(`in`).toInt()
             for (i in 0 until numChildren) {
-                val normal = ExtUtil.readBool(`in`)
+                val normal = SerializationHelpers.readBool(`in`)
                 val child: TreeElement
 
                 if (normal) {
                     child = TreeElement()
                     child.readExternalMigration(`in`, pf)
                 } else {
-                    child = ExtUtil.read(`in`, ExtWrapTagged(), pf) as TreeElement
+                    child = SerializationHelpers.readTagged(`in`, pf) as TreeElement
                 }
                 child.setParent(this)
                 children!!.add(child)
             }
         }
 
-        dataType = ExtUtil.readInt(`in`)
-        instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        constraint = ExtUtil.read(
-            `in`, ExtWrapNullable(Constraint::class.java), pf
-        ) as Constraint?
-        preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
-        namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(`in`))
+        dataType = SerializationHelpers.readInt(`in`)
+        instanceName = nullIfEmpty(SerializationHelpers.readString(`in`))
+        constraint = SerializationHelpers.readNullableExternalizable(`in`, pf) { Constraint() }
+        preloadHandler = nullIfEmpty(SerializationHelpers.readString(`in`))
+        preloadParams = nullIfEmpty(SerializationHelpers.readString(`in`))
+        namespace = nullIfEmpty(SerializationHelpers.readString(`in`))
 
         @Suppress("UNCHECKED_CAST")
-        val attStrings = ExtUtil.nullIfEmpty(
-            ExtUtil.read(`in`, ExtWrapList(String::class.java), pf) as ArrayList<Any>
-        )
+        val rawList = SerializationHelpers.readStringList(`in`) as ArrayList<Any>
+        val attStrings: ArrayList<Any>? = if (rawList.isEmpty()) null else rawList
         setAttributesFromSingleStringVector(attStrings)
     }
 

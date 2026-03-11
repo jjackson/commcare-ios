@@ -6,10 +6,9 @@ import org.javarosa.core.model.utils.IInstanceVisitor
 import org.javarosa.core.services.storage.IMetaData
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapMap
-import org.javarosa.core.util.externalizable.ExtWrapNullable
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.SerializationHelpers
+import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -162,22 +161,21 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         super.readExternal(`in`, pf)
-        schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
+        schema = SerializationHelpers.readNullableString(`in`, pf)
+        dateSaved = SerializationHelpers.readNullableDate(`in`)
 
-        @Suppress("UNCHECKED_CAST")
-        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
-        setRoot(ExtUtil.read(`in`, TreeElement::class.java, pf) as TreeElement)
+        namespaces = SerializationHelpers.readStringStringMap(`in`)
+        setRoot(SerializationHelpers.readExternalizable(`in`, pf) { TreeElement() })
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         super.writeExternal(out)
-        ExtUtil.write(out, ExtWrapNullable(schema))
-        ExtUtil.write(out, ExtWrapNullable(dateSaved))
-        ExtUtil.write(out, ExtWrapMap(namespaces))
+        SerializationHelpers.writeNullable(out, schema)
+        SerializationHelpers.writeNullable(out, dateSaved)
+        SerializationHelpers.writeMap(out, namespaces)
 
-        ExtUtil.write(out, getRoot())
+        SerializationHelpers.write(out, getRoot())
     }
 
     @Throws(InvalidReferenceException::class)
@@ -220,9 +218,9 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
 
     override fun getMetaData(fieldName: String): Any {
         if (META_XMLNS == fieldName) {
-            return ExtUtil.emptyIfNull(schema)
+            return emptyIfNull(schema)
         } else if (META_ID == fieldName) {
-            return ExtUtil.emptyIfNull(this.getInstanceId())
+            return emptyIfNull(this.getInstanceId())
         }
         throw IllegalArgumentException("No metadata field $fieldName in the form instance storage system")
     }
@@ -243,22 +241,12 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun migrateSerialization(`in`: PlatformDataInputStream, pf: PrototypeFactory?) {
         super.readExternal(`in`, pf!!)
-        schema = ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
-        dateSaved = ExtUtil.read(`in`, ExtWrapNullable(PlatformDate::class.java), pf) as PlatformDate?
+        schema = SerializationHelpers.readNullableString(`in`, pf)
+        dateSaved = SerializationHelpers.readNullableDate(`in`)
 
-        @Suppress("UNCHECKED_CAST")
-        namespaces = ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), pf) as HashMap<String, String>
-        val newRoot: TreeElement
-        try {
-            newRoot = TreeElement::class.java.newInstance()
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-            throw RuntimeException(e.message)
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-            throw RuntimeException(e.message)
-        }
-        newRoot.readExternalMigration(`in`, pf)
+        namespaces = SerializationHelpers.readStringStringMap(`in`)
+        val newRoot = TreeElement()
+        newRoot.readExternalMigration(`in`, pf!!)
         setRoot(newRoot)
     }
 

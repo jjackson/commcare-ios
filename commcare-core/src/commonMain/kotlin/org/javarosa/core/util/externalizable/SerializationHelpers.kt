@@ -1,5 +1,7 @@
 package org.javarosa.core.util.externalizable
 
+import org.javarosa.core.model.utils.PlatformDate
+
 /**
  * Cross-platform serialization helpers that replace JVM-only ExtUtil calls.
  * These functions are wire-format compatible with the JVM ExtUtil/ExtWrap framework.
@@ -78,13 +80,50 @@ expect object SerializationHelpers {
     @Throws(PlatformIOException::class)
     fun writeList(out: PlatformDataOutputStream, list: List<*>)
 
+    // --- Date read/write ---
+
+    @Throws(PlatformIOException::class)
+    fun readDate(`in`: PlatformDataInputStream): PlatformDate
+
+    @Throws(PlatformIOException::class)
+    fun writeDate(out: PlatformDataOutputStream, date: PlatformDate)
+
+    // --- String list read ---
+
+    @Throws(PlatformIOException::class)
+    fun readStringList(`in`: PlatformDataInputStream): ArrayList<String>
+
+    // --- Map read/write ---
+
+    @Throws(PlatformIOException::class)
+    fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String>
+
+    @Throws(PlatformIOException::class)
+    fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+
     // --- Nullable read/write ---
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String?
 
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun <T : Externalizable> readNullableExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T?
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readNullableTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any?
+
+    @Throws(PlatformIOException::class, DeserializationException::class)
+    fun readNullableDate(`in`: PlatformDataInputStream): PlatformDate?
+
     @Throws(PlatformIOException::class)
     fun writeNullable(out: PlatformDataOutputStream, value: Any?)
+
+    @Throws(PlatformIOException::class)
+    fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?)
 
     // --- Comparison utilities ---
 

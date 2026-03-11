@@ -1,5 +1,7 @@
 package org.javarosa.core.util.externalizable
 
+import org.javarosa.core.model.utils.PlatformDate
+
 /**
  * JVM implementation of SerializationHelpers that delegates to the existing
  * ExtUtil/ExtWrap framework for binary compatibility.
@@ -110,14 +112,78 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
+    actual fun readDate(`in`: PlatformDataInputStream): PlatformDate {
+        return ExtUtil.readDate(`in`)
+    }
+
+    @JvmStatic
+    actual fun writeDate(out: PlatformDataOutputStream, date: PlatformDate) {
+        ExtUtil.writeDate(out, date)
+    }
+
+    @JvmStatic
+    actual fun readStringList(`in`: PlatformDataInputStream): ArrayList<String> {
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        val list = ArrayList<String>(size)
+        for (i in 0 until size) {
+            list.add(ExtUtil.readString(`in`))
+        }
+        return list
+    }
+
+    @JvmStatic
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), null) as HashMap<String, String>
+    }
+
+    @JvmStatic
+    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+        ExtUtil.write(out, ExtWrapMap(map))
+    }
+
+    @JvmStatic
     actual fun readNullableString(`in`: PlatformDataInputStream, pf: PrototypeFactory): String? {
         @Suppress("UNCHECKED_CAST")
         return ExtUtil.read(`in`, ExtWrapNullable(String::class.java), pf) as String?
     }
 
     @JvmStatic
+    actual fun <T : Externalizable> readNullableExternalizable(
+        `in`: PlatformDataInputStream,
+        pf: PrototypeFactory,
+        creator: () -> T
+    ): T? {
+        if (!`in`.readBoolean()) return null
+        val instance = creator()
+        instance.readExternal(`in`, pf)
+        return instance
+    }
+
+    @JvmStatic
+    actual fun readNullableTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any? {
+        @Suppress("UNCHECKED_CAST")
+        return ExtUtil.read(`in`, ExtWrapNullable(ExtWrapTagged()), pf)
+    }
+
+    @JvmStatic
+    actual fun readNullableDate(`in`: PlatformDataInputStream): PlatformDate? {
+        if (!`in`.readBoolean()) return null
+        return readDate(`in`)
+    }
+
+    @JvmStatic
     actual fun writeNullable(out: PlatformDataOutputStream, value: Any?) {
         ExtUtil.write(out, ExtWrapNullable(value))
+    }
+
+    @JvmStatic
+    actual fun writeNullableTagged(out: PlatformDataOutputStream, value: Any?) {
+        if (value != null) {
+            ExtUtil.write(out, ExtWrapNullable(ExtWrapTagged(value)))
+        } else {
+            ExtUtil.write(out, ExtWrapNullable(null as Any?))
+        }
     }
 
     @JvmStatic
