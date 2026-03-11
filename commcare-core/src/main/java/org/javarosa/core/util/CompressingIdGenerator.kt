@@ -49,21 +49,16 @@ object CompressingIdGenerator {
     ): String {
         if (growthSymbols.isEmpty() || leadSymbols.isEmpty()) {
             throw IllegalArgumentException(
-                String.format(
-                    "Invalid Symbol Space for ID Compression, growth and lead set must both" +
-                            " contain at least one symbol" +
-                            "\nG[%s] | L[%s] | B[%s]", growthSymbols, leadSymbols, bodySymbols
-                )
+                "Invalid Symbol Space for ID Compression, growth and lead set must both" +
+                        " contain at least one symbol" +
+                        "\nG[$growthSymbols] | L[$leadSymbols] | B[$bodySymbols]"
             )
         }
 
         for (c in growthSymbols.toCharArray()) {
             if (leadSymbols.indexOf(c) != -1) {
                 throw IllegalArgumentException(
-                    String.format(
-                        "Illegal growth/lead symbol space. The character %s was found in both" +
-                                " spaces.", c
-                    )
+                    "Illegal growth/lead symbol space. The character $c was found in both spaces."
                 )
             }
         }
@@ -128,6 +123,6 @@ object CompressingIdGenerator {
             outputGenerator[digit + i] = bodySymbols[count[digit + i]]
         }
 
-        return String(outputGenerator)
+        return outputGenerator.concatToString()
     }
 }

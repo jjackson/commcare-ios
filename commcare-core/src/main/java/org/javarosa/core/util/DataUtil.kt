@@ -1,6 +1,6 @@
 package org.javarosa.core.util
 
-import java.util.HashSet
+import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims
@@ -37,15 +37,10 @@ object DataUtil {
             return intersection(b, a)
         }
 
-        val setA: HashSet<T> = if (a is HashSet<*>) {
+        val setA = HashSet(a)
+        val setB: Set<T> = if (b is Set<*>) {
             @Suppress("UNCHECKED_CAST")
-            (a as HashSet<T>).clone() as HashSet<T>
-        } else {
-            HashSet(a)
-        }
-        val setB: HashSet<T> = if (b is HashSet<*>) {
-            @Suppress("UNCHECKED_CAST")
-            b as HashSet<T>
+            b as Set<T>
         } else {
             HashSet(b)
         }
