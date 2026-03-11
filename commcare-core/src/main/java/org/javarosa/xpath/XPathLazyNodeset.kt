@@ -30,28 +30,25 @@ class XPathLazyNodeset(
     ec: EvaluationContext?
 ) : XPathNodeset(instance, ec) {
 
-    private val evalLock = Any()
     private var evaluated = false
 
     private fun performEvaluation() {
-        synchronized(evalLock) {
-            if (evaluated) {
-                return
-            }
-            val nodes = ec!!.expandReference(unExpandedRef)!!
-
-            //to fix conditions based on non-relevant data, filter the nodeset by relevancy
-            var i = 0
-            while (i < nodes.size) {
-                if (!instance!!.resolveReference(nodes[i], ec)!!.isRelevant) {
-                    nodes.removeAt(i)
-                    i--
-                }
-                i++
-            }
-            this.setReferences(nodes)
-            evaluated = true
+        if (evaluated) {
+            return
         }
+        val nodes = ec!!.expandReference(unExpandedRef)!!
+
+        //to fix conditions based on non-relevant data, filter the nodeset by relevancy
+        var i = 0
+        while (i < nodes.size) {
+            if (!instance!!.resolveReference(nodes[i], ec)!!.isRelevant) {
+                nodes.removeAt(i)
+                i--
+            }
+            i++
+        }
+        this.setReferences(nodes)
+        evaluated = true
     }
 
     /**
@@ -60,44 +57,42 @@ class XPathLazyNodeset(
      * existed, but didn't, rather than a reference which could not represent a real node).
      */
     override fun unpack(): Any? {
-        synchronized(evalLock) {
-            if (evaluated) {
-                return super.unpack()
-            }
+        if (evaluated) {
+            return super.unpack()
+        }
 
-            //this element is the important one. For Basic nodeset evaluations (referring to one node with no
-            //multiplicites) we should be able to do this without doing the expansion
+        //this element is the important one. For Basic nodeset evaluations (referring to one node with no
+        //multiplicites) we should be able to do this without doing the expansion
 
-            //first, see if this treeref is usable without expansion
-            var safe = true
-            for (i in 0 until unExpandedRef.size()) {
-                //We can't evaluated any predicates for sure
-                if (unExpandedRef.getPredicate(i) != null) {
-                    safe = false
-                    break
-                }
-                val mult = unExpandedRef.getMultiplicity(i)
-                if (!(mult >= 0 || mult == TreeReference.INDEX_UNBOUND)) {
-                    safe = false
-                    break
-                }
+        //first, see if this treeref is usable without expansion
+        var safe = true
+        for (i in 0 until unExpandedRef.size()) {
+            //We can't evaluated any predicates for sure
+            if (unExpandedRef.getPredicate(i) != null) {
+                safe = false
+                break
             }
-            if (!safe) {
-                performEvaluation()
-                return super.unpack()
+            val mult = unExpandedRef.getMultiplicity(i)
+            if (!(mult >= 0 || mult == TreeReference.INDEX_UNBOUND)) {
+                safe = false
+                break
             }
+        }
+        if (!safe) {
+            performEvaluation()
+            return super.unpack()
+        }
 
-            // TODO: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
-            // the same way, although invalid multiplicities should be fine.
-            return try {
-                //TODO: This doesn't handle templated nodes (repeats which may exist in the future)
-                //figure out if we can roll that in easily. For now the catch handles it
-                XPathPathExpr.getRefValue(instance!!, ec!!, unExpandedRef)
-            } catch (xpe: XPathException) {
-                //This isn't really a best effort attempt, so if we can, see if evaluating cleanly works.
-                performEvaluation()
-                super.unpack()
-            }
+        // TODO: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
+        // the same way, although invalid multiplicities should be fine.
+        return try {
+            //TODO: This doesn't handle templated nodes (repeats which may exist in the future)
+            //figure out if we can roll that in easily. For now the catch handles it
+            XPathPathExpr.getRefValue(instance!!, ec!!, unExpandedRef)
+        } catch (xpe: XPathException) {
+            //This isn't really a best effort attempt, so if we can, see if evaluating cleanly works.
+            performEvaluation()
+            super.unpack()
         }
     }
 

@@ -136,7 +136,7 @@ open class ExternalDataInstance : DataInstance<AbstractTreeElement> {
     override fun toString(): String {
         return "ExternalDataInstance{" +
                 "reference='" + reference + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + getName() + '\'' +
                 ", instanceid='" + instanceid + '\'' +
                 '}'
     }

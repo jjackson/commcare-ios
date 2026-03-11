@@ -1,12 +1,9 @@
 package org.javarosa.xpath
-import kotlin.jvm.JvmField
 
 import org.javarosa.core.model.instance.TreeReference
 
 open class XPathMissingInstanceException : XPathException {
-    @JvmField
     var instanceName: String? = null
-    @JvmField
     var ref: TreeReference? = null
 
     /**

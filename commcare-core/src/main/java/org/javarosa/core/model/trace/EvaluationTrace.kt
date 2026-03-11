@@ -59,9 +59,7 @@ open class EvaluationTrace(private val expression: String) {
     }
 
     fun addSubTrace(child: EvaluationTrace?) {
-        synchronized(children) {
-            this.children.add(child!!)
-        }
+        this.children.add(child!!)
     }
 
     open fun getSubTraces(): ArrayList<EvaluationTrace> {

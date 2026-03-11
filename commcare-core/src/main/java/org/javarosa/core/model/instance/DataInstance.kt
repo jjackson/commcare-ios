@@ -1,8 +1,5 @@
 package org.javarosa.core.model.instance
 
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmStatic
-
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper
 import org.commcare.cases.util.QueryUtils
 import org.javarosa.core.model.condition.EvaluationContext
@@ -35,18 +32,15 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     /**
      * The name for this data model
      */
-    @JvmField
-    protected var name: String? = null
+    private var _name: String? = null
 
     /**
      * The ID of the form that this is a model for
      */
     private var formId: Int = 0
 
-    @JvmField
     protected var instanceid: String? = null
 
-    @JvmField
     protected var mCacheHost: CacheHost? = null
 
     private val referenceCache = LocalCacheTable<TreeReference, T>()
@@ -246,14 +240,14 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
 
     fun getFormId(): Int = this.formId
 
-    fun getName(): String? = name
+    fun getName(): String? = _name
 
     fun setName(name: String?) {
-        this.name = name
+        this._name = name
     }
 
     override fun toString(): String {
-        val displayName = this.name ?: "NULL"
+        val displayName = this._name ?: "NULL"
         return "DataInstance{" +
                 "name='" + displayName + '\'' +
                 ", instanceid='" + instanceid + '\'' +
@@ -264,7 +258,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         recordid = SerializationHelpers.readInt(`in`)
         formId = SerializationHelpers.readInt(`in`)
-        name = SerializationHelpers.readNullableString(`in`, pf)
+        _name = SerializationHelpers.readNullableString(`in`, pf)
         val rawInstanceId = SerializationHelpers.readString(`in`)
         instanceid = if (rawInstanceId.isEmpty()) null else rawInstanceId
     }
@@ -273,7 +267,7 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     override fun writeExternal(out: PlatformDataOutputStream) {
         SerializationHelpers.writeNumeric(out, recordid.toLong())
         SerializationHelpers.writeNumeric(out, formId.toLong())
-        SerializationHelpers.writeNullable(out, name)
+        SerializationHelpers.writeNullable(out, _name)
         SerializationHelpers.write(out, instanceid ?: "")
     }
 
@@ -300,7 +294,6 @@ abstract class DataInstance<T : AbstractTreeElement> : Persistable {
     }
 
     companion object {
-        @JvmStatic
         fun unpackReference(ref: XPathReference): TreeReference {
             return ref.reference
         }

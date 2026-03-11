@@ -1,7 +1,5 @@
 package org.javarosa.core.model.condition
 
-import kotlin.jvm.JvmField
-
 import org.javarosa.core.util.ListMultimap
 import org.commcare.cases.query.QueryContext
 import org.commcare.cases.query.QuerySensitiveTreeElementWrapper
@@ -68,11 +66,9 @@ class EvaluationContext {
     private val variables: HashMap<String, Any?>
 
     // Do we want to evaluate constraints?
-    @JvmField
     var isConstraint: Boolean = false
 
     // validate this value when isConstraint is set
-    @JvmField
     var candidateValue: IAnswerData? = null
 
     // Responsible for informing itext what form is requested if relevant
@@ -701,9 +697,7 @@ class EvaluationContext {
                     return
                 }
                 val traces = trace.getParent()!!.getSubTraces()
-                synchronized(traces) {
-                    traces.remove(trace)
-                }
+                traces.remove(trace)
             }
         }
     }
@@ -807,10 +801,7 @@ class EvaluationContext {
             if (!byRef.containsKey(ref)) {
                 if (formInstances.containsKey(name)) {
                     throw RuntimeException(
-                        String.format(
-                            "EvaluationContext already contains an instance with "
-                                    + "ID %s with a different ref", name
-                        )
+                        "EvaluationContext already contains an instance with ID $name with a different ref"
                     )
                 }
                 formInstances[name] = newInstance
