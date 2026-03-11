@@ -64,7 +64,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
         }
     }
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         bias = `in`.readByte().toInt() and 0xFF
     }
