@@ -2,6 +2,8 @@
 
 package org.javarosa.core.io
 
+import org.javarosa.core.util.externalizable.PlatformIOException
+
 /**
  * Platform-abstracted input stream for reading binary data.
  * On JVM, this is a typealias to java.io.InputStream.
@@ -10,11 +12,17 @@ package org.javarosa.core.io
  * Do not construct directly — use [createByteArrayInputStream] factory.
  */
 expect abstract class PlatformInputStream() {
+    @Throws(PlatformIOException::class)
     abstract fun read(): Int
+    @Throws(PlatformIOException::class)
     open fun read(b: ByteArray): Int
+    @Throws(PlatformIOException::class)
     open fun read(b: ByteArray, off: Int, len: Int): Int
+    @Throws(PlatformIOException::class)
     open fun available(): Int
+    @Throws(PlatformIOException::class)
     open fun skip(n: Long): Long
+    @Throws(PlatformIOException::class)
     open fun close()
 }
 

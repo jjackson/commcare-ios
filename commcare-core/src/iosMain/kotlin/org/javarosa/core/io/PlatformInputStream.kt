@@ -2,9 +2,14 @@
 
 package org.javarosa.core.io
 
+import org.javarosa.core.util.externalizable.PlatformIOException
+
 actual abstract class PlatformInputStream {
+    @Throws(PlatformIOException::class)
     actual abstract fun read(): Int
+    @Throws(PlatformIOException::class)
     actual open fun read(b: ByteArray): Int = read(b, 0, b.size)
+    @Throws(PlatformIOException::class)
     actual open fun read(b: ByteArray, off: Int, len: Int): Int {
         if (len == 0) return 0
         val c = read()
@@ -19,7 +24,9 @@ actual abstract class PlatformInputStream {
         }
         return i
     }
+    @Throws(PlatformIOException::class)
     actual open fun available(): Int = 0
+    @Throws(PlatformIOException::class)
     actual open fun skip(n: Long): Long {
         var remaining = n
         while (remaining > 0) {
@@ -28,6 +35,7 @@ actual abstract class PlatformInputStream {
         }
         return n - remaining
     }
+    @Throws(PlatformIOException::class)
     actual open fun close() {}
 }
 

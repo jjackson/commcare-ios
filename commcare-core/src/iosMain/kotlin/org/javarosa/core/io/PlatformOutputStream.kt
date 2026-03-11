@@ -2,15 +2,22 @@
 
 package org.javarosa.core.io
 
+import org.javarosa.core.util.externalizable.PlatformIOException
+
 actual abstract class PlatformOutputStream {
+    @Throws(PlatformIOException::class)
     actual abstract fun write(v: Int)
+    @Throws(PlatformIOException::class)
     actual open fun write(b: ByteArray) { write(b, 0, b.size) }
+    @Throws(PlatformIOException::class)
     actual open fun write(b: ByteArray, off: Int, len: Int) {
         for (i in off until off + len) {
             write(b[i].toInt())
         }
     }
+    @Throws(PlatformIOException::class)
     actual open fun flush() {}
+    @Throws(PlatformIOException::class)
     actual open fun close() {}
 }
 
