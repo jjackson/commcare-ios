@@ -10,7 +10,6 @@ import org.javarosa.core.model.utils.PolygonUtils
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.Arrays
 
 /**
  * XPath function "is-point-inside-polygon()" determines whether a geographic point lies inside
@@ -43,7 +42,7 @@ open class XPathIsPointInsidePolygonFunc : XPathFuncExpr {
             }
             try {
                 val coordinates = inputPolygon.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                val polygon: List<GlobalCoordinates> = PolygonUtils.createPolygon(Arrays.asList(*coordinates))
+                val polygon: List<GlobalCoordinates> = PolygonUtils.createPolygon(coordinates.toList())
                 val pointData = GeoPointData().cast(UncastData(inputPoint))
                 GeoPointUtils.validateCoordinates(pointData.getLatitude(), pointData.getLongitude())
                 val pointCoordinates = GlobalCoordinates(pointData.getLatitude(), pointData.getLongitude())

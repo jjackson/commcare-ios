@@ -35,7 +35,7 @@ import org.javarosa.xpath.analysis.XPathAnalyzer
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.text.MessageFormat
+import org.javarosa.core.util.formatMessage
 
 class XPathPathExpr : XPathExpression {
     private var templatePathChecked = false
@@ -193,9 +193,9 @@ class XPathPathExpr : XPathExpression {
                     throw XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by ${ref.toString(true)} has not been loaded")
                 }
             } else {
-                val args = arrayOf<Any?>(ref.getInstanceName(), ref.toString(true), evalContext.contextRef)
-                val msg = MessageFormat("The instance \"{0}\" in expression \"{1}\" used by \"{2}\" does not exist in the form. Please correct your form or application.")
-                throw XPathMissingInstanceException(ref.getInstanceName(), msg.format(args))
+                throw XPathMissingInstanceException(ref.getInstanceName(), formatMessage(
+                    "The instance \"{0}\" in expression \"{1}\" used by \"{2}\" does not exist in the form. Please correct your form or application.",
+                    ref.getInstanceName(), ref.toString(true), evalContext.contextRef))
             }
         } else {
             //TODO: We should really stop passing 'm' around and start just getting the right instance from ec

@@ -3,7 +3,6 @@ package org.javarosa.xpath.expr
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.DataInstance
 import org.javarosa.xpath.parser.XPathSyntaxException
-import java.util.LinkedHashSet
 
 /**
  * Implements distinct-values against a nodeset input.
