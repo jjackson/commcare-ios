@@ -9,6 +9,8 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
+import kotlin.math.floor
+
 /**
  * A response to a question requesting an GeoPoint Value.
  *
@@ -109,7 +111,7 @@ class GeoPointData : IAnswerData {
 
         var i = 0
         for (s in choices) {
-            val d = java.lang.Double.parseDouble(s)
+            val d = s.toDouble()
             ret[i] = d
             ++i
         }
@@ -132,8 +134,8 @@ class GeoPointData : IAnswerData {
          * @param numberOfDecimals number of decimals that should present in result
          */
         private fun roundDecimalUp(x: Double, numberOfDecimals: Int): Double {
-            val factor = java.lang.Double.parseDouble("1e$numberOfDecimals").toInt()
-            return Math.floor(x * factor) / factor
+            val factor = "1e$numberOfDecimals".toDouble().toInt()
+            return floor(x * factor) / factor
         }
     }
 }

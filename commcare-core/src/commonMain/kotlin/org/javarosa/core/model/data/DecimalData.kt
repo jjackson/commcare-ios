@@ -9,12 +9,12 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
- * A response to a question requesting an Long Numeric Value
+ * A response to a question requesting an Decimal Value. Adapted from IntegerData
  *
- * @author Clayton Sims
+ * @author Brian DeRenzi
  */
-class LongData : IAnswerData {
-    private var n: Long = 0
+class DecimalData : IAnswerData {
+    private var d: Double = 0.0
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -22,52 +22,52 @@ class LongData : IAnswerData {
      */
     constructor()
 
-    constructor(n: Long) {
-        this.n = n
+    constructor(d: Double) {
+        this.d = d
     }
 
-    constructor(n: Long?) {
-        setValue(n)
+    constructor(d: Double?) {
+        setValue(d)
     }
 
     override fun clone(): IAnswerData {
-        return LongData(n)
+        return DecimalData(d)
     }
 
     override fun getDisplayText(): String {
-        return n.toString()
+        return d.toString()
     }
 
     override fun getValue(): Any {
-        return n
+        return d
     }
 
     override fun setValue(o: Any?) {
         if (o == null) {
             throw NullPointerException("Attempt to set an IAnswerData class to null.")
         }
-        n = o as Long
+        d = o as Double
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        n = ExtUtil.readNumeric(`in`)
+        d = ExtUtil.readDecimal(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, n)
+        ExtUtil.writeDecimal(out, d)
     }
 
     override fun uncast(): UncastData {
-        return UncastData(java.lang.Long.valueOf(n).toString())
+        return UncastData(getValue().toString())
     }
 
-    override fun cast(data: UncastData): LongData {
+    override fun cast(data: UncastData): DecimalData {
         try {
-            return LongData(java.lang.Long.parseLong(data.value))
+            return DecimalData(data.value!!.toDouble())
         } catch (nfe: NumberFormatException) {
-            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Long")
+            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal")
         }
     }
 }

@@ -22,7 +22,6 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 class UncastData : IAnswerData {
-    @JvmField
     var value: String? = null
 
     constructor()

@@ -1,5 +1,6 @@
 package org.javarosa.core.model.data
 
+import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
@@ -9,12 +10,12 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
- * A response to a question requesting an Decimal Value. Adapted from IntegerData
+ * A response to a question requesting an Integer Value
  *
- * @author Brian DeRenzi
+ * @author Clayton Sims
  */
-class DecimalData : IAnswerData {
-    private var d: Double = 0.0
+class IntegerData : IAnswerData {
+    private var n: Int = 0
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -22,52 +23,52 @@ class DecimalData : IAnswerData {
      */
     constructor()
 
-    constructor(d: Double) {
-        this.d = d
+    constructor(n: Int) {
+        this.n = n
     }
 
-    constructor(d: Double?) {
-        setValue(d)
+    constructor(n: Int?) {
+        setValue(n)
     }
 
     override fun clone(): IAnswerData {
-        return DecimalData(d)
+        return IntegerData(n)
     }
 
     override fun getDisplayText(): String {
-        return d.toString()
+        return n.toString()
     }
 
     override fun getValue(): Any {
-        return java.lang.Double.valueOf(d)
+        return DataUtil.integer(n)
     }
 
     override fun setValue(o: Any?) {
         if (o == null) {
             throw NullPointerException("Attempt to set an IAnswerData class to null.")
         }
-        d = o as Double
+        n = o as Int
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        d = ExtUtil.readDecimal(`in`)
+        n = ExtUtil.readInt(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeDecimal(out, d)
+        ExtUtil.writeNumeric(out, n.toLong())
     }
 
     override fun uncast(): UncastData {
-        return UncastData(getValue().toString())
+        return UncastData(DataUtil.integer(n).toString())
     }
 
-    override fun cast(data: UncastData): DecimalData {
+    override fun cast(data: UncastData): IntegerData {
         try {
-            return DecimalData(java.lang.Double.parseDouble(data.value))
+            return IntegerData(data.value!!.toInt())
         } catch (nfe: NumberFormatException) {
-            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal")
+            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Integer")
         }
     }
 }

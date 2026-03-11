@@ -1,6 +1,5 @@
 package org.javarosa.core.model.data
 
-import org.javarosa.core.util.DataUtil
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
 import org.javarosa.core.util.externalizable.PrototypeFactory
@@ -10,12 +9,12 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 
 /**
- * A response to a question requesting an Integer Value
+ * A response to a question requesting an Long Numeric Value
  *
  * @author Clayton Sims
  */
-class IntegerData : IAnswerData {
-    private var n: Int = 0
+class LongData : IAnswerData {
+    private var n: Long = 0
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -23,16 +22,16 @@ class IntegerData : IAnswerData {
      */
     constructor()
 
-    constructor(n: Int) {
+    constructor(n: Long) {
         this.n = n
     }
 
-    constructor(n: Int?) {
+    constructor(n: Long?) {
         setValue(n)
     }
 
     override fun clone(): IAnswerData {
-        return IntegerData(n)
+        return LongData(n)
     }
 
     override fun getDisplayText(): String {
@@ -40,35 +39,35 @@ class IntegerData : IAnswerData {
     }
 
     override fun getValue(): Any {
-        return DataUtil.integer(n)
+        return n
     }
 
     override fun setValue(o: Any?) {
         if (o == null) {
             throw NullPointerException("Attempt to set an IAnswerData class to null.")
         }
-        n = o as Int
+        n = o as Long
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        n = ExtUtil.readInt(`in`)
+        n = ExtUtil.readNumeric(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.writeNumeric(out, n.toLong())
+        ExtUtil.writeNumeric(out, n)
     }
 
     override fun uncast(): UncastData {
-        return UncastData(DataUtil.integer(n).toString())
+        return UncastData(n.toString())
     }
 
-    override fun cast(data: UncastData): IntegerData {
+    override fun cast(data: UncastData): LongData {
         try {
-            return IntegerData(Integer.parseInt(data.value))
+            return LongData(data.value!!.toLong())
         } catch (nfe: NumberFormatException) {
-            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Integer")
+            throw IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Long")
         }
     }
 }
