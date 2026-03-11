@@ -2,7 +2,6 @@ package org.javarosa.core.util
 
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.ExtUtil
-import org.javarosa.core.util.externalizable.ExtWrapList
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 
@@ -97,12 +96,18 @@ class SortedIntSet : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        @Suppress("UNCHECKED_CAST")
-        v = ExtUtil.read(`in`, ExtWrapList(Integer::class.java), pf) as ArrayList<Int>
+        val size = ExtUtil.readNumeric(`in`).toInt()
+        v = ArrayList(size)
+        for (i in 0 until size) {
+            v.add(ExtUtil.readNumeric(`in`).toInt())
+        }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        ExtUtil.write(out, ExtWrapList(v))
+        ExtUtil.writeNumeric(out, v.size.toLong())
+        for (n in v) {
+            ExtUtil.writeNumeric(out, n.toLong())
+        }
     }
 }

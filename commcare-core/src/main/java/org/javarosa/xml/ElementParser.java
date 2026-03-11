@@ -59,7 +59,7 @@ public abstract class ElementParser<T> {
         try {
             return PlatformXmlParserJvmKt.createXmlParser(stream, "UTF-8");
         } catch (Exception e) {
-            Logger.exception("Element Parser", e);
+            Logger.INSTANCE.exception("Element Parser", e);
             throw new IOException(e.getMessage());
         }
     }

@@ -151,7 +151,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     }
 
     private void deal(Exception e, String parentTag) throws XmlPullParserException, IOException {
-        errors.add(WrappedException.printException(e));
+        errors.add(WrappedException.Companion.printException(e));
         this.skipBlock(parentTag);
 
         if (failfast) {

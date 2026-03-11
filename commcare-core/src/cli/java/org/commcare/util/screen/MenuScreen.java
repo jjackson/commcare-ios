@@ -77,12 +77,12 @@ public class MenuScreen extends Screen {
 
         @Override
         public void logError(String message, Exception cause) {
-            Logger.exception(message, cause);
+            Logger.INSTANCE.exception(message, cause);
         }
 
         @Override
         public void logError(String message) {
-            Logger.log("exception", message);
+            Logger.INSTANCE.log("exception", message);
         }
     }
 
