@@ -30,8 +30,8 @@ open class XPathSleepFunc : XPathFuncExpr, VolatileXPathFuncExpr {
         val millis = FunctionUtils.toInt(evaluatedArgs[0]).toInt()
 
         try {
-            Thread.sleep(millis.toLong())
-        } catch (e: InterruptedException) {
+            org.javarosa.core.util.PlatformThread.sleep(millis.toLong())
+        } catch (e: Exception) {
             throw RequestAbandonedException()
         }
         return evaluatedArgs[1]!!

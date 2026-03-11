@@ -43,7 +43,7 @@ class DetailGroupParser(parser: PlatformXmlParser) : CommCareElementParser<Detai
         }
         val headerRows: Int
         try {
-            headerRows = Integer.parseInt(headerRowsStr)
+            headerRows = headerRowsStr.toInt()
         } catch (e: NumberFormatException) {
             throw InvalidStructureException(
                 "non integer value for header-rows $headerRowsStr. ${e.message}", parser

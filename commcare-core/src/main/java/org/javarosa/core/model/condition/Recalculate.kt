@@ -111,7 +111,7 @@ class Recalculate : Triggerable {
                 val l = d.toLong()
                 val isIntegral = abs(d - l) < 1.0e-9
                 if (Constants.DATATYPE_INTEGER == dataType ||
-                    (isIntegral && Integer.MAX_VALUE >= l && Integer.MIN_VALUE <= l)) {
+                    (isIntegral && Int.MAX_VALUE >= l && Int.MIN_VALUE <= l)) {
                     return IntegerData(d.toInt())
                 } else if (Constants.DATATYPE_LONG == dataType || isIntegral) {
                     return LongData(d.toLong())

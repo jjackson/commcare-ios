@@ -82,14 +82,14 @@ open class XPathChecksumFunc : XPathFuncExpr {
             for (i in inputList.indices) {
                 val charAsNum: Int
                 try {
-                    charAsNum = Integer.parseInt(inputList[i].toString())
+                    charAsNum = inputList[i].toString().toInt()
                 } catch (e: NumberFormatException) {
                     throw XPathUnsupportedException("Illegal character '${inputList[i]}' in input for Xpath function checksum()")
                 }
                 check = op[check][p[(i + 1) % 8][charAsNum]]
             }
 
-            return Integer.toString(inv[check])
+            return inv[check].toString()
         }
     }
 }

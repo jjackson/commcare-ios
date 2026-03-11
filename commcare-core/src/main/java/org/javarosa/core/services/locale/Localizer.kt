@@ -527,7 +527,7 @@ class Localizer @JvmOverloads constructor(
             if (start != -1 && end != -1) {
                 val value = text.substring(start + "\${".length, end)
                 try {
-                    val index = Integer.parseInt(value)
+                    val index = value.toInt()
                     if (index >= 0 && index < args.size) {
                         return index
                     }

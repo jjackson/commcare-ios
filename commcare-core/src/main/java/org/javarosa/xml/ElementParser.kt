@@ -175,7 +175,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
             )
         }
         try {
-            return Integer.parseInt(value)
+            return value.toInt()
         } catch (nfe: NumberFormatException) {
             throw InvalidStructureException.readableInvalidStructureException(
                 "Expected an integer value, found \"$value\" instead", parser

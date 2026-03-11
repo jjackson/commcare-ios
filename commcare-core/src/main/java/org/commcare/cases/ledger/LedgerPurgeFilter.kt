@@ -24,7 +24,7 @@ class LedgerPurgeFilter(
             try {
                 caseStorage.getRecordForValue(Case.INDEX_CASE_ID, s.getEntiyId() as Any)
             } catch (nsee: NoSuchElementException) {
-                idsToRemove.add(Integer.valueOf(s.getID()))
+                idsToRemove.add(s.getID())
             }
         }
     }

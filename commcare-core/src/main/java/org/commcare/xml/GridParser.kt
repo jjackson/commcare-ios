@@ -21,16 +21,16 @@ class GridParser(
     override fun parse(): Int {
         checkNode("grid")
         val gridx = parser.getAttributeValue(null, "grid-x")
-        builder.setGridX(Integer.parseInt(gridx))
+        builder.setGridX(gridx!!.toInt())
 
         val gridy = parser.getAttributeValue(null, "grid-y")
-        builder.setGridY(Integer.parseInt(gridy))
+        builder.setGridY(gridy!!.toInt())
 
         val gridw = parser.getAttributeValue(null, "grid-width")
-        builder.setGridWidth(Integer.parseInt(gridw))
+        builder.setGridWidth(gridw!!.toInt())
 
         val gridh = parser.getAttributeValue(null, "grid-height")
-        builder.setGridHeight(Integer.parseInt(gridh))
+        builder.setGridHeight(gridh!!.toInt())
 
         //exit grid block
         parser.nextTag()

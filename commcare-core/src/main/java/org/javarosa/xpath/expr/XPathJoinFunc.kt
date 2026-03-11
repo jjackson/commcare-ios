@@ -46,7 +46,7 @@ open class XPathJoinFunc : XPathFuncExpr {
          */
         fun join(oSep: Any?, argVals: Array<Any?>): String {
             val sep = FunctionUtils.toString(oSep)
-            val sb = StringBuffer()
+            val sb = StringBuilder()
 
             for (i in argVals.indices) {
                 sb.append(FunctionUtils.toString(argVals[i]))

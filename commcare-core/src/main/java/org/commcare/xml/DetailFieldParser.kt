@@ -159,7 +159,7 @@ class DetailFieldParser(
         val order = parser.getAttributeValue(null, "order")
         if (order != null && "" != order) {
             try {
-                builder.setSortOrder(Integer.parseInt(order))
+                builder.setSortOrder(order.toInt())
             } catch (nfe: NumberFormatException) {
                 //see above comment
             }

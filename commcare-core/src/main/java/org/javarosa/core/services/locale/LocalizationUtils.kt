@@ -79,7 +79,7 @@ object LocalizationUtils {
     private fun replace(str: String, pattern: String, replace: String): String {
         var s = 0
         var e: Int
-        val result = StringBuffer()
+        val result = StringBuilder()
 
         while (str.indexOf(pattern, s).also { e = it } >= 0) {
             result.append(str.substring(s, e))

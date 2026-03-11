@@ -390,10 +390,10 @@ class ExtUtil {
 
         @JvmStatic
         fun printBytes(data: ByteArray): String {
-            val sb = StringBuffer()
+            val sb = StringBuilder()
             sb.append("[")
             for (i in data.indices) {
-                var hex = Integer.toHexString(data[i].toInt())
+                var hex = data[i].toInt().toString(16)
                 if (hex.length == 1)
                     hex = "0$hex"
                 else

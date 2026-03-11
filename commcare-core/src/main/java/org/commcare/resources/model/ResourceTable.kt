@@ -825,7 +825,7 @@ open class ResourceTable {
      * table.
      */
     override fun toString(): String {
-        val resourceDetails = StringBuffer()
+        val resourceDetails = StringBuilder()
         var maxLength = 0
         val it = storage!!.iterate()
         while (it.hasMore()) {
@@ -839,7 +839,7 @@ open class ResourceTable {
             }
         }
 
-        val header = StringBuffer()
+        val header = StringBuilder()
         for (i in 0 until maxLength) {
             header.append("-")
         }

@@ -82,7 +82,7 @@ open class SuiteParser : ElementParser<Suite> {
         checkNode("suite")
 
         val sVersion = parser.getAttributeValue(null, "version")
-        val version = Integer.parseInt(sVersion)
+        val version = sVersion!!.toInt()
         val details = HashMap<String, Detail>()
         val entries = HashMap<String, Entry>()
 

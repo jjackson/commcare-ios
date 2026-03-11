@@ -175,7 +175,7 @@ class Graph : Externalizable, DetailTemplate, Configurable {
                 val eExpanded = expandedConfiguration.keys.iterator()
                 while (eExpanded.hasNext()) {
                     val key = eExpanded.next() as String
-                    val json = StringBuffer()
+                    val json = StringBuilder()
                     for (pointValue in expandedConfiguration[key]!!) {
                         json.append(",'")
                         json.append(pointValue)

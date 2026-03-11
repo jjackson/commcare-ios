@@ -701,13 +701,13 @@ class XFormParser {
          */
         @JvmStatic
         fun getXMLText(node: Node, startIndex: Int, trim: Boolean): String? {
-            var strBuff: StringBuffer? = null
+            var strBuff: StringBuilder? = null
 
             var text: String? = node.getText(startIndex) ?: return null
 
             var i = startIndex + 1
             while (i < node.childCount && node.getType(i) == Node.TEXT) {
-                if (strBuff == null) strBuff = StringBuffer(text)
+                if (strBuff == null) strBuff = StringBuilder(text)
                 strBuff.append(node.getText(i))
                 i++
             }
@@ -1562,7 +1562,7 @@ class XFormParser {
 
         recurseForOutput(e)
 
-        val sb = StringBuffer()
+        val sb = StringBuilder()
         for (i in 0 until e.childCount) {
             if (e.getType(i) != Node.TEXT && e.getChild(i) !is String) {
                 val b = e.getChild(i)

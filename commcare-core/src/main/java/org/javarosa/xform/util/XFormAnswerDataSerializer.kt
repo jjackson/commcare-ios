@@ -125,7 +125,7 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
         @Suppress("UNCHECKED_CAST")
         val selections = data.getValue() as ArrayList<Selection>
         val en = selections.iterator()
-        val selectString = StringBuffer()
+        val selectString = StringBuilder()
 
         while (en.hasNext()) {
             val selection = en.next()

@@ -4,6 +4,8 @@ import org.gavaghan.geodesy.Ellipsoid
 import org.gavaghan.geodesy.GeodeticCalculator
 import org.gavaghan.geodesy.GlobalCoordinates
 import kotlin.jvm.JvmStatic
+import kotlin.math.PI
+import kotlin.math.cos
 
 /**
  * Utility class for creating, validating, and interacting with geographic polygons
@@ -102,8 +104,8 @@ object PolygonUtils {
         val azimuthAP = ap.azimuth
         val distanceAP = ap.ellipsoidalDistance
 
-        val angleDiff = Math.toRadians(azimuthAP - azimuthAB)
-        val projection = distanceAP * Math.cos(angleDiff)
+        val angleDiff = (azimuthAP - azimuthAB) * (PI / 180.0)
+        val projection = distanceAP * cos(angleDiff)
 
         if (projection <= 0) return a
         if (projection >= totalLength) return b

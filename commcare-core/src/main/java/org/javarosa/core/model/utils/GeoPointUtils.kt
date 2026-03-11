@@ -4,7 +4,10 @@ import org.gavaghan.geodesy.GlobalCoordinates
 import org.javarosa.core.model.data.GeoPointData
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
+import kotlin.math.PI
 import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -27,10 +30,10 @@ object GeoPointUtils {
     @JvmStatic
     fun computeDistanceBetween(from: GeoPointData, to: GeoPointData): Double {
         return EARTH_RADIUS * distanceRadians(
-            Math.toRadians(from.getLatitude()),
-            Math.toRadians(from.getLongitude()),
-            Math.toRadians(to.getLatitude()),
-            Math.toRadians(to.getLongitude())
+            from.getLatitude() * (PI / 180.0),
+            from.getLongitude() * (PI / 180.0),
+            to.getLatitude() * (PI / 180.0),
+            to.getLongitude() * (PI / 180.0)
         )
     }
 
@@ -46,7 +49,7 @@ object GeoPointUtils {
      * hav(x) == (1 - cos(x)) / 2 == sin(x / 2)^2.
      */
     private fun hav(x: Double): Double {
-        val sinHalf = Math.sin(x * 0.5)
+        val sinHalf = sin(x * 0.5)
         return sinHalf * sinHalf
     }
 
@@ -63,7 +66,7 @@ object GeoPointUtils {
      * Returns hav() of distance from (lat1, lng1) to (lat2, lng2) on the unit sphere.
      */
     private fun havDistance(lat1: Double, lat2: Double, dLng: Double): Double {
-        return hav(lat1 - lat2) + hav(dLng) * Math.cos(lat1) * Math.cos(lat2)
+        return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2)
     }
 
     /**
