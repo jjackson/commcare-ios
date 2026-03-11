@@ -1,5 +1,6 @@
 package org.javarosa.xml.util
 
+import kotlin.jvm.JvmStatic
 import org.javarosa.xml.PlatformXmlParser
 
 /**

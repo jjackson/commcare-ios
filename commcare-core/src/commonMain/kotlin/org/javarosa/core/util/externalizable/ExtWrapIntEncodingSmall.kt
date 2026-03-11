@@ -31,7 +31,7 @@ class ExtWrapIntEncodingSmall : ExtWrapIntEncoding {
         return ExtWrapIntEncodingSmall(numericToLong(`val`!!), bias)
     }
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val b = `in`.readByte()
         val l: Long

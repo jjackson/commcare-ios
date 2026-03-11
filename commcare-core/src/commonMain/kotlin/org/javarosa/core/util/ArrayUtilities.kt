@@ -1,5 +1,6 @@
 package org.javarosa.core.util
 
+import kotlin.jvm.JvmStatic
 
 /**
  * @author Clayton Sims

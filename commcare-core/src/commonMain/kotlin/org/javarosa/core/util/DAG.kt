@@ -1,7 +1,6 @@
 package org.javarosa.core.util
 
-import java.util.HashSet
-import java.util.LinkedList
+import kotlin.jvm.JvmField
 
 /**
  * Directed A-cyclic (NOT ENFORCED) graph datatype.
@@ -145,9 +144,9 @@ class DAG<I, N, E> {
      */
     fun findConnectedRecords(sourceNodes: Set<I>): Set<I> {
         val visited = HashSet<I>()
-        val queue = LinkedList(sourceNodes)
+        val queue = ArrayDeque(sourceNodes)
         while (!queue.isEmpty()) {
-            val current = queue.poll()
+            val current = queue.removeFirst()
             if (visited.contains(current)) {
                 continue
             }
@@ -162,7 +161,7 @@ class DAG<I, N, E> {
     private fun enqueueUnvisitedNeighbors(
         edges: HashMap<I, ArrayList<Edge<I, E>>>,
         current: I,
-        queue: LinkedList<I>,
+        queue: ArrayDeque<I>,
         visited: Set<I>
     ) {
         if (edges.containsKey(current)) {
