@@ -324,16 +324,10 @@ actual object SerializationHelpers {
     }
 
     actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
-        var totalEntries = 0
-        for ((_, values) in map.entries) {
-            totalEntries += (values as List<*>).size
-        }
-        writeNumeric(out, totalEntries.toLong())
-        for ((key, values) in map.entries) {
-            for (value in values as List<*>) {
-                write(out, key!!)
-                writeTagged(out, value!!)
-            }
+        writeNumeric(out, map.size().toLong())
+        map.forEach { key, value ->
+            write(out, key!!)
+            writeTagged(out, value!!)
         }
     }
 
