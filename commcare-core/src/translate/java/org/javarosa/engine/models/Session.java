@@ -15,7 +15,7 @@ public class Session {
     final ArrayList<Step> steps;
 
     public Session() {
-        uuid = PropertyUtils.genUUID();
+        uuid = PropertyUtils.INSTANCE.genUUID();
         steps = new ArrayList();
     }
 

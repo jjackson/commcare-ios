@@ -104,7 +104,7 @@ public class ProfileTests {
     }
 
     private void compareProfiles(Profile a, Profile b) {
-        if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
+        if(!ArrayUtilities.INSTANCE.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
             fail("Mismatch of property setters between profiles");
         }
 

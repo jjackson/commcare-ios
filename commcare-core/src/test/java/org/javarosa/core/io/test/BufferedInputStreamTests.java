@@ -48,7 +48,7 @@ public class BufferedInputStreamTests {
                 }
 
 
-                if (!ArrayUtilities.arraysEqual(bytes, baos.toByteArray())) {
+                if (!ArrayUtilities.INSTANCE.arraysEqual(bytes, baos.toByteArray())) {
                     fail("Bulk BufferedInputStream read failed at size " + bytes.length);
                 }
             } catch (Exception e) {
