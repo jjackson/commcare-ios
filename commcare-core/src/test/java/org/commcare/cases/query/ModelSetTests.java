@@ -16,10 +16,10 @@ public class ModelSetTests {
     @Test
     public void testCaseParentMatch() throws Exception {
         TreeReference caseRootRef =
-                ((XPathPathExpr)XPathParseTool.parseXPath("instance('casedb')/casedb/case")).getReference();
+                ((XPathPathExpr)XPathParseTool.INSTANCE.parseXPath("instance('casedb')/casedb/case")).getReference();
 
         TreeReference querySetOptimizedLookup =
-                ((XPathPathExpr)XPathParseTool.parseXPath("instance('casedb')/casedb/case[@case_id = current()/index/host]/value")).getReference();
+                ((XPathPathExpr)XPathParseTool.INSTANCE.parseXPath("instance('casedb')/casedb/case[@case_id = current()/index/host]/value")).getReference();
 
         Assert.assertTrue("Parent Reference isn't identified", caseRootRef.isParentOf(querySetOptimizedLookup, false));
     }

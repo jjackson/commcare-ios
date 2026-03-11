@@ -15,7 +15,7 @@ public class JsonUtilsTest {
         for (int i = 0; i < count; i++) {
             jsonArray.put("item_" + i);
         }
-        String[] stringArray = JsonUtils.toArray(jsonArray);
+        String[] stringArray = JsonUtils.INSTANCE.toArray(jsonArray);
         assertTrue(stringArray.length == 3);
         assertTrue(stringArray[0].contentEquals("item_0"));
         assertTrue(stringArray[1].contentEquals("item_1"));

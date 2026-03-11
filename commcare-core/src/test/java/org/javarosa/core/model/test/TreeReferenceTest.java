@@ -56,7 +56,7 @@ public class TreeReferenceTest {
 
     @Before
     public void initStuff() {
-        root = TreeReference.rootRef();
+        root = TreeReference.Companion.rootRef();
         aRef = root.extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         bRef = root.extendRef("b", TreeReference.DEFAULT_MUTLIPLICITY);
         acRef = aRef.extendRef("c", TreeReference.DEFAULT_MUTLIPLICITY);
@@ -69,7 +69,7 @@ public class TreeReferenceTest {
         ac2Ref = XPathReference.getPathExpr("/a/c").getReference();
         abRef = XPathReference.getPathExpr("/a/b").getReference();
 
-        dotRef = TreeReference.selfRef();
+        dotRef = TreeReference.Companion.selfRef();
         dotcRef = dotRef.extendRef("c", TreeReference.DEFAULT_MUTLIPLICITY);
 
         // setup /a[2]/a[3]/a[4] reference
@@ -86,7 +86,7 @@ public class TreeReferenceTest {
         back2c = XPathReference.getPathExpr("../../c").getReference();
 
         // represent ../
-        parentRef = TreeReference.selfRef();
+        parentRef = TreeReference.Companion.selfRef();
         parentRef.incrementRefLevel();
 
         a2Ref = root.extendRef("a", 2);
@@ -101,9 +101,9 @@ public class TreeReferenceTest {
         XPathExpression failPred = null;
         XPathExpression passPred = null;
         try {
-            testPred = XPathParseTool.parseXPath("../b = 'test'");
-            failPred = XPathParseTool.parseXPath("../b = 'fail'");
-            passPred = XPathParseTool.parseXPath("true() = true()");
+            testPred = XPathParseTool.INSTANCE.parseXPath("../b = 'test'");
+            failPred = XPathParseTool.INSTANCE.parseXPath("../b = 'fail'");
+            passPred = XPathParseTool.INSTANCE.parseXPath("true() = true()");
         } catch (XPathSyntaxException e) {
             fail("Bad tests! Rewrite xpath expressions for predicate tests");
         }
@@ -442,7 +442,7 @@ public class TreeReferenceTest {
     public void testRelativeGeneration() {
         Assert.assertEquals("/a/b/c.relative(2)->./c", floatc2,abcRef.getRelativeReferenceAfter(abRef.size()));
         Assert.assertEquals("/a/b/c.relative(1)->.b/c", floatbc,abcRef.getRelativeReferenceAfter(aRef.size()));
-        Assert.assertEquals("/a/b/c.relative(0)->/a/b/c", abcRef,abcRef.getRelativeReferenceAfter(TreeReference.selfRef().size()));
+        Assert.assertEquals("/a/b/c.relative(0)->/a/b/c", abcRef,abcRef.getRelativeReferenceAfter(TreeReference.Companion.selfRef().size()));
 
         Assert.assertEquals("predicates not retained with relative generation", fPredRef,dfPredRef.getRelativeReferenceAfter(1));
         Assert.assertNotEquals("f[preds] should not equal f after relative generaiton", fNoPredRef, dfPredRef.getRelativeReferenceAfter(1));

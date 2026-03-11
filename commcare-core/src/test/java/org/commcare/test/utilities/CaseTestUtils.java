@@ -28,8 +28,8 @@ public class CaseTestUtils {
                                               Object expectedOutput)
             throws XPathSyntaxException {
         XPathExpression expr;
-        expr = XPathParseTool.parseXPath(input);
-        Object output = FunctionUtils.unpack(expr.eval(evalContext));
+        expr = XPathParseTool.INSTANCE.parseXPath(input);
+        Object output = FunctionUtils.Companion.unpack(expr.eval(evalContext));
         return expectedOutput.equals(output);
     }
 
@@ -38,16 +38,16 @@ public class CaseTestUtils {
                                           Object expectedOutput)
             throws XPathSyntaxException {
         XPathExpression expr;
-        expr = XPathParseTool.parseXPath(input);
-        Object output = FunctionUtils.unpack(expr.eval(evalContext));
+        expr = XPathParseTool.INSTANCE.parseXPath(input);
+        Object output = FunctionUtils.Companion.unpack(expr.eval(evalContext));
         Assert.assertEquals("XPath: " + input, expectedOutput, output);
     }
 
     public static Object xpathEval(EvaluationContext evalContext,
                                    String input)
             throws XPathSyntaxException {
-        XPathExpression expr = XPathParseTool.parseXPath(input);
-        return FunctionUtils.unpack(expr.eval(evalContext));
+        XPathExpression expr = XPathParseTool.INSTANCE.parseXPath(input);
+        return FunctionUtils.Companion.unpack(expr.eval(evalContext));
     }
 
 

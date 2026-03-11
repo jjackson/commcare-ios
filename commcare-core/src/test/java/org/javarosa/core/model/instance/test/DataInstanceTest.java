@@ -30,7 +30,7 @@ public class DataInstanceTest {
         // load the xml doc into a form instance
         FormInstance model = null;
         try {
-            model = InstanceUtils.loadFormInstance(formPath);
+            model = InstanceUtils.INSTANCE.loadFormInstance(formPath);
         } catch (IOException e) {
             fail("Unable to load form at " + formPath);
         } catch (InvalidStructureException e) {
@@ -63,7 +63,7 @@ public class DataInstanceTest {
     public TreeReference exprToRef(String expr, EvaluationContext eval_ctx) {
         XPathPathExpr xpe = null;
         try {
-            xpe = (XPathPathExpr)XPathParseTool.parseXPath(expr);
+            xpe = (XPathPathExpr)XPathParseTool.INSTANCE.parseXPath(expr);
         } catch (XPathSyntaxException xpse) {
         }
 

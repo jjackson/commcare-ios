@@ -140,7 +140,7 @@ public class FunctionExtensions {
         public Object eval(Object[] args, EvaluationContext ec) {
             String functionName = (String)args[0];
 
-            kotlin.jvm.functions.Function0 functionFactory = FunctionUtils.getXPathFuncListMap().get(functionName);
+            kotlin.jvm.functions.Function0 functionFactory = FunctionUtils.Companion.getXPathFuncListMap().get(functionName);
             if (functionFactory == null) {
                 return "Function '" + functionName + "' doesn't exist";
             }
@@ -190,7 +190,7 @@ public class FunctionExtensions {
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             StringBuilder builder = new StringBuilder();
-            List<String> sortedFunctionNames = FunctionUtils.xPathFuncList();
+            List<String> sortedFunctionNames = FunctionUtils.Companion.xPathFuncList();
             Collections.sort(sortedFunctionNames);
             for (String funcName : sortedFunctionNames) {
                 builder.append(funcName).append("\n");

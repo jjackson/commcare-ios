@@ -26,7 +26,7 @@ public class XmlSerializerTests {
     public void testParseXmlWithNonBMPCharacters() {
         FormInstance model = null;
         try {
-            model = InstanceUtils.loadFormInstance(formPath);
+            model = InstanceUtils.INSTANCE.loadFormInstance(formPath);
             // Serialize the xml containing special characters.
             IDataPayload payload = new XFormSerializingVisitor().createSerializedPayload(model);
             assertTrue(payload instanceof ByteArrayPayload);

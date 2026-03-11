@@ -180,7 +180,7 @@ public class XPathFuncExprTest {
     private static void assertParseFailure(String exprString) {
         boolean didParseFail = false;
         try {
-            XPathParseTool.parseXPath(exprString);
+            XPathParseTool.INSTANCE.parseXPath(exprString);
         } catch (XPathSyntaxException xpse) {
             didParseFail = true;
         }
@@ -199,7 +199,7 @@ public class XPathFuncExprTest {
         // exclude functions defined at runtime
         funcClasses.remove(XPathCustomRuntimeFunc.class);
 
-        HashMap<String, kotlin.jvm.functions.Function0<XPathFuncExpr>> funcList = FunctionUtils.getXPathFuncListMap();
+        HashMap<String, kotlin.jvm.functions.Function0<XPathFuncExpr>> funcList = FunctionUtils.Companion.getXPathFuncListMap();
 
         // Build set of classes from factory invocations
         Set<Class<?>> registeredClasses = new java.util.HashSet<>();

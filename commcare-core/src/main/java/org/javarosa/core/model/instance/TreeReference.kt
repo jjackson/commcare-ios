@@ -1,7 +1,5 @@
 package org.javarosa.core.model.instance
 
-import kotlin.jvm.JvmStatic
-
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PrototypeFactory
@@ -815,7 +813,6 @@ class TreeReference : Externalizable, XPathAnalyzable {
          *
          * @return a reference that represents a root/'/' path
          */
-        @JvmStatic
         fun rootRef(): TreeReference {
             return TreeReference(null, REF_ABSOLUTE, CONTEXT_ABSOLUTE)
         }
@@ -825,7 +822,6 @@ class TreeReference : Externalizable, XPathAnalyzable {
          *
          * @return a reference that represents a self/'.' path
          */
-        @JvmStatic
         fun selfRef(): TreeReference {
             return TreeReference(null, 0, CONTEXT_INHERITED)
         }

@@ -121,7 +121,7 @@ public class IndexedFixtureTests {
         ScopeLimitedReferenceRequestCache cache = context.getQueryCache(ScopeLimitedReferenceRequestCache.class);
 
         String exprString = "instance('testfixture')/test/entry[@filter_attribute = 'pass'][true() and filter_one = 'pass']/name";
-        XPathExpression expr = XPathParseTool.parseXPath(exprString);
+        XPathExpression expr = XPathParseTool.INSTANCE.parseXPath(exprString);
 
         cache.addTreeReferencesToLimitedScope(new TreeReferenceAccumulatingAnalyzer(ecForTest).accumulate(expr));
 
