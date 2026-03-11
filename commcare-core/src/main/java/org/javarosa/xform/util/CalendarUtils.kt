@@ -6,8 +6,15 @@ import org.commcare.util.LocaleArrayDataSource
 import org.javarosa.core.model.utils.DateUtils
 
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.Calendar
-import java.util.TimeZone
+import org.javarosa.core.model.utils.PlatformCalendar
+import org.javarosa.core.model.utils.PlatformTimeZone
+import org.javarosa.core.model.utils.platformCalendarInstance
+import org.javarosa.core.model.utils.platformDefaultTimeZone
+import org.javarosa.core.model.utils.platformTimeZone
+import org.javarosa.core.model.utils.CALENDAR_HOUR_OF_DAY
+import org.javarosa.core.model.utils.CALENDAR_MINUTE
+import org.javarosa.core.model.utils.CALENDAR_SECOND
+import org.javarosa.core.model.utils.CALENDAR_MILLISECOND
 import kotlin.jvm.JvmStatic
 
 class CalendarUtils {
@@ -344,7 +351,7 @@ class CalendarUtils {
          *                            timezone issues when casting to a calendar date
          */
         @JvmStatic
-        fun fromMillis(millisFromJavaEpoch: Long, currentTimeZone: TimeZone): UniversalDate {
+        fun fromMillis(millisFromJavaEpoch: Long, currentTimeZone: PlatformTimeZone): UniversalDate {
             // Since epoch calculations are relative to UTC, take current timezone
             // into account. This prevents two time values that lie on the same day
             // in the given timezone from falling on different GMT days.
@@ -384,12 +391,12 @@ class CalendarUtils {
 
         @JvmStatic
         fun fromMillis(date: PlatformDate, timezone: String?): UniversalDate {
-            val cd = Calendar.getInstance()
+            val cd = platformCalendarInstance()
             cd.time = date
             if (timezone != null) {
-                cd.timeZone = TimeZone.getTimeZone(timezone)
+                cd.timeZone = platformTimeZone(timezone)
             } else if (DateUtils.timezone() != null) {
-                cd.timeZone = DateUtils.timezone()
+                cd.timeZone = DateUtils.timezone()!!
             }
             val dateInMillis = cd.time.time
             return fromMillis(dateInMillis, cd.timeZone)
@@ -454,11 +461,11 @@ class CalendarUtils {
 
         @JvmStatic
         fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int): Long {
-            return toMillisFromJavaEpoch(year, month, day, TimeZone.getDefault())
+            return toMillisFromJavaEpoch(year, month, day, platformDefaultTimeZone())
         }
 
         @JvmStatic
-        fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int, currentTimeZone: TimeZone): Long {
+        fun toMillisFromJavaEpoch(year: Int, month: Int, day: Int, currentTimeZone: PlatformTimeZone): Long {
             val daysFromMinDay = countDaysFromMinDay(year, month, day)
             val millisFromMinDay = daysFromMinDay.toLong() * UniversalDate.MILLIS_IN_DAY
             val timezoneOffsetFromUTC = currentTimeZone.getOffset(millisFromMinDay)
@@ -477,11 +484,11 @@ class CalendarUtils {
         }
 
         @JvmStatic
-        fun toMidnight(cal: Calendar) {
-            cal.set(Calendar.HOUR_OF_DAY, 0)
-            cal.set(Calendar.MINUTE, 0)
-            cal.set(Calendar.SECOND, 0)
-            cal.set(Calendar.MILLISECOND, 0)
+        fun toMidnight(cal: PlatformCalendar) {
+            cal.set(CALENDAR_HOUR_OF_DAY, 0)
+            cal.set(CALENDAR_MINUTE, 0)
+            cal.set(CALENDAR_SECOND, 0)
+            cal.set(CALENDAR_MILLISECOND, 0)
         }
     }
 }

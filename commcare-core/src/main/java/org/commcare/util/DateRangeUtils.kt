@@ -2,9 +2,9 @@ package org.commcare.util
 
 import org.commcare.modern.util.Pair
 import java.text.ParseException
-import java.text.SimpleDateFormat
 import org.javarosa.core.model.utils.PlatformDate
-import java.util.Locale
+import org.javarosa.core.model.utils.platformFormatPlatformDate
+import org.javarosa.core.model.utils.platformParseDate
 import kotlin.jvm.JvmStatic
 
 object DateRangeUtils {
@@ -26,9 +26,10 @@ object DateRangeUtils {
         if (humanReadableDateRange.contains(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)) {
             val humanReadableDateRangeSplit = humanReadableDateRange.split(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)
             if (humanReadableDateRangeSplit.size == 2) {
-                val sdf = SimpleDateFormat(DATE_FORMAT, Locale.US)
-                val startDate = sdf.parse(humanReadableDateRangeSplit[0])
-                val endDate = sdf.parse(humanReadableDateRangeSplit[1])
+                val startDate = platformParseDate(humanReadableDateRangeSplit[0], DATE_FORMAT)
+                    ?: throw ParseException("Cannot parse start date: ${humanReadableDateRangeSplit[0]}", 0)
+                val endDate = platformParseDate(humanReadableDateRangeSplit[1], DATE_FORMAT)
+                    ?: throw ParseException("Cannot parse end date: ${humanReadableDateRangeSplit[1]}", 0)
                 return Pair(
                     getTimeFromDateOffsettingTz(startDate),
                     getTimeFromDateOffsettingTz(endDate)
@@ -86,6 +87,6 @@ object DateRangeUtils {
     // Converts given time as yyyy-mm-dd
     @JvmStatic
     fun getDateFromTime(time: Long): String {
-        return SimpleDateFormat(DATE_FORMAT, Locale.US).format(PlatformDate(time))
+        return platformFormatPlatformDate(PlatformDate(time), DATE_FORMAT)
     }
 }

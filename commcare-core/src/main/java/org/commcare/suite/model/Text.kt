@@ -20,9 +20,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.util.Calendar
 
 import org.javarosa.core.model.utils.PlatformDate
+import org.javarosa.core.model.utils.platformCalendarInstance
+import org.javarosa.core.model.utils.CALENDAR_DAY_OF_WEEK
 import kotlin.jvm.JvmStatic
 
 /**
@@ -130,9 +131,9 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
 
                     temp.addFunctionHandler(object : IFunctionHandler {
                         override fun eval(args: Array<Any?>?, ec: EvaluationContext?): Any? {
-                            val c = Calendar.getInstance()
+                            val c = platformCalendarInstance()
                             c.time = PlatformDate()
-                            return c.get(Calendar.DAY_OF_WEEK).toString()
+                            return c.get(CALENDAR_DAY_OF_WEEK).toString()
                         }
 
                         override fun getName(): String = "dow"
