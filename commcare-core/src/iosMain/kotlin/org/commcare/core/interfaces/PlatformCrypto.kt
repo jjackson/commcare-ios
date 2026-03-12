@@ -3,13 +3,11 @@
 
 package org.commcare.core.interfaces
 
+import CommonCrypto.*
 import kotlinx.cinterop.*
-import platform.CommonCrypto.*
-import platform.Security.SecRandomCopyBytes
-import platform.Security.kSecRandomDefault
 
 /**
- * iOS cryptography implementation using CommonCrypto and Security frameworks.
+ * iOS cryptography implementation using CommonCrypto via cinterop.
  *
  * AES uses GCM mode via CCCryptorGCMOneshotEncrypt/Decrypt (iOS 13+).
  * Output format matches JVM: IV (12 bytes) + ciphertext + GCM tag (16 bytes).
@@ -17,11 +15,11 @@ import platform.Security.kSecRandomDefault
 actual object PlatformCrypto {
     private const val GCM_IV_LENGTH = 12
     private const val GCM_TAG_LENGTH = 16 // 128 bits
-    private const val SHA256_DIGEST_LENGTH = 32
-    private const val MD5_DIGEST_LENGTH = 16
+    private const val SHA256_LEN = 32 // CC_SHA256_DIGEST_LENGTH
+    private const val MD5_LEN = 16 // CC_MD5_DIGEST_LENGTH
 
     actual fun sha256(data: ByteArray): ByteArray {
-        val result = ByteArray(SHA256_DIGEST_LENGTH)
+        val result = ByteArray(SHA256_LEN)
         if (data.isEmpty()) {
             result.usePinned { pinnedResult ->
                 CC_SHA256(null, 0u, pinnedResult.addressOf(0).reinterpret())
@@ -41,7 +39,7 @@ actual object PlatformCrypto {
     }
 
     actual fun md5(data: ByteArray): ByteArray {
-        val result = ByteArray(MD5_DIGEST_LENGTH)
+        val result = ByteArray(MD5_LEN)
         if (data.isEmpty()) {
             result.usePinned { pinnedResult ->
                 CC_MD5(null, 0u, pinnedResult.addressOf(0).reinterpret())
@@ -64,8 +62,8 @@ actual object PlatformCrypto {
         val bytes = ByteArray(size)
         if (size > 0) {
             bytes.usePinned { pinned ->
-                val status = SecRandomCopyBytes(kSecRandomDefault, size.toULong(), pinned.addressOf(0))
-                check(status == 0) { "SecRandomCopyBytes failed with status $status" }
+                val status = CCRandomGenerateBytes(pinned.addressOf(0), size.toULong())
+                check(status == kCCSuccess) { "CCRandomGenerateBytes failed with status $status" }
             }
         }
         return bytes
@@ -81,7 +79,7 @@ actual object PlatformCrypto {
                 tag.usePinned { pinnedTag ->
                     if (data.isEmpty()) {
                         val status = CCCryptorGCMOneshotEncrypt(
-                            kCCAlgorithmAES,
+                            kCCAlgorithmAES.toUInt(),
                             pinnedKey.addressOf(0),
                             key.size.toULong(),
                             pinnedIv.addressOf(0),
@@ -97,7 +95,7 @@ actual object PlatformCrypto {
                         data.usePinned { pinnedData ->
                             ciphertext.usePinned { pinnedCipher ->
                                 val status = CCCryptorGCMOneshotEncrypt(
-                                    kCCAlgorithmAES,
+                                    kCCAlgorithmAES.toUInt(),
                                     pinnedKey.addressOf(0),
                                     key.size.toULong(),
                                     pinnedIv.addressOf(0),
@@ -136,7 +134,7 @@ actual object PlatformCrypto {
                 tag.usePinned { pinnedTag ->
                     if (ciphertext.isEmpty()) {
                         val status = CCCryptorGCMOneshotDecrypt(
-                            kCCAlgorithmAES,
+                            kCCAlgorithmAES.toUInt(),
                             pinnedKey.addressOf(0),
                             key.size.toULong(),
                             pinnedIv.addressOf(0),
@@ -152,7 +150,7 @@ actual object PlatformCrypto {
                         ciphertext.usePinned { pinnedCipher ->
                             plaintext.usePinned { pinnedPlain ->
                                 val status = CCCryptorGCMOneshotDecrypt(
-                                    kCCAlgorithmAES,
+                                    kCCAlgorithmAES.toUInt(),
                                     pinnedKey.addressOf(0),
                                     key.size.toULong(),
                                     pinnedIv.addressOf(0),

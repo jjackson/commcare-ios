@@ -46,8 +46,15 @@ kotlin {
         }
     }
 
-    // iOS targets — empty for now, code will move to commonMain incrementally
+    // iOS targets
     listOf(iosArm64(), iosSimulatorArm64()).forEach {
+        it.compilations.getByName("main") {
+            cinterops {
+                create("CommonCrypto") {
+                    defFile("src/nativeInterop/cinterop/CommonCrypto.def")
+                }
+            }
+        }
         it.binaries.framework {
             baseName = "CommCareCore"
             isStatic = true
