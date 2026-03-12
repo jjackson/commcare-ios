@@ -34,10 +34,10 @@ class StyleParser(
         builder.setCssID(cssID)
 
         val showBorder = parser.getAttributeValue(null, "show-border")
-        builder.setShowBorder(java.lang.Boolean.parseBoolean(showBorder))
+        builder.setShowBorder(showBorder.toBoolean())
 
         val showShading = parser.getAttributeValue(null, "show-shading")
-        builder.setShowShading(java.lang.Boolean.parseBoolean(showShading))
+        builder.setShowShading(showShading.toBoolean())
 
         parser.nextTag()
 

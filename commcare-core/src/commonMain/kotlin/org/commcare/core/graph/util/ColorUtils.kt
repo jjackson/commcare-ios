@@ -49,7 +49,7 @@ object ColorUtils {
     fun parseColor(colorString: String): Int {
         if (colorString[0] == '#') {
             // Use a long to avoid rollovers on #ffXXXXXX
-            var color = java.lang.Long.parseLong(colorString.substring(1), 16)
+            var color = colorString.substring(1).toLong(16)
             if (colorString.length == 7) {
                 // Set the alpha value
                 color = color or 0x00000000ff000000L

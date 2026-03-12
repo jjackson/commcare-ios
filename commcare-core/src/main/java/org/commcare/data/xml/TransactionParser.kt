@@ -5,7 +5,6 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.Throws
 
 /**
  * @author ctsims

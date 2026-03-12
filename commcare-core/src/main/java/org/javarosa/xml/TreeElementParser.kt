@@ -6,7 +6,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
-import kotlin.jvm.Throws
 
 /**
  * @author ctsims

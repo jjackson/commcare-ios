@@ -50,11 +50,11 @@ class SelectMultiData : IAnswerData {
             }
         }
 
-        vs = ArrayList(o as ArrayList<Selection>)
+        vs = ArrayList<Selection>().also { it.addAll(o as ArrayList<Selection>) }
     }
 
     override fun getValue(): ArrayList<Selection> {
-        return ArrayList(vs)
+        return ArrayList<Selection>().also { vs?.let { src -> it.addAll(src) } }
     }
 
     override fun getDisplayText(): String {

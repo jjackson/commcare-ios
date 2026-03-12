@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
@@ -59,23 +56,6 @@ class ExtWrapList : ExternalizableWrapper {
         this.listFactory = listFactory
         this.listTag = listTag
     }
-
-    /** JVM backward-compatible constructor accepting Class<*>. */
-    constructor(listElementType: Class<*>) : this(listElementType.kotlin)
-
-    /** JVM backward-compatible constructor accepting Class<*> for element and list impl. */
-    constructor(listElementType: Class<*>, listImplementation: Class<*>) : this(
-        listElementType.kotlin,
-        LIST_FACTORIES[listImplementation.name] ?: { ArrayList() },
-        listImplementation.name
-    )
-
-    /** JVM backward-compatible constructor accepting ExternalizableWrapper and Class<*>. */
-    constructor(type: ExternalizableWrapper, listImplementation: Class<*>) : this(
-        type,
-        LIST_FACTORIES[listImplementation.name] ?: { ArrayList() },
-        listImplementation.name
-    )
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
@@ -146,9 +126,8 @@ class ExtWrapList : ExternalizableWrapper {
         private const val ARRAYLIST_TAG = "java.util.ArrayList"
 
         /** Registry of known list implementations by class name. */
-        private val LIST_FACTORIES: HashMap<String, () -> MutableList<Any?>> = HashMap<String, () -> MutableList<Any?>>().apply {
+        internal val LIST_FACTORIES: HashMap<String, () -> MutableList<Any?>> = HashMap<String, () -> MutableList<Any?>>().apply {
             put("java.util.ArrayList", { ArrayList() })
-            put("java.util.LinkedList", { java.util.LinkedList() })
             put("kotlin.collections.ArrayList", { ArrayList() })
         }
     }

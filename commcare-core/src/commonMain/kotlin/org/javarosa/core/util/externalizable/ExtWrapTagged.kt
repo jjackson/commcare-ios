@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
@@ -90,7 +87,7 @@ class ExtWrapTagged : ExternalizableWrapper {
                         "No datatype registered to serialization code ${ExtUtil.printBytes(tag)}"
                     )
 
-                return ExtWrapBase(className.toKClass())
+                return ExtWrapBase(classNameToKClass(className))
             }
         }
 
@@ -103,31 +100,23 @@ class ExtWrapTagged : ExternalizableWrapper {
                 ExtUtil.writeNumeric(out, WRAPPER_CODES[obj::class]!!.toLong())
                 obj.metaWriteExternal(out)
             } else {
-                var type: Class<*>? = null
+                var type: KClass<*>? = null
 
                 if (obj is ExtWrapBase) {
                     val extType = obj
                     if (extType.`val` != null) {
                         obj = extType.`val`!!
                     } else {
-                        type = extType.type?.java
+                        type = extType.type
                     }
                 }
                 if (type == null) {
-                    type = obj.javaClass
+                    type = obj::class
                 }
 
-                val tag = PrototypeFactory.getClassHash(type!!)
+                val tag = PrototypeFactory.getClassHashForType(type!!)
                 out.write(tag, 0, tag.size)
             }
-        }
-
-        /**
-         * Convert a class name string to a KClass. On JVM, uses Class.forName.
-         * This is used only during deserialization to reconstruct type information.
-         */
-        private fun String.toKClass(): KClass<*> {
-            return Class.forName(this).kotlin
         }
     }
 }

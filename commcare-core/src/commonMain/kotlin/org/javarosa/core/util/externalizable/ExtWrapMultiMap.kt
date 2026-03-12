@@ -1,9 +1,6 @@
 package org.javarosa.core.util.externalizable
 
 import org.javarosa.core.util.ListMultimap
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 
 class ExtWrapMultiMap : ExternalizableWrapper {
 
@@ -22,8 +19,6 @@ class ExtWrapMultiMap : ExternalizableWrapper {
     /* Constructors for deserialization */
 
     constructor()
-
-    constructor(keyType: Class<*>) : this(ExtWrapBase(keyType))
 
     constructor(keyType: ExternalizableWrapper) {
         requireNotNull(keyType)

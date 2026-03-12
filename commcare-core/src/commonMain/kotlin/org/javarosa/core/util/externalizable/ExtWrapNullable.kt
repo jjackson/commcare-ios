@@ -1,9 +1,7 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 class ExtWrapNullable : ExternalizableWrapper {
 
@@ -19,7 +17,7 @@ class ExtWrapNullable : ExternalizableWrapper {
     constructor() {
     }
 
-    constructor(type: Class<*>?) {
+    constructor(type: KClass<*>?) {
         if (type != null) {
             this.type = ExtWrapBase(type)
         }

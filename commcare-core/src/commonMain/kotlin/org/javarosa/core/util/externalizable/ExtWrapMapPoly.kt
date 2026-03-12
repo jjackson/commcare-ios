@@ -1,10 +1,7 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.OrderedHashtable
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 // map of objects where elements are multiple types, keys are still assumed to be of a single
 // (non-polymorphic) type
@@ -25,18 +22,18 @@ class ExtWrapMapPoly : ExternalizableWrapper {
         requireNotNull(`val`)
         this.`val` = `val`
         this.keyType = keyType
-        this.ordered = `val` is OrderedHashtable<*, *>
+        this.ordered = isOrderedHashMap(`val`)
     }
 
     /* deserialization */
 
     constructor()
 
-    constructor(keyType: Class<*>) : this(keyType, false)
+    constructor(keyType: KClass<*>) : this(keyType, false)
 
     constructor(keyType: ExternalizableWrapper) : this(keyType, false)
 
-    constructor(keyType: Class<*>, ordered: Boolean) : this(ExtWrapBase(keyType), ordered)
+    constructor(keyType: KClass<*>, ordered: Boolean) : this(ExtWrapBase(keyType), ordered)
 
     constructor(keyType: ExternalizableWrapper, ordered: Boolean) {
         requireNotNull(keyType)
@@ -53,7 +50,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: HashMap<Any, Any> =
-            if (ordered) OrderedHashtable(size.toInt()) else HashMap(size.toInt())
+            if (ordered) createOrderedHashMap(size.toInt()) else HashMap(size.toInt())
         for (i in 0 until size) {
             val key = ExtUtil.read(`in`, keyType!!, pf)!!
             val elem = ExtUtil.read(`in`, ExtWrapTagged(), pf)!!

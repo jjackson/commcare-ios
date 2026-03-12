@@ -2,6 +2,8 @@
 
 package org.javarosa.core.util.externalizable
 
+import kotlin.reflect.KClass
+
 /**
  * iOS implementation of PrototypeFactory using a registration-based approach.
  * Instead of JVM reflection (Class.forName + newInstance), iOS uses a map of
@@ -39,6 +41,12 @@ actual open class PrototypeFactory actual constructor() {
      */
     actual open fun getClassName(hash: ByteArray): String? {
         return hashToName[hash.toList()]
+    }
+
+    actual open fun createInstance(type: KClass<*>): Any {
+        val name = type.qualifiedName
+            ?: throw CannotCreateObjectException("No qualified name for $type")
+        return getInstance(name)
     }
 
     actual open fun getInstance(hash: ByteArray): Any {
@@ -82,6 +90,10 @@ actual open class PrototypeFactory actual constructor() {
 
         actual fun getClassHashByName(className: String): ByteArray {
             return computeHashStatic(className)
+        }
+
+        actual fun getClassHashForType(type: KClass<*>): ByteArray {
+            return getClassHashByName(type.qualifiedName ?: throw IllegalArgumentException("No name for $type"))
         }
 
         private fun computeHashStatic(className: String): ByteArray {

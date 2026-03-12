@@ -8,7 +8,6 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.Throws
 
 /**
  * A DataModelPullParser pulls together the parsing of

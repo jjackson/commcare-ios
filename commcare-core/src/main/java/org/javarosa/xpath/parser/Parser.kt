@@ -24,7 +24,7 @@ object Parser {
     private fun buildParseTree(tokens: List<Token>): ASTNode {
         val root = ASTNodeAbstractExpr()
 
-        root.content = ArrayList<Any>(tokens)
+        root.content = ArrayList<Any>().also { it.addAll(tokens) }
 
         parseFuncCalls(root)
         parseParens(root)

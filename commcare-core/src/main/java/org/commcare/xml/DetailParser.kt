@@ -36,8 +36,8 @@ open class DetailParser(parser: PlatformXmlParser) : CommCareElementParser<Detai
         val forceLandscapeView = parser.getAttributeValue(null, "force-landscape")
         val printTemplatePath = parser.getAttributeValue(null, "print-template")
         val relevancy = parser.getAttributeValue(null, "relevant")
-        val cacheEnabled = java.lang.Boolean.parseBoolean(parser.getAttributeValue(null, "cache_enabled"))
-        val lazyLoading = java.lang.Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"))
+        val cacheEnabled = parser.getAttributeValue(null, "cache_enabled").toBoolean()
+        val lazyLoading = parser.getAttributeValue(null, "lazy_loading").toBoolean()
 
         // First fetch the title
         getNextTagInBlock("detail")

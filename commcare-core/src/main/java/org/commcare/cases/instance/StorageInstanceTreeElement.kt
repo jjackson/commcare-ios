@@ -101,7 +101,7 @@ abstract class StorageInstanceTreeElement<Model : Externalizable, T : AbstractTr
     override fun getChildrenWithName(name: String): ArrayList<AbstractTreeElement> {
         return if (name == childName) {
             loadElements()
-            ArrayList<AbstractTreeElement>(elements)
+            ArrayList<AbstractTreeElement>().also { it.addAll(elements!!) }
         } else {
             ArrayList()
         }

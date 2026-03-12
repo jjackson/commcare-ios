@@ -33,7 +33,7 @@ class ReducingTraceReporter(private val flat: Boolean) : EvaluationTraceReporter
     }
 
     override fun getCollectedTraces(): ArrayList<EvaluationTrace> {
-        return ArrayList<EvaluationTrace>(traceMap.values)
+        return ArrayList<EvaluationTrace>().also { it.addAll(traceMap.values) }
     }
 
     override fun reportAsFlat(): Boolean {

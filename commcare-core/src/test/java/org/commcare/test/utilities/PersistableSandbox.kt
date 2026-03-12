@@ -2,7 +2,7 @@ package org.commcare.test.utilities
 
 import org.javarosa.core.api.ClassNameHasher
 import org.javarosa.core.util.externalizable.DeserializationException
-import org.javarosa.core.util.externalizable.ExtUtil
+import org.javarosa.core.util.externalizable.ExtUtilJvm
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
@@ -20,7 +20,7 @@ class PersistableSandbox {
     @Suppress("UNCHECKED_CAST")
     fun <T : Externalizable> deserialize(`object`: ByteArray, c: Class<T>): T {
         try {
-            return ExtUtil.deserialize(`object`, c, factory) as T
+            return ExtUtilJvm.deserialize(`object`, c, factory) as T
         } catch (e: PlatformIOException) {
             throw wrap("Error deserializing: " + c.name, e)
         } catch (e: DeserializationException) {

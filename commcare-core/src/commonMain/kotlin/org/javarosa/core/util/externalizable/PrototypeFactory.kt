@@ -2,6 +2,8 @@
 
 package org.javarosa.core.util.externalizable
 
+import kotlin.reflect.KClass
+
 /**
  * Factory for creating instances of serializable types by their hash codes.
  *
@@ -18,6 +20,12 @@ expect open class PrototypeFactory() {
      * Look up a class name by its hash. Returns null if not registered.
      */
     open fun getClassName(hash: ByteArray): String?
+
+    /**
+     * Create a new instance of a type given its KClass.
+     * On JVM: uses reflection. On iOS: looks up in factory registry.
+     */
+    open fun createInstance(type: KClass<*>): Any
 
     companion object {
         /**
@@ -39,5 +47,12 @@ expect open class PrototypeFactory() {
          * Compute the hash for a class name.
          */
         fun getClassHashByName(className: String): ByteArray
+
+        /**
+         * Get the class hash for a KClass type.
+         * On JVM: uses Class-based hash (preserves LiveHasher registration side effects).
+         * On iOS: uses string-based hash computation.
+         */
+        fun getClassHashForType(type: KClass<*>): ByteArray
     }
 }

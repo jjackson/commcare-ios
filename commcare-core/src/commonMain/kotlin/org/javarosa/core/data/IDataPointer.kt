@@ -3,7 +3,6 @@ package org.javarosa.core.data
 import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.util.externalizable.Externalizable
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.Throws
 
 /**
  * A data pointer representing a pointer to a (usually) larger object in memory.

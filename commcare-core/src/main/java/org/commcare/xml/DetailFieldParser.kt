@@ -26,9 +26,9 @@ class DetailFieldParser(
     override fun parse(): DetailField {
         checkNode("field")
         val builder = DetailField.Builder()
-        val cacheEnabled = java.lang.Boolean.parseBoolean(parser.getAttributeValue(null, "cache_enabled"))
+        val cacheEnabled = parser.getAttributeValue(null, "cache_enabled").toBoolean()
         builder.setCacheEnabled(cacheEnabled)
-        val lazyLoading = java.lang.Boolean.parseBoolean(parser.getAttributeValue(null, "lazy_loading"))
+        val lazyLoading = parser.getAttributeValue(null, "lazy_loading").toBoolean()
         builder.setLazyLoading(lazyLoading)
 
         val sortDefault = parser.getAttributeValue(null, "sort")

@@ -15,11 +15,7 @@ class StreamsUtil {
             return internal
         }
 
-        override fun printStackTrace() {
-            internal.printStackTrace()
-        }
-
-        // TODO: Override all common methods
+        // Note: printStackTrace not available in commonMain
     }
 
     inner class InputIOException(internal: PlatformIOException) : DirectionalIOException(internal)
