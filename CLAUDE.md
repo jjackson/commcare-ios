@@ -112,16 +112,31 @@ commcare-ios/
 | 6 | Refactor PrototypeFactory + PrototypeManager | 3 | #138 | Done (PR #142) |
 | 7 | Migrate pure Kotlin files to commonMain | 23 moved | #139 | Done (PR #142) |
 | 8 | Move serialization framework + cluster to commonMain | 23 moved | #140 | Done (PR #145) |
-| 9 | Validation and cleanup | ~5 new | #141 | Open |
+| 9 | Validation and cleanup | ~5 new | #141 | Deferred to Phase 6 |
 
-**Wave 8 result:** Moved ExtUtil + ExtWrap* (12 files) + 11 additional files to commonMain. commonMain: 227 files. Remaining ~430 files blocked by core model classes (TreeReference, TreeElement, FormDef) with deep JVM deps (DateUtils, OrderedHashtable, ThreadLocal). See `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md`.
+**Phase 5 Complete.** Serialization framework (ExtUtil, ExtWrap*, 12 files) moved to commonMain + 11 additional files. commonMain: 227 files. Bulk migration attempted but 430 remaining files form one connected component blocked by 16 files with direct JVM deps (java.io, ThreadLocal, System.getProperty, gavaghan). See `docs/plans/2026-03-12-phase5-completion-report.md`.
 
-**Plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md`
+**Phase 6: Deep Platform Abstraction** — Remove JVM dependencies from 16 direct blocker files to unblock bulk migration of 430 remaining files.
+
+| Wave | Group | Files | Issue | Status |
+|------|-------|-------|-------|--------|
+| 1 | FormDef — System.getProperty removal | 1 | #147 | Open |
+| 2 | ThreadLocal abstraction | 3 | #148 | Open |
+| 3 | java.io Reader/Writer abstraction | 6 | #149 | Open |
+| 4 | ResourceTable — FileNotFoundException | 1 | #150 | Open |
+| 5 | XFormParserReporter — PrintStream | 1 | #151 | Open |
+| 6 | Gavaghan geodesy replacement | 4 | #152 | Open |
+| 7 | Bulk migration sweep | ~380+ | #153 | Open |
+| 8 | Validation and cleanup | ~5 new | #154 | Open |
+
+**Plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md`
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 6 plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md` — 16 JVM blocker files, Reader/ThreadLocal/SystemProperty abstractions, bulk migration
+- **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved, 16 remaining JVM blockers
 - **Phase 5 plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md` — ExtUtil/ExtWrap* KClass refactoring, 9 waves, bulk migration strategy
 - **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling, options for Phase 5
 - **Phase 4 plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md` — targeted JVM dep removal from 67 blocker files, wave details
