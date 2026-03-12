@@ -116,25 +116,24 @@ commcare-ios/
 
 **Phase 5 Complete.** Serialization framework (ExtUtil, ExtWrap*, 12 files) moved to commonMain + 11 additional files. commonMain: 227 files. Bulk migration attempted but 430 remaining files form one connected component blocked by 16 files with direct JVM deps (java.io, ThreadLocal, System.getProperty, gavaghan). See `docs/plans/2026-03-12-phase5-completion-report.md`.
 
-**Phase 6: Deep Platform Abstraction** — Remove JVM dependencies from 16 direct blocker files to unblock bulk migration of 430 remaining files.
+**Phase 6: Deep Platform Abstraction** — Remove JVM dependencies from blocker files, move JVM-only files to jvmMain, maximize commonMain migration.
 
-| Wave | Group | Files | Issue | Status |
-|------|-------|-------|-------|--------|
-| 1 | FormDef — System.getProperty removal | 1 | #147 | Open |
-| 2 | ThreadLocal abstraction | 3 | #148 | Open |
-| 3 | java.io Reader/Writer abstraction | 6 | #149 | Open |
-| 4 | ResourceTable — FileNotFoundException | 1 | #150 | Open |
-| 5 | XFormParserReporter — PrintStream | 1 | #151 | Open |
-| 6 | Gavaghan geodesy replacement | 4 | #152 | Open |
-| 7 | Bulk migration sweep | ~380+ | #153 | Open |
-| 8 | Validation and cleanup | ~5 new | #154 | Open |
+| Wave | Group | Files | PR | Status |
+|------|-------|-------|-----|--------|
+| 1-5 | Remove JVM deps (FormDef, ThreadLocal, java.io, etc.) | 6 | #156 | Done |
+| 6 | OrderedHashtable rewrite + Map widening | 25+ | #156 | Done |
+| 7-11 | Bulk migration to commonMain | 37 moved | #156 | Done |
+| 12 | iOS CI fixes (@Throws, Foundation imports) | 3 | #156 | Done |
+| 13 | Move JVM-only files to jvmMain | 24 | #156 | Done |
+| 14 | Bulk migration sweep | 0 moved | — | Ceiling reached |
 
-**Plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md`
+**Phase 6 Complete.** commonMain: 264 files (+37 from Phase 5's 227). jvmMain: 76 files (+11). 392 files remain in main/java, forming one tightly-coupled connected component blocked by circular dependency (EvaluationContext ↔ FunctionUtils ↔ XPathNodeset). See `docs/plans/2026-03-12-phase6-completion-report.md`.
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling, remaining options
 - **Phase 6 plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md` — 16 JVM blocker files, Reader/ThreadLocal/SystemProperty abstractions, bulk migration
 - **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved, 16 remaining JVM blockers
 - **Phase 5 plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md` — ExtUtil/ExtWrap* KClass refactoring, 9 waves, bulk migration strategy
