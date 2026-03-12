@@ -18,6 +18,7 @@ static inline int cc_random_generate(void *bytes, unsigned long count) {
     return (int)CCRandomGenerateBytes(bytes, (size_t)count);
 }
 
+/* AES-GCM using step-by-step CCCryptor API */
 static inline int cc_gcm_encrypt(
     const void *key, unsigned long keyLen,
     const void *iv, unsigned long ivLen,
@@ -25,14 +26,30 @@ static inline int cc_gcm_encrypt(
     void *dataOut,
     void *tagOut, unsigned long tagLen
 ) {
-    return (int)CCCryptorGCMOneshotEncrypt(
-        kCCAlgorithmAES, key, keyLen,
-        iv, ivLen,
-        NULL, 0,
-        dataIn, dataLen,
-        dataOut,
-        tagOut, tagLen
+    CCCryptorRef cryptor = NULL;
+    CCCryptorStatus status;
+
+    status = CCCryptorCreateWithMode(
+        kCCEncrypt, kCCModeGCM, kCCAlgorithmAES, ccNoPadding,
+        NULL, key, keyLen, NULL, 0, 0, kCCModeOptionCTR_BE, &cryptor
     );
+    if (status != kCCSuccess) return (int)status;
+
+    /* Set IV */
+    status = CCCryptorGCMAddIV(cryptor, iv, ivLen);
+    if (status != kCCSuccess) { CCCryptorRelease(cryptor); return (int)status; }
+
+    /* Encrypt data */
+    if (dataIn && dataLen > 0) {
+        size_t outMoved = 0;
+        status = CCCryptorUpdate(cryptor, dataIn, dataLen, dataOut, dataLen, &outMoved);
+        if (status != kCCSuccess) { CCCryptorRelease(cryptor); return (int)status; }
+    }
+
+    /* Get tag */
+    status = CCCryptorGCMFinal(cryptor, tagOut, &tagLen);
+    CCCryptorRelease(cryptor);
+    return (int)status;
 }
 
 static inline int cc_gcm_decrypt(
@@ -42,12 +59,36 @@ static inline int cc_gcm_decrypt(
     void *dataOut,
     const void *tagIn, unsigned long tagLen
 ) {
-    return (int)CCCryptorGCMOneshotDecrypt(
-        kCCAlgorithmAES, key, keyLen,
-        iv, ivLen,
-        NULL, 0,
-        dataIn, dataLen,
-        dataOut,
-        tagIn, tagLen
+    CCCryptorRef cryptor = NULL;
+    CCCryptorStatus status;
+
+    status = CCCryptorCreateWithMode(
+        kCCDecrypt, kCCModeGCM, kCCAlgorithmAES, ccNoPadding,
+        NULL, key, keyLen, NULL, 0, 0, kCCModeOptionCTR_BE, &cryptor
     );
+    if (status != kCCSuccess) return (int)status;
+
+    /* Set IV */
+    status = CCCryptorGCMAddIV(cryptor, iv, ivLen);
+    if (status != kCCSuccess) { CCCryptorRelease(cryptor); return (int)status; }
+
+    /* Decrypt data */
+    if (dataIn && dataLen > 0) {
+        size_t outMoved = 0;
+        status = CCCryptorUpdate(cryptor, dataIn, dataLen, dataOut, dataLen, &outMoved);
+        if (status != kCCSuccess) { CCCryptorRelease(cryptor); return (int)status; }
+    }
+
+    /* Verify tag */
+    unsigned char computedTag[16];
+    unsigned long computedTagLen = tagLen;
+    status = CCCryptorGCMFinal(cryptor, computedTag, &computedTagLen);
+    CCCryptorRelease(cryptor);
+    if (status != kCCSuccess) return (int)status;
+
+    /* Compare tags */
+    if (memcmp(computedTag, tagIn, tagLen) != 0) {
+        return -1; /* Tag mismatch */
+    }
+    return 0;
 }
