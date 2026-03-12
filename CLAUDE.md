@@ -146,6 +146,7 @@ commcare-ios/
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 7 completion**: `docs/plans/2026-03-12-phase7-completion-report.md` — 636 commonMain files, 392-file connected component broken, bulk migration complete
 - **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling, remaining options
 - **Phase 6 plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md` — 16 JVM blocker files, Reader/ThreadLocal/SystemProperty abstractions, bulk migration
 - **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved, 16 remaining JVM blockers
@@ -182,6 +183,8 @@ commcare-ios/
 - **Phase 4 deep migration learnings**: `docs/learnings/2026-03-11-phase4-deep-migration-learnings.md` — ExtUtil ceiling, iterative compiler-validated migration, platformSynchronized, TypeTokenUtils bridge, XFormConstants extraction
 - **Phase 5 Wave 8 learnings**: `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md` — LinkedHashMap final in Native, top-level functions vs Java constructors, Class<*>→KClass<*> pattern, @Throws filter strictness
 - **Phase 7 bulk migration learnings**: `docs/learnings/2026-03-12-phase7-bulk-migration-learnings.md` — connected component problem, registration pattern for platform factories, extension functions invisible to Java, ccapi/cli can't see jvmMain
+- **Gavaghan replacement learnings**: `docs/learnings/2026-03-12-gavaghan-replacement-learnings.md` — Vincenty as drop-in for geodesy lib, floating point normalization artifacts, cascading unblocked moves, test ordering dependencies
+- **Phase 6 deep migration learnings**: `docs/learnings/2026-03-12-phase6-deep-migration-learnings.md` — PlatformLock typealias extensions, SizeBoundVector composition, @Throws filter mismatches, cascade ceiling analysis
 
 ## Kotlin Conversion Checklist
 
