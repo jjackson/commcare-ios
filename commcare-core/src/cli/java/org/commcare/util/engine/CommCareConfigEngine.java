@@ -8,6 +8,8 @@ import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InstallerFactory;
+import org.commcare.resources.model.JvmInstallerFactory;
+import org.javarosa.core.services.storage.StorageManagerCompat;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
@@ -79,7 +81,7 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
-        this(setupDummyStorageFactory(prototypeFactory), new InstallerFactory(), System.out);
+        this(setupDummyStorageFactory(prototypeFactory), new JvmInstallerFactory(), System.out);
     }
 
     public CommCareConfigEngine(IStorageIndexedFactory storageFactory,
@@ -93,13 +95,13 @@ public class CommCareConfigEngine {
         recoveryTable = ResourceTable.RetrieveTable(storageFactory.newStorage("GLOBAL_RECOVERY_TABLE", kotlin.jvm.JvmClassMappingKt.getKotlinClass(Resource.class)), installerFactory);
 
         StorageManager storageManager = new StorageManager(storageFactory);
-        storageManager.registerStorage(PropertyManager.STORAGE_KEY, Property.class);
-        storageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
-        storageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        storageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
-        storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
-        storageManager.registerStorage("fixture", FormInstance.class);
+        StorageManagerCompat.registerStorage(storageManager, PropertyManager.STORAGE_KEY, Property.class);
+        StorageManagerCompat.registerStorage(storageManager, Profile.STORAGE_KEY, Profile.class);
+        StorageManagerCompat.registerStorage(storageManager, Suite.STORAGE_KEY, Suite.class);
+        StorageManagerCompat.registerStorage(storageManager, FormDef.STORAGE_KEY, FormDef.class);
+        StorageManagerCompat.registerStorage(storageManager, FormInstance.STORAGE_KEY, FormInstance.class);
+        StorageManagerCompat.registerStorage(storageManager, OfflineUserRestore.STORAGE_KEY, OfflineUserRestore.class);
+        StorageManagerCompat.registerStorage(storageManager, "fixture", FormInstance.class);
 
         this.platform = new CommCarePlatform(MAJOR_VERSION, MINOR_VERSION, MINIMAL_VERSION, storageManager);
     }

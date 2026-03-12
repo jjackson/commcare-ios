@@ -22,3 +22,9 @@ interface PlatformXmlSerializer {
  * that writes to an in-memory buffer.
  */
 expect fun createXmlSerializer(): PlatformXmlSerializer
+
+/**
+ * Factory function to create a platform-specific XML serializer
+ * that writes to the given output stream with the specified encoding.
+ */
+expect fun createXmlSerializer(output: org.javarosa.core.io.PlatformOutputStream, encoding: String = "UTF-8"): PlatformXmlSerializer
