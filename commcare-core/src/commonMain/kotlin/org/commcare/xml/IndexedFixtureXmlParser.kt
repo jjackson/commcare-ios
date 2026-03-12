@@ -101,7 +101,7 @@ class IndexedFixtureXmlParser(
         commit(model)
     }
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     override fun commit(parsed: StorageIndexedTreeElementModel) {
         getIndexedFixtureStorage(parsed).write(parsed)
     }

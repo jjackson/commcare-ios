@@ -10,6 +10,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parses case list actions, which when triggered manipulate the session stack
@@ -22,7 +23,7 @@ class ActionParser(parser: PlatformXmlParser) : CommCareElementParser<Action>(pa
         const val NAME_ACTION: String = "action"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Action {
         this.checkNode(NAME_ACTION)
 

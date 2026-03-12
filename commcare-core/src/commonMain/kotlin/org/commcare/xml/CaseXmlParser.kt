@@ -314,7 +314,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return Case(name, typeId)
     }
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     override fun commit(parsed: Case) {
         storage().write(parsed)
     }

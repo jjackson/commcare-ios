@@ -12,6 +12,7 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmStatic
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser for parsing `<data>` elements
@@ -51,7 +52,7 @@ class QueryDataParser(parser: PlatformXmlParser) : CommCareElementParser<QueryDa
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class)
+    @Throws(InvalidStructureException::class, PlatformXmlParserException::class, PlatformIOException::class, UnfullfilledRequirementsException::class)
     override fun parse(): QueryData {
         checkNode("data")
 

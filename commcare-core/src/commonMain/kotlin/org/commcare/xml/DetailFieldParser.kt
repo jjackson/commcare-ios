@@ -11,6 +11,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser for <field> elements of a suite's detail definitions.
@@ -22,7 +23,7 @@ class DetailFieldParser(
     private val id: String?
 ) : CommCareElementParser<DetailField>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): DetailField {
         checkNode("field")
         val builder = DetailField.Builder()
@@ -106,7 +107,7 @@ class DetailFieldParser(
         builder.setEndpointAction(EndpointAction(id, isBackground))
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseStyle(builder: DetailField.Builder) {
         //style
         if (parser.getName()!!.lowercase() == "style") {
@@ -122,7 +123,7 @@ class DetailFieldParser(
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseTemplate(builder: DetailField.Builder) {
         //Template
         checkNode("template")
@@ -154,7 +155,7 @@ class DetailFieldParser(
         builder.setTemplate(template)
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseSort(builder: DetailField.Builder) {
         val order = parser.getAttributeValue(null, "order")
         if (order != null && "" != order) {

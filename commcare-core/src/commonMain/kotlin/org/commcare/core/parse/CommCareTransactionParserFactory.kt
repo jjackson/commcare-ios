@@ -105,7 +105,7 @@ open class CommCareTransactionParserFactory @JvmOverloads constructor(
             "http://commcarehq.org/sync" == namespace
         ) {
             return object : TransactionParser<String>(parser) {
-                @Throws(PlatformIOException::class)
+                @Throws(PlatformIOException::class, InvalidStructureException::class)
                 override fun commit(parsed: String) {
                 }
 
