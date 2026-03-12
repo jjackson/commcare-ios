@@ -1,1 +1,5 @@
-headers = CommonCrypto/CommonDigest.h CommonCrypto/CommonCryptor.h CommonCrypto/CommonRandom.h
+package = CommonCrypto
+---
+#include <CommonCrypto/CommonDigest.h>
+#include <CommonCrypto/CommonCryptor.h>
+#include <CommonCrypto/CommonRandom.h>
