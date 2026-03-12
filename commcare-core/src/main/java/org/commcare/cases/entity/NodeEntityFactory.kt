@@ -114,7 +114,7 @@ open class NodeEntityFactory(
         if (reporter != null) {
             tracableContext.setDebugModeOn(reporter)
         }
-        val result = tracableContext.expandReference(treeReference) ?: java.util.ArrayList()
+        val result = tracableContext.expandReference(treeReference) ?: ArrayList()
         printAndClearTraces("case load expand")
 
         setEvaluationContextDefaultQuerySet(ec, result)

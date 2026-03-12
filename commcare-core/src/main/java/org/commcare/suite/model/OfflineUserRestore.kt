@@ -62,7 +62,7 @@ class OfflineUserRestore : Persistable {
     }
 
     private fun getInMemoryStream(): PlatformInputStream {
-        return createByteArrayInputStream(restore!!.toByteArray(Charsets.UTF_8))
+        return createByteArrayInputStream(restore!!.encodeToByteArray())
     }
 
     @Throws(InvalidReferenceException::class, PlatformIOException::class)
@@ -148,7 +148,7 @@ class OfflineUserRestore : Persistable {
         fun buildInMemoryUserRestore(restoreStream: PlatformInputStream): OfflineUserRestore {
             val offlineUserRestore = OfflineUserRestore()
             val restoreBytes = StreamsUtil.inputStreamToByteArray(restoreStream)
-            offlineUserRestore.restore = String(restoreBytes)
+            offlineUserRestore.restore = restoreBytes.decodeToString()
             offlineUserRestore.checkThatRestoreIsValidAndSetUsername()
             return offlineUserRestore
         }

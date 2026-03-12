@@ -21,7 +21,7 @@ object CaseDBUtils {
         while (iterator.hasMore()) {
             val c = iterator.nextRecord()
             val record = c.getCaseId()
-            val current = MD5.hash(record!!.toByteArray())
+            val current = MD5.hash(record!!.encodeToByteArray())
             data = xordata(data, current)
             casesExist = true
         }

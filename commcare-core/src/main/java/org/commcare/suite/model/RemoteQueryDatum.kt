@@ -61,7 +61,7 @@ class RemoteQueryDatum : SessionDatum {
 
     fun getUrl(): PlatformUrl? {
         return try {
-            PlatformUrl(getValue())
+            PlatformUrl(getValue()!!)
         } catch (e: PlatformMalformedUrlException) {
             // Not possible given constructor passes in a valid URL
             e.printStackTrace()

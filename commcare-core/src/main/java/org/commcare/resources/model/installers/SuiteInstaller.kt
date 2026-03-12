@@ -10,6 +10,7 @@ import org.commcare.resources.model.UnresolvedResourceException
 import org.commcare.suite.model.Suite
 import org.commcare.util.CommCarePlatform
 import org.commcare.xml.SuiteParser
+import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.Reference
@@ -56,7 +57,7 @@ class SuiteInstaller : CacheInstaller<Suite>() {
             //If it's in the cache, we should just get it from there
             return false
         } else {
-            var incoming: java.io.InputStream? = null
+            var incoming: PlatformInputStream? = null
             try {
                 incoming = ref.getStream()
                 @Suppress("UNCHECKED_CAST")

@@ -706,7 +706,7 @@ object DateUtils {
     @JvmStatic
     fun fractionalDaysSinceEpoch(a: PlatformDate): Double {
         @Suppress("DEPRECATION")
-        val timeZoneAdjust = ((a.timezoneOffset - EPOCH_DATE.timezoneOffset) * 60 * 1000).toLong()
+        val timeZoneAdjust = ((a.getTimezoneOffset() - EPOCH_DATE.getTimezoneOffset()) * 60 * 1000).toLong()
         return ((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / DAY_IN_MS.toDouble()
     }
 

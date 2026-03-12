@@ -3,3 +3,6 @@
 package org.javarosa.core.model.utils
 
 actual typealias PlatformDate = java.util.Date
+
+@Suppress("DEPRECATION")
+actual fun PlatformDate.getTimezoneOffset(): Int = this.timezoneOffset

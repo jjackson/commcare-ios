@@ -28,3 +28,12 @@ actual class PlatformDate actual constructor() {
 
     override fun toString(): String = "PlatformDate(millis=$millis)"
 }
+
+actual fun PlatformDate.getTimezoneOffset(): Int {
+    val seconds = this.getTime() / 1000.0
+    val date = NSDate.dateWithTimeIntervalSince1970(seconds)
+    val tz = platform.Foundation.NSTimeZone.localTimeZone
+    // NSTimeZone.secondsFromGMTForDate returns seconds east of GMT
+    // Java's getTimezoneOffset returns minutes WEST of UTC
+    return -(tz.secondsFromGMTForDate(date).toInt() / 60)
+}
