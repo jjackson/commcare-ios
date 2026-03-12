@@ -66,16 +66,6 @@ class StorageManager(factory: IStorageIndexedFactory) {
         registerStorage(key, type.kotlin)
     }
 
-    /**
-     * Java-compatible helper to call factory with Class<*>.
-     */
-    fun newStorageFromFactory(name: String, type: Class<*>): IStorageUtilityIndexed<*> {
-        if (storageFactory == null) {
-            throw RuntimeException("No storage factory has been set")
-        }
-        return storageFactory!!.newStorage(name, type.kotlin)
-    }
-
     fun getStorage(key: String): IStorageUtilityIndexed<*> {
         if (storageRegistry.containsKey(key)) {
             return storageRegistry[key]!!
