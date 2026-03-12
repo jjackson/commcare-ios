@@ -16,8 +16,8 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (636 .kt files — platform-agnostic)
-│   ├── src/jvmMain/         # JVM platform implementations (105 .kt files)
+│   ├── src/commonMain/      # KMP shared code (643 .kt files — platform-agnostic)
+│   ├── src/jvmMain/         # JVM platform implementations (100 .kt files)
 │   ├── src/iosMain/         # iOS/Native platform implementations (42 .kt files)
 │   ├── src/main/java/       # JVM-only Java compat (1 .java file)
 │   ├── src/test/java/       # JUnit 4 tests (JVM)
@@ -142,10 +142,27 @@ commcare-ios/
 
 **Migration Complete.** All open issues closed. Gavaghan geodesy replaced with pure Kotlin Vincenty implementation (PR #163), removing the last external lib blocker. commonMain: 643 files. jvmMain: 100 files (intentionally JVM-only: kxml2 parsers, javax.crypto, OkHttp, database helpers). 1 Java compat file remains (StorageManagerCompat.java).
 
+**Phase 8: iOS App Implementation** — Build the full iOS app on top of the KMP engine: platform adapters, storage, UI, sync.
+
+| Wave | Group | New Files | Status |
+|------|-------|-----------|--------|
+| 1 | Platform Adapters — Crypto & Files | ~5 | Open |
+| 2 | Platform Adapters — Networking & JSON | ~3 | Open |
+| 3 | Storage Layer (SQLite) | ~8-10 | Open |
+| 4 | App Foundation — Login & Install | ~10-12 | Open |
+| 5 | Menu Navigation & Session | ~6-8 | Open |
+| 6 | Case Management | ~8-10 | Open |
+| 7 | Form Entry | ~15-20 | Open |
+| 8 | Sync & Offline | ~6-8 | Open |
+| 9 | Settings, Polish & Verification | ~5-8 | Open |
+
+**Plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md`
+
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 8 plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md` — 9 waves: platform adapters, storage, login, menus, cases, forms, sync, polish
 - **Phase 7 completion**: `docs/plans/2026-03-12-phase7-completion-report.md` — 636 commonMain files, 392-file connected component broken, bulk migration complete
 - **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling, remaining options
 - **Phase 6 plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md` — 16 JVM blocker files, Reader/ThreadLocal/SystemProperty abstractions, bulk migration
