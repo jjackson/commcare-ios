@@ -1,6 +1,5 @@
 package org.javarosa.core.model.utils
 
-import org.gavaghan.geodesy.GlobalCoordinates
 import org.javarosa.core.model.data.GeoPointData
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
@@ -87,12 +86,12 @@ object GeoPointUtils {
      * Creates a point list from a flat list of lat/lon strings.
      *
      * @param latLongList Flat list of lat/lon values (e.g., [lat1, lon1, lat2, lon2, ...])
-     * @return List of GlobalCoordinates representing the list of points
+     * @return List of GeoCoordinate representing the list of points
      * @throws IllegalArgumentException if input is invalid (odd number of elements)
      */
     @JvmStatic
     @Throws(IllegalArgumentException::class)
-    fun createPointList(latLongList: List<String>?): MutableList<GlobalCoordinates> {
+    fun createPointList(latLongList: List<String>?): MutableList<GeoCoordinate> {
         if (latLongList == null || latLongList.size % 2 != 0) {
             throw IllegalArgumentException(
                 "Input must contain a list of lat/lng pairs, and must be even-sized."
@@ -100,13 +99,13 @@ object GeoPointUtils {
         }
 
         val numPoints = latLongList.size / 2
-        val pointList = mutableListOf<GlobalCoordinates>()
+        val pointList = mutableListOf<GeoCoordinate>()
 
         for (i in 0 until numPoints) {
             val latitude = latLongList[i * 2].toDouble()
             val longitude = latLongList[i * 2 + 1].toDouble()
             validateCoordinates(latitude, longitude)
-            pointList.add(GlobalCoordinates(latitude, longitude))
+            pointList.add(GeoCoordinate(latitude, longitude))
         }
 
         return pointList

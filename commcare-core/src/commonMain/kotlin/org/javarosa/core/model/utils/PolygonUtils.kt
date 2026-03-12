@@ -1,8 +1,5 @@
 package org.javarosa.core.model.utils
 
-import org.gavaghan.geodesy.Ellipsoid
-import org.gavaghan.geodesy.GeodeticCalculator
-import org.gavaghan.geodesy.GlobalCoordinates
 import kotlin.jvm.JvmStatic
 import kotlin.math.PI
 import kotlin.math.cos
@@ -17,18 +14,18 @@ object PolygonUtils {
      * Creates a polygon from a flat list of lat/lon strings.
      *
      * @param latLongList Flat list of lat/lon values (e.g., [lat1, lon1, lat2, lon2, ...])
-     * @return List of GlobalCoordinates representing the polygon (closed)
+     * @return List of GeoCoordinate representing the polygon (closed)
      * @throws IllegalArgumentException if input is invalid or polygon is malformed
      */
     @JvmStatic
     @Throws(IllegalArgumentException::class)
-    fun createPolygon(latLongList: List<String>): MutableList<GlobalCoordinates> {
+    fun createPolygon(latLongList: List<String>): MutableList<GeoCoordinate> {
         val polygon = GeoPointUtils.createPointList(latLongList)
 
         // Close polygon if not already closed
         if (polygon.size > 2 && polygon[0] != polygon[polygon.size - 1]) {
             polygon.add(
-                GlobalCoordinates(
+                GeoCoordinate(
                     polygon[0].latitude,
                     polygon[0].longitude
                 )
@@ -50,20 +47,17 @@ object PolygonUtils {
      * @return String representation of the closest lat/lon pair
      */
     @JvmStatic
-    fun findClosestPoint(point: GlobalCoordinates, polygon: List<GlobalCoordinates>): String {
-        val calc = GeodeticCalculator()
-        val ellipsoid = Ellipsoid.WGS84
-
+    fun findClosestPoint(point: GeoCoordinate, polygon: List<GeoCoordinate>): String {
         var minDist = Double.MAX_VALUE
-        var closest: GlobalCoordinates? = null
+        var closest: GeoCoordinate? = null
 
         for (i in polygon.indices) {
             val a = polygon[i]
             val b = polygon[(i + 1) % polygon.size]
 
-            val proj = projectOntoSegment(point, a, b, calc, ellipsoid) ?: continue
+            val proj = projectOntoSegment(point, a, b) ?: continue
 
-            val curve = calc.calculateGeodeticCurve(ellipsoid, point, proj)
+            val curve = GeodesicCalculator.calculateGeodeticCurve(point, proj)
             val dist = curve.ellipsoidalDistance
 
             if (dist < minDist) {
@@ -81,26 +75,22 @@ object PolygonUtils {
      * @param point     Test point
      * @param a         Segment start
      * @param b         Segment end
-     * @param calc      Geodetic calculator
-     * @param ellipsoid The ellipsoid reference (WGS84)
      * @return Projected closest point on the segment
      */
     private fun projectOntoSegment(
-        point: GlobalCoordinates,
-        a: GlobalCoordinates,
-        b: GlobalCoordinates,
-        calc: GeodeticCalculator,
-        ellipsoid: Ellipsoid
-    ): GlobalCoordinates? {
+        point: GeoCoordinate,
+        a: GeoCoordinate,
+        b: GeoCoordinate
+    ): GeoCoordinate? {
         if (a.latitude == b.latitude && a.longitude == b.longitude) {
             return a
         }
 
-        val ab = calc.calculateGeodeticCurve(ellipsoid, a, b)
+        val ab = GeodesicCalculator.calculateGeodeticCurve(a, b)
         val azimuthAB = ab.azimuth
         val totalLength = ab.ellipsoidalDistance
 
-        val ap = calc.calculateGeodeticCurve(ellipsoid, a, point)
+        val ap = GeodesicCalculator.calculateGeodeticCurve(a, point)
         val azimuthAP = ap.azimuth
         val distanceAP = ap.ellipsoidalDistance
 
@@ -110,18 +100,18 @@ object PolygonUtils {
         if (projection <= 0) return a
         if (projection >= totalLength) return b
 
-        return calc.calculateEndingGlobalCoordinates(ellipsoid, a, azimuthAB, projection)
+        return GeodesicCalculator.calculateEndingGlobalCoordinates(a, azimuthAB, projection)
     }
 
     /**
      * Determines if a point lies inside or on the border of a polygon using the ray casting algorithm.
      *
      * @param point   The point to test
-     * @param polygon The polygon (list of GlobalCoordinates)
+     * @param polygon The polygon (list of GeoCoordinate)
      * @return true if inside or on the edge; false otherwise
      */
     @JvmStatic
-    fun isPointInsideOrOnPolygon(point: GlobalCoordinates, polygon: List<GlobalCoordinates>): Boolean {
+    fun isPointInsideOrOnPolygon(point: GeoCoordinate, polygon: List<GeoCoordinate>): Boolean {
         var intersectCount = 0
         val n = polygon.size
 

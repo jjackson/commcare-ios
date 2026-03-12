@@ -85,11 +85,14 @@ class FunctionUtils {
             funcList[XPathSleepFunc.NAME] = { XPathSleepFunc() }
             funcList[XPathIndexOfFunc.NAME] = { XPathIndexOfFunc() }
             funcList[XPathJsonPropertyFunc.NAME] = { XPathJsonPropertyFunc() }
+            funcList[XPathClosestPointOnPolygonFunc.NAME] = { XPathClosestPointOnPolygonFunc() }
+            funcList[XPathIsPointInsidePolygonFunc.NAME] = { XPathIsPointInsidePolygonFunc() }
+            funcList[XPathDistanceFunc.NAME] = { XPathDistanceFunc() }
 
-            // Register platform-specific functions (geo, crypto).
+            // Register platform-specific functions (crypto).
             // These are registered via registerXPathFunction() by platform init code,
             // NOT directly referenced here, so FunctionUtils doesn't depend on
-            // jvmMain types like GeoPointUtils or EncryptionUtils.
+            // jvmMain types like EncryptionUtils.
         }
 
         /**
