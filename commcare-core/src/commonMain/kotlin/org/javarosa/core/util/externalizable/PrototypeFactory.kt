@@ -14,6 +14,11 @@ expect open class PrototypeFactory() {
      */
     open fun getInstance(hash: ByteArray): Any
 
+    /**
+     * Look up a class name by its hash. Returns null if not registered.
+     */
+    open fun getClassName(hash: ByteArray): String?
+
     companion object {
         /**
          * Compare two hash byte arrays for equality.
@@ -29,5 +34,10 @@ expect open class PrototypeFactory() {
          * Get the size of class hash codes in bytes.
          */
         fun getClassHashSize(): Int
+
+        /**
+         * Compute the hash for a class name.
+         */
+        fun getClassHashByName(className: String): ByteArray
     }
 }

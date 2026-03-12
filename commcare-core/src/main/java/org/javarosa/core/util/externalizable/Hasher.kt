@@ -12,7 +12,18 @@ abstract class Hasher {
 
     fun getClassHashValue(type: Class<*>): ByteArray {
         val returnHash = ByteArray(getHashSize())
-        val computedHash = getHash(type) // add support for a salt, in case of collision?
+        val computedHash = getHash(type)
+
+        for (i in 0 until minOf(returnHash.size, computedHash.size)) {
+            returnHash[i] = computedHash[i]
+        }
+
+        return returnHash
+    }
+
+    fun getClassHashValueByName(className: String): ByteArray {
+        val returnHash = ByteArray(getHashSize())
+        val computedHash = getHashByName(className)
 
         for (i in 0 until minOf(returnHash.size, computedHash.size)) {
             returnHash[i] = computedHash[i]
@@ -24,4 +35,9 @@ abstract class Hasher {
     abstract fun getHashSize(): Int
 
     abstract fun getHash(c: Class<*>): ByteArray
+
+    open fun getHashByName(className: String): ByteArray {
+        // Default implementation — subclasses that only use c.name can override
+        throw UnsupportedOperationException("Override getHashByName for cross-platform support")
+    }
 }

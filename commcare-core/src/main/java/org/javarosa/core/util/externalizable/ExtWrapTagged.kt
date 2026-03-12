@@ -4,6 +4,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 class ExtWrapTagged : ExternalizableWrapper {
 
@@ -44,15 +45,26 @@ class ExtWrapTagged : ExternalizableWrapper {
     }
 
     companion object {
-        private val WRAPPER_CODES: HashMap<Class<*>, Int> = HashMap<Class<*>, Int>().apply {
-            put(ExtWrapNullable::class.java, 0x00)
-            put(ExtWrapList::class.java, 0x20)
-            put(ExtWrapListPoly::class.java, 0x21)
-            put(ExtWrapMap::class.java, 0x22)
-            put(ExtWrapMapPoly::class.java, 0x23)
-            put(ExtWrapMultiMap::class.java, 0x24)
-            put(ExtWrapIntEncodingUniform::class.java, 0x40)
-            put(ExtWrapIntEncodingSmall::class.java, 0x41)
+        private val WRAPPER_CODES: HashMap<KClass<*>, Int> = HashMap<KClass<*>, Int>().apply {
+            put(ExtWrapNullable::class, 0x00)
+            put(ExtWrapList::class, 0x20)
+            put(ExtWrapListPoly::class, 0x21)
+            put(ExtWrapMap::class, 0x22)
+            put(ExtWrapMapPoly::class, 0x23)
+            put(ExtWrapMultiMap::class, 0x24)
+            put(ExtWrapIntEncodingUniform::class, 0x40)
+            put(ExtWrapIntEncodingSmall::class, 0x41)
+        }
+
+        private val WRAPPER_FACTORIES: HashMap<Int, () -> ExternalizableWrapper> = HashMap<Int, () -> ExternalizableWrapper>().apply {
+            put(0x00, { ExtWrapNullable() })
+            put(0x20, { ExtWrapList() })
+            put(0x21, { ExtWrapListPoly() })
+            put(0x22, { ExtWrapMap() })
+            put(0x23, { ExtWrapMapPoly() })
+            put(0x24, { ExtWrapMultiMap() })
+            put(0x40, { ExtWrapIntEncodingUniform() })
+            put(0x41, { ExtWrapIntEncodingSmall() })
         }
 
         @JvmStatic
@@ -64,36 +76,21 @@ class ExtWrapTagged : ExternalizableWrapper {
             if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
                 val wrapperCode = ExtUtil.readInt(`in`)
 
-                // find wrapper indicated by code
-                var type: ExternalizableWrapper? = null
-                val e = WRAPPER_CODES.keys.iterator()
-                while (e.hasNext()) {
-                    val t = e.next()
-                    if (WRAPPER_CODES[t]!! == wrapperCode) {
-                        try {
-                            type = PrototypeFactory.getInstance(t) as ExternalizableWrapper
-                        } catch (ccoe: CannotCreateObjectException) {
-                            throw CannotCreateObjectException(
-                                "Serious problem: cannot create built-in ExternalizableWrapper [${t.name}]"
-                            )
-                        }
-                    }
-                }
-                if (type == null) {
-                    throw DeserializationException(
+                val factory = WRAPPER_FACTORIES[wrapperCode]
+                    ?: throw DeserializationException(
                         "Unrecognized ExternalizableWrapper type [$wrapperCode]"
                     )
-                }
+                val type = factory()
 
                 type.metaReadExternal(`in`, pf)
                 return type
             } else {
-                val type = pf.getClass(tag)
+                val className = pf.getClassName(tag)
                     ?: throw DeserializationException(
                         "No datatype registered to serialization code ${ExtUtil.printBytes(tag)}"
                     )
 
-                return ExtWrapBase(type)
+                return ExtWrapBase(className.toKClass())
             }
         }
 
@@ -103,7 +100,7 @@ class ExtWrapTagged : ExternalizableWrapper {
             var obj = o
             if (obj is ExternalizableWrapper && obj !is ExtWrapBase) {
                 out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize())
-                ExtUtil.writeNumeric(out, WRAPPER_CODES[obj.javaClass]!!.toLong())
+                ExtUtil.writeNumeric(out, WRAPPER_CODES[obj::class]!!.toLong())
                 obj.metaWriteExternal(out)
             } else {
                 var type: Class<*>? = null
@@ -113,16 +110,24 @@ class ExtWrapTagged : ExternalizableWrapper {
                     if (extType.`val` != null) {
                         obj = extType.`val`!!
                     } else {
-                        type = extType.type
+                        type = extType.type?.java
                     }
                 }
                 if (type == null) {
                     type = obj.javaClass
                 }
 
-                val tag = PrototypeFactory.getClassHash(type) // cache this?
+                val tag = PrototypeFactory.getClassHash(type!!)
                 out.write(tag, 0, tag.size)
             }
+        }
+
+        /**
+         * Convert a class name string to a KClass. On JVM, uses Class.forName.
+         * This is used only during deserialization to reconstruct type information.
+         */
+        private fun String.toKClass(): KClass<*> {
+            return Class.forName(this).kotlin
         }
     }
 }

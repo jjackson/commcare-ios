@@ -62,6 +62,10 @@ class LivePrototypeFactory : PrototypeFactory {
             return ret
         }
 
+        override fun getHashByName(className: String): ByteArray {
+            return mHasher.getHashByName(className)
+        }
+
         fun getHasher(): Hasher {
             return mHasher
         }
