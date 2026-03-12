@@ -129,6 +129,17 @@ commcare-ios/
 
 **Phase 6 Complete.** commonMain: 264 files (+37 from Phase 5's 227). jvmMain: 76 files (+11). 392 files remain in main/java, forming one tightly-coupled connected component blocked by circular dependency (EvaluationContext ↔ FunctionUtils ↔ XPathNodeset). See `docs/plans/2026-03-12-phase6-completion-report.md`.
 
+**Phase 7: Break Cycle & Bulk Migrate** — Break the circular dependency, extract JVM-only files, bulk migrate everything to commonMain.
+
+| Wave | Group | Files | PR | Status |
+|------|-------|-------|-----|--------|
+| 1 | Extract JVM deps from blocker files | 6 | #160 | Done |
+| 2 | Move JVM-only files to jvmMain | 29 | #160 | Done |
+| 3 | Create platform abstractions | 7 new | #160 | Done |
+| 4 | Bulk migration to commonMain | 369 moved | #160 | Done |
+
+**Phase 7 Complete.** All Kotlin files moved out of main/java. commonMain: 636 files (+372 from Phase 6). jvmMain: 105 files (+29). Only 1 Java compat file remains in main/java.
+
 ## Key Docs
 
 **Plans:**
@@ -168,6 +179,7 @@ commcare-ios/
 - **Phase 3 Wave 4 learnings**: `docs/learnings/2026-03-11-wave4-serialization-framework-learnings.md` — Class<*> as fundamental blocker, extension function shadowing, ExtUtil inlining workaround, PrototypeFactory expect/actual pattern
 - **Phase 4 deep migration learnings**: `docs/learnings/2026-03-11-phase4-deep-migration-learnings.md` — ExtUtil ceiling, iterative compiler-validated migration, platformSynchronized, TypeTokenUtils bridge, XFormConstants extraction
 - **Phase 5 Wave 8 learnings**: `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md` — LinkedHashMap final in Native, top-level functions vs Java constructors, Class<*>→KClass<*> pattern, @Throws filter strictness
+- **Phase 7 bulk migration learnings**: `docs/learnings/2026-03-12-phase7-bulk-migration-learnings.md` — connected component problem, registration pattern for platform factories, extension functions invisible to Java, ccapi/cli can't see jvmMain
 
 ## Kotlin Conversion Checklist
 
