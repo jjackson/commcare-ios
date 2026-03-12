@@ -196,7 +196,7 @@ class LedgerXmlParsers(
         return tw
     }
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     override fun commit(parsed: Array<Ledger>) {
         for (s in parsed) {
             storage().write(s)
