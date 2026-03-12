@@ -39,108 +39,9 @@ commcare-ios/
 
 ## Current Status
 
-**Phase 1: Core Port** — Converting commcare-core from Java to Kotlin (642 files across 8 waves).
-
-| Wave | Group | Files | Status |
-|------|-------|-------|--------|
-| 0 | Build setup | — | Done (commcare-core PR #2) |
-| 1 | javarosa-utilities | 115 | Done (commcare-core PR #3) |
-| 2 | javarosa-model | 82 | Done (commcare-core PR #4) |
-| 3 | xpath-engine | 134 | Done (PR #13 merged) |
-| 4 | xform-parser | 27 | Done (PR #21) |
-| 5 | case-management | 60 | Done (PR #24) |
-| 6 | suite-and-session | 93 | Done (PR #26) |
-| 7 | resources | 28 | Done (PR #28) |
-| 8 | commcare-core-services | 71 | Done (PR #29) |
-
-**Phase 1 Complete.** KMP multiplatform targets added (PR #31). Final verification passed (Issue #12): 710 tests, 611 .kt + 32 .java, 5 JARs verified. See `docs/plans/2026-03-10-phase1-completion-report.md`.
-
-**Phase 2: KMP Multiplatform & App Shell** — Move code to commonMain with expect/actual abstractions, build iOS app shell.
-
-| Wave | Group | Files | Issue | Status |
-|------|-------|-------|-------|--------|
-| 1 | Replace Guava/joda-time | ~15 | #34 | Done (PR #45) |
-| 2 | Serialization abstraction | ~10 new | #35 | Done (PR #47) |
-| 3 | XML parsing abstraction | ~10 new | #36 | Done (PR #48) |
-| 4 | Crypto/net/file/JSON abstractions | ~20 new, ~19 mod | #37 | Done (PR #49) |
-| 5 | Move pure Kotlin to commonMain | 82 moved | #38 | Done (PR #51) |
-| 6 | Migrate serialization consumers | 208 mod, 87 commonMain | #39 | Done (PR #53) |
-| 7 | Migrate XML consumers | 54 mod | #40 | Done (PR #55) |
-| 8 | iOS app shell | 12 new | #41 | Done (PR #57, iOS CI verified PR #60) |
-| 9 | E2E validation | ~5 new | #42 | Done (PR #62) |
-
-**Phase 2 Complete.** All 9 waves done. 88 files in commonMain, 21 cross-platform tests pass on both JVM and iOS. See `docs/plans/2026-03-10-phase2-completion-report.md`.
-
-**Phase 3: Engine on iOS** — Partially complete. Moved 96 files to commonMain (88→184), removed JVM collections, abstracted serialization. Core model classes blocked by 67 files with direct JVM deps. See `docs/plans/2026-03-11-phase3-completion-report.md`.
-
-| Wave | Group | Files | Issue | Status |
-|------|-------|-------|-------|--------|
-| 1 | Replace JVM collections | 265 | #64 | Done (PR #74) |
-| 2 | Migrate XML consumers to PlatformXmlParser | ~55 | #65 | Done (partial) |
-| 3 | Replace Date and regex | ~32 | #66 | Done (PR #100) |
-| 4 | Abstract serialization framework | ~10 new | #67 | Done (PR #101) |
-| 5 | Extend java.io abstractions | ~160 | #68 | Done (partial) |
-| 6 | Move XPath engine to commonMain | ~80 | #69 | Done (partial) |
-| 7 | Move XForm/cases/session to commonMain | ~150+ | #70 | Done (27 files, PR #109) |
-| 8 | Real iOS platform implementations | ~10 | #71 | Blocked |
-| 9 | Integration testing and validation | ~5 new | #72 | Blocked |
-
-**Phase 4: Deep Migration** — Remove JVM dependencies from 67 blocker files + convert 13 Java files to unlock ~390 transitively-blocked files.
-
-| Wave | Group | Files | Issue | Status |
-|------|-------|-------|-------|--------|
-| 1 | Quick wins (Math, Locale, Objects, synchronized) | ~10 | #111 | Done (PR #122) |
-| 2 | Convert remaining Java files to Kotlin | 13 | #112 | Done (PR #122) |
-| 3 | Complete Date/Calendar migration | ~7 | #113 | Done (PR #125) |
-| 4 | Migrate xmlpull/kxml2 consumers | 9 | #114 | Done (PR #128) |
-| 5 | Abstract org.json to PlatformJson | 8 | #115 | Done (PR #124) |
-| 6 | Abstract io.reactivex and tracing | 7 | #116 | Done (PR #123) |
-| 7 | Abstract java.io and java.net | ~18 | #117 | Done (PRs #126, #127) |
-| 8 | KClass conversion for serialization | ~16 | #118 | Done (PR #129) |
-| 9 | Move HTTP/network files to jvmMain | 7 | #119 | Done (PR #124) |
-| 10 | Bulk migration to commonMain | 390+ | #120 | Done (PR #130) |
-
-**Phase 4 Complete.** All 10 waves done. 204 files in commonMain (+20 from Phase 3). Bulk migration hit ceiling: ~450 files blocked by ExtUtil/ExtWrap* serialization framework's deep `Class<*>` dependency. See `docs/plans/2026-03-11-phase4-completion-report.md`.
-
-**Phase 5: Serialization Framework Refactor** — Replace `Class<*>` with `KClass<*>` + factory lambdas in ExtUtil/ExtWrap* to unblock bulk migration.
-
-| Wave | Group | Files | Issue | Status |
-|------|-------|-------|-------|--------|
-| 1-3 | Refactor ExtUtil, ExtWrapBase, ExtWrapList | 3 | #133-#135 | Done (PR #142) |
-| 4 | Refactor ExtWrapTagged + Hasher | 3 | #136 | Done (PR #142) |
-| 5 | Refactor remaining ExtWrap* | 4 | #137 | Done (PR #142) |
-| 6 | Refactor PrototypeFactory + PrototypeManager | 3 | #138 | Done (PR #142) |
-| 7 | Migrate pure Kotlin files to commonMain | 23 moved | #139 | Done (PR #142) |
-| 8 | Move serialization framework + cluster to commonMain | 23 moved | #140 | Done (PR #145) |
-| 9 | Validation and cleanup | ~5 new | #141 | Done |
-
-**Phase 5 Complete.** Serialization framework (ExtUtil, ExtWrap*, 12 files) moved to commonMain + 11 additional files. Remaining waves (4-9) completed by Phase 7 bulk migration. See `docs/plans/2026-03-12-phase5-completion-report.md`.
-
-**Phase 6: Deep Platform Abstraction** — Remove JVM dependencies from blocker files, move JVM-only files to jvmMain, maximize commonMain migration.
-
-| Wave | Group | Files | PR | Status |
-|------|-------|-------|-----|--------|
-| 1-5 | Remove JVM deps (FormDef, ThreadLocal, java.io, etc.) | 6 | #156 | Done |
-| 6 | OrderedHashtable rewrite + Map widening | 25+ | #156 | Done |
-| 7-11 | Bulk migration to commonMain | 37 moved | #156 | Done |
-| 12 | iOS CI fixes (@Throws, Foundation imports) | 3 | #156 | Done |
-| 13 | Move JVM-only files to jvmMain | 24 | #156 | Done |
-| 14 | Bulk migration sweep | 0 moved | — | Ceiling reached (resolved in Phase 7) |
-
-**Phase 6 Complete.** commonMain: 264 files (+37 from Phase 5's 227). Remaining issues (#147-#154) completed by Phase 7 bulk migration. See `docs/plans/2026-03-12-phase6-completion-report.md`.
-
-**Phase 7: Break Cycle & Bulk Migrate** — Break the circular dependency, extract JVM-only files, bulk migrate everything to commonMain.
-
-| Wave | Group | Files | PR | Status |
-|------|-------|-------|-----|--------|
-| 1 | Extract JVM deps from blocker files | 6 | #160 | Done |
-| 2 | Move JVM-only files to jvmMain | 29 | #160 | Done |
-| 3 | Create platform abstractions | 7 new | #160 | Done |
-| 4 | Bulk migration to commonMain | 369 moved | #160 | Done |
-
-**Phase 7 Complete.** All Kotlin files moved out of main/java. commonMain: 636 files (+372 from Phase 6). jvmMain: 105 files (+29). Only 1 Java compat file remains in main/java (StorageManagerCompat.java). All 800+ JVM tests pass, iOS build + tests pass.
-
 **Migration Complete.** All open issues closed. Gavaghan geodesy replaced with pure Kotlin Vincenty implementation (PR #163), removing the last external lib blocker. commonMain: 643 files. jvmMain: 100 files (intentionally JVM-only: kxml2 parsers, javax.crypto, OkHttp, database helpers). 1 Java compat file remains (StorageManagerCompat.java).
+
+**Phase 1-7: Core Port → KMP Migration** — All done. See completion reports in Key Docs below.
 
 **Phase 8: iOS App Implementation** — Build the full iOS app on top of the KMP engine: platform adapters, storage, UI, sync.
 
@@ -164,44 +65,22 @@ commcare-ios/
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
 - **Phase 8 plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md` — 9 waves: platform adapters, storage, login, menus, cases, forms, sync, polish
 - **Phase 7 completion**: `docs/plans/2026-03-12-phase7-completion-report.md` — 636 commonMain files, 392-file connected component broken, bulk migration complete
-- **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling, remaining options
-- **Phase 6 plan**: `docs/plans/2026-03-12-phase6-deep-platform-abstraction-plan.md` — 16 JVM blocker files, Reader/ThreadLocal/SystemProperty abstractions, bulk migration
-- **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved, 16 remaining JVM blockers
-- **Phase 5 plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md` — ExtUtil/ExtWrap* KClass refactoring, 9 waves, bulk migration strategy
-- **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling, options for Phase 5
-- **Phase 4 plan**: `docs/plans/2026-03-11-phase4-deep-migration-plan.md` — targeted JVM dep removal from 67 blocker files, wave details
-- **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis, remaining JVM deps
-- **Phase 3 plan**: `docs/plans/2026-03-10-phase3-engine-on-ios-plan.md` — wave details, dependency analysis, serialization framework strategy
-- **Phase 2 plan**: `docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md` — wave details, dependency analysis, expect/actual strategy
-- **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, known limitations, Phase 3 readiness
+- **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling
+- **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved
+- **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling
+- **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis
+- **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, Phase 3 readiness
 - **Phase 1 completion**: `docs/plans/2026-03-10-phase1-completion-report.md` — 710 tests, 611 .kt + 32 .java, verification results
-- **Phase 1 plan**: `docs/plans/2026-03-07-phase1-core-port-plan.md` — **Completed.** Wave details, PR strategy, issue closure template
-- **Phase 0 plan**: `docs/plans/2026-03-07-phase0-scaffold-plan.md` — **Completed.** Skip unless debugging pipeline issues.
-- **Degenerify design**: `docs/plans/2026-03-08-abstract-tree-element-degenerify-design.md` — removing AbstractTreeElement type parameter (completed in Wave 2)
+- **Performance testing**: `docs/plans/2026-03-11-performance-testing-design.md` — kotlinx-benchmark infrastructure for JVM/Native comparison
 
-**Learnings:**
-- **Conversion pitfalls**: `docs/learnings/2026-03-08-kotlin-conversion-pitfalls.md` — 6 recurring issues with fixes (source for Kotlin Conversion Checklist below)
-- **PR discipline**: `docs/learnings/2026-03-08-pr-discipline.md` — why every deliverable step must be explicit in the plan (source for PR Rules below)
-- **Issue closure discipline**: `docs/learnings/2026-03-08-issue-closure-discipline.md` — why evidence is as important as code (source for Issue Closure Rules below)
-- **CLAUDE.md importance**: `docs/learnings/2026-03-08-claude-md-importance.md` — why CLAUDE.md must exist early and integrate learnings
-- **Degenerify**: `docs/learnings/2026-03-08-abstract-tree-element-degenerify.md` — removing type parameter from AbstractTreeElement, with rationale
-- **Monorepo for agents**: `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` — why all context must be in one directory tree for AI agents
-- **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
-- **Wave 4 XForm parser learnings**: `docs/learnings/2026-03-09-wave4-xform-parser-learnings.md` — companion method inheritance, `@JvmField` vs `open`, companion `protected` limitation, smart cast on `var`, `const val` auto-inline
-- **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
-- **Phase 5 serialization migration**: `docs/learnings/2026-03-11-phase5-serialization-migration-learnings.md` — LiveHasher side effects, qualifiedName vs Class.getName(), iterative migration cascading, serialization framework as root blocker
-- **Wave 5 case-management learnings**: `docs/learnings/2026-03-09-wave5-case-management-learnings.md` — JVM signature clashes (constructor `val` vs interface method, field vs getter), Java boxed types in generics, Kotlin-to-Kotlin method calls
-- **Wave 6 suite-session learnings**: `docs/learnings/2026-03-10-wave6-suite-session-learnings.md` — `internal` hides from Java in other source sets, property getter/setter clashes, nullable return types Java silently allowed
-- **Wave 8 core-services learnings**: `docs/learnings/2026-03-10-wave8-core-services-learnings.md` — `@JvmField protected` for cross-source-set Java subclasses, OkHttp 4/Okio 2 API migration, `const val` requires compile-time constants
-- **Phase 2 KMP migration learnings**: `docs/learnings/2026-03-10-wave6-7-kmp-migration-learnings.md` — compileCommonMainKotlinMetadata strictness, transitive dependency bottleneck, PlatformIOException typealias
-- **iOS CI learnings**: `docs/learnings/2026-03-10-ios-ci-learnings.md` — iOS-specific API differences, commonMain visibility from app module, CI strategy
-- **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
-- **Phase 3 Wave 4 learnings**: `docs/learnings/2026-03-11-wave4-serialization-framework-learnings.md` — Class<*> as fundamental blocker, extension function shadowing, ExtUtil inlining workaround, PrototypeFactory expect/actual pattern
-- **Phase 4 deep migration learnings**: `docs/learnings/2026-03-11-phase4-deep-migration-learnings.md` — ExtUtil ceiling, iterative compiler-validated migration, platformSynchronized, TypeTokenUtils bridge, XFormConstants extraction
-- **Phase 5 Wave 8 learnings**: `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md` — LinkedHashMap final in Native, top-level functions vs Java constructors, Class<*>→KClass<*> pattern, @Throws filter strictness
-- **Phase 7 bulk migration learnings**: `docs/learnings/2026-03-12-phase7-bulk-migration-learnings.md` — connected component problem, registration pattern for platform factories, extension functions invisible to Java, ccapi/cli can't see jvmMain
-- **Gavaghan replacement learnings**: `docs/learnings/2026-03-12-gavaghan-replacement-learnings.md` — Vincenty as drop-in for geodesy lib, floating point normalization artifacts, cascading unblocked moves, test ordering dependencies
-- **Phase 6 deep migration learnings**: `docs/learnings/2026-03-12-phase6-deep-migration-learnings.md` — PlatformLock typealias extensions, SizeBoundVector composition, @Throws filter mismatches, cascade ceiling analysis
+**Learnings (by category):**
+- **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
+- **KMP migration**: `wave6-7-kmp-migration-learnings`, `ios-ci-learnings`, `commonmain-migration-blockers`, `phase4-deep-migration-learnings`, `phase6-deep-migration-learnings`, `phase7-bulk-migration-learnings`, `wave6-xpath-migration-learnings`, `wave7-commonmain-dependency-inversion`, `wave7-commonmain-migration-learnings`
+- **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
+- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
+- **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
+
+All learning files are in `docs/learnings/`.
 
 ## Kotlin Conversion Checklist
 
