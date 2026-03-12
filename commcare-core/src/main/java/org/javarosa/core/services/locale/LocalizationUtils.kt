@@ -1,9 +1,8 @@
 package org.javarosa.core.services.locale
 
-import java.io.BufferedReader
-import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.io.PlatformInputStream
-import java.io.InputStreamReader
+import org.javarosa.core.io.platformReadAllLines
+import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmStatic
 
 /**
@@ -18,14 +17,11 @@ object LocalizationUtils {
     @Throws(PlatformIOException::class)
     fun parseLocaleInput(`is`: PlatformInputStream): HashMap<String, String> {
         val locale = HashMap<String, String>()
-        val isr = InputStreamReader(`is`, "UTF-8")
-        val reader = BufferedReader(isr)
+        val lines = platformReadAllLines(`is`)
 
-        var line = reader.readLine()
         var lineCount = 0
-        while (line != null) {
+        for (line in lines) {
             parseAndAdd(locale, line, lineCount++)
-            line = reader.readLine()
         }
 
         return locale
