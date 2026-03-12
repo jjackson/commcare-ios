@@ -4,11 +4,12 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 class ExtWrapBase : ExternalizableWrapper {
 
     @JvmField
-    var type: Class<*>? = null
+    var type: KClass<*>? = null
 
     /* serialization */
     constructor(`val`: Any) {
@@ -19,12 +20,15 @@ class ExtWrapBase : ExternalizableWrapper {
     }
 
     /* deserialization */
-    constructor(type: Class<*>) {
-        if (ExternalizableWrapper::class.java.isAssignableFrom(type)) {
+    constructor(type: KClass<*>) {
+        if (type == ExternalizableWrapper::class || type == ExtWrapBase::class) {
             throw IllegalArgumentException("ExtWrapBase can only contain base types")
         }
         this.type = type
     }
+
+    /** JVM backward-compatible constructor accepting Class<*>. */
+    constructor(type: Class<*>) : this(type.kotlin)
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         return ExtWrapBase(`val`!!)

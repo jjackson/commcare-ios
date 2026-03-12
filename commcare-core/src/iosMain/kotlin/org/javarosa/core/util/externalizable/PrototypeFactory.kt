@@ -37,6 +37,10 @@ actual open class PrototypeFactory actual constructor() {
     /**
      * Create a new instance of a registered type by hash.
      */
+    actual open fun getClassName(hash: ByteArray): String? {
+        return hashToName[hash.toList()]
+    }
+
     actual open fun getInstance(hash: ByteArray): Any {
         val name = hashToName[hash.toList()]
             ?: throw CannotCreateObjectException("No class registered for hash")
@@ -75,5 +79,19 @@ actual open class PrototypeFactory actual constructor() {
         }
 
         actual fun getClassHashSize(): Int = DEFAULT_HASH_SIZE
+
+        actual fun getClassHashByName(className: String): ByteArray {
+            return computeHashStatic(className)
+        }
+
+        private fun computeHashStatic(className: String): ByteArray {
+            val reversed = StringBuilder(className).reverse().toString()
+            val bytes = reversed.encodeToByteArray()
+            val hash = ByteArray(DEFAULT_HASH_SIZE)
+            for (i in bytes.indices) {
+                hash[i % DEFAULT_HASH_SIZE] = (hash[i % DEFAULT_HASH_SIZE].toInt() xor bytes[i].toInt()).toByte()
+            }
+            return hash
+        }
     }
 }

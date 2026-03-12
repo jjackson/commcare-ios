@@ -10,8 +10,12 @@ import org.javarosa.core.util.externalizable.Hasher
 class ClassNameHasher : Hasher() {
 
     override fun getHash(c: Class<*>): ByteArray {
+        return getHashByName(c.name)
+    }
+
+    override fun getHashByName(className: String): ByteArray {
         // reverse because the beginning of the classpath is less likely to be unique than the name
-        return StringBuilder(c.name).reverse().toString().toByteArray()
+        return StringBuilder(className).reverse().toString().toByteArray()
     }
 
     override fun getHashSize(): Int {

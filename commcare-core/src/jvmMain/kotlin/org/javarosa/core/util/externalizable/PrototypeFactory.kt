@@ -128,6 +128,10 @@ actual open class PrototypeFactory : Any {
         return null
     }
 
+    actual open fun getClassName(hash: ByteArray): String? {
+        return getClass(hash)?.name
+    }
+
     actual open fun getInstance(hash: ByteArray): Any {
         return getInstance(getClass(hash)!!)
     }
@@ -179,6 +183,11 @@ actual open class PrototypeFactory : Any {
         @JvmStatic
         actual fun getClassHashSize(): Int {
             return mStaticHasher!!.getHashSize()
+        }
+
+        @JvmStatic
+        actual fun getClassHashByName(className: String): ByteArray {
+            return mStaticHasher!!.getClassHashValueByName(className)
         }
 
         @JvmStatic

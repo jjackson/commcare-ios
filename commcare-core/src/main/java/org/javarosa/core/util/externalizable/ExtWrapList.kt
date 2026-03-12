@@ -4,6 +4,7 @@ import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 // List of objects of single (non-polymorphic) type
 class ExtWrapList : ExternalizableWrapper {
@@ -12,7 +13,8 @@ class ExtWrapList : ExternalizableWrapper {
     var type: ExternalizableWrapper? = null
 
     private var sealed: Boolean = false
-    private var listImplementation: Class<out List<*>>? = null
+    private var listFactory: (() -> MutableList<Any?>)? = null
+    private var listTag: String? = null
 
     /* Constructors for serialization */
 
@@ -22,33 +24,58 @@ class ExtWrapList : ExternalizableWrapper {
         requireNotNull(list)
         this.`val` = list
         this.type = type
-        @Suppress("UNCHECKED_CAST")
-        this.listImplementation = list.javaClass as Class<out List<*>>
+        this.listTag = list::class.qualifiedName ?: ARRAYLIST_TAG
+        this.listFactory = LIST_FACTORIES[listTag] ?: { ArrayList() }
     }
 
     /* Constructors for deserialization */
 
     constructor()
 
-    // Assumes that the list implementation is a ArrayList, since that is most common
-    constructor(listElementType: Class<*>) : this(listElementType, ArrayList::class.java)
-
-    @Suppress("UNCHECKED_CAST")
-    constructor(listElementType: Class<*>, listImplementation: Class<*>) {
+    constructor(listElementType: KClass<*>) {
         this.type = ExtWrapBase(listElementType)
-        this.listImplementation = listImplementation as Class<out List<*>>
+        this.listFactory = { ArrayList() }
+        this.listTag = ARRAYLIST_TAG
         this.sealed = false
     }
 
-    // Assumes that the list implementation is a ArrayList, since that is most common
-    constructor(type: ExternalizableWrapper) : this(type, ArrayList::class.java)
-
-    @Suppress("UNCHECKED_CAST")
-    constructor(type: ExternalizableWrapper, listImplementation: Class<*>) {
-        requireNotNull(type)
-        this.listImplementation = listImplementation as Class<out List<*>>
-        this.type = type
+    constructor(listElementType: KClass<*>, listFactory: () -> MutableList<Any?>, listTag: String = ARRAYLIST_TAG) {
+        this.type = ExtWrapBase(listElementType)
+        this.listFactory = listFactory
+        this.listTag = listTag
+        this.sealed = false
     }
+
+    constructor(type: ExternalizableWrapper) {
+        requireNotNull(type)
+        this.type = type
+        this.listFactory = { ArrayList() }
+        this.listTag = ARRAYLIST_TAG
+    }
+
+    constructor(type: ExternalizableWrapper, listFactory: () -> MutableList<Any?>, listTag: String = ARRAYLIST_TAG) {
+        requireNotNull(type)
+        this.type = type
+        this.listFactory = listFactory
+        this.listTag = listTag
+    }
+
+    /** JVM backward-compatible constructor accepting Class<*>. */
+    constructor(listElementType: Class<*>) : this(listElementType.kotlin)
+
+    /** JVM backward-compatible constructor accepting Class<*> for element and list impl. */
+    constructor(listElementType: Class<*>, listImplementation: Class<*>) : this(
+        listElementType.kotlin,
+        LIST_FACTORIES[listImplementation.name] ?: { ArrayList() },
+        listImplementation.name
+    )
+
+    /** JVM backward-compatible constructor accepting ExternalizableWrapper and Class<*>. */
+    constructor(type: ExternalizableWrapper, listImplementation: Class<*>) : this(
+        type,
+        LIST_FACTORIES[listImplementation.name] ?: { ArrayList() },
+        listImplementation.name
+    )
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
@@ -59,23 +86,16 @@ class ExtWrapList : ExternalizableWrapper {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         if (!sealed) {
             val size = ExtUtil.readNumeric(`in`).toInt()
-            try {
-                val l: MutableList<Any?> = if (listImplementation == ArrayList::class.java) {
-                    // to preserve performance gains of instantiating a ArrayList with its size
-                    ArrayList(size)
-                } else {
-                    @Suppress("DEPRECATION")
-                    listImplementation!!.newInstance() as MutableList<Any?>
-                }
-                for (i in 0 until size) {
-                    l.add(ExtUtil.read(`in`, type!!, pf))
-                }
-                `val` = l
-            } catch (e: InstantiationException) {
-                throw DeserializationException(e.message!!)
-            } catch (e: IllegalAccessException) {
-                throw DeserializationException(e.message!!)
+            val factory = listFactory ?: { ArrayList() }
+            val l: MutableList<Any?> = if (listTag == ARRAYLIST_TAG) {
+                ArrayList(size)
+            } else {
+                factory()
             }
+            for (i in 0 until size) {
+                l.add(ExtUtil.read(`in`, type!!, pf))
+            }
+            `val` = l
         } else {
             val size = ExtUtil.readNumeric(`in`).toInt()
             val theval = arrayOfNulls<Any>(size)
@@ -99,12 +119,9 @@ class ExtWrapList : ExternalizableWrapper {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun metaReadExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         type = ExtWrapTagged.readTag(`in`, pf)
-        try {
-            @Suppress("UNCHECKED_CAST")
-            listImplementation = Class.forName(ExtUtil.readString(`in`)) as Class<out List<*>>
-        } catch (e: ClassNotFoundException) {
-            throw DeserializationException(e.message!!)
-        }
+        val tag = ExtUtil.readString(`in`)
+        listTag = tag
+        listFactory = LIST_FACTORIES[tag] ?: { ArrayList() }
     }
 
     @Throws(PlatformIOException::class)
@@ -122,6 +139,17 @@ class ExtWrapList : ExternalizableWrapper {
         }
 
         ExtWrapTagged.writeTag(out, tagObj!!)
-        ExtUtil.writeString(out, listImplementation!!.name)
+        ExtUtil.writeString(out, listTag ?: ARRAYLIST_TAG)
+    }
+
+    companion object {
+        private const val ARRAYLIST_TAG = "java.util.ArrayList"
+
+        /** Registry of known list implementations by class name. */
+        private val LIST_FACTORIES: HashMap<String, () -> MutableList<Any?>> = HashMap<String, () -> MutableList<Any?>>().apply {
+            put("java.util.ArrayList", { ArrayList() })
+            put("java.util.LinkedList", { java.util.LinkedList() })
+            put("kotlin.collections.ArrayList", { ArrayList() })
+        }
     }
 }

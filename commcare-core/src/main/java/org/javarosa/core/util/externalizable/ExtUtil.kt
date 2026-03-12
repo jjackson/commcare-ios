@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 class ExtUtil {
     companion object {
@@ -53,7 +54,7 @@ class ExtUtil {
                 is String -> writeString(out, data)
                 is PlatformDate -> writeDate(out, data)
                 is ByteArray -> writeBytes(out, data)
-                else -> throw ClassCastException("Not a serializable datatype: " + data.javaClass.name)
+                else -> throw ClassCastException("Not a serializable datatype: " + (data::class.qualifiedName ?: data::class.toString()))
             }
         }
 
@@ -123,27 +124,58 @@ class ExtUtil {
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun read(
             `in`: PlatformDataInputStream,
+            type: KClass<*>,
+            pf: PrototypeFactory?
+        ): Any {
+            return when (type) {
+                Byte::class -> readByte(`in`)
+                Short::class -> readShort(`in`)
+                Int::class -> readInt(`in`)
+                Long::class -> readNumeric(`in`)
+                Char::class -> readChar(`in`)
+                Float::class -> readDecimal(`in`).toFloat()
+                Double::class -> readDecimal(`in`)
+                Boolean::class -> readBool(`in`)
+                String::class -> readString(`in`)
+                PlatformDate::class -> readDate(`in`)
+                ByteArray::class -> readBytes(`in`)
+                else -> {
+                    // Must be an Externalizable type — create via JVM reflection
+                    val o = type.java.getDeclaredConstructor().newInstance()
+                    (o as Externalizable).readExternal(`in`, pf ?: defaultPrototypes())
+                    o
+                }
+            }
+        }
+
+        /**
+         * JVM backward-compatible overload accepting Class<*>.
+         * Uses Class.newInstance() directly for Externalizable types (matching original behavior).
+         */
+        @JvmStatic
+        @Throws(PlatformIOException::class, DeserializationException::class)
+        fun read(
+            `in`: PlatformDataInputStream,
             type: Class<*>,
             pf: PrototypeFactory?
         ): Any {
-            return when {
-                Externalizable::class.java.isAssignableFrom(type) -> {
-                    val ext = PrototypeFactory.getInstance(type) as Externalizable
-                    ext.readExternal(`in`, pf ?: defaultPrototypes())
-                    ext
+            return when (type.kotlin) {
+                Byte::class -> readByte(`in`)
+                Short::class -> readShort(`in`)
+                Int::class -> readInt(`in`)
+                Long::class -> readNumeric(`in`)
+                Char::class -> readChar(`in`)
+                Float::class -> readDecimal(`in`).toFloat()
+                Double::class -> readDecimal(`in`)
+                Boolean::class -> readBool(`in`)
+                String::class -> readString(`in`)
+                PlatformDate::class -> readDate(`in`)
+                ByteArray::class -> readBytes(`in`)
+                else -> {
+                    val o = PrototypeFactory.getInstance(type)
+                    (o as Externalizable).readExternal(`in`, pf ?: defaultPrototypes())
+                    o
                 }
-                type == java.lang.Byte::class.java -> readByte(`in`)
-                type == java.lang.Short::class.java -> readShort(`in`)
-                type == java.lang.Integer::class.java -> readInt(`in`)
-                type == java.lang.Long::class.java -> readNumeric(`in`)
-                type == java.lang.Character::class.java -> readChar(`in`)
-                type == java.lang.Float::class.java -> readDecimal(`in`).toFloat()
-                type == java.lang.Double::class.java -> readDecimal(`in`)
-                type == java.lang.Boolean::class.java -> readBool(`in`)
-                type == String::class.java -> readString(`in`)
-                type == PlatformDate::class.java -> readDate(`in`)
-                type == ByteArray::class.java -> readBytes(`in`)
-                else -> throw ClassCastException("Not a deserializable datatype: " + type.name)
             }
         }
 
@@ -412,8 +444,15 @@ class ExtUtil {
             return sb.toString()
         }
 
-        // **REMOVE THIS FUNCTION**
-        // original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
+        @JvmStatic
+        @Throws(PlatformIOException::class, DeserializationException::class)
+        fun deserialize(data: ByteArray, type: KClass<*>, pf: PrototypeFactory?): Any {
+            return read(PlatformDataInputStream(data), type, pf)
+        }
+
+        /**
+         * JVM backward-compatible overload accepting Class<*>.
+         */
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
