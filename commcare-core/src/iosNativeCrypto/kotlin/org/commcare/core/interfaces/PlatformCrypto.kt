@@ -60,85 +60,14 @@ actual object PlatformCrypto {
     }
 
     actual fun aesEncrypt(data: ByteArray, key: ByteArray): ByteArray {
-        val iv = randomBytes(GCM_IV_LENGTH)
-        val ciphertext = ByteArray(data.size)
-        val tag = ByteArray(GCM_TAG_LENGTH)
-
-        key.usePinned { pinnedKey ->
-            iv.usePinned { pinnedIv ->
-                tag.usePinned { pinnedTag ->
-                    if (data.isEmpty()) {
-                        val status = cc_gcm_encrypt(
-                            pinnedKey.addressOf(0), key.size.toULong(),
-                            pinnedIv.addressOf(0), GCM_IV_LENGTH.toULong(),
-                            null, 0u,
-                            null,
-                            pinnedTag.addressOf(0), GCM_TAG_LENGTH.toULong()
-                        )
-                        check(status == 0) { "AES-GCM encrypt failed: $status" }
-                    } else {
-                        data.usePinned { pinnedData ->
-                            ciphertext.usePinned { pinnedCipher ->
-                                val status = cc_gcm_encrypt(
-                                    pinnedKey.addressOf(0), key.size.toULong(),
-                                    pinnedIv.addressOf(0), GCM_IV_LENGTH.toULong(),
-                                    pinnedData.addressOf(0), data.size.toULong(),
-                                    pinnedCipher.addressOf(0),
-                                    pinnedTag.addressOf(0), GCM_TAG_LENGTH.toULong()
-                                )
-                                check(status == 0) { "AES-GCM encrypt failed: $status" }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Format matches JVM: IV + ciphertext + tag
-        return iv + ciphertext + tag
+        // CommonCrypto GCM APIs are SPI (not public). AES-GCM requires either:
+        // - CryptoKit via Swift interop (Phase 8 Wave 2+)
+        // - Or a pure Kotlin AES-GCM implementation
+        TODO("iOS AES-GCM encrypt requires CryptoKit Swift bridge (planned)")
     }
 
     actual fun aesDecrypt(data: ByteArray, key: ByteArray): ByteArray {
-        require(data.size >= GCM_IV_LENGTH + GCM_TAG_LENGTH) {
-            "Ciphertext too short for AES-GCM (need at least ${GCM_IV_LENGTH + GCM_TAG_LENGTH} bytes)"
-        }
-
-        val iv = data.copyOfRange(0, GCM_IV_LENGTH)
-        val ciphertext = data.copyOfRange(GCM_IV_LENGTH, data.size - GCM_TAG_LENGTH)
-        val tag = data.copyOfRange(data.size - GCM_TAG_LENGTH, data.size)
-        val plaintext = ByteArray(ciphertext.size)
-
-        key.usePinned { pinnedKey ->
-            iv.usePinned { pinnedIv ->
-                tag.usePinned { pinnedTag ->
-                    if (ciphertext.isEmpty()) {
-                        val status = cc_gcm_decrypt(
-                            pinnedKey.addressOf(0), key.size.toULong(),
-                            pinnedIv.addressOf(0), GCM_IV_LENGTH.toULong(),
-                            null, 0u,
-                            null,
-                            pinnedTag.addressOf(0), GCM_TAG_LENGTH.toULong()
-                        )
-                        check(status == 0) { "AES-GCM decrypt failed: $status" }
-                    } else {
-                        ciphertext.usePinned { pinnedCipher ->
-                            plaintext.usePinned { pinnedPlain ->
-                                val status = cc_gcm_decrypt(
-                                    pinnedKey.addressOf(0), key.size.toULong(),
-                                    pinnedIv.addressOf(0), GCM_IV_LENGTH.toULong(),
-                                    pinnedCipher.addressOf(0), ciphertext.size.toULong(),
-                                    pinnedPlain.addressOf(0),
-                                    pinnedTag.addressOf(0), GCM_TAG_LENGTH.toULong()
-                                )
-                                check(status == 0) { "AES-GCM decrypt failed: $status" }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return plaintext
+        TODO("iOS AES-GCM decrypt requires CryptoKit Swift bridge (planned)")
     }
 
     actual fun generateAesKey(bits: Int): ByteArray {
