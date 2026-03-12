@@ -46,8 +46,15 @@ kotlin {
         }
     }
 
-    // iOS targets — empty for now, code will move to commonMain incrementally
+    // iOS targets
     listOf(iosArm64(), iosSimulatorArm64()).forEach {
+        it.compilations.getByName("main") {
+            cinterops {
+                create("CommonCrypto") {
+                    defFile("src/nativeInterop/cinterop/CommonCrypto.def")
+                }
+            }
+        }
         it.binaries.framework {
             baseName = "CommCareCore"
             isStatic = true
@@ -106,6 +113,13 @@ kotlin {
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
         }
+
+        // Share cinterop-dependent source files across both iOS targets.
+        // Custom cinterops aren't commonized with manual hierarchy, so code
+        // using CommonCrypto lives in a shared srcDir included by each target.
+        val iosCryptoDir = file("src/iosNativeCrypto/kotlin")
+        iosArm64Main.kotlin.srcDir(iosCryptoDir)
+        iosSimulatorArm64Main.kotlin.srcDir(iosCryptoDir)
 
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
