@@ -3,6 +3,8 @@
 package org.javarosa.core.model.utils
 
 import platform.Foundation.NSDate
+import platform.Foundation.NSTimeZone
+import platform.Foundation.secondsFromGMTForDate
 import platform.Foundation.timeIntervalSince1970
 
 /**
@@ -31,8 +33,8 @@ actual class PlatformDate actual constructor() {
 
 actual fun PlatformDate.getTimezoneOffset(): Int {
     val seconds = this.getTime() / 1000.0
-    val date = NSDate.dateWithTimeIntervalSince1970(seconds)
-    val tz = platform.Foundation.NSTimeZone.localTimeZone
+    val date = NSDate(timeIntervalSince1970 = seconds)
+    val tz = NSTimeZone.localTimeZone
     // NSTimeZone.secondsFromGMTForDate returns seconds east of GMT
     // Java's getTimezoneOffset returns minutes WEST of UTC
     return -(tz.secondsFromGMTForDate(date).toInt() / 60)

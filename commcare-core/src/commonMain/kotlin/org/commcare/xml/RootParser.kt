@@ -6,13 +6,17 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * @author ctsims
  */
 class RootParser(parser: PlatformXmlParser) : ElementParser<RootTranslator>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(
+        InvalidStructureException::class, PlatformIOException::class,
+        PlatformXmlParserException::class, UnfullfilledRequirementsException::class
+    )
     override fun parse(): RootTranslator {
         this.checkNode("root")
 
