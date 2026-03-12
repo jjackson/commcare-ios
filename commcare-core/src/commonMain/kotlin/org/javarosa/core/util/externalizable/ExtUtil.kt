@@ -312,8 +312,8 @@ class ExtUtil {
                 if (unwrap) {
                     if (a is ArrayList<*>) {
                         return (b is ArrayList<*> && vectorEquals(a, b, unwrap))
-                    } else if (a is HashMap<*, *>) {
-                        return (b is HashMap<*, *> && hashtableEquals(a, b, unwrap))
+                    } else if (a is Map<*, *>) {
+                        return (b is Map<*, *> && hashtableEquals(a, b, unwrap))
                     }
                 }
                 return a == b
@@ -349,7 +349,7 @@ class ExtUtil {
         }
 
         @JvmStatic
-        fun hashtableEquals(a: HashMap<*, *>, b: HashMap<*, *>, unwrap: Boolean): Boolean {
+        fun hashtableEquals(a: Map<*, *>, b: Map<*, *>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
             } else {

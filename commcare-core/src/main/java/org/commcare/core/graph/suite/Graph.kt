@@ -33,7 +33,7 @@ import kotlin.jvm.JvmStatic
 class Graph : Externalizable, DetailTemplate, Configurable {
     private var mType: String? = null
     private var mSeries = ArrayList<XYSeries>()
-    private var mConfiguration = HashMap<String, Text>()
+    private var mConfiguration: MutableMap<String, Text> = HashMap()
     private var mAnnotations = ArrayList<Annotation>()
 
     constructor() {

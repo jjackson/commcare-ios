@@ -66,7 +66,7 @@ object InstanceUtils {
     @kotlin.jvm.JvmSuppressWildcards
     fun getLimitedInstances(
         limitingList: Set<String>?,
-        instances: HashMap<String, DataInstance<*>>?
+        instances: MutableMap<String, DataInstance<*>>?
     ): HashMap<String, DataInstance<*>> {
         val copy = HashMap<String, DataInstance<*>>()
         if (instances == null) return copy

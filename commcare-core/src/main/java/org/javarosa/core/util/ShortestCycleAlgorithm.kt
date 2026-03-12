@@ -13,9 +13,9 @@ import org.javarosa.core.model.instance.TreeReference
  */
 class ShortestCycleAlgorithm(private val edges: ArrayList<Array<TreeReference>>) {
     private val nodes = ArrayList<String>()
-    private val childrenMap: HashMap<String, ArrayList<String>> = OrderedHashtable()
+    private val childrenMap: MutableMap<String, ArrayList<String>> = OrderedHashtable()
     private var shortestCycle: ArrayList<String>? = null
-    private val reachableMap: HashMap<String, ArrayList<String>> = OrderedHashtable()
+    private val reachableMap: MutableMap<String, ArrayList<String>> = OrderedHashtable()
     private val walked = ArrayList<String>()
 
     init {

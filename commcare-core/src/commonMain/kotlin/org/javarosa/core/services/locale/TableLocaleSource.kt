@@ -12,13 +12,13 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author Clayton Sims
  */
 class TableLocaleSource : LocaleDataSource {
-    private var localeData: HashMap<String, String>
+    private var localeData: MutableMap<String, String>
 
     constructor() {
         localeData = HashMap()
     }
 
-    constructor(localeData: HashMap<String, String>) {
+    constructor(localeData: MutableMap<String, String>) {
         this.localeData = localeData
     }
 
@@ -65,7 +65,7 @@ class TableLocaleSource : LocaleDataSource {
         return localeData.hashCode()
     }
 
-    override fun getLocalizedText(): HashMap<String, String> {
+    override fun getLocalizedText(): Map<String, String> {
         return localeData
     }
 

@@ -32,7 +32,7 @@ open class FormInstance : DataInstance<TreeElement>, Persistable, IMetaData {
     @JvmField
     var uiVersion: String? = null
 
-    private var namespaces = HashMap<String, String>()
+    private var namespaces: MutableMap<String, String> = HashMap()
 
     /**
      * The root of this tree

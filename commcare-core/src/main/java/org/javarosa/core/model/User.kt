@@ -36,7 +36,7 @@ class User : Persistable, Restorable, IMetaData {
     private var wrappedKey: ByteArray? = null
 
     @JvmField
-    var properties: HashMap<String, String> = HashMap()
+    var properties: MutableMap<String, String> = HashMap()
 
     // Don't ever save!
     private var cachedPwd: String? = null
@@ -136,7 +136,7 @@ class User : Persistable, Restorable, IMetaData {
         return this.properties[key]
     }
 
-    fun getProperties(): HashMap<String, String> {
+    fun getProperties(): MutableMap<String, String> {
         return this.properties
     }
 

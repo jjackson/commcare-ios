@@ -34,7 +34,7 @@ class AsyncEntity(
     detail: Detail,
     private val context: EvaluationContext,
     t: TreeReference,
-    private val mVariableDeclarations: HashMap<String, XPathExpression>,
+    private val mVariableDeclarations: MutableMap<String, XPathExpression>,
     private val mEntityStorageCache: EntityStorageCache?,
     private val mCacheIndex: String?,
     extraKey: String?

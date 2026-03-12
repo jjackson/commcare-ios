@@ -38,7 +38,7 @@ class QuestionDef : IFormElement {
     private var choices: ArrayList<SelectChoice>? = null
     private var dynamicChoices: ItemsetBinding? = null
 
-    private var mQuestionStrings: HashMap<String, QuestionString> = HashMap()
+    private var mQuestionStrings: MutableMap<String, QuestionString> = HashMap()
 
     var extensions: ArrayList<QuestionDataExtension> = ArrayList()
 

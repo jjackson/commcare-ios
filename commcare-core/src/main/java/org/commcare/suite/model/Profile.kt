@@ -29,7 +29,7 @@ class Profile : Persistable {
     private var properties: ArrayList<PropertySetter> = ArrayList()
     private var roots: ArrayList<RootTranslator> = ArrayList()
     private var dependencies: ArrayList<AndroidPackageDependency> = ArrayList()
-    private var featureStatus: HashMap<String, Boolean> = HashMap()
+    private var featureStatus: MutableMap<String, Boolean> = HashMap()
 
     private var uniqueId: String? = null
     private var displayName: String? = null

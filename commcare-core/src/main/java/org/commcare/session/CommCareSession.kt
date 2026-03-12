@@ -632,8 +632,8 @@ open class CommCareSession {
 
         var entry: Entry? = null
         val instancesInScope = HashMap<String, DataInstance<*>>()
-        var menuInstances: HashMap<String, DataInstance<*>>? = null
-        var entryInstances: HashMap<String, DataInstance<*>>? = null
+        var menuInstances: MutableMap<String, DataInstance<*>>? = null
+        var entryInstances: MutableMap<String, DataInstance<*>>? = null
 
         if (entries.isNotEmpty()) {
             entry = entries[0]

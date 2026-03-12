@@ -29,7 +29,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
     internal var commandId: String? = null
         private set
     @JvmField
-    internal var instances: HashMap<String, DataInstance<*>>? = null
+    internal var instances: MutableMap<String, DataInstance<*>>? = null
     @JvmField
     internal var stackOperations: ArrayList<StackOperation>? = null
     @JvmField
@@ -81,7 +81,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
 
     fun getSessionDataReqs(): ArrayList<SessionDatum>? = data
 
-    fun getInstances(instancesToInclude: Set<String>?): HashMap<String, DataInstance<*>> {
+    fun getInstances(instancesToInclude: Set<String>?): MutableMap<String, DataInstance<*>> {
         return InstanceUtils.getLimitedInstances(instancesToInclude, instances)
     }
 
@@ -130,7 +130,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
         this.display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
 
         data = SerializationHelpers.readListPoly(`in`, pf) as ArrayList<SessionDatum>
-        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as HashMap<String, DataInstance<*>>
+        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as MutableMap<String, DataInstance<*>>
         stackOperations = SerializationHelpers.readList(`in`, pf) { StackOperation() }
         assertions = SerializationHelpers.readNullableExternalizable(`in`, pf) { AssertionSet() }
     }
@@ -140,7 +140,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
         SerializationHelpers.writeString(out, commandId ?: "")
         SerializationHelpers.write(out, display!!)
         SerializationHelpers.writeListPoly(out, data!!)
-        SerializationHelpers.writeTaggedMap(out, instances!! as HashMap<*, *>)
+        SerializationHelpers.writeTaggedMap(out, instances!! as MutableMap<*, *>)
         SerializationHelpers.writeList(out, stackOperations!!)
         SerializationHelpers.writeNullable(out, assertions)
     }

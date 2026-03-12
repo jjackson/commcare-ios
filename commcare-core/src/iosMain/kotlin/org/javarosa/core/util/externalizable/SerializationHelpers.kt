@@ -158,7 +158,7 @@ actual object SerializationHelpers {
         return list
     }
 
-    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): MutableMap<String, String> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, String>(size)
         for (i in 0 until size) {
@@ -169,7 +169,7 @@ actual object SerializationHelpers {
         return map
     }
 
-    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         writeNumeric(out, map.size.toLong())
         for ((key, value) in map) {
             write(out, key!!)
@@ -224,7 +224,7 @@ actual object SerializationHelpers {
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory,
         creator: () -> T
-    ): HashMap<String, T> {
+    ): MutableMap<String, T> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, T>(size)
         for (i in 0 until size) {
@@ -239,7 +239,7 @@ actual object SerializationHelpers {
     actual fun readStringTaggedMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any> {
+    ): MutableMap<String, Any> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, Any>(size)
         for (i in 0 until size) {
@@ -250,7 +250,7 @@ actual object SerializationHelpers {
         return map
     }
 
-    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         writeNumeric(out, map.size.toLong())
         for ((key, value) in map) {
             write(out, key!!)
@@ -290,7 +290,7 @@ actual object SerializationHelpers {
     actual fun readStringMapPoly(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any> {
+    ): MutableMap<String, Any> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, Any>(size)
         for (i in 0 until size) {
@@ -301,7 +301,7 @@ actual object SerializationHelpers {
         return map
     }
 
-    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: Map<*, *>) {
         writeNumeric(out, map.size.toLong())
         for ((key, value) in map) {
             write(out, key!!)
@@ -334,7 +334,7 @@ actual object SerializationHelpers {
     actual fun readStringListPolyMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, ArrayList<Any?>> {
+    ): MutableMap<String, ArrayList<Any?>> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, ArrayList<Any?>>(size)
         for (i in 0 until size) {
@@ -345,7 +345,7 @@ actual object SerializationHelpers {
         return map
     }
 
-    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         writeNumeric(out, map.size.toLong())
         for ((key, value) in map) {
             write(out, key!!)
@@ -353,7 +353,7 @@ actual object SerializationHelpers {
         }
     }
 
-    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): MutableMap<String, Boolean> {
         val size = readNumeric(`in`).toInt()
         val map = HashMap<String, Boolean>(size)
         for (i in 0 until size) {

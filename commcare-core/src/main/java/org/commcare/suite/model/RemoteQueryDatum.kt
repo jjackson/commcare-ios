@@ -20,7 +20,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 class RemoteQueryDatum : SessionDatum {
     private var hiddenQueryValues: List<QueryData>? = null
     private var userQueryPrompts: OrderedHashtable<String, QueryPrompt>? = null
-    private var userQueryGroupHeaders: HashMap<String, QueryGroup>? = null
+    private var userQueryGroupHeaders: MutableMap<String, QueryGroup>? = null
     private var useCaseTemplate: Boolean = false
     private var defaultSearch: Boolean = false
     private var dynamicSearch: Boolean = false
@@ -55,7 +55,7 @@ class RemoteQueryDatum : SessionDatum {
 
     fun getUserQueryPrompts(): OrderedHashtable<String, QueryPrompt>? = userQueryPrompts
 
-    fun getUserQueryGroupHeaders(): HashMap<String, QueryGroup>? = userQueryGroupHeaders
+    fun getUserQueryGroupHeaders(): MutableMap<String, QueryGroup>? = userQueryGroupHeaders
 
     fun getHiddenQueryValues(): List<QueryData>? = hiddenQueryValues
 
@@ -91,7 +91,7 @@ class RemoteQueryDatum : SessionDatum {
         userQueryPrompts =
             OrderedHashtable<String, QueryPrompt>().also { it.putAll(SerializationHelpers.readOrderedStringExtMap(`in`, pf) { QueryPrompt() }) }
         userQueryGroupHeaders =
-            SerializationHelpers.readOrderedStringExtMap(`in`, pf) { QueryGroup() } as HashMap<String, QueryGroup>
+            SerializationHelpers.readOrderedStringExtMap(`in`, pf) { QueryGroup() } as MutableMap<String, QueryGroup>
         title = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
         description = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
         useCaseTemplate = SerializationHelpers.readBool(`in`)

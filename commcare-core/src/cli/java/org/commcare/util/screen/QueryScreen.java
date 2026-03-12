@@ -47,7 +47,7 @@ public class QueryScreen extends Screen {
 
     private RemoteQuerySessionManager remoteQuerySessionManager;
     protected OrderedHashtable<String, QueryPrompt> userInputDisplays;
-    protected HashMap<String, QueryGroup> groupHeaders;
+    protected Map<String, QueryGroup> groupHeaders;
     private SessionWrapper sessionWrapper;
     private String[] fields;
     private String mTitle;
@@ -275,7 +275,7 @@ public class QueryScreen extends Screen {
         return userInputDisplays;
     }
 
-    public HashMap<String, QueryGroup> getGroupHeaders() {
+    public Map<String, QueryGroup> getGroupHeaders() {
         return groupHeaders;
     }
 

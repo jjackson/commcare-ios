@@ -28,7 +28,7 @@ object LocalizationUtils {
     }
 
     @JvmStatic
-    fun parseAndAdd(locale: HashMap<String, String>, line: String, curline: Int) {
+    fun parseAndAdd(locale: MutableMap<String, String>, line: String, curline: Int) {
         var line = line.trim()
 
         var i: Int

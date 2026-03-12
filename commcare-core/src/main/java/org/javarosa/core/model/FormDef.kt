@@ -91,12 +91,12 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     @JvmField
     var exprEvalContext: EvaluationContext? = null
 
-    private var submissionProfiles: HashMap<String, SubmissionProfile> = HashMap()
+    private var submissionProfiles: MutableMap<String, SubmissionProfile> = HashMap()
 
     /**
      * Secondary and external instance pointers
      */
-    private var formInstances: HashMap<String, DataInstance<*>> = HashMap()
+    private var formInstances: MutableMap<String, DataInstance<*>> = HashMap()
 
     private var mainInstance: FormInstance? = null
 
@@ -1221,7 +1221,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         submissionProfiles = SerializationHelpers.readStringExtMap(dis, pf) { SubmissionProfile() }
 
         @Suppress("UNCHECKED_CAST")
-        formInstances = SerializationHelpers.readStringTaggedMap(dis, pf) as HashMap<String, DataInstance<*>>
+        formInstances = SerializationHelpers.readStringTaggedMap(dis, pf) as MutableMap<String, DataInstance<*>>
 
         @Suppress("UNCHECKED_CAST")
         extensions = SerializationHelpers.readListPoly(dis, pf) as ArrayList<XFormExtension>
@@ -1321,7 +1321,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         SerializationHelpers.writeMap(dos, submissionProfiles)
 
         // for support of multi-instance forms
-        SerializationHelpers.writeTaggedMap(dos, formInstances as HashMap<*, *>)
+        SerializationHelpers.writeTaggedMap(dos, formInstances as MutableMap<*, *>)
         SerializationHelpers.writeListPoly(dos, extensions)
         SerializationHelpers.write(dos, actionController)
     }

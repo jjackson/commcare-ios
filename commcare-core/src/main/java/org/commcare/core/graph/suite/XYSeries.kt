@@ -21,7 +21,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 open class XYSeries : Externalizable, Configurable {
 
     private var mNodeSet: String? = null
-    private var mConfiguration: HashMap<String, Text>? = null
+    private var mConfiguration: MutableMap<String, Text>? = null
 
     // List of keys that configure individual points. For these keys, the Text stored in
     // mConfiguration is an XPath expression, which during evaluation will be applied to

@@ -23,15 +23,15 @@ class Suite : Persistable {
     private var recordId: Int = -1
 
     /** Detail id -> Detail Object  */
-    private var details: HashMap<String, Detail>? = null
+    private var details: MutableMap<String, Detail>? = null
 
     /** Entry id (also the same for menus) -> Entry Object  */
-    private var entries: HashMap<String, Entry>? = null
+    private var entries: MutableMap<String, Entry>? = null
     private val idToMenus: HashMap<String, MutableList<Menu>> = HashMap()
     private val rootToMenus: HashMap<String, MutableList<Menu>> = HashMap()
 
     private var menus: ArrayList<Menu>? = null
-    private var endpoints: HashMap<String, Endpoint>? = null
+    private var endpoints: MutableMap<String, Endpoint>? = null
 
     constructor()
 
@@ -90,13 +90,13 @@ class Suite : Persistable {
      * suite, indexed by their id (which is present in the menu
      * definitions).
      */
-    fun getEntries(): HashMap<String, Entry> = entries!!
+    fun getEntries(): MutableMap<String, Entry> = entries!!
 
     fun getEntry(id: String?): Entry? = entries!![id]
 
     fun getEndpoint(id: String?): Endpoint? = endpoints!![id]
 
-    fun getEndpoints(): HashMap<String, Endpoint> = endpoints!!
+    fun getEndpoints(): MutableMap<String, Endpoint> = endpoints!!
 
     /**
      * @param id The String ID of a detail definition
@@ -111,7 +111,7 @@ class Suite : Persistable {
         this.recordId = SerializationHelpers.readInt(`in`)
         this.version = SerializationHelpers.readInt(`in`)
         this.details = SerializationHelpers.readStringExtMap(`in`, pf) { Detail() }
-        this.entries = SerializationHelpers.readStringMapPoly(`in`, pf) as HashMap<String, Entry>
+        this.entries = SerializationHelpers.readStringMapPoly(`in`, pf) as MutableMap<String, Entry>
         this.menus = SerializationHelpers.readList(`in`, pf) { Menu() }
         this.endpoints = SerializationHelpers.readStringExtMap(`in`, pf) { Endpoint() }
         buildIdToMenus()
