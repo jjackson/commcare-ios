@@ -111,8 +111,10 @@ commcare-ios/
 | 5 | Refactor remaining ExtWrap* | 4 | #137 | Done (PR #142) |
 | 6 | Refactor PrototypeFactory + PrototypeManager | 3 | #138 | Done (PR #142) |
 | 7 | Migrate pure Kotlin files to commonMain | 23 moved | #139 | Done (PR #142) |
-| 8 | Move serialization framework + cluster to commonMain | ~400 | #140 | Open |
+| 8 | Move serialization framework + cluster to commonMain | 23 moved | #140 | Done (PR #145) |
 | 9 | Validation and cleanup | ~5 new | #141 | Open |
+
+**Wave 8 result:** Moved ExtUtil + ExtWrap* (12 files) + 11 additional files to commonMain. commonMain: 227 files. Remaining ~430 files blocked by core model classes (TreeReference, TreeElement, FormDef) with deep JVM deps (DateUtils, OrderedHashtable, ThreadLocal). See `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md`.
 
 **Plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md`
 
@@ -151,6 +153,7 @@ commcare-ios/
 - **Phase 3 Wave 1 learnings**: `docs/learnings/2026-03-10-wave1-collection-replacement-learnings.md` — Hashtable nullable get(), OrderedHashtable→LinkedHashMap, reversed arg order, .keys() vs .keys, exception subclass changes
 - **Phase 3 Wave 4 learnings**: `docs/learnings/2026-03-11-wave4-serialization-framework-learnings.md` — Class<*> as fundamental blocker, extension function shadowing, ExtUtil inlining workaround, PrototypeFactory expect/actual pattern
 - **Phase 4 deep migration learnings**: `docs/learnings/2026-03-11-phase4-deep-migration-learnings.md` — ExtUtil ceiling, iterative compiler-validated migration, platformSynchronized, TypeTokenUtils bridge, XFormConstants extraction
+- **Phase 5 Wave 8 learnings**: `docs/learnings/2026-03-12-phase5-wave8-serialization-commonmain-learnings.md` — LinkedHashMap final in Native, top-level functions vs Java constructors, Class<*>→KClass<*> pattern, @Throws filter strictness
 
 ## Kotlin Conversion Checklist
 
