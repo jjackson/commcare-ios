@@ -1,24 +1,36 @@
 package org.javarosa.core.util
 
-
-class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
+/**
+ * Ordered map with indexed access to keys.
+ * Uses composition with LinkedHashMap for cross-platform compatibility
+ * (LinkedHashMap is final in Kotlin/Native, so we can't extend it).
+ */
+class OrderedHashtable<K, V> : MutableMap<K, V> {
+    private val backingMap: LinkedHashMap<K, V>
     private val orderedKeys: ArrayList<K>
 
-    constructor() : super() {
+    constructor() {
+        backingMap = LinkedHashMap()
         orderedKeys = ArrayList()
     }
 
-    constructor(initialCapacity: Int) : super(initialCapacity) {
+    constructor(initialCapacity: Int) {
+        backingMap = LinkedHashMap(initialCapacity)
         orderedKeys = ArrayList(initialCapacity)
     }
 
-    override fun get(key: K): V? = super.get(key)
-    override fun containsKey(key: K): Boolean = super.containsKey(key)
-    override fun containsValue(value: V): Boolean = super.containsValue(value)
+    override val size: Int get() = backingMap.size
+    override val entries: MutableSet<MutableMap.MutableEntry<K, V>> get() = backingMap.entries
+    override val keys: MutableSet<K> get() = backingMap.keys
+    override val values: MutableCollection<V> get() = backingMap.values
+    override fun containsKey(key: K): Boolean = backingMap.containsKey(key)
+    override fun containsValue(value: V): Boolean = backingMap.containsValue(value)
+    override fun get(key: K): V? = backingMap[key]
+    override fun isEmpty(): Boolean = backingMap.isEmpty()
 
     override fun clear() {
         orderedKeys.clear()
-        super.clear()
+        backingMap.clear()
     }
 
     fun elementAt(index: Int): V {
@@ -52,23 +64,27 @@ class OrderedHashtable<K, V> : LinkedHashMap<K, V> {
             )
         }
 
-        val v = super.put(key, value)
-        // Check to see whether this grew after the put.
-        // (We can't check for much else because this call
-        // can be repeated inside of the put).
-        if (super.size > orderedKeys.size) {
+        val v = backingMap.put(key, value)
+        if (backingMap.size > orderedKeys.size) {
             orderedKeys.add(key)
         }
         return v
     }
 
+    override fun putAll(from: Map<out K, V>) {
+        for ((key, value) in from) {
+            put(key, value)
+        }
+    }
+
     override fun remove(key: K): V? {
         orderedKeys.remove(key)
-        return super.remove(key)
+        return backingMap.remove(key)
     }
 
     fun removeAt(i: Int) {
-        remove(keyAt(i))
+        val key = keyAt(i)
+        backingMap.remove(key)
         orderedKeys.removeAt(i)
     }
 

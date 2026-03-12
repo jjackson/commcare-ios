@@ -25,7 +25,7 @@ class Localizer @JvmOverloads constructor(
 ) : Externalizable {
 
     private var locales: ArrayList<String> = ArrayList()
-    private var localeResources: HashMap<String, ArrayList<LocaleDataSource>> = HashMap()
+    private var localeResources: MutableMap<String, ArrayList<LocaleDataSource>> = HashMap()
     private var currentLocaleData: HashMap<String, String>? = HashMap()
     var defaultLocale: String? = null
         private set
@@ -369,7 +369,7 @@ class Localizer @JvmOverloads constructor(
         fallbackDefaultLocale = SerializationHelpers.readBool(dis)
         fallbackDefaultForm = SerializationHelpers.readBool(dis)
         @Suppress("UNCHECKED_CAST")
-        localeResources = SerializationHelpers.readStringListPolyMap(dis, pf) as HashMap<String, ArrayList<LocaleDataSource>>
+        localeResources = SerializationHelpers.readStringListPolyMap(dis, pf) as MutableMap<String, ArrayList<LocaleDataSource>>
         locales = SerializationHelpers.readStringList(dis)
         setDefaultLocale(SerializationHelpers.readNullableString(dis, pf))
         val currentLocale = SerializationHelpers.readNullableString(dis, pf)
@@ -382,7 +382,7 @@ class Localizer @JvmOverloads constructor(
     override fun writeExternal(dos: PlatformDataOutputStream) {
         SerializationHelpers.writeBool(dos, fallbackDefaultLocale)
         SerializationHelpers.writeBool(dos, fallbackDefaultForm)
-        SerializationHelpers.writeStringListPolyMap(dos, localeResources as HashMap<*, *>)
+        SerializationHelpers.writeStringListPolyMap(dos, localeResources as MutableMap<*, *>)
         SerializationHelpers.writeList(dos, locales)
         SerializationHelpers.writeNullable(dos, defaultLocale)
         SerializationHelpers.writeNullable(dos, locale)

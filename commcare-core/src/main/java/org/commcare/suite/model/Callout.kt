@@ -24,7 +24,7 @@ class Callout : Externalizable, DetailTemplate {
     private var image: String? = null
     private var displayName: String? = null
     private var type: String? = null
-    private var extras: HashMap<String, String>? = null
+    private var extras: MutableMap<String, String>? = null
     private var responses: ArrayList<String>? = null
     private var isAutoLaunching: Boolean = false
     private var assumePlainTextValues: Boolean = false
@@ -126,7 +126,7 @@ class Callout : Externalizable, DetailTemplate {
 
     fun getDisplayName(): String? = displayName
 
-    fun getExtras(): HashMap<String, String>? = extras
+    fun getExtras(): MutableMap<String, String>? = extras
 
     fun getResponses(): ArrayList<String>? = responses
 

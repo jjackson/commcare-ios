@@ -15,7 +15,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.util.UnfullfilledRequirementsException
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
-import java.io.FileNotFoundException
+import org.javarosa.core.util.externalizable.PlatformFileNotFoundException
 import kotlin.jvm.JvmStatic
 
 /**
@@ -935,11 +935,11 @@ open class ResourceTable {
     @Throws(ResourceInitializationException::class)
     fun attemptResourceInitialization(
         platform: CommCarePlatform, isUpgrade: Boolean,
-        r: Resource, missingResources: ArrayList<Resource>
+        r: Resource, missingResources: MutableList<Resource>
     ) {
         try {
             r.getInstaller().initialize(platform, isUpgrade)
-        } catch (e: FileNotFoundException) {
+        } catch (e: PlatformFileNotFoundException) {
             missingResources.add(r)
         } catch (e: PlatformIOException) {
             throw ResourceInitializationException(r, e)
@@ -1044,7 +1044,7 @@ open class ResourceTable {
     )
     private fun recoverResources(
         platform: CommCarePlatform, profileRef: String,
-        resourceInstallContext: ResourceInstallContext, missingResources: ArrayList<Resource>
+        resourceInstallContext: ResourceInstallContext, missingResources: MutableList<Resource>
     ): Boolean {
         var count = 0
         val total = missingResources.size

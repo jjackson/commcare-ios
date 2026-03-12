@@ -132,13 +132,13 @@ actual object SerializationHelpers {
     }
 
     @JvmStatic
-    actual fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String> {
+    actual fun readStringStringMap(`in`: PlatformDataInputStream): MutableMap<String, String> {
         @Suppress("UNCHECKED_CAST")
-        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), null) as HashMap<String, String>
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, String::class.java), null) as MutableMap<String, String>
     }
 
     @JvmStatic
-    actual fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         ExtUtil.write(out, ExtWrapMap(map))
     }
 
@@ -191,7 +191,7 @@ actual object SerializationHelpers {
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory,
         creator: () -> T
-    ): HashMap<String, T> {
+    ): MutableMap<String, T> {
         val size = ExtUtil.readNumeric(`in`).toInt()
         val map = HashMap<String, T>(size)
         for (i in 0 until size) {
@@ -207,13 +207,13 @@ actual object SerializationHelpers {
     actual fun readStringTaggedMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any> {
+    ): MutableMap<String, Any> {
         @Suppress("UNCHECKED_CAST")
-        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as HashMap<String, Any>
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapTagged()), pf) as MutableMap<String, Any>
     }
 
     @JvmStatic
-    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeTaggedMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         ExtUtil.write(out, ExtWrapMap(map, ExtWrapTagged()))
     }
 
@@ -252,13 +252,13 @@ actual object SerializationHelpers {
     actual fun readStringMapPoly(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any> {
+    ): MutableMap<String, Any> {
         @Suppress("UNCHECKED_CAST")
-        return ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as HashMap<String, Any>
+        return ExtUtil.read(`in`, ExtWrapMapPoly(String::class.java, true), pf) as MutableMap<String, Any>
     }
 
     @JvmStatic
-    actual fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeMapPoly(out: PlatformDataOutputStream, map: Map<*, *>) {
         ExtUtil.write(out, ExtWrapMapPoly(map))
     }
 
@@ -280,20 +280,20 @@ actual object SerializationHelpers {
     actual fun readStringListPolyMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, ArrayList<Any?>> {
+    ): MutableMap<String, ArrayList<Any?>> {
         @Suppress("UNCHECKED_CAST")
-        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as HashMap<String, ArrayList<Any?>>
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, ExtWrapListPoly()), pf) as MutableMap<String, ArrayList<Any?>>
     }
 
     @JvmStatic
-    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>) {
+    actual fun writeStringListPolyMap(out: PlatformDataOutputStream, map: Map<*, *>) {
         ExtUtil.write(out, ExtWrapMap(map, ExtWrapListPoly()))
     }
 
     @JvmStatic
-    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean> {
+    actual fun readStringBooleanMap(`in`: PlatformDataInputStream): MutableMap<String, Boolean> {
         @Suppress("UNCHECKED_CAST")
-        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), null) as HashMap<String, Boolean>
+        return ExtUtil.read(`in`, ExtWrapMap(String::class.java, Boolean::class.javaObjectType), null) as MutableMap<String, Boolean>
     }
 
     @JvmStatic

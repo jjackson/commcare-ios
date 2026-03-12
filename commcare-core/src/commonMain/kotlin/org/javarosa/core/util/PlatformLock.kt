@@ -11,3 +11,5 @@ expect class PlatformLock() {
     fun lock()
     fun unlock()
 }
+
+expect val PlatformLock.isLocked: Boolean

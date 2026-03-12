@@ -2,6 +2,7 @@ package org.commcare.util
 
 import org.commcare.modern.util.Pair
 import org.javarosa.core.model.utils.PlatformDate
+import org.javarosa.core.model.utils.platformDefaultTimeZone
 import org.javarosa.core.util.PlatformParseException
 import org.javarosa.core.model.utils.platformFormatPlatformDate
 import org.javarosa.core.model.utils.platformParseDate
@@ -41,9 +42,9 @@ object DateRangeUtils {
         )
     }
 
-    @Suppress("DEPRECATION")
     private fun getTimeFromDateOffsettingTz(date: PlatformDate): Long {
-        return date.time - date.timezoneOffset * 60 * 1000
+        val tzOffset = platformDefaultTimeZone().getOffset(date.getTime())
+        return date.getTime() - tzOffset
     }
 
     /**

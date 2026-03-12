@@ -36,8 +36,7 @@ open class ReferenceManager {
      * @return The available reference factories
      */
     fun getFactories(): Array<ReferenceFactory> {
-        val roots = arrayOfNulls<ReferenceFactory>(translators.size)
-        return translators.toArray(roots)
+        return translators.toTypedArray()
     }
 
     /**

@@ -1,13 +1,17 @@
 package org.javarosa.core.util.externalizable
 
-/**
- * Cross-platform factory for creating ordered hash maps.
- * On JVM: creates OrderedHashtable instances.
- * On iOS: creates LinkedHashMap instances (which are ordered by insertion).
- */
-expect fun <K, V> createOrderedHashMap(initialCapacity: Int = 16): HashMap<K, V>
+import org.javarosa.core.util.OrderedHashtable
 
 /**
- * Check if a HashMap is an ordered hashtable type.
+ * Factory for creating ordered hash maps.
  */
-expect fun isOrderedHashMap(map: HashMap<*, *>): Boolean
+fun <K, V> createOrderedHashMap(initialCapacity: Int = 16): MutableMap<K, V> {
+    return OrderedHashtable<K, V>(initialCapacity)
+}
+
+/**
+ * Check if a map is an ordered hashtable type.
+ */
+fun isOrderedHashMap(map: Map<*, *>): Boolean {
+    return map is OrderedHashtable<*, *>
+}

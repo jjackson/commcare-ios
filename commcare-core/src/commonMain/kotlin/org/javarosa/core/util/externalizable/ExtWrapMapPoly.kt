@@ -16,9 +16,9 @@ class ExtWrapMapPoly : ExternalizableWrapper {
 
     /* serialization */
 
-    constructor(`val`: HashMap<*, *>) : this(`val`, null)
+    constructor(`val`: Map<*, *>) : this(`val`, null)
 
-    constructor(`val`: HashMap<*, *>, keyType: ExternalizableWrapper?) {
+    constructor(`val`: Map<*, *>, keyType: ExternalizableWrapper?) {
         requireNotNull(`val`)
         this.`val` = `val`
         this.keyType = keyType
@@ -43,13 +43,13 @@ class ExtWrapMapPoly : ExternalizableWrapper {
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
-        return ExtWrapMapPoly(`val` as HashMap<*, *>, keyType)
+        return ExtWrapMapPoly(`val` as Map<*, *>, keyType)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
-        val h: HashMap<Any, Any> =
+        val h: MutableMap<Any, Any> =
             if (ordered) createOrderedHashMap(size.toInt()) else HashMap(size.toInt())
         for (i in 0 until size) {
             val key = ExtUtil.read(`in`, keyType!!, pf)!!
@@ -62,7 +62,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as HashMap<Any, Any>
+        val h = `val` as Map<Any, Any>
 
         ExtUtil.writeNumeric(out, h.size.toLong())
         val e = h.keys.iterator()
@@ -84,7 +84,7 @@ class ExtWrapMapPoly : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as HashMap<Any, Any>
+        val h = `val` as Map<Any, Any>
 
         ExtUtil.writeBool(out, ordered)
 

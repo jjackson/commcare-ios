@@ -36,7 +36,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
     private var locale: String? = null
     private var localReference: String? = null
 
-    private var cache: HashMap<String, String>? = null
+    private var cache: MutableMap<String, String>? = null
 
     companion object {
         private const val valid: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"

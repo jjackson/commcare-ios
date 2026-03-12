@@ -41,7 +41,7 @@ class StackFrameStep : Externalizable {
      * in the session's evaluation context. For instance, useful to store
      * results of a query command during case search and claim workflow
      */
-    private var dataInstanceSources: HashMap<String, ExternalDataInstanceSource> = HashMap()
+    private var dataInstanceSources: MutableMap<String, ExternalDataInstanceSource> = HashMap()
 
     /**
      * Serialization Only
@@ -95,7 +95,7 @@ class StackFrameStep : Externalizable {
         dataInstanceSources[reference!!] = source
     }
 
-    fun getDataInstanceSources(): HashMap<String, ExternalDataInstanceSource> = dataInstanceSources
+    fun getDataInstanceSources(): MutableMap<String, ExternalDataInstanceSource> = dataInstanceSources
 
     fun hasDataInstanceSource(reference: String?): Boolean = dataInstanceSources.containsKey(reference)
 

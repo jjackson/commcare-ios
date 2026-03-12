@@ -12,3 +12,10 @@ expect class PlatformDate() {
     fun getTime(): Long
     fun setTime(time: Long)
 }
+
+/**
+ * Returns the timezone offset in minutes for the given date.
+ * Positive values are west of UTC, negative are east.
+ * (Matches the deprecated java.util.Date.getTimezoneOffset() behavior)
+ */
+expect fun PlatformDate.getTimezoneOffset(): Int

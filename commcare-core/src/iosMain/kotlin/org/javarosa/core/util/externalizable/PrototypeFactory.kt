@@ -16,6 +16,15 @@ actual open class PrototypeFactory actual constructor() {
     private val factories = mutableMapOf<String, () -> Externalizable>()
     private val hashToName = mutableMapOf<List<Byte>, String>()
 
+    actual constructor(classNames: HashSet<String>) : this() {
+        // On iOS, class names alone can't create instances — factory lambdas must be
+        // registered via registerFactory(). This constructor exists for API compatibility.
+        for (name in classNames) {
+            val hash = computeHash(name)
+            hashToName[hash.toList()] = name
+        }
+    }
+
     /**
      * Register a factory function for a serializable type.
      * @param className The fully-qualified class name (must match JVM class name for compatibility)

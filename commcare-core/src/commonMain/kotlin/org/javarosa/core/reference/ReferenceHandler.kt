@@ -1,5 +1,6 @@
 package org.javarosa.core.reference
 
+import org.javarosa.core.util.PlatformThreadLocal
 import kotlin.jvm.JvmStatic
 
 /**
@@ -9,12 +10,8 @@ class ReferenceHandler {
     companion object {
         private var staticManager: ReferenceManager? = null
 
-        private val threadLocalManager: ThreadLocal<ReferenceManager> =
-            object : ThreadLocal<ReferenceManager>() {
-                override fun initialValue(): ReferenceManager {
-                    return ReferenceManager()
-                }
-            }
+        private val threadLocalManager: PlatformThreadLocal<ReferenceManager?> =
+            PlatformThreadLocal { null }
 
         private var useThreadLocal: Boolean = false
 

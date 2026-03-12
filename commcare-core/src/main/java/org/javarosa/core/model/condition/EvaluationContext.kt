@@ -74,7 +74,7 @@ class EvaluationContext {
     // Responsible for informing itext what form is requested if relevant
     private var outputTextForm: String? = null
 
-    private val formInstances: HashMap<String, DataInstance<*>>
+    private val formInstances: MutableMap<String, DataInstance<*>>
 
     // original context reference used for evaluating current()
     private var original: TreeReference? = null
@@ -99,19 +99,19 @@ class EvaluationContext {
 
     constructor(
         base: EvaluationContext?,
-        formInstances: HashMap<String, DataInstance<*>>,
+        formInstances: MutableMap<String, DataInstance<*>>,
         context: TreeReference?
     ) : this(base, base?.instance, context, formInstances)
 
     constructor(
         instance: FormInstance?,
-        formInstances: HashMap<String, DataInstance<*>>,
+        formInstances: MutableMap<String, DataInstance<*>>,
         base: EvaluationContext?
     ) : this(base, instance, base?.contextRef, formInstances)
 
     constructor(
         instance: DataInstance<*>?,
-        formInstances: HashMap<String, DataInstance<*>>
+        formInstances: MutableMap<String, DataInstance<*>>
     ) {
         this.formInstances = formInstances
         this.instance = instance
@@ -128,7 +128,7 @@ class EvaluationContext {
         base: EvaluationContext?,
         instance: DataInstance<*>?,
         contextNode: TreeReference?,
-        formInstances: HashMap<String, DataInstance<*>>
+        formInstances: MutableMap<String, DataInstance<*>>
     ) {
         // TODO: These should be deep, not shallow
         this.functionHandlers = base?.functionHandlers ?: HashMap()
@@ -224,7 +224,7 @@ class EvaluationContext {
      * but it does isolate some changes to the instances which happen when spawning new contexts
      * e.g. replacing the root.
      */
-    private fun copyInstances(formInstances: HashMap<String, DataInstance<*>>?) {
+    private fun copyInstances(formInstances: MutableMap<String, DataInstance<*>>?) {
         if (formInstances != null) {
             for ((key, value) in formInstances) {
                 var inst = value

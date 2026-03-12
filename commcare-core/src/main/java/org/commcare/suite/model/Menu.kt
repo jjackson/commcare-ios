@@ -38,7 +38,7 @@ class Menu : Externalizable, MenuDisplayable {
     @JvmField
     internal var assertions: AssertionSet? = null
     @JvmField
-    internal var instances: HashMap<String, DataInstance<*>>? = null
+    internal var instances: MutableMap<String, DataInstance<*>>? = null
 
     /**
      * Serialization only!!!
@@ -114,7 +114,7 @@ class Menu : Externalizable, MenuDisplayable {
         return if (commandExprs!![index] == null) null else XPathParseTool.parseXPath(commandExprs!![index]!!)
     }
 
-    fun getInstances(instancesToInclude: Set<String>?): HashMap<String, DataInstance<*>> {
+    fun getInstances(instancesToInclude: Set<String>?): MutableMap<String, DataInstance<*>> {
         return InstanceUtils.getLimitedInstances(instancesToInclude, instances)
     }
 
@@ -141,7 +141,7 @@ class Menu : Externalizable, MenuDisplayable {
         rawRelevance = nullIfEmpty(SerializationHelpers.readString(`in`))
         display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
         commandIds = SerializationHelpers.readStringList(`in`)
-        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as HashMap<String, DataInstance<*>>
+        instances = SerializationHelpers.readStringTaggedMap(`in`, pf) as MutableMap<String, DataInstance<*>>
         commandExprs = arrayOfNulls(SerializationHelpers.readInt(`in`))
         for (i in commandExprs!!.indices) {
             if (SerializationHelpers.readBool(`in`)) {
@@ -159,7 +159,7 @@ class Menu : Externalizable, MenuDisplayable {
         SerializationHelpers.writeString(out, emptyIfNull(rawRelevance))
         SerializationHelpers.write(out, display!!)
         SerializationHelpers.writeList(out, commandIds!!)
-        SerializationHelpers.writeTaggedMap(out, instances!! as HashMap<*, *>)
+        SerializationHelpers.writeTaggedMap(out, instances!! as MutableMap<*, *>)
         SerializationHelpers.writeNumeric(out, commandExprs!!.size.toLong())
         for (commandExpr in commandExprs!!) {
             if (commandExpr == null) {

@@ -1,12 +1,14 @@
 package org.javarosa.core.services.locale
 
+import org.javarosa.core.util.PlatformThreadLocal
+
 /**
  * (Yet another) Manager class, this one for determining which localization strategy to use.
  * The options are:
  *
  *  1. staticLocalizer: Static variable for platforms where the same Localizer can be safely shared across
  *     all threads on the JVM (Android)
- *  2. threadLocalLocalizer: ThreadLocal variable for platforms where different threads are potentially
+ *  2. threadLocalLocalizer: PlatformThreadLocal variable for platforms where different threads are potentially
  *     running separate applications (Web Apps)
  *
  *  Defaults to the static Localizer. Web Apps should set the strategy to useThreadLocal = true immediately
@@ -18,11 +20,8 @@ object LocalizerManager {
 
     private var staticLocalizer: Localizer? = null
 
-    private val threadLocalLocalizer: ThreadLocal<Localizer?> = object : ThreadLocal<Localizer?>() {
-        override fun initialValue(): Localizer {
-            return Localizer(true, false)
-        }
-    }
+    private val threadLocalLocalizer: PlatformThreadLocal<Localizer?> =
+        PlatformThreadLocal { Localizer(true, false) }
 
     private var useThreadLocal: Boolean = false
 

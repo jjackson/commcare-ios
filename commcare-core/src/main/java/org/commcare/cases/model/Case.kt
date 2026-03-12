@@ -43,7 +43,7 @@ open class Case : Persistable, IMetaData {
     protected var recordId: Int = 0
 
     @JvmField
-    protected var data: HashMap<String, Any> = LinkedHashMap()
+    protected var data: MutableMap<String, Any> = LinkedHashMap()
 
     @JvmField
     protected var indices: ArrayList<CaseIndex> = ArrayList()
@@ -153,7 +153,7 @@ open class Case : Persistable, IMetaData {
         recordId = SerializationHelpers.readInt(`in`)
         indices = SerializationHelpers.readList(`in`, pf) { CaseIndex() }
         @Suppress("UNCHECKED_CAST")
-        data = SerializationHelpers.readStringMapPoly(`in`, pf) as HashMap<String, Any>
+        data = SerializationHelpers.readStringMapPoly(`in`, pf) as MutableMap<String, Any>
     }
 
     @Throws(PlatformIOException::class)
@@ -192,7 +192,7 @@ open class Case : Persistable, IMetaData {
         }
     }
 
-    fun getProperties(): HashMap<String, Any> = data
+    fun getProperties(): MutableMap<String, Any> = data
 
     fun getRestorableType(): String = "case"
 

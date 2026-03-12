@@ -19,7 +19,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 class ActionController : Externalizable {
 
     // map from an event to the actions it should trigger
-    private var eventListeners: HashMap<String, ArrayList<Action>> = HashMap()
+    private var eventListeners: MutableMap<String, ArrayList<Action>> = HashMap()
 
     private fun getListenersForEvent(event: String): ArrayList<Action> {
         return if (eventListeners.containsKey(event)) {
@@ -61,12 +61,12 @@ class ActionController : Externalizable {
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(inStream: PlatformDataInputStream, pf: PrototypeFactory) {
         @Suppress("UNCHECKED_CAST")
-        eventListeners = SerializationHelpers.readStringListPolyMap(inStream, pf) as HashMap<String, ArrayList<Action>>
+        eventListeners = SerializationHelpers.readStringListPolyMap(inStream, pf) as MutableMap<String, ArrayList<Action>>
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(outStream: PlatformDataOutputStream) {
-        SerializationHelpers.writeStringListPolyMap(outStream, eventListeners as HashMap<*, *>)
+        SerializationHelpers.writeStringListPolyMap(outStream, eventListeners as MutableMap<*, *>)
     }
 
     // Allows defining of a custom callback to execute on a result of processAction()

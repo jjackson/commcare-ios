@@ -47,7 +47,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     private var argument: String? = null
 
     // Will this maintain order? I don't think so....
-    private var arguments: HashMap<String, Text>? = null
+    private var arguments: MutableMap<String, Text>? = null
 
     private var cacheParse: XPathExpression? = null
 
@@ -178,7 +178,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
     }
 
     private fun generateOrderedParameterListForLocalization(
-        arguments: HashMap<String, Text>?,
+        arguments: MutableMap<String, Text>?,
         context: EvaluationContext?
     ): Array<String> {
         if (arguments == null) {
@@ -198,7 +198,7 @@ class Text : Externalizable, DetailTemplate, XPathAnalyzable {
         return parameters
     }
 
-    private fun getOrderedKeys(arguments: HashMap<String, Text>): List<String> {
+    private fun getOrderedKeys(arguments: MutableMap<String, Text>): List<String> {
         val keys = ArrayList<String>()
         for (key in arguments.keys) {
             if (key == "id") {

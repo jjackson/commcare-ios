@@ -20,7 +20,7 @@ abstract class BestEffortBlockParser(
     private val elements: Array<String>
 ) : TransactionParser<HashMap<String, String>>(parser) {
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, InvalidStructureException::class)
     abstract override fun commit(parsed: HashMap<String, String>)
 
     @Throws(

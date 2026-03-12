@@ -11,6 +11,14 @@ import kotlin.reflect.KClass
  * On iOS: Uses a pre-registered map of factory lambdas keyed by class name.
  */
 expect open class PrototypeFactory() {
+
+    /**
+     * Secondary constructor accepting class names for lazy registration.
+     * On JVM: stores names for lazy Class.forName initialization.
+     * On iOS: stores names (registration still requires factory lambdas).
+     */
+    constructor(classNames: HashSet<String>)
+
     /**
      * Create a new instance of a registered type by its hash.
      */

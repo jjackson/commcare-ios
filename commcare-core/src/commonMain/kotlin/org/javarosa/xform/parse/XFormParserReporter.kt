@@ -1,6 +1,6 @@
 package org.javarosa.xform.parse
 
-import java.io.PrintStream
+import org.javarosa.core.util.platformStdErrPrintln
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -10,7 +10,7 @@ import kotlin.jvm.JvmOverloads
  * @author ctsims
  */
 open class XFormParserReporter @JvmOverloads constructor(
-    private val errorStream: PrintStream = System.err
+    private val errorPrinter: (String) -> Unit = ::platformStdErrPrintln
 ) {
 
     companion object {
@@ -22,10 +22,10 @@ open class XFormParserReporter @JvmOverloads constructor(
     }
 
     open fun warning(type: String, message: String, xmlLocation: String?) {
-        errorStream.println("XForm Parse Warning: " + message + (if (xmlLocation == null) "" else xmlLocation))
+        errorPrinter("XForm Parse Warning: " + message + (if (xmlLocation == null) "" else xmlLocation))
     }
 
     open fun error(message: String) {
-        errorStream.println("XForm Parse Error: " + message)
+        errorPrinter("XForm Parse Error: " + message)
     }
 }

@@ -1,5 +1,6 @@
 package org.commcare.modern.util
 
+import org.javarosa.core.util.platformMaxMemory
 
 /**
  * A catch-all for centralizing hooks and state for tuning on performance optimizations which may
@@ -29,9 +30,7 @@ object PerformanceTuningUtil {
      * current device runtime.
      */
     fun guessLargestSupportedBulkCaseFetchSizeFromHeap(): Int {
-        val rt = Runtime.getRuntime()
-        val maxMemory = rt.maxMemory()
-        return guessLargestSupportedBulkCaseFetchSizeFromHeap(maxMemory)
+        return guessLargestSupportedBulkCaseFetchSizeFromHeap(platformMaxMemory())
     }
 
     /**

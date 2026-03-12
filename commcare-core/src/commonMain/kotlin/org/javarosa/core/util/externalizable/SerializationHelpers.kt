@@ -96,10 +96,10 @@ expect object SerializationHelpers {
     // --- Map read/write ---
 
     @Throws(PlatformIOException::class)
-    fun readStringStringMap(`in`: PlatformDataInputStream): HashMap<String, String>
+    fun readStringStringMap(`in`: PlatformDataInputStream): MutableMap<String, String>
 
     @Throws(PlatformIOException::class)
-    fun writeMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+    fun writeMap(out: PlatformDataOutputStream, map: Map<*, *>)
 
     // --- Nullable read/write ---
 
@@ -132,16 +132,16 @@ expect object SerializationHelpers {
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory,
         creator: () -> T
-    ): HashMap<String, T>
+    ): MutableMap<String, T>
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun readStringTaggedMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any>
+    ): MutableMap<String, Any>
 
     @Throws(PlatformIOException::class)
-    fun writeTaggedMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+    fun writeTaggedMap(out: PlatformDataOutputStream, map: Map<*, *>)
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     fun <T : Externalizable> readOrderedStringExtMap(
@@ -161,10 +161,10 @@ expect object SerializationHelpers {
     fun readStringMapPoly(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, Any>
+    ): MutableMap<String, Any>
 
     @Throws(PlatformIOException::class)
-    fun writeMapPoly(out: PlatformDataOutputStream, map: HashMap<*, *>)
+    fun writeMapPoly(out: PlatformDataOutputStream, map: Map<*, *>)
 
     // --- MultiMap ---
 
@@ -183,15 +183,15 @@ expect object SerializationHelpers {
     fun readStringListPolyMap(
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
-    ): HashMap<String, ArrayList<Any?>>
+    ): MutableMap<String, ArrayList<Any?>>
 
     @Throws(PlatformIOException::class)
-    fun writeStringListPolyMap(out: PlatformDataOutputStream, map: HashMap<*, *>)
+    fun writeStringListPolyMap(out: PlatformDataOutputStream, map: Map<*, *>)
 
     // --- Typed map read ---
 
     @Throws(PlatformIOException::class)
-    fun readStringBooleanMap(`in`: PlatformDataInputStream): HashMap<String, Boolean>
+    fun readStringBooleanMap(`in`: PlatformDataInputStream): MutableMap<String, Boolean>
 
     // --- Byte array read/write ---
 

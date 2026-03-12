@@ -157,7 +157,7 @@ object Base64 {
             outLen -= 1
         }
 
-        return String(outBuff, 0, outLen)
+        return outBuff.decodeToString(0, outLen)
     }
 
     /**
@@ -207,7 +207,7 @@ object Base64 {
             e += 4
         }
 
-        assert(e == outBuff.size)
+        check(e == outBuff.size)
         return outBuff
     }
 
@@ -260,7 +260,7 @@ object Base64 {
      */
     @Throws(Base64DecoderException::class)
     fun decode(s: String): ByteArray {
-        val bytes = s.toByteArray()
+        val bytes = s.encodeToByteArray()
         return decode(bytes, 0, bytes.size)
     }
 
@@ -344,7 +344,7 @@ object Base64 {
         }
 
         val out = ByteArray(outBuffPosn)
-        System.arraycopy(outBuff, 0, out, 0, outBuffPosn)
+        outBuff.copyInto(out, 0, 0, outBuffPosn)
         return out
     }
 }

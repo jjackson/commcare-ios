@@ -13,6 +13,7 @@ import org.javarosa.core.model.trace.ReducingTraceReporter
 import org.javarosa.core.model.utils.InstrumentationUtils
 import org.javarosa.xpath.XPathException
 import org.javarosa.xpath.parser.XPathSyntaxException
+import kotlin.concurrent.Volatile
 import kotlin.jvm.JvmField
 
 /**
@@ -113,7 +114,7 @@ open class NodeEntityFactory(
         if (reporter != null) {
             tracableContext.setDebugModeOn(reporter)
         }
-        val result = tracableContext.expandReference(treeReference) ?: java.util.ArrayList()
+        val result = tracableContext.expandReference(treeReference) ?: ArrayList()
         printAndClearTraces("case load expand")
 
         setEvaluationContextDefaultQuerySet(ec, result)

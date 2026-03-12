@@ -284,7 +284,7 @@ class CalendarUtils {
                 fmt = "%e %B %Y"
             }
 
-            val dateUniv = CalendarUtils.fromMillis(date.time)
+            val dateUniv = CalendarUtils.fromMillis(date.getTime())
             val df = DateUtils.getFieldsForNonGregorianCalendar(
                 dateUniv.year,
                 dateUniv.month, dateUniv.day
@@ -398,7 +398,7 @@ class CalendarUtils {
             } else if (DateUtils.timezone() != null) {
                 cd.timeZone = DateUtils.timezone()!!
             }
-            val dateInMillis = cd.time.time
+            val dateInMillis = cd.time.getTime()
             return fromMillis(dateInMillis, cd.timeZone)
         }
 

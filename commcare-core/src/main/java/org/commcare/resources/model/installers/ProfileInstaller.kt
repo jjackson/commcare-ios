@@ -10,6 +10,7 @@ import org.commcare.suite.model.Profile
 import org.commcare.util.CommCarePlatform
 import org.commcare.util.LogTypes
 import org.commcare.xml.ProfileParser
+import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.Reference
 import org.javarosa.core.services.Logger
@@ -86,7 +87,7 @@ class ProfileInstaller : CacheInstaller<Profile> {
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled
         //by the resource table).
 
-        var incoming: java.io.InputStream? = null
+        var incoming: PlatformInputStream? = null
         //If we've already got the local copy, and the installer is marked as such, install and roll out.
         try {
             if (getlocal().containsKey(r.getRecordGuid()) && r.getStatus() == Resource.RESOURCE_STATUS_LOCAL) {

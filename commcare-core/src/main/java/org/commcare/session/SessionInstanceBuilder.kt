@@ -15,7 +15,7 @@ object SessionInstanceBuilder {
         frame: SessionFrame, deviceId: String?,
         appversion: String?, drift: Long,
         username: String?, userId: String?,
-        userFields: HashMap<String, String>, windowWidth: String?,
+        userFields: MutableMap<String, String>, windowWidth: String?,
         applanguage: String?
     ): TreeElement {
         val sessionRoot = TreeElement("session", 0)
@@ -105,7 +105,7 @@ object SessionInstanceBuilder {
 
     private fun addUserProperties(
         sessionRoot: TreeElement,
-        userFields: HashMap<String, String>
+        userFields: MutableMap<String, String>
     ) {
         val user = TreeElement("user", 0)
         val userData = TreeElement("data", 0)

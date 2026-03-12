@@ -15,11 +15,11 @@ class ExtWrapMap : ExternalizableWrapper {
     @JvmField
     var type: Int = 0
 
-    constructor(`val`: HashMap<*, *>) : this(`val`, null, null)
+    constructor(`val`: Map<*, *>) : this(`val`, null, null)
 
-    constructor(`val`: HashMap<*, *>, dataType: ExternalizableWrapper?) : this(`val`, null, dataType)
+    constructor(`val`: Map<*, *>, dataType: ExternalizableWrapper?) : this(`val`, null, dataType)
 
-    constructor(`val`: HashMap<*, *>, keyType: ExternalizableWrapper?, dataType: ExternalizableWrapper?) {
+    constructor(`val`: Map<*, *>, keyType: ExternalizableWrapper?, dataType: ExternalizableWrapper?) {
         requireNotNull(`val`)
         this.`val` = `val`
         this.keyType = keyType
@@ -45,13 +45,13 @@ class ExtWrapMap : ExternalizableWrapper {
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         @Suppress("UNCHECKED_CAST")
-        return ExtWrapMap(`val` as HashMap<*, *>, keyType, dataType)
+        return ExtWrapMap(`val` as Map<*, *>, keyType, dataType)
     }
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
-        val h: HashMap<Any, Any> = when (type) {
+        val h: MutableMap<Any, Any> = when (type) {
             TYPE_ORDERED -> createOrderedHashMap(size.toInt())
             else -> HashMap(size.toInt())
         }
@@ -67,7 +67,7 @@ class ExtWrapMap : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as HashMap<Any, Any>
+        val h = `val` as Map<Any, Any>
 
         ExtUtil.writeNumeric(out, h.size.toLong())
         val e = h.keys.iterator()
@@ -90,7 +90,7 @@ class ExtWrapMap : ExternalizableWrapper {
     @Throws(PlatformIOException::class)
     override fun metaWriteExternal(out: PlatformDataOutputStream) {
         @Suppress("UNCHECKED_CAST")
-        val h = `val` as HashMap<Any, Any>
+        val h = `val` as Map<Any, Any>
 
         val keyTagObj: Any = if (keyType == null) {
             if (h.isEmpty()) Any() else h.keys.iterator().next()

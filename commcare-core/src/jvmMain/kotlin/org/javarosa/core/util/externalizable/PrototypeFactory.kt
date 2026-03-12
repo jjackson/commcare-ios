@@ -24,9 +24,15 @@ actual open class PrototypeFactory : Any {
     @JvmField
     protected var initialized: Boolean
 
-    actual constructor() : this(null as HashSet<String>?)
+    actual constructor() {
+        this.classNames = null
+        initialized = false
+        if (mStaticHasher == null) {
+            mStaticHasher = ClassNameHasher()
+        }
+    }
 
-    constructor(classNames: HashSet<String>?) {
+    actual constructor(classNames: HashSet<String>) {
         this.classNames = classNames
         initialized = false
         if (mStaticHasher == null) {
