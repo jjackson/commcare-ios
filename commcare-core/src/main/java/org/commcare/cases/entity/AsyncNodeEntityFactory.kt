@@ -1,5 +1,6 @@
 package org.commcare.cases.entity
 
+import org.javarosa.core.util.BackgroundThread
 import org.javarosa.core.util.platformSynchronized
 import org.commcare.cases.entity.EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_UNCACHED_CALCULATION
 import org.commcare.suite.model.Detail
@@ -25,7 +26,7 @@ class AsyncNodeEntityFactory(
 
     private var mCacheHost: CacheHost? = null
     private var mTemplateIsCachable: Boolean? = null
-    private var mAsyncPrimingThread: Thread? = null
+    private var mAsyncPrimingThread: BackgroundThread? = null
 
     // Don't show entity list until we primeCache and caches all fields
     private val isBlockingAsyncMode: Boolean = detail.hasSortField()
@@ -99,7 +100,7 @@ class AsyncNodeEntityFactory(
             // thread while caching any uncached data later on UI thread during Adapter's getView
             platformSynchronized(mAsyncLock) {
                 if (mAsyncPrimingThread == null) {
-                    mAsyncPrimingThread = Thread { primeCache() }
+                    mAsyncPrimingThread = BackgroundThread { primeCache() }
                     mAsyncPrimingThread!!.start()
                 }
             }
