@@ -34,6 +34,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * The CaseXML Parser is responsible for processing and performing
@@ -70,7 +71,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         this.storage = storage
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Case? {
         checkNode(CASE_NODE)
 
@@ -137,7 +138,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return null
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun createCase(caseId: String, modified: org.javarosa.core.model.utils.PlatformDate, userId: String?): Case {
         val data = arrayOfNulls<String>(3)
         var caseForBlock: Case? = null
@@ -193,7 +194,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         return caseForBlock
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun updateCase(caseForBlock: Case, caseId: String) {
         while (nextTagInBlock(CASE_UPDATE_NODE)) {
             val key = parser.getName()
@@ -240,7 +241,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         onIndexDisrupted(caseId)
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun indexCase(caseForBlock: Case, caseId: String) {
         while (nextTagInBlock(CASE_INDEX_NODE)) {
             val indexName = parser.getName()!!
@@ -280,7 +281,7 @@ open class CaseXmlParser : TransactionParser<Case>, CaseIndexChangeListener {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun processCaseAttachment(caseForBlock: Case) {
         while (nextTagInBlock(CASE_ATTACHMENT_NODE)) {
             val attachmentName = parser.getName()!!

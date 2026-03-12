@@ -11,13 +11,14 @@ import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.PlatformMalformedUrlException
 import org.javarosa.core.util.PlatformUrl
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * @author ctsims
  */
 internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<StackFrameStep>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): StackFrameStep {
         val operation = parser.getName()
         val value = parser.getAttributeValue(null, "value")
@@ -37,7 +38,7 @@ internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<S
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseQuery(): StackFrameStep {
         val queryId = parser.getAttributeValue(null, "id")
         val url = parser.getAttributeValue(null, "value") ?: ""
@@ -59,7 +60,7 @@ internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<S
         return step
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseJump(): StackFrameStep {
         val id = parser.getAttributeValue(null, "id")
         val step = StackFrameStep(SessionFrame.STATE_SMART_LINK, id, null)

@@ -8,6 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * @author ctsims
@@ -18,7 +19,7 @@ class StackOpParser(parser: PlatformXmlParser) : ElementParser<StackOperation>(p
         const val NAME_STACK: String = "stack"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): StackOperation {
         val operation = parser.getName()
 
@@ -49,7 +50,7 @@ class StackOpParser(parser: PlatformXmlParser) : ElementParser<StackOperation>(p
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun getChildren(operation: String): ArrayList<StackFrameStep> {
         val elements = ArrayList<StackFrameStep>()
         val sfep = StackFrameStepParser(parser)

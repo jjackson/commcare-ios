@@ -7,10 +7,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 class TextParser(parser: PlatformXmlParser) : ElementParser<Text>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Text {
         val texts = ArrayList<Text>()
 
@@ -39,7 +40,7 @@ class TextParser(parser: PlatformXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     internal fun parseBody(): Text? {
         //TODO: Should prevent compositing text and xpath/locales
         val texts = ArrayList<Text>()
@@ -87,7 +88,7 @@ class TextParser(parser: PlatformXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseLocale(): Text {
         checkNode("locale")
         val id = parser.getAttributeValue(null, "id")
@@ -118,7 +119,7 @@ class TextParser(parser: PlatformXmlParser) : ElementParser<Text>(parser) {
         }
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     private fun parseXPath(): Text {
         checkNode("xpath")
         val function = parser.getAttributeValue(null, "function")
