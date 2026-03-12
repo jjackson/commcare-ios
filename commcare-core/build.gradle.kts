@@ -114,6 +114,13 @@ kotlin {
             iosSimulatorArm64Main.dependsOn(this)
         }
 
+        // Share cinterop-dependent source files across both iOS targets.
+        // Custom cinterops aren't commonized with manual hierarchy, so code
+        // using CommonCrypto lives in a shared srcDir included by each target.
+        val iosCryptoDir = file("src/iosNativeCrypto/kotlin")
+        iosArm64Main.kotlin.srcDir(iosCryptoDir)
+        iosSimulatorArm64Main.kotlin.srcDir(iosCryptoDir)
+
         val iosArm64Test by getting
         val iosSimulatorArm64Test by getting
         val iosTest by creating {
