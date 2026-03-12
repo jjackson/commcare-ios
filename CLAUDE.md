@@ -106,15 +106,13 @@ commcare-ios/
 
 | Wave | Group | Files | Issue | Status |
 |------|-------|-------|-------|--------|
-| 1 | Refactor ExtUtil | 1 | | Open |
-| 2 | Refactor ExtWrapBase | 1 | | Open |
-| 3 | Refactor ExtWrapList | 1 | | Open |
-| 4 | Refactor ExtWrapTagged + Hasher | 3 | | Open |
-| 5 | Refactor remaining ExtWrap* | 4 | | Open |
-| 6 | Refactor PrototypeFactory + PrototypeManager | 3 | | Open |
-| 7 | Move ExtUtil/ExtWrap* consumers to commonMain | ~50-100 | | Open |
-| 8 | Bulk migration sweep | ~300+ | | Open |
-| 9 | Validation and cleanup | ~5 new | | Open |
+| 1-3 | Refactor ExtUtil, ExtWrapBase, ExtWrapList | 3 | #133-#135 | Done (PR #142) |
+| 4 | Refactor ExtWrapTagged + Hasher | 3 | #136 | Done (PR #142) |
+| 5 | Refactor remaining ExtWrap* | 4 | #137 | Done (PR #142) |
+| 6 | Refactor PrototypeFactory + PrototypeManager | 3 | #138 | Done (PR #142) |
+| 7 | Migrate pure Kotlin files to commonMain | 23 moved | #139 | Done (PR #142) |
+| 8 | Move serialization framework + cluster to commonMain | ~400 | #140 | Open |
+| 9 | Validation and cleanup | ~5 new | #141 | Open |
 
 **Plan**: `docs/plans/2026-03-11-phase5-serialization-refactor-plan.md`
 
@@ -144,6 +142,7 @@ commcare-ios/
 - **Wave 3 XPath learnings**: `docs/learnings/2026-03-09-wave3-xpath-conversion-learnings.md` — KDoc `*/` hazard, abstract preservation, nullable threading, protected→internal
 - **Wave 4 XForm parser learnings**: `docs/learnings/2026-03-09-wave4-xform-parser-learnings.md` — companion method inheritance, `@JvmField` vs `open`, companion `protected` limitation, smart cast on `var`, `const val` auto-inline
 - **J2K vs AI conversion**: `docs/learnings/2026-03-09-j2k-converter-vs-ai-conversion.md` — why we chose AI-driven conversion over IntelliJ's J2K converter
+- **Phase 5 serialization migration**: `docs/learnings/2026-03-11-phase5-serialization-migration-learnings.md` — LiveHasher side effects, qualifiedName vs Class.getName(), iterative migration cascading, serialization framework as root blocker
 - **Wave 5 case-management learnings**: `docs/learnings/2026-03-09-wave5-case-management-learnings.md` — JVM signature clashes (constructor `val` vs interface method, field vs getter), Java boxed types in generics, Kotlin-to-Kotlin method calls
 - **Wave 6 suite-session learnings**: `docs/learnings/2026-03-10-wave6-suite-session-learnings.md` — `internal` hides from Java in other source sets, property getter/setter clashes, nullable return types Java silently allowed
 - **Wave 8 core-services learnings**: `docs/learnings/2026-03-10-wave8-core-services-learnings.md` — `@JvmField protected` for cross-source-set Java subclasses, OkHttp 4/Okio 2 API migration, `const val` requires compile-time constants
