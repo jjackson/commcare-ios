@@ -935,7 +935,7 @@ open class ResourceTable {
     @Throws(ResourceInitializationException::class)
     fun attemptResourceInitialization(
         platform: CommCarePlatform, isUpgrade: Boolean,
-        r: Resource, missingResources: ArrayList<Resource>
+        r: Resource, missingResources: MutableList<Resource>
     ) {
         try {
             r.getInstaller().initialize(platform, isUpgrade)
@@ -1044,7 +1044,7 @@ open class ResourceTable {
     )
     private fun recoverResources(
         platform: CommCarePlatform, profileRef: String,
-        resourceInstallContext: ResourceInstallContext, missingResources: ArrayList<Resource>
+        resourceInstallContext: ResourceInstallContext, missingResources: MutableList<Resource>
     ): Boolean {
         var count = 0
         val total = missingResources.size
