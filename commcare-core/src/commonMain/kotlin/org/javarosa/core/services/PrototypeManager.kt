@@ -59,8 +59,7 @@ object PrototypeManager {
         val currentStaticFactory = getCurrentStaticFactory()
         if (currentStaticFactory == null) {
             if (useThreadLocalStrategy) {
-                @Suppress("UNCHECKED_CAST")
-                threadLocalPrototypeFactory.set(PrototypeFactory(globalPrototypes.clone() as HashSet<String>))
+                threadLocalPrototypeFactory.set(PrototypeFactory(HashSet(globalPrototypes)))
             } else {
                 globalStaticDefault = PrototypeFactory(globalPrototypes)
             }
@@ -68,8 +67,7 @@ object PrototypeManager {
         }
         platformSynchronized(currentStaticFactory) {
             if (useThreadLocalStrategy) {
-                @Suppress("UNCHECKED_CAST")
-                threadLocalPrototypeFactory.set(PrototypeFactory(globalPrototypes.clone() as HashSet<String>))
+                threadLocalPrototypeFactory.set(PrototypeFactory(HashSet(globalPrototypes)))
             } else {
                 globalStaticDefault = PrototypeFactory(globalPrototypes)
             }
