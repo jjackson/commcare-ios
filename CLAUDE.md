@@ -43,26 +43,25 @@ commcare-ios/
 
 **Phase 1-7: Core Port → KMP Migration** — All done. See completion reports in Key Docs below.
 
-**Phase 8: iOS App Implementation** — Build the full iOS app on top of the KMP engine: platform adapters, storage, UI, sync.
+**Phase 8: iOS App Implementation** — Complete. Full iOS app shell with Compose Multiplatform: login, menus, cases, forms, sync, settings. See `docs/plans/2026-03-12-phase8-completion-report.md`.
 
-| Wave | Group | New Files | Status |
-|------|-------|-----------|--------|
-| 1 | Platform Adapters — Crypto & Files | ~5 | Open |
-| 2 | Platform Adapters — Networking & JSON | ~3 | Open |
-| 3 | Storage Layer (SQLite) | ~8-10 | Open |
-| 4 | App Foundation — Login & Install | ~10-12 | Open |
-| 5 | Menu Navigation & Session | ~6-8 | Open |
-| 6 | Case Management | ~8-10 | Open |
-| 7 | Form Entry | ~15-20 | Open |
-| 8 | Sync & Offline | ~6-8 | Open |
-| 9 | Settings, Polish & Verification | ~5-8 | Open |
-
-**Plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md`
+| Wave | Group | PR | Status |
+|------|-------|----|--------|
+| 1 | Platform Adapters — Crypto & Files | #178 | Done |
+| 2 | Networking & JSON (NSURLSession, NSJSONSerialization) | #179 | Done |
+| 3 | Storage Layer (IosInMemoryStorage) | #180 | Done |
+| 4 | Login & App State | #181 | Done |
+| 5 | Menu Navigation | #182 | Done |
+| 6 | Case Management | #183 | Done |
+| 7 | Form Entry | #184 | Done |
+| 8 | Sync & Offline Queue | #185 | Done |
+| 9 | Settings & Debug Info | #186 | Done |
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — full iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves merged
 - **Phase 8 plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md` — 9 waves: platform adapters, storage, login, menus, cases, forms, sync, polish
 - **Phase 7 completion**: `docs/plans/2026-03-12-phase7-completion-report.md` — 636 commonMain files, 392-file connected component broken, bulk migration complete
 - **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling
@@ -79,6 +78,7 @@ commcare-ios/
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
 - **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
+- **iOS app**: `phase8-ios-app-learnings` — NSURLSession sync pattern, NSJSONSerialization, git branch pitfall, Case nullability, Text.evaluate() without context
 
 All learning files are in `docs/learnings/`.
 
