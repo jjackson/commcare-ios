@@ -191,7 +191,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
         if (i < this.children.size)
             return this.children[i]
 
-        throw ArrayIndexOutOfBoundsException(
+        throw IndexOutOfBoundsException(
             "FormDef: invalid child index: $i only ${children.size} children"
         )
     }
