@@ -1,58 +1,81 @@
-# Phase 6 Deep Migration Learnings
+# Phase 6: Deep Migration Learnings
 
-## Kotlin Compiler ICE in jvmMain (IrFakeOverrideSymbol)
+## PlatformLock.isLocked with typealias
 
-Moving Kotlin files from `main/java` to `jvmMain` (KMP source set) triggers an internal compiler error:
-```
-IrFakeOverrideSymbolBase.getOwner: should not be called
-```
-This happens in the IR backend lowering phase when jvmMain classes have fake overrides (inherited methods) that transitively reference expect/actual types from commonMain. The ICE is systemic — it moves between files as you remove one, another surfaces.
-
-**Root cause**: The Kotlin compiler's IR fake override resolution doesn't handle the interaction between jvmMain classes and expect/actual declarations correctly.
-
-**Workaround**: Files that can't go to commonMain must stay in `main/java`, NOT `jvmMain`. Reserve `jvmMain` exclusively for `actual` implementations of expect declarations.
-
-## expect/actual Classes That Extend Platform Types Also Trigger ICE
-
-Using `expect class` / `actual class` patterns where the actual extends a platform-specific type (e.g., `actual class OrderedHashtable : LinkedHashMap`) triggers the same ICE.
-
-**Fix**: Use regular commonMain classes with composition instead of expect/actual inheritance.
-
-## OrderedHashtable Composition Pattern
-
-LinkedHashMap is `final` in Kotlin/Native, so OrderedHashtable can't extend it on iOS. The solution is composition:
+When adding members to an expect class whose JVM actual is a `typealias`, the new member must be an **extension** (not a class member) because the typealias target class doesn't have the matching member.
 
 ```kotlin
-class OrderedHashtable<K, V> : MutableMap<K, V> {
-    private val backingMap: LinkedHashMap<K, V>
-    private val orderedKeys: ArrayList<K>
-    // Delegate MutableMap to backingMap, maintain orderedKeys for index-based access
+// commonMain - extension property, NOT class member
+expect class PlatformLock() {
+    fun lock()
+    fun unlock()
 }
+expect val PlatformLock.isLocked: Boolean
+
+// jvmMain - ReentrantLock already has isLocked, but extension avoids recursion
+actual typealias PlatformLock = java.util.concurrent.locks.ReentrantLock
+// Helper to avoid infinite recursion (extension shadows member in getter body)
+private fun ReentrantLock.checkLocked(): Boolean = isLocked
+actual val PlatformLock.isLocked: Boolean get() = this.checkLocked()
+
+// iosMain - extension accesses internal state
+actual class PlatformLock {
+    internal var _locked = false
+    actual fun lock() { lock.lock(); _locked = true }
+    actual fun unlock() { _locked = false; lock.unlock() }
+}
+actual val PlatformLock.isLocked: Boolean get() = this._locked
 ```
 
-This works in commonMain without expect/actual, avoiding both the LinkedHashMap `final` issue and the compiler ICE.
+## Composition pattern for KMP (SizeBoundVector)
 
-## HashMap→Map/MutableMap Widening for KMP
+JVM-final classes like `ArrayList` can't be subclassed in KMP commonMain. Use **composition + interface delegation**:
 
-When a core type (like OrderedHashtable) no longer extends HashMap, all code passing it where HashMap is expected must be widened. The pattern:
-- **Read-only usage**: `HashMap<K,V>` → `Map<K,V>`
-- **Mutable usage**: `HashMap<K,V>` → `MutableMap<K,V>`
-- **Java consumers**: Must also be updated (`HashMap` → `Map` in Java files)
+```kotlin
+// Instead of: class SizeBoundVector<E> : ArrayList<E>()
+// Use: class SizeBoundVector<E> : MutableList<E> {
+//     private val backingList = ArrayList<E>()
+//     // delegate all MutableList methods
+// }
+```
 
-This affected 25+ files across the serialization layer, locale system, model classes, and CLI code.
+## @Throws filter mismatch in iOS builds
 
-## Bulk Migration Cascade Problem
+When moving files to commonMain, override methods must have EXACTLY matching `@Throws` annotations as their parent class. JVM compilation is lenient (allows subset), but KMP metadata compilation (used for iOS target) is strict. This manifests only in iOS CI, not in JVM tests.
 
-Even after fixing individual blocker files, attempting to move all 425 remaining `main/java` files to commonMain fails because of cascading dependencies:
+## Iterative compiler-validated bulk migration
 
-1. 48 files have direct JVM dependencies (kxml2, gavagain geo, java.io/net, JVM reflection, Runtime/Thread)
-2. These 48 files include core types that virtually everything depends on (TreeReference, EvaluationContext, FormDef, Detail, Text)
-3. When you move the other 377 "clean" files, they fail compilation because they reference the 48 blockers
+The best approach for moving files to commonMain:
+1. Copy ALL candidate files to commonMain
+2. Run `compileCommonMainKotlinMetadata`
+3. Move back files mentioned in error messages
+4. Repeat until clean build (typically 3-6 iterations)
 
-**Implication**: Progress requires resolving JVM deps in the core model classes themselves, not just in leaf files. The blocker categories:
-- **kxml2/XML parsing** (~15 files)
-- **gavagain geo library** (~5 files)
-- **JVM reflection/Class<*>** (~5 files)
-- **java.io/java.net** (~3 files)
-- **JVM runtime** (~3 files: Runtime, Thread, ArrayList final)
-- **Deep dependency chains** (~17 files depending on above)
+Key insight: errors cascade — fixing iteration 1 reveals iteration 2 errors that were masked. Each iteration peels back one layer of the dependency onion.
+
+## Cascade ceiling analysis
+
+After Phase 6, the remaining ~400 files form ONE tightly-coupled connected component blocked by ~16 "inner ring" files:
+
+**Direct JVM dependency files (can't move without abstraction):**
+- kxml2/xmlpull consumers (7 files) — need DOM abstraction
+- gavaghan geodesy (2 files) — external library
+- com.carrotsearch.hppc (1 file: TableBuilder)
+- java.io.Reader/Writer consumers (5 files)
+- Class<*> serialization (PrototypeFactory constructors, Hasher)
+
+**Cascade structure:**
+- `Element` (kxml2 DOM) = #1 unresolved reference (100 occurrences)
+- `EvaluationContext` = most-imported type (163 files reference it)
+- `TreeReference` = 82 importers, blocked by XPathExpression → EvaluationContext
+- Moving ANY single blocker doesn't help — the cluster reconnects through other paths
+
+**Implication:** Bulk migration ceiling requires either DOM abstraction for kxml2 or moving parser/serializer files to jvmMain to break the dependency cycle.
+
+## KMP String/ByteArray API differences
+
+Common substitutions for commonMain compatibility:
+- `String.toByteArray()` → `String.encodeToByteArray()`
+- `String(ByteArray)` → `ByteArray.decodeToString()`
+- `String(ByteArray, offset, length)` → `ByteArray.decodeToString(offset, offset + length)`
+- `System.arraycopy(src, srcOff, dst, dstOff, len)` → `src.copyInto(dst, dstOff, srcOff, srcOff + len)`
