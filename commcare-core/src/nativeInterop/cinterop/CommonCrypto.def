@@ -1,5 +1,53 @@
-package = CommonCrypto
+package = CommCareCrypto
 ---
 #include <CommonCrypto/CommonDigest.h>
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonRandom.h>
+
+static inline int cc_sha256(const void *data, unsigned int len, void *md) {
+    CC_SHA256(data, len, md);
+    return 0;
+}
+
+static inline int cc_md5(const void *data, unsigned int len, void *md) {
+    CC_MD5(data, len, md);
+    return 0;
+}
+
+static inline int cc_random_generate(void *bytes, unsigned long count) {
+    return (int)CCRandomGenerateBytes(bytes, (size_t)count);
+}
+
+static inline int cc_gcm_encrypt(
+    const void *key, unsigned long keyLen,
+    const void *iv, unsigned long ivLen,
+    const void *dataIn, unsigned long dataLen,
+    void *dataOut,
+    void *tagOut, unsigned long tagLen
+) {
+    return (int)CCCryptorGCMOneshotEncrypt(
+        kCCAlgorithmAES, key, keyLen,
+        iv, ivLen,
+        NULL, 0,
+        dataIn, dataLen,
+        dataOut,
+        tagOut, tagLen
+    );
+}
+
+static inline int cc_gcm_decrypt(
+    const void *key, unsigned long keyLen,
+    const void *iv, unsigned long ivLen,
+    const void *dataIn, unsigned long dataLen,
+    void *dataOut,
+    const void *tagIn, unsigned long tagLen
+) {
+    return (int)CCCryptorGCMOneshotDecrypt(
+        kCCAlgorithmAES, key, keyLen,
+        iv, ivLen,
+        NULL, 0,
+        dataIn, dataLen,
+        dataOut,
+        tagIn, tagLen
+    );
+}
