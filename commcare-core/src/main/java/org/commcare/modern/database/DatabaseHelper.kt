@@ -154,7 +154,7 @@ object DatabaseHelper {
                 val scrubbedKey = TableBuilder.scrubName(key)
                 if (o is PlatformDate) {
                     // store date as seconds since epoch
-                    values[scrubbedKey] = o.time
+                    values[scrubbedKey] = o.getTime()
                 } else {
                     values[scrubbedKey] = o.toString()
                 }

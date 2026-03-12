@@ -38,7 +38,7 @@ class DateData : IAnswerData {
 
     override fun clone(): IAnswerData {
         init()
-        return DateData(PlatformDate(d!!.time))
+        return DateData(PlatformDate(d!!.getTime()))
     }
 
     override fun setValue(o: Any?) {
@@ -52,7 +52,7 @@ class DateData : IAnswerData {
 
     override fun getValue(): Any {
         init()
-        return PlatformDate(d!!.time)
+        return PlatformDate(d!!.getTime())
     }
 
     override fun getDisplayText(): String {
@@ -69,7 +69,7 @@ class DateData : IAnswerData {
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         init()
-        SerializationHelpers.writeNumeric(out, d!!.time)
+        SerializationHelpers.writeNumeric(out, d!!.getTime())
     }
 
     override fun uncast(): UncastData {
