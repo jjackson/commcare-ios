@@ -58,7 +58,7 @@ class EvaluationTraceReduction(trace: EvaluationTrace) : EvaluationTrace(trace.g
     }
 
     override fun getSubTraces(): ArrayList<EvaluationTrace> {
-        return ArrayList<EvaluationTrace>(subTraces.values)
+        return ArrayList<EvaluationTrace>().also { it.addAll(subTraces.values) }
     }
 
     override fun getExpression(): String {

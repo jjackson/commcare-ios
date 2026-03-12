@@ -40,7 +40,7 @@ internal class StackFrameStepParser(parser: PlatformXmlParser) : ElementParser<S
     @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
     private fun parseQuery(): StackFrameStep {
         val queryId = parser.getAttributeValue(null, "id")
-        val url = parser.getAttributeValue(null, "value")
+        val url = parser.getAttributeValue(null, "value") ?: ""
         try {
             PlatformUrl(url)
         } catch (e: PlatformMalformedUrlException) {

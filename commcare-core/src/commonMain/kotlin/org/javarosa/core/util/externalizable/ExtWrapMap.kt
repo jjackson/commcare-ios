@@ -1,10 +1,7 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.OrderedHashtable
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 // map of objects where key and data are all of single (non-polymorphic) type
 // (key and value can be of separate types)
@@ -27,18 +24,18 @@ class ExtWrapMap : ExternalizableWrapper {
         this.`val` = `val`
         this.keyType = keyType
         this.dataType = dataType
-        type = if (`val` is OrderedHashtable<*, *>) TYPE_ORDERED else TYPE_NORMAL
+        type = if (isOrderedHashMap(`val`)) TYPE_ORDERED else TYPE_NORMAL
     }
 
     constructor()
 
-    constructor(keyType: Class<*>, dataType: Class<*>) : this(keyType, dataType, TYPE_NORMAL)
+    constructor(keyType: KClass<*>, dataType: KClass<*>) : this(keyType, dataType, TYPE_NORMAL)
 
-    constructor(keyType: Class<*>, dataType: ExternalizableWrapper) : this(ExtWrapBase(keyType), dataType, TYPE_NORMAL)
+    constructor(keyType: KClass<*>, dataType: ExternalizableWrapper) : this(ExtWrapBase(keyType), dataType, TYPE_NORMAL)
 
     constructor(keyType: ExternalizableWrapper, dataType: ExternalizableWrapper) : this(keyType, dataType, TYPE_NORMAL)
 
-    constructor(keyType: Class<*>, dataType: Class<*>, type: Int) : this(ExtWrapBase(keyType), ExtWrapBase(dataType), type)
+    constructor(keyType: KClass<*>, dataType: KClass<*>, type: Int) : this(ExtWrapBase(keyType), ExtWrapBase(dataType), type)
 
     constructor(keyType: ExternalizableWrapper, dataType: ExternalizableWrapper, type: Int) {
         this.keyType = keyType
@@ -55,7 +52,7 @@ class ExtWrapMap : ExternalizableWrapper {
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         val size = ExtUtil.readNumeric(`in`)
         val h: HashMap<Any, Any> = when (type) {
-            TYPE_ORDERED -> OrderedHashtable(size.toInt())
+            TYPE_ORDERED -> createOrderedHashMap(size.toInt())
             else -> HashMap(size.toInt())
         }
 

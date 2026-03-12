@@ -27,7 +27,7 @@ open class XPathDistinctValuesFunc : XPathFuncExpr {
     override fun evalBody(model: DataInstance<*>?, evalContext: EvaluationContext, evaluatedArgs: Array<Any?>): Any {
         val argList = FunctionUtils.getSequence(evaluatedArgs[0])
 
-        val returnSet: HashSet<String> = LinkedHashSet()
+        val returnSet = LinkedHashSet<String>()
         for (o in argList) {
             returnSet.add(FunctionUtils.toString(o))
         }

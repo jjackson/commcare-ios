@@ -6,6 +6,7 @@ import org.javarosa.core.api.ClassNameHasher
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.utils.PlatformDate
 import java.util.HashSet
+import kotlin.reflect.KClass
 
 /**
  * ProtoType factory for serializing and deserializing persisted classes using
@@ -132,6 +133,10 @@ actual open class PrototypeFactory : Any {
         return getClass(hash)?.name
     }
 
+    actual open fun createInstance(type: KClass<*>): Any {
+        return getInstance(type.java)
+    }
+
     actual open fun getInstance(hash: ByteArray): Any {
         return getInstance(getClass(hash)!!)
     }
@@ -188,6 +193,11 @@ actual open class PrototypeFactory : Any {
         @JvmStatic
         actual fun getClassHashByName(className: String): ByteArray {
             return mStaticHasher!!.getClassHashValueByName(className)
+        }
+
+        @JvmStatic
+        actual fun getClassHashForType(type: KClass<*>): ByteArray {
+            return getClassHash(type.java)
         }
 
         @JvmStatic

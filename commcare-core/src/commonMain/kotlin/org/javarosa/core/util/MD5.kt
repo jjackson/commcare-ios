@@ -384,7 +384,7 @@ class MD5(data: ByteArray) {
                 buf[x++] = HEX_CHARS[(hash[i].toInt() ushr 4) and 0xf]
                 buf[x++] = HEX_CHARS[hash[i].toInt() and 0xf]
             }
-            return String(buf)
+            return buf.concatToString()
         }
 
         fun hash(data: ByteArray): ByteArray {

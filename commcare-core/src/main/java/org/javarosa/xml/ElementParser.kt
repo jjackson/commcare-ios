@@ -265,7 +265,22 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
         @Throws(PlatformIOException::class)
         fun instantiateParser(stream: PlatformInputStream): PlatformXmlParser {
             try {
-                val parser = createXmlParser(stream)
+                val buffer = ByteArray(4096)
+                val chunks = mutableListOf<ByteArray>()
+                var totalSize = 0
+                while (true) {
+                    val bytesRead = stream.read(buffer)
+                    if (bytesRead == -1) break
+                    chunks.add(buffer.copyOfRange(0, bytesRead))
+                    totalSize += bytesRead
+                }
+                val data = ByteArray(totalSize)
+                var offset = 0
+                for (chunk in chunks) {
+                    chunk.copyInto(data, offset)
+                    offset += chunk.size
+                }
+                val parser = createXmlParser(data)
                 // Point to the first available tag.
                 parser.next()
                 return parser
@@ -273,7 +288,7 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
                 Logger.exception("Element Parser", e)
                 throw PlatformIOException(e.message)
             } catch (e: IllegalArgumentException) {
-                e.printStackTrace()
+                Logger.exception("Element Parser", PlatformIOException(e.message))
                 throw PlatformIOException(e.message)
             }
         }

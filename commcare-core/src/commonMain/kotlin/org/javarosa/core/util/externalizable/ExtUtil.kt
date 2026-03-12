@@ -1,11 +1,6 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.services.PrototypeManager
 import org.javarosa.core.util.Interner
-import org.javarosa.core.util.OrderedHashtable
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.utils.PlatformDate
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
@@ -33,7 +28,7 @@ class ExtUtil {
 
         @JvmStatic
         fun defaultPrototypes(): PrototypeFactory {
-            return PrototypeManager.getDefault()!!
+            return defaultPrototypeFactory()
         }
 
         @JvmStatic
@@ -102,21 +97,19 @@ class ExtUtil {
                     "Error while trying to write $`val` percentOversized: $percentOversized"
                 )
             }
-            // we could easily come up with more efficient default encoding for string
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
         fun writeDate(out: PlatformDataOutputStream, `val`: PlatformDate) {
-            writeNumeric(out, `val`.time)
-            // time zone?
+            writeNumeric(out, `val`.getTime())
         }
 
         @JvmStatic
         @Throws(PlatformIOException::class)
         fun writeBytes(out: PlatformDataOutputStream, bytes: ByteArray) {
             writeNumeric(out, bytes.size.toLong())
-            if (bytes.isNotEmpty()) // i think writing zero-length array might close the stream
+            if (bytes.isNotEmpty())
                 out.write(bytes)
         }
 
@@ -140,40 +133,9 @@ class ExtUtil {
                 PlatformDate::class -> readDate(`in`)
                 ByteArray::class -> readBytes(`in`)
                 else -> {
-                    // Must be an Externalizable type — create via JVM reflection
-                    val o = type.java.getDeclaredConstructor().newInstance()
-                    (o as Externalizable).readExternal(`in`, pf ?: defaultPrototypes())
-                    o
-                }
-            }
-        }
-
-        /**
-         * JVM backward-compatible overload accepting Class<*>.
-         * Uses Class.newInstance() directly for Externalizable types (matching original behavior).
-         */
-        @JvmStatic
-        @Throws(PlatformIOException::class, DeserializationException::class)
-        fun read(
-            `in`: PlatformDataInputStream,
-            type: Class<*>,
-            pf: PrototypeFactory?
-        ): Any {
-            return when (type.kotlin) {
-                Byte::class -> readByte(`in`)
-                Short::class -> readShort(`in`)
-                Int::class -> readInt(`in`)
-                Long::class -> readNumeric(`in`)
-                Char::class -> readChar(`in`)
-                Float::class -> readDecimal(`in`).toFloat()
-                Double::class -> readDecimal(`in`)
-                Boolean::class -> readBool(`in`)
-                String::class -> readString(`in`)
-                PlatformDate::class -> readDate(`in`)
-                ByteArray::class -> readBytes(`in`)
-                else -> {
-                    val o = PrototypeFactory.getInstance(type)
-                    (o as Externalizable).readExternal(`in`, pf ?: defaultPrototypes())
+                    val factory = pf ?: defaultPrototypes()
+                    val o = factory.createInstance(type)
+                    (o as Externalizable).readExternal(`in`, factory)
                     o
                 }
             }
@@ -259,7 +221,6 @@ class ExtUtil {
         @Throws(PlatformIOException::class)
         fun readDate(`in`: PlatformDataInputStream): PlatformDate {
             return PlatformDate(readNumeric(`in`))
-            // time zone?
         }
 
         @JvmStatic
@@ -391,8 +352,6 @@ class ExtUtil {
         fun hashtableEquals(a: HashMap<*, *>, b: HashMap<*, *>, unwrap: Boolean): Boolean {
             if (a.size != b.size) {
                 return false
-            } else if ((a is OrderedHashtable<*, *>) != (b is OrderedHashtable<*, *>)) {
-                return false
             } else {
                 val ea: Iterator<*> = a.keys.iterator()
                 while (ea.hasNext()) {
@@ -401,21 +360,6 @@ class ExtUtil {
                         return false
                     }
                 }
-
-                if (a is OrderedHashtable<*, *> && b is OrderedHashtable<*, *>) {
-                    val eaOrdered: Iterator<*> = a.keys.iterator()
-                    val ebOrdered: Iterator<*> = b.keys.iterator()
-
-                    while (eaOrdered.hasNext()) {
-                        val keyA = eaOrdered.next()
-                        val keyB = ebOrdered.next()
-
-                        if (keyA != keyB) { // must use built-in equals for keys, as that's what hashtable uses
-                            return false
-                        }
-                    }
-                }
-
                 return true
             }
         }
@@ -447,15 +391,6 @@ class ExtUtil {
         @JvmStatic
         @Throws(PlatformIOException::class, DeserializationException::class)
         fun deserialize(data: ByteArray, type: KClass<*>, pf: PrototypeFactory?): Any {
-            return read(PlatformDataInputStream(data), type, pf)
-        }
-
-        /**
-         * JVM backward-compatible overload accepting Class<*>.
-         */
-        @JvmStatic
-        @Throws(PlatformIOException::class, DeserializationException::class)
-        fun deserialize(data: ByteArray, type: Class<*>, pf: PrototypeFactory?): Any {
             return read(PlatformDataInputStream(data), type, pf)
         }
 

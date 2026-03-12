@@ -228,9 +228,9 @@ class XFormAnswerDataSerializer : IAnswerDataSerializer {
             }
         }
         if (data is PointerAnswerData) {
-            return java.lang.Boolean.TRUE
+            return true
         }
-        return java.lang.Boolean.FALSE
+        return false
     }
 
     override fun retrieveExternalDataPointer(data: IAnswerData?): Array<IDataPointer>? {

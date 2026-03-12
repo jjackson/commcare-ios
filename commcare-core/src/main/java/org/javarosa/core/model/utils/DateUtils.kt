@@ -34,7 +34,7 @@ object DateUtils {
 
     private val EPOCH_DATE: PlatformDate = getDate(1970, 1, 1)!!
 
-    private val EPOCH_TIME: Long = roundDate(EPOCH_DATE).time
+    private val EPOCH_TIME: Long = roundDate(EPOCH_DATE).getTime()
 
     class CalendarStrings @JvmOverloads constructor(
         @JvmField var monthNamesLong: Array<String> = arrayOf(
@@ -119,7 +119,7 @@ object DateUtils {
         } else if (timezoneOffset() != -1) {
             return getFields(d, timezoneOffset())
         }
-        return getFields(cd, cd.timeZone.getOffset(d.time))
+        return getFields(cd, cd.timeZone.getOffset(d.getTime()))
     }
 
     private fun getFields(d: PlatformDate, timezoneOffset: Int): DateFields {
@@ -530,7 +530,7 @@ object DateUtils {
         // Now apply any relevant offsets from the timezone.
         val c = platformCalendarInstance(platformTimeZone("UTC"))
 
-        c.time = PlatformDate(getDate(df, "UTC")!!.time + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000))
+        c.time = PlatformDate(getDate(df, "UTC")!!.getTime() + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000))
 
         // c is now in the timezone of the parsed value, so put
         // it in the local timezone.
@@ -565,7 +565,7 @@ object DateUtils {
                 // only grab prefix of seconds piece that includes digits and decimal(s)
                 while (idx < secStr.length) {
                     val ch = secStr[idx]
-                    if (!Character.isDigit(ch) && ch != '.') break
+                    if (!ch.isDigit() && ch != '.') break
                     idx++
                 }
                 secStr = secStr.substring(0, idx)
@@ -673,7 +673,7 @@ object DateUtils {
             }
 
             val diff = (((current_dow - target_dow) + (7 + offset)) % 7 - offset) + (7 * nAgo) - (if (beginning) 0 else 6) //booyah
-            d = PlatformDate(ref.time - diff * DAY_IN_MS)
+            d = PlatformDate(ref.getTime() - diff * DAY_IN_MS)
         } else if (type == "month") {
             //not supported
         } else {
@@ -685,7 +685,7 @@ object DateUtils {
 
     @JvmStatic
     fun getMonthsDifference(earlierDate: PlatformDate, laterDate: PlatformDate): Int {
-        val span = PlatformDate(laterDate.time - earlierDate.time)
+        val span = PlatformDate(laterDate.getTime() - earlierDate.getTime())
         val firstDate = PlatformDate(0)
         val calendar = platformCalendarInstance()
         calendar.time = firstDate
@@ -700,14 +700,14 @@ object DateUtils {
 
     @JvmStatic
     fun daysSinceEpoch(date: PlatformDate): Int {
-        return MathUtils.divLongNotSuck(roundDate(date).time - EPOCH_TIME + DAY_IN_MS / 2, DAY_IN_MS).toInt()
+        return MathUtils.divLongNotSuck(roundDate(date).getTime() - EPOCH_TIME + DAY_IN_MS / 2, DAY_IN_MS).toInt()
     }
 
     @JvmStatic
     fun fractionalDaysSinceEpoch(a: PlatformDate): Double {
         @Suppress("DEPRECATION")
         val timeZoneAdjust = ((a.timezoneOffset - EPOCH_DATE.timezoneOffset) * 60 * 1000).toLong()
-        return ((a.time - EPOCH_DATE.time) - timeZoneAdjust) / DAY_IN_MS.toDouble()
+        return ((a.getTime() - EPOCH_DATE.getTime()) - timeZoneAdjust) / DAY_IN_MS.toDouble()
     }
 
     /**
@@ -715,7 +715,7 @@ object DateUtils {
      */
     @JvmStatic
     fun dateAdd(d: PlatformDate, n: Int): PlatformDate {
-        return roundDate(PlatformDate(roundDate(d).time + DAY_IN_MS * n + DAY_IN_MS / 2))
+        return roundDate(PlatformDate(roundDate(d).getTime() + DAY_IN_MS * n + DAY_IN_MS / 2))
         //half-day offset is needed to handle differing DST offsets!
     }
 
@@ -724,7 +724,7 @@ object DateUtils {
      */
     @JvmStatic
     fun dateDiff(a: PlatformDate, b: PlatformDate): Int {
-        return MathUtils.divLongNotSuck(roundDate(b).time - roundDate(a).time + DAY_IN_MS / 2, DAY_IN_MS).toInt()
+        return MathUtils.divLongNotSuck(roundDate(b).getTime() - roundDate(a).getTime() + DAY_IN_MS / 2, DAY_IN_MS).toInt()
         //half-day offset is needed to handle differing DST offsets!
     }
 

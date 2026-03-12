@@ -400,11 +400,7 @@ class FormEntryController {
                 event = this.getModel().getEvent(walker)
             }
 
-            val questions = arrayOfNulls<FormEntryPrompt>(questionList.size)
-            //Populate the array with the collected questions
-            questionList.toArray(questions)
-            @Suppress("UNCHECKED_CAST")
-            return questions as Array<FormEntryPrompt>
+            return questionList.toTypedArray()
         } else {
             // We have a question, so just get the one prompt
             return arrayOf(this.getModel().getQuestionPrompt(currentIndex))

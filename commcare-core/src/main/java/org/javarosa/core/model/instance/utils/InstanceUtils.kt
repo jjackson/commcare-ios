@@ -63,7 +63,7 @@ object InstanceUtils {
      * @return a hashtable representing the data instances that are in scope for this Entry,
      * potentially limited by [limitingList]
      */
-    @JvmSuppressWildcards
+    @kotlin.jvm.JvmSuppressWildcards
     fun getLimitedInstances(
         limitingList: Set<String>?,
         instances: HashMap<String, DataInstance<*>>?

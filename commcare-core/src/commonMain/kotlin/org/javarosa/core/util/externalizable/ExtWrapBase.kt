@@ -1,8 +1,5 @@
 package org.javarosa.core.util.externalizable
 
-import org.javarosa.core.util.externalizable.PlatformDataInputStream
-import org.javarosa.core.util.externalizable.PlatformDataOutputStream
-import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
@@ -26,9 +23,6 @@ class ExtWrapBase : ExternalizableWrapper {
         }
         this.type = type
     }
-
-    /** JVM backward-compatible constructor accepting Class<*>. */
-    constructor(type: Class<*>) : this(type.kotlin)
 
     override fun clone(`val`: Any?): ExternalizableWrapper {
         return ExtWrapBase(`val`!!)

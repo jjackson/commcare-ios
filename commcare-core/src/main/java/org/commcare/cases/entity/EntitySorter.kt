@@ -88,7 +88,7 @@ class EntitySorter(
                 // Double int compares just fine here and also
                 // deals with NaN's appropriately
                 val ret = FunctionUtils.toInt(value)
-                if (java.lang.Double.isNaN(ret)) {
+                if (ret.isNaN()) {
                     val stringArgs = arrayOfNulls<String>(3)
                     stringArgs[2] = value
                     if (!hasWarned) {
@@ -99,7 +99,7 @@ class EntitySorter(
                 return ret
             } else if (sortType == Constants.DATATYPE_DECIMAL) {
                 val ret = FunctionUtils.toDouble(value)
-                if (java.lang.Double.isNaN(ret)) {
+                if (ret.isNaN()) {
                     val stringArgs = arrayOfNulls<String>(3)
                     stringArgs[2] = value
                     if (!hasWarned) {
