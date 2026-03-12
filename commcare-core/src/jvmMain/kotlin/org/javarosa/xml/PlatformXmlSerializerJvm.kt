@@ -1,5 +1,6 @@
 package org.javarosa.xml
 
+import org.javarosa.core.io.PlatformOutputStream
 import org.kxml2.io.KXmlSerializer
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
@@ -73,5 +74,5 @@ actual fun createXmlSerializer(): PlatformXmlSerializer = JvmXmlSerializer()
  * JVM-only factory: create PlatformXmlSerializer that writes to an OutputStream.
  * Used by DataModelSerializer and other JVM code that writes XML to streams.
  */
-fun createXmlSerializer(output: OutputStream, encoding: String = "UTF-8"): PlatformXmlSerializer =
+actual fun createXmlSerializer(output: PlatformOutputStream, encoding: String): PlatformXmlSerializer =
     JvmXmlSerializer(output, encoding)

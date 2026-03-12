@@ -134,3 +134,9 @@ class IosXmlSerializer : PlatformXmlSerializer {
 }
 
 actual fun createXmlSerializer(): PlatformXmlSerializer = IosXmlSerializer()
+
+actual fun createXmlSerializer(output: org.javarosa.core.io.PlatformOutputStream, encoding: String): PlatformXmlSerializer {
+    // iOS implementation writes to in-memory buffer; output stream parameter is ignored
+    // (caller should use toByteArray() and write to stream manually)
+    return IosXmlSerializer()
+}
