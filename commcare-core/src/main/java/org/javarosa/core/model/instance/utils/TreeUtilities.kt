@@ -286,7 +286,7 @@ object TreeUtilities {
     fun xmlToTreeElement(xmlFilepath: String?): TreeElement {
         var inputStream: PlatformInputStream? = null
         try {
-            inputStream = InstanceUtils::class.java.getResourceAsStream(xmlFilepath)
+            inputStream = loadClasspathResource(xmlFilepath)
             try {
                 return xmlStreamToTreeElement(inputStream, "instance")
             } catch (e: UnfullfilledRequirementsException) {

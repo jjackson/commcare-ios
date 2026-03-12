@@ -113,6 +113,7 @@ class XFormParser {
         }
 
         private fun staticInit() {
+            org.javarosa.xpath.expr.JvmXPathFunctions.ensureRegistered()
             initProcessingRules()
             initTypeMappings()
         }
@@ -164,8 +165,12 @@ class XFormParser {
 
         private fun setupActionHandlers() {
             actionHandlers = HashMap()
-            registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler())
-            registerActionHandler(SendAction.ELEMENT_NAME, SendAction.getHandler())
+            registerActionHandler(SetValueAction.ELEMENT_NAME, IElementHandler { p, e, parent ->
+                p.parseSetValueAction((parent as IFormElement).getActionController()!!, e)
+            })
+            registerActionHandler(SendAction.ELEMENT_NAME, IElementHandler { p, e, parent ->
+                p.parseSendAction((parent as IFormElement).getActionController()!!, e)
+            })
         }
 
         /**

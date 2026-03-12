@@ -2,20 +2,17 @@ package org.javarosa.core.model.actions
 
 import org.javarosa.core.util.ListMultimap
 import org.javarosa.core.model.FormDef
-import org.javarosa.core.model.IFormElement
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.AbstractTreeElement
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.PrototypeFactory
-import org.javarosa.xform.parse.IElementHandler
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
-import kotlin.jvm.JvmStatic
 
 /**
  * A Send Action is responsible for loading a submission template from the form, and performing
@@ -89,14 +86,5 @@ class SendAction : Action {
 
     companion object {
         const val ELEMENT_NAME: String = "send"
-
-        @JvmStatic
-        fun getHandler(): IElementHandler {
-            return IElementHandler { p, e, parent ->
-                // the generic parseAction() method in XFormParser already checks to make sure
-                // that parent is an IFormElement, and throws an exception if it is not
-                p.parseSendAction((parent as IFormElement).getActionController()!!, e)
-            }
-        }
     }
 }

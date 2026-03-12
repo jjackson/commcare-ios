@@ -7,7 +7,6 @@ import org.javarosa.xpath.expr.XPathAtanFunc
 import org.javarosa.xpath.expr.XPathAtanTwoFunc
 import org.javarosa.xpath.expr.XPathBooleanFromStringFunc
 import org.javarosa.xpath.expr.XPathBooleanFunc
-import org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc
 import org.javarosa.xpath.expr.XPathCeilingFunc
 import org.javarosa.xpath.expr.XPathChecklistFunc
 import org.javarosa.xpath.expr.XPathChecksumFunc
@@ -19,12 +18,9 @@ import org.javarosa.xpath.expr.XPathCountFunc
 import org.javarosa.xpath.expr.XPathCountSelectedFunc
 import org.javarosa.xpath.expr.XPathCustomRuntimeFunc
 import org.javarosa.xpath.expr.XPathDateFunc
-import org.javarosa.xpath.expr.XPathDecryptStringFunc
 import org.javarosa.xpath.expr.XPathDependFunc
-import org.javarosa.xpath.expr.XPathDistanceFunc
 import org.javarosa.xpath.expr.XPathDistinctValuesFunc
 import org.javarosa.xpath.expr.XPathDoubleFunc
-import org.javarosa.xpath.expr.XPathEncryptStringFunc
 import org.javarosa.xpath.expr.XPathEndsWithFunc
 import org.javarosa.xpath.expr.XPathExpFunc
 import org.javarosa.xpath.expr.XPathExpression
@@ -49,7 +45,6 @@ import org.javarosa.xpath.expr.XPathNotFunc
 import org.javarosa.xpath.expr.XPathNowFunc
 import org.javarosa.xpath.expr.XPathNumberFunc
 import org.javarosa.xpath.expr.XPathPiFunc
-import org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc
 import org.javarosa.xpath.expr.XPathPositionFunc
 import org.javarosa.xpath.expr.XPathPowFunc
 import org.javarosa.xpath.expr.XPathQName
@@ -162,7 +157,6 @@ class ASTNodeFunctionCall(val name: XPathQName) : ASTNode() {
                 "sqrt" -> XPathSqrtFunc(args)
                 "exp" -> XPathExpFunc(args)
                 "pi" -> XPathPiFunc(args)
-                "distance" -> XPathDistanceFunc(args)
                 "format-date-for-calendar" -> XPathFormatDateForCalendarFunc(args)
                 "join-chunked" -> XPathJoinChunkFunc(args)
                 "id-compress" -> XPathIdCompressFunc(args)
@@ -172,12 +166,16 @@ class ASTNodeFunctionCall(val name: XPathQName) : ASTNode() {
                 "distinct-values" -> XPathDistinctValuesFunc(args)
                 "sleep" -> XPathSleepFunc(args)
                 "index-of" -> XPathIndexOfFunc(args)
-                "encrypt-string" -> XPathEncryptStringFunc(args)
-                "decrypt-string" -> XPathDecryptStringFunc(args)
                 "json-property" -> XPathJsonPropertyFunc(args)
-                "closest-point-on-polygon" -> XPathClosestPointOnPolygonFunc(args)
-                "is-point-inside-polygon" -> XPathIsPointInsidePolygonFunc(args)
-                else -> XPathCustomRuntimeFunc(name, args)
+                else -> {
+                    // Try platform-specific functions (geo, crypto, etc.)
+                    val platformFunc = PlatformFuncExprRegistry.build(name, args)
+                    if (platformFunc != null) {
+                        platformFunc as XPathFuncExpr
+                    } else {
+                        XPathCustomRuntimeFunc(name, args)
+                    }
+                }
             }
         }
     }

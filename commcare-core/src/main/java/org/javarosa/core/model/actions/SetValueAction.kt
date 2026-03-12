@@ -1,7 +1,6 @@
 package org.javarosa.core.model.actions
 
 import org.javarosa.core.model.FormDef
-import org.javarosa.core.model.IFormElement
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.condition.Recalculate
 import org.javarosa.core.model.data.AnswerDataFactory
@@ -11,7 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
 import org.javarosa.core.util.externalizable.nullIfEmpty
-import org.javarosa.xform.parse.IElementHandler
 import org.javarosa.xpath.XPathNodeset
 import org.javarosa.xpath.XPathTypeMismatchException
 import org.javarosa.xpath.expr.FunctionUtils
@@ -19,7 +17,6 @@ import org.javarosa.xpath.expr.XPathExpression
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
-import kotlin.jvm.JvmStatic
 
 /**
  * @author ctsims
@@ -155,14 +152,5 @@ class SetValueAction : Action {
 
     companion object {
         const val ELEMENT_NAME: String = "setvalue"
-
-        @JvmStatic
-        fun getHandler(): IElementHandler {
-            return IElementHandler { p, e, parent ->
-                // the generic parseAction() method in XFormParser already checks to make sure
-                // that parent is an IFormElement, and throws an exception if it is not
-                p.parseSetValueAction((parent as IFormElement).getActionController()!!, e)
-            }
-        }
     }
 }

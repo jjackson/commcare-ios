@@ -53,7 +53,6 @@ class FunctionUtils {
             funcList[XPathIfFunc.NAME] = { XPathIfFunc() }
             funcList[XPathLowerCaseFunc.NAME] = { XPathLowerCaseFunc() }
             funcList[XPathIntFunc.NAME] = { XPathIntFunc() }
-            funcList[XPathDistanceFunc.NAME] = { XPathDistanceFunc() }
             funcList[XPathWeightedChecklistFunc.NAME] = { XPathWeightedChecklistFunc() }
             funcList[XPathUpperCaseFunc.NAME] = { XPathUpperCaseFunc() }
             funcList[XPathCosFunc.NAME] = { XPathCosFunc() }
@@ -85,11 +84,20 @@ class FunctionUtils {
             funcList[XPathDistinctValuesFunc.NAME] = { XPathDistinctValuesFunc() }
             funcList[XPathSleepFunc.NAME] = { XPathSleepFunc() }
             funcList[XPathIndexOfFunc.NAME] = { XPathIndexOfFunc() }
-            funcList[XPathEncryptStringFunc.NAME] = { XPathEncryptStringFunc() }
-            funcList[XPathDecryptStringFunc.NAME] = { XPathDecryptStringFunc() }
             funcList[XPathJsonPropertyFunc.NAME] = { XPathJsonPropertyFunc() }
-            funcList[XPathClosestPointOnPolygonFunc.NAME] = { XPathClosestPointOnPolygonFunc() }
-            funcList[XPathIsPointInsidePolygonFunc.NAME] = { XPathIsPointInsidePolygonFunc() }
+
+            // Register platform-specific functions (geo, crypto).
+            // These are registered via registerXPathFunction() by platform init code,
+            // NOT directly referenced here, so FunctionUtils doesn't depend on
+            // jvmMain types like GeoPointUtils or EncryptionUtils.
+        }
+
+        /**
+         * Register additional XPath functions. Used by platform-specific code
+         * to register functions that depend on JVM-only libraries (e.g., geo, crypto).
+         */
+        fun registerXPathFunction(name: String, factory: () -> XPathFuncExpr) {
+            funcList[name] = factory
         }
 
         private val mDoubleParseCache = CacheTable<String, Double>()
