@@ -1,41 +1,34 @@
 package org.commcare.app
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import org.commcare.app.state.AppState
+import org.commcare.app.ui.HomeScreen
+import org.commcare.app.ui.InstallErrorScreen
+import org.commcare.app.ui.InstallScreen
+import org.commcare.app.ui.LoginScreen
+import org.commcare.app.viewmodel.LoginViewModel
 
 @Composable
 fun App() {
+    val loginViewModel = remember { LoginViewModel() }
+
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            EngineStatusScreen()
+            when (val state = loginViewModel.appState) {
+                is AppState.LoggedOut,
+                is AppState.LoginError -> LoginScreen(loginViewModel)
+                is AppState.LoggingIn -> LoginScreen(loginViewModel)
+                is AppState.Installing -> InstallScreen(state)
+                is AppState.InstallError -> InstallErrorScreen(state) {
+                    loginViewModel.resetError()
+                }
+                is AppState.Ready -> HomeScreen()
+            }
         }
-    }
-}
-
-@Composable
-fun EngineStatusScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp)
-    ) {
-        Text(
-            text = "CommCare iOS",
-            style = MaterialTheme.typography.headlineLarge
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Engine Status",
-            style = MaterialTheme.typography.titleMedium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "CommCare Core linked successfully")
     }
 }
