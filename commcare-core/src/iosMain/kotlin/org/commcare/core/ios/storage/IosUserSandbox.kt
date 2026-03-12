@@ -61,7 +61,7 @@ class IosUserSandbox(private val factory: PrototypeFactory) : UserSandbox() {
     }
 
     override fun setIndexedFixturePathBases(fixtureName: String, baseName: String, childName: String, attrs: TreeElement) {
-        indexedFixtureIdentifiers[fixtureName] = IndexedFixtureIdentifier(baseName, childName, attrs)
+        indexedFixtureIdentifiers[fixtureName] = IndexedFixtureIdentifier(baseName, childName, null)
     }
 
     override fun getUserFixtureStorage(): IStorageUtilityIndexed<FormInstance> = userFixtureStorage
