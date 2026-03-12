@@ -6,6 +6,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser used by the DetailParser class to parse the style attributes of a
@@ -18,7 +19,7 @@ class StyleParser(
     parser: PlatformXmlParser
 ) : ElementParser<Int>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Int {
         val fontSize = parser.getAttributeValue(null, "font-size")
         builder.setFontSize(fontSize)

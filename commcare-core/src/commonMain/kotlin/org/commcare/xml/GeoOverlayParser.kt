@@ -8,6 +8,7 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parses the defintion for a [GeoOverlay] element
@@ -21,7 +22,7 @@ internal class GeoOverlayParser(parser: PlatformXmlParser) : ElementParser<GeoOv
         private const val NAME_LABEL = "label"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): GeoOverlay {
         var title: DisplayUnit? = null
         var coordinates: DisplayUnit? = null

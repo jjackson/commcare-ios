@@ -26,7 +26,7 @@ import java.util.HashMap;
 public class QueryDataParserTest {
 
     @Test
-    public void testParseValueData() throws InvalidStructureException, XmlPullParserException, IOException {
+    public void testParseValueData() throws InvalidStructureException, XmlPullParserException, IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\"/>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
         QueryData queryData = parser.parse();
@@ -37,7 +37,7 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseValueData_withExclude() throws InvalidStructureException, XmlPullParserException,
+    public void testParseValueData_withExclude() throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
             IOException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
                 + "exclude=\"true()\"/>";
@@ -51,8 +51,8 @@ public class QueryDataParserTest {
 
     @Test
     public void testParseValueData_withRequiredAttribute()
-            throws InvalidStructureException, XmlPullParserException,
-            IOException, UnfullfilledRequirementsException {
+            throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
+            IOException {
         String query = "<data key=\"device_id\" ref=\"instance('session')/session/case_id\""
                 + "required=\"true()\"/>";
         QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
@@ -64,8 +64,8 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseValueData_withRequiredNode() throws InvalidStructureException, XmlPullParserException,
-            IOException, UnfullfilledRequirementsException {
+    public void testParseValueData_withRequiredNode() throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
+            IOException {
         String query = "<prompt key=\"name\">"
                 + "          <required test=\"true()\">"
                 + "            <text>This field can't be empty</text>"
@@ -80,8 +80,8 @@ public class QueryDataParserTest {
 
     @Test(expected = InvalidStructureException.class)
     public void testParseValueData_withRequiredAttributeAndNode()
-            throws InvalidStructureException, XmlPullParserException,
-            IOException, UnfullfilledRequirementsException {
+            throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
+            IOException {
         String query = "<prompt key=\"name\" required=\"true()\">"
                 + "          <required test=\"true()\">"
                 + "            <text>This field can't be empty</text>"
@@ -92,7 +92,7 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseListData() throws InvalidStructureException, XmlPullParserException, IOException {
+    public void testParseListData() throws InvalidStructureException, XmlPullParserException, IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"case_id_list\""
                 + "nodeset=\"instance('selected-cases')/session-data/value\""
                 + "exclude=\"count(instance('casedb')/casedb/case[@case_id = current()/.]) = 1\""
@@ -107,7 +107,7 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseListData_noExclude() throws InvalidStructureException, XmlPullParserException,
+    public void testParseListData_noExclude() throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
             IOException {
         String query = "<data key=\"case_id_list\""
                 + "nodeset=\"instance('selected-cases')/session-data/value\""
@@ -122,7 +122,7 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseQueryData_noRef() throws XmlPullParserException, IOException {
+    public void testParseQueryData_noRef() throws XmlPullParserException, IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"case_id_list\"></data>";
         QueryDataParser parser = ParserTestUtils.buildParser(query, QueryDataParser.class);
         try {
@@ -133,7 +133,7 @@ public class QueryDataParserTest {
     }
 
     @Test
-    public void testParseQueryData_badNesting() throws XmlPullParserException, IOException {
+    public void testParseQueryData_badNesting() throws XmlPullParserException, IOException, UnfullfilledRequirementsException {
         String query = "<data key=\"case_id_list\" ref=\"true()\">"
                 + "<data key=\"device_id\" ref=\"instance('session')/session/case_id\"/>"
                 + "</data>";
@@ -147,8 +147,8 @@ public class QueryDataParserTest {
 
     @Test
     public void testParseValueData_withGroupKeyAttribute()
-            throws InvalidStructureException, XmlPullParserException,
-            IOException, UnfullfilledRequirementsException {
+            throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
+            IOException {
         String query = "<prompt key=\"name\" group_key=\"group_header_1\"></prompt>";
         QueryPromptParser parser = ParserTestUtils.buildParser(query, QueryPromptParser.class);
         QueryPrompt queryData = parser.parse();
@@ -157,8 +157,8 @@ public class QueryDataParserTest {
 
     @Test
     public void testParseValueData_withGroup()
-            throws InvalidStructureException, XmlPullParserException,
-            IOException, UnfullfilledRequirementsException {
+            throws InvalidStructureException, XmlPullParserException, UnfullfilledRequirementsException,
+            IOException {
         String query = "<group key=\"group_header_0\">"
                 + "<display><text><locale id=\"search_property.m0.group_header_0\"/></text></display>"
                 + "</group>";

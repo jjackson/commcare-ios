@@ -15,6 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * @author ctsims
@@ -31,7 +32,7 @@ open class DetailParser(parser: PlatformXmlParser) : CommCareElementParser<Detai
         var graphParserFactory: ((PlatformXmlParser) -> org.javarosa.xml.ElementParser<out org.commcare.suite.model.DetailTemplate>)? = null
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Detail {
         checkNode("detail")
 

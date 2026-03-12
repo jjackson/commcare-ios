@@ -7,6 +7,7 @@ import org.commcare.resources.model.ResourceTable
 import org.commcare.resources.model.UnresolvedResourceException
 import org.commcare.util.CommCarePlatform
 import org.javarosa.core.reference.Reference
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * TODO: This should possibly just be replaced by a basic file installer along
@@ -16,7 +17,7 @@ import org.javarosa.core.reference.Reference
  */
 class MediaInstaller : BasicInstaller() {
 
-    @Throws(UnresolvedResourceException::class)
+    @Throws(UnresolvedResourceException::class, UnfullfilledRequirementsException::class)
     override fun install(
         r: Resource, location: ResourceLocation,
         ref: Reference, table: ResourceTable,

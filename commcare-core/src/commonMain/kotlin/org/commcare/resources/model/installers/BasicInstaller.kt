@@ -41,7 +41,7 @@ open class BasicInstaller : ResourceInstaller<CommCarePlatform> {
         return false
     }
 
-    @Throws(UnresolvedResourceException::class)
+    @Throws(UnresolvedResourceException::class, UnfullfilledRequirementsException::class)
     override fun install(
         r: Resource, location: ResourceLocation,
         ref: Reference, table: ResourceTable,

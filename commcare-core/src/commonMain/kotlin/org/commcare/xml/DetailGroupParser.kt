@@ -8,6 +8,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 class DetailGroupParser(parser: PlatformXmlParser) : CommCareElementParser<DetailGroup>(parser) {
 
@@ -17,7 +18,7 @@ class DetailGroupParser(parser: PlatformXmlParser) : CommCareElementParser<Detai
         const val ATTRIBUTE_NAME_HEADER_ROWS: String = "header-rows"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): DetailGroup {
         checkNode(NAME_GROUP)
         val functionStr = parser.getAttributeValue(null, ATTRIBUTE_NAME_FUNCTION)

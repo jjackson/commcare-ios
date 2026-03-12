@@ -6,6 +6,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser used in DetailParser to parse the Grid attributes for a GridEntityView
@@ -17,7 +18,7 @@ class GridParser(
     parser: PlatformXmlParser
 ) : ElementParser<Int>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Int {
         checkNode("grid")
         val gridx = parser.getAttributeValue(null, "grid-x")

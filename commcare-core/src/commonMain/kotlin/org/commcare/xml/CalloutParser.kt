@@ -7,6 +7,7 @@ import org.javarosa.xml.util.InvalidStructureException
 import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser used in DetailParser to parse the defintions of callouts used in
@@ -16,7 +17,7 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  */
 class CalloutParser(parser: PlatformXmlParser) : ElementParser<Callout>(parser) {
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Callout {
         val actionName = parser.getAttributeValue(null, "action")
         val image = parser.getAttributeValue(null, "image")

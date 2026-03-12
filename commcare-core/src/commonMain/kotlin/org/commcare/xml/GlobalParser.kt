@@ -8,6 +8,7 @@ import org.javarosa.xml.PlatformXmlParser
 import org.javarosa.xml.PlatformXmlParserException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
+import org.javarosa.xml.util.UnfullfilledRequirementsException
 
 /**
  * Parser used in DetailParser to parse the defintion of Global element used in case-select and case-detail views
@@ -19,7 +20,7 @@ internal class GlobalParser(parser: PlatformXmlParser) : ElementParser<Global>(p
         val NAME_GLOBAL: String = "global"
     }
 
-    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class)
+    @Throws(InvalidStructureException::class, PlatformIOException::class, PlatformXmlParserException::class, UnfullfilledRequirementsException::class)
     override fun parse(): Global {
         val geoOverlays = ArrayList<GeoOverlay>()
         while (nextTagInBlock(NAME_GLOBAL)) {

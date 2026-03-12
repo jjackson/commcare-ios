@@ -75,7 +75,7 @@ class LocaleFileInstaller : ResourceInstaller<CommCarePlatform> {
         return true
     }
 
-    @Throws(UnresolvedResourceException::class)
+    @Throws(UnresolvedResourceException::class, UnfullfilledRequirementsException::class)
     override fun install(
         r: Resource, location: ResourceLocation,
         ref: Reference, table: ResourceTable,
