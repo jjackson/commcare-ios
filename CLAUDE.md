@@ -16,10 +16,10 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (204 .kt files — platform-agnostic)
-│   ├── src/jvmMain/         # JVM platform implementations (59 .kt files)
-│   ├── src/iosMain/         # iOS/Native platform implementations (33 .kt files)
-│   ├── src/main/java/       # JVM-only Kotlin + Java source (being migrated to commonMain)
+│   ├── src/commonMain/      # KMP shared code (636 .kt files — platform-agnostic)
+│   ├── src/jvmMain/         # JVM platform implementations (105 .kt files)
+│   ├── src/iosMain/         # iOS/Native platform implementations (42 .kt files)
+│   ├── src/main/java/       # JVM-only Java compat (1 .java file)
 │   ├── src/test/java/       # JUnit 4 tests (JVM)
 │   ├── src/commonTest/      # Cross-platform tests (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
@@ -112,9 +112,9 @@ commcare-ios/
 | 6 | Refactor PrototypeFactory + PrototypeManager | 3 | #138 | Done (PR #142) |
 | 7 | Migrate pure Kotlin files to commonMain | 23 moved | #139 | Done (PR #142) |
 | 8 | Move serialization framework + cluster to commonMain | 23 moved | #140 | Done (PR #145) |
-| 9 | Validation and cleanup | ~5 new | #141 | Deferred to Phase 6 |
+| 9 | Validation and cleanup | ~5 new | #141 | Done |
 
-**Phase 5 Complete.** Serialization framework (ExtUtil, ExtWrap*, 12 files) moved to commonMain + 11 additional files. commonMain: 227 files. Bulk migration attempted but 430 remaining files form one connected component blocked by 16 files with direct JVM deps (java.io, ThreadLocal, System.getProperty, gavaghan). See `docs/plans/2026-03-12-phase5-completion-report.md`.
+**Phase 5 Complete.** Serialization framework (ExtUtil, ExtWrap*, 12 files) moved to commonMain + 11 additional files. Remaining waves (4-9) completed by Phase 7 bulk migration. See `docs/plans/2026-03-12-phase5-completion-report.md`.
 
 **Phase 6: Deep Platform Abstraction** — Remove JVM dependencies from blocker files, move JVM-only files to jvmMain, maximize commonMain migration.
 
@@ -125,9 +125,9 @@ commcare-ios/
 | 7-11 | Bulk migration to commonMain | 37 moved | #156 | Done |
 | 12 | iOS CI fixes (@Throws, Foundation imports) | 3 | #156 | Done |
 | 13 | Move JVM-only files to jvmMain | 24 | #156 | Done |
-| 14 | Bulk migration sweep | 0 moved | — | Ceiling reached |
+| 14 | Bulk migration sweep | 0 moved | — | Ceiling reached (resolved in Phase 7) |
 
-**Phase 6 Complete.** commonMain: 264 files (+37 from Phase 5's 227). jvmMain: 76 files (+11). 392 files remain in main/java, forming one tightly-coupled connected component blocked by circular dependency (EvaluationContext ↔ FunctionUtils ↔ XPathNodeset). See `docs/plans/2026-03-12-phase6-completion-report.md`.
+**Phase 6 Complete.** commonMain: 264 files (+37 from Phase 5's 227). Remaining issues (#147-#154) completed by Phase 7 bulk migration. See `docs/plans/2026-03-12-phase6-completion-report.md`.
 
 **Phase 7: Break Cycle & Bulk Migrate** — Break the circular dependency, extract JVM-only files, bulk migrate everything to commonMain.
 
@@ -138,7 +138,9 @@ commcare-ios/
 | 3 | Create platform abstractions | 7 new | #160 | Done |
 | 4 | Bulk migration to commonMain | 369 moved | #160 | Done |
 
-**Phase 7 Complete.** All Kotlin files moved out of main/java. commonMain: 636 files (+372 from Phase 6). jvmMain: 105 files (+29). Only 1 Java compat file remains in main/java.
+**Phase 7 Complete.** All Kotlin files moved out of main/java. commonMain: 636 files (+372 from Phase 6). jvmMain: 105 files (+29). Only 1 Java compat file remains in main/java (StorageManagerCompat.java). All 800+ JVM tests pass, iOS build + tests pass.
+
+**Migration Complete.** Phases 5-7 closed out all open issues. Only #152 (Gavaghan geodesy — 4 files with external lib dependency) remains as a known limitation. The 105 jvmMain files are intentionally JVM-only (kxml2 parsers, gavaghan geo, javax.crypto, OkHttp, database helpers).
 
 ## Key Docs
 
@@ -206,6 +208,7 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 19. **Kotlin-to-Kotlin `fun` calls**: When calling Kotlin code that defines `fun getFoo()`, use `getFoo()` not `foo`. Kotlin only synthesizes property access for *Java* getters, not Kotlin `fun` declarations.
 20. **`internal` hides from other source sets**: Kotlin `internal` mangles names in bytecode. Java code in separate Gradle source sets (ccapi, cli, test) can't access `internal` properties. Add explicit public getter methods.
 21. **Property getter/setter clash**: A `var foo` auto-generates `getFoo()`/`setFoo()`. Don't also define explicit `fun setFoo()` — remove it and let callers use property syntax.
+22. **`@Throws` must match exactly in commonMain**: Kotlin/Native (iOS) requires override methods to have **exactly** matching `@Throws` annotations as their parent declarations. On JVM, subsets are allowed, but in commonMain (compiled for both targets), every override must list the same exceptions. Check all levels of the hierarchy (interface → abstract class → concrete class).
 
 ## PR Rules
 
