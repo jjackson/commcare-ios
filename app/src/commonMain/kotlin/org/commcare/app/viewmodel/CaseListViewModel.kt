@@ -38,9 +38,9 @@ class CaseListViewModel {
                 val matchesType = caseType == null || c.getTypeId() == caseType
                 if (isOpen && matchesType) {
                     items.add(CaseItem(
-                        caseId = c.getCaseId(),
+                        caseId = c.getCaseId() ?: "",
                         name = c.getName() ?: "Unnamed",
-                        caseType = c.getTypeId(),
+                        caseType = c.getTypeId() ?: "",
                         properties = buildPropertyMap(c)
                     ))
                 }
