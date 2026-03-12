@@ -46,6 +46,7 @@ import org.javarosa.core.util.externalizable.PlatformDataOutputStream
 import org.javarosa.core.util.externalizable.PlatformIOException
 import org.javarosa.core.model.trace.PlatformTrace
 import org.javarosa.core.model.trace.setActiveSpanTag
+import org.javarosa.core.util.platformGetSystemProperty
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
@@ -1175,7 +1176,7 @@ class FormDef : IFormElement, IMetaData, ActionController.ActionResultProcessor 
     }
 
     private fun isTracingEnabled(): Boolean {
-        return "true" == System.getProperty("src.main.java.org.javarosa.enableOpenTracing")
+        return "true" == platformGetSystemProperty("src.main.java.org.javarosa.enableOpenTracing")
     }
 
     override fun toString(): String {

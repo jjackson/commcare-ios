@@ -1,19 +1,17 @@
 package org.javarosa.core.services
 
+import org.javarosa.core.util.PlatformThreadLocal
 import org.javarosa.core.util.platformSynchronized
 import org.javarosa.core.util.externalizable.CannotCreateObjectException
 import org.javarosa.core.util.externalizable.PrototypeFactory
+import org.javarosa.core.util.externalizable.classNameToKClass
 import kotlin.jvm.JvmStatic
 
 object PrototypeManager {
     private val globalPrototypes: HashSet<String> = HashSet()
 
-    private val threadLocalPrototypeFactory: ThreadLocal<PrototypeFactory?> =
-        object : ThreadLocal<PrototypeFactory?>() {
-            override fun initialValue(): PrototypeFactory? {
-                return null
-            }
-        }
+    private val threadLocalPrototypeFactory: PlatformThreadLocal<PrototypeFactory?> =
+        PlatformThreadLocal { null }
 
     private var globalStaticDefault: PrototypeFactory? = null
 
@@ -28,8 +26,9 @@ object PrototypeManager {
         globalPrototypes.add(className)
 
         try {
-            PrototypeFactory.getInstance(Class.forName(className))
-        } catch (e: ClassNotFoundException) {
+            val klass = classNameToKClass(className)
+            PrototypeFactory().createInstance(klass)
+        } catch (e: Exception) {
             throw CannotCreateObjectException("$className: not found")
         }
         rebuild()
