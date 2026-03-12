@@ -76,7 +76,6 @@ kotlin {
                 implementation("io.opentracing:opentracing-api:0.33.0")
                 implementation("io.opentracing:opentracing-util:0.33.0")
                 implementation("com.datadoghq:dd-trace-api:1.10.0")
-                implementation("org.gavaghan:geodesy:1.1.3")
             }
         }
 

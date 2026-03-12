@@ -10,6 +10,7 @@ import org.javarosa.xpath.expr.XPathBooleanFunc
 import org.javarosa.xpath.expr.XPathCeilingFunc
 import org.javarosa.xpath.expr.XPathChecklistFunc
 import org.javarosa.xpath.expr.XPathChecksumFunc
+import org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc
 import org.javarosa.xpath.expr.XPathConcatFunc
 import org.javarosa.xpath.expr.XPathCondFunc
 import org.javarosa.xpath.expr.XPathContainsFunc
@@ -17,6 +18,7 @@ import org.javarosa.xpath.expr.XPathCosFunc
 import org.javarosa.xpath.expr.XPathCountFunc
 import org.javarosa.xpath.expr.XPathCountSelectedFunc
 import org.javarosa.xpath.expr.XPathCustomRuntimeFunc
+import org.javarosa.xpath.expr.XPathDistanceFunc
 import org.javarosa.xpath.expr.XPathDateFunc
 import org.javarosa.xpath.expr.XPathDependFunc
 import org.javarosa.xpath.expr.XPathDistinctValuesFunc
@@ -33,6 +35,7 @@ import org.javarosa.xpath.expr.XPathIdCompressFunc
 import org.javarosa.xpath.expr.XPathIfFunc
 import org.javarosa.xpath.expr.XPathIndexOfFunc
 import org.javarosa.xpath.expr.XPathIntFunc
+import org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc
 import org.javarosa.xpath.expr.XPathJoinChunkFunc
 import org.javarosa.xpath.expr.XPathJoinFunc
 import org.javarosa.xpath.expr.XPathJsonPropertyFunc
@@ -167,6 +170,9 @@ class ASTNodeFunctionCall(val name: XPathQName) : ASTNode() {
                 "sleep" -> XPathSleepFunc(args)
                 "index-of" -> XPathIndexOfFunc(args)
                 "json-property" -> XPathJsonPropertyFunc(args)
+                "closest-point-on-polygon" -> XPathClosestPointOnPolygonFunc(args)
+                "is-point-inside-polygon" -> XPathIsPointInsidePolygonFunc(args)
+                "distance" -> XPathDistanceFunc(args)
                 else -> {
                     // Try platform-specific functions (geo, crypto, etc.)
                     val platformFunc = PlatformFuncExprRegistry.build(name, args)

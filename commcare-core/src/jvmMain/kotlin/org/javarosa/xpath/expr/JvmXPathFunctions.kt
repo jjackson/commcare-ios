@@ -4,10 +4,13 @@ import org.javarosa.xpath.parser.ast.PlatformFuncExprRegistry
 
 /**
  * Register JVM-specific XPath functions that depend on libraries not available
- * in commonMain (gavaghan geodesy, javax.crypto, etc.).
+ * in commonMain (javax.crypto, etc.).
  *
  * Must be called during JVM initialization before XPath parsing begins.
  * Called from XFormParser init and other entry points.
+ *
+ * Note: Geo functions (closest-point-on-polygon, is-point-inside-polygon) have been
+ * moved to commonMain and are now registered directly in FunctionUtils and ASTNodeFunctionCall.
  */
 object JvmXPathFunctions {
     private var registered = false
@@ -18,11 +21,8 @@ object JvmXPathFunctions {
         registered = true
 
         // Register no-arg factories for FunctionUtils (used for auto-complete, etc.)
-        FunctionUtils.registerXPathFunction(XPathDistanceFunc.NAME) { XPathDistanceFunc() }
         FunctionUtils.registerXPathFunction(XPathEncryptStringFunc.NAME) { XPathEncryptStringFunc() }
         FunctionUtils.registerXPathFunction(XPathDecryptStringFunc.NAME) { XPathDecryptStringFunc() }
-        FunctionUtils.registerXPathFunction(XPathClosestPointOnPolygonFunc.NAME) { XPathClosestPointOnPolygonFunc() }
-        FunctionUtils.registerXPathFunction(XPathIsPointInsidePolygonFunc.NAME) { XPathIsPointInsidePolygonFunc() }
 
         // Register builders for ASTNodeFunctionCall (used during XPath parsing)
         @Suppress("UNCHECKED_CAST")
@@ -32,10 +32,7 @@ object JvmXPathFunctions {
             }
         }
 
-        registerBuilder("distance") { args -> XPathDistanceFunc(args) }
         registerBuilder("encrypt-string") { args -> XPathEncryptStringFunc(args) }
         registerBuilder("decrypt-string") { args -> XPathDecryptStringFunc(args) }
-        registerBuilder("closest-point-on-polygon") { args -> XPathClosestPointOnPolygonFunc(args) }
-        registerBuilder("is-point-inside-polygon") { args -> XPathIsPointInsidePolygonFunc(args) }
     }
 }
