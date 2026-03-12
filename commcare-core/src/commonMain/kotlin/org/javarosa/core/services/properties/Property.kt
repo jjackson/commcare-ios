@@ -5,6 +5,7 @@ import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.util.externalizable.PrototypeFactory
 import org.javarosa.core.util.externalizable.PlatformDataInputStream
 import org.javarosa.core.util.externalizable.PlatformDataOutputStream
+import org.javarosa.core.util.externalizable.DeserializationException
 import org.javarosa.core.util.externalizable.PlatformIOException
 import kotlin.jvm.JvmField
 
@@ -25,7 +26,7 @@ class Property : Persistable, IMetaData {
     @JvmField
     var recordId: Int = -1
 
-    @Throws(PlatformIOException::class)
+    @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         var fullString = ""
 
