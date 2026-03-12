@@ -140,7 +140,7 @@ commcare-ios/
 
 **Phase 7 Complete.** All Kotlin files moved out of main/java. commonMain: 636 files (+372 from Phase 6). jvmMain: 105 files (+29). Only 1 Java compat file remains in main/java (StorageManagerCompat.java). All 800+ JVM tests pass, iOS build + tests pass.
 
-**Migration Complete.** Phases 5-7 closed out all open issues. Only #152 (Gavaghan geodesy — 4 files with external lib dependency) remains as a known limitation. The 105 jvmMain files are intentionally JVM-only (kxml2 parsers, gavaghan geo, javax.crypto, OkHttp, database helpers).
+**Migration Complete.** All open issues closed. Gavaghan geodesy replaced with pure Kotlin Vincenty implementation (PR #163), removing the last external lib blocker. commonMain: 643 files. jvmMain: 100 files (intentionally JVM-only: kxml2 parsers, javax.crypto, OkHttp, database helpers). 1 Java compat file remains (StorageManagerCompat.java).
 
 ## Key Docs
 
