@@ -7,6 +7,8 @@ import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.FormSerializer
 import org.javarosa.core.model.Constants
 import org.javarosa.core.model.data.IAnswerData
+import org.javarosa.core.model.data.SelectMultiData
+import org.javarosa.core.model.data.helper.Selection
 import org.javarosa.form.api.FormEntryController
 
 /**
@@ -81,6 +83,27 @@ class FormEntryViewModel(
         }
     }
 
+    /**
+     * Toggle a choice in a select-multi question and submit the answer.
+     */
+    fun toggleMultiSelectChoice(index: Int, choice: String) {
+        val current = questions.getOrNull(index) ?: return
+        val updated = current.selectedChoices.toMutableSet()
+        if (updated.contains(choice)) {
+            updated.remove(choice)
+        } else {
+            updated.add(choice)
+        }
+        // Update local state
+        questions = questions.toMutableList().also {
+            it[index] = current.copy(selectedChoices = updated)
+        }
+        // Submit to engine as SelectMultiData
+        val selections = ArrayList(updated.map { Selection(it) })
+        val data: IAnswerData? = if (selections.isEmpty()) null else SelectMultiData(selections)
+        answerQuestion(index, data)
+    }
+
     fun nextQuestion() {
         try {
             val event = formSession.stepNext()
@@ -148,7 +171,7 @@ class FormEntryViewModel(
                 QuestionState(
                     questionId = prompt.getIndex().toString(),
                     questionText = prompt.getQuestionText() ?: prompt.getLongText() ?: "",
-                    questionType = mapControlType(prompt.getControlType()),
+                    questionType = mapControlType(prompt.getControlType(), prompt.getDataType()),
                     dataType = prompt.getDataType(),
                     answer = prompt.getAnswerValue()?.getDisplayText() ?: "",
                     isRequired = prompt.isRequired(),
@@ -156,7 +179,8 @@ class FormEntryViewModel(
                     constraintMessage = null,
                     choices = prompt.getSelectChoices()?.map {
                         it.labelInnerText ?: it.value ?: ""
-                    } ?: emptyList()
+                    } ?: emptyList(),
+                    appearance = prompt.getAppearanceHint()
                 )
             }
         } catch (_: Exception) {
@@ -164,12 +188,20 @@ class FormEntryViewModel(
         }
     }
 
-    private fun mapControlType(controlType: Int): QuestionType {
+    private fun mapControlType(controlType: Int, dataType: Int = 0): QuestionType {
         return when (controlType) {
-            Constants.CONTROL_INPUT -> QuestionType.TEXT
+            Constants.CONTROL_INPUT -> {
+                when (dataType) {
+                    Constants.DATATYPE_INTEGER -> QuestionType.INTEGER
+                    Constants.DATATYPE_DECIMAL -> QuestionType.DECIMAL
+                    Constants.DATATYPE_DATE -> QuestionType.DATE
+                    Constants.DATATYPE_TIME -> QuestionType.TIME
+                    else -> QuestionType.TEXT
+                }
+            }
             Constants.CONTROL_SELECT_ONE -> QuestionType.SELECT_ONE
             Constants.CONTROL_SELECT_MULTI -> QuestionType.SELECT_MULTI
-            Constants.CONTROL_TRIGGER -> QuestionType.LABEL
+            Constants.CONTROL_TRIGGER -> QuestionType.TRIGGER
             Constants.CONTROL_LABEL -> QuestionType.LABEL
             else -> QuestionType.TEXT
         }
@@ -185,11 +217,13 @@ data class QuestionState(
     val isRequired: Boolean = false,
     val isRelevant: Boolean = true,
     val constraintMessage: String? = null,
-    val choices: List<String> = emptyList()
+    val choices: List<String> = emptyList(),
+    val appearance: String? = null,
+    val selectedChoices: Set<String> = emptySet()
 )
 
 enum class QuestionType {
     TEXT, INTEGER, DECIMAL, DATE, TIME,
     SELECT_ONE, SELECT_MULTI,
-    LABEL, GROUP, REPEAT
+    LABEL, TRIGGER, GROUP, REPEAT
 }

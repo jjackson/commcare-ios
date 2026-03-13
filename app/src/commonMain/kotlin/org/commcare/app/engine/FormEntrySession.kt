@@ -93,10 +93,50 @@ class FormEntrySession(
                     when (dataType) {
                         Constants.DATATYPE_INTEGER -> IntegerData(value.toIntOrNull() ?: 0)
                         Constants.DATATYPE_DECIMAL -> DecimalData(value.toDoubleOrNull() ?: 0.0)
+                        Constants.DATATYPE_DATE -> parseDateData(value)
+                        Constants.DATATYPE_TIME -> parseTimeData(value)
                         else -> StringData(value)
                     }
                 }
                 else -> StringData(value)
+            }
+        }
+
+        /**
+         * Parse a date string (YYYY-MM-DD) into DateData.
+         * Falls back to StringData if parsing fails.
+         */
+        private fun parseDateData(value: String): IAnswerData {
+            return try {
+                // Try engine's date parser first (handles multiple formats)
+                val date = org.javarosa.core.model.utils.DateUtils.getDateFromString(value)
+                if (date != null) DateData(date) else StringData(value)
+            } catch (_: Exception) {
+                StringData(value)
+            }
+        }
+
+        /**
+         * Parse a time string (HH:MM or HH:MM:SS) into TimeData.
+         * Falls back to StringData if parsing fails.
+         */
+        private fun parseTimeData(value: String): IAnswerData {
+            return try {
+                val parts = value.split(":")
+                if (parts.size >= 2) {
+                    val df = org.javarosa.core.model.utils.DateUtils.DateFields()
+                    df.year = 1970
+                    df.month = 1
+                    df.day = 1
+                    df.hour = parts[0].toInt()
+                    df.minute = parts[1].toInt()
+                    df.second = if (parts.size >= 3) parts[2].toInt() else 0
+                    TimeData(org.javarosa.core.model.utils.DateUtils.getDate(df))
+                } else {
+                    StringData(value)
+                }
+            } catch (_: Exception) {
+                StringData(value)
             }
         }
     }
