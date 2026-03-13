@@ -3,17 +3,22 @@ package org.commcare.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import org.commcare.app.storage.SqlDelightUserSandbox
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
+import org.commcare.core.parse.ParseUtils
+import org.javarosa.core.io.createByteArrayInputStream
 
 /**
  * Manages data sync with CommCare HQ — restore (pull) and form submission (push).
+ * Uses ParseUtils.parseIntoSandbox() for real restore XML processing.
  */
 class SyncViewModel(
     private val httpClient: PlatformHttpClient,
     private val serverUrl: String,
     private val domain: String,
-    private val authHeader: String
+    private val authHeader: String,
+    private val sandbox: SqlDelightUserSandbox
 ) {
     var syncState by mutableStateOf<SyncState>(SyncState.Idle)
         private set
@@ -22,11 +27,22 @@ class SyncViewModel(
     var lastSyncToken by mutableStateOf<String?>(null)
         private set
 
-    fun sync() {
+    init {
+        // Restore last sync token from sandbox
+        lastSyncToken = sandbox.syncToken
+    }
+
+    fun sync(formQueue: FormQueueViewModel? = null) {
         syncState = SyncState.Syncing(0f, "Starting sync...")
         try {
-            // Phase 1: Pull restore data from HQ
-            syncState = SyncState.Syncing(0.2f, "Downloading data from server...")
+            // Phase 1: Submit queued forms first (send before receive)
+            if (formQueue != null && formQueue.pendingCount > 0) {
+                syncState = SyncState.Syncing(0.1f, "Submitting ${formQueue.pendingCount} forms...")
+                formQueue.submitAll()
+            }
+
+            // Phase 2: Pull restore data from HQ
+            syncState = SyncState.Syncing(0.3f, "Downloading data from server...")
             val restoreUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
             val headers = mutableMapOf(
                 "Authorization" to authHeader
@@ -46,14 +62,19 @@ class SyncViewModel(
             when {
                 response.code == 412 -> {
                     // No new data since last sync
-                    syncState = SyncState.Syncing(0.5f, "No new data from server")
+                    syncState = SyncState.Syncing(0.8f, "No new data from server")
                 }
                 response.code in 200..299 -> {
                     syncState = SyncState.Syncing(0.5f, "Processing restore data...")
-                    // In full implementation: parse restore XML, update case/fixture storage
-                    // Extract sync token from response for incremental sync
-                    val bodyText = response.body?.decodeToString()
-                    lastSyncToken = extractSyncToken(bodyText)
+                    val body = response.body
+                    if (body != null && body.isNotEmpty()) {
+                        // Parse restore XML into sandbox using real engine parsers
+                        val stream = createByteArrayInputStream(body)
+                        ParseUtils.parseIntoSandbox(stream, sandbox, false)
+
+                        // Update sync token from sandbox (set by CommCareTransactionParserFactory)
+                        lastSyncToken = sandbox.syncToken
+                    }
                 }
                 response.code == 401 -> {
                     syncState = SyncState.Error("Authentication expired. Please log in again.")
@@ -65,12 +86,8 @@ class SyncViewModel(
                 }
             }
 
-            // Phase 2: Submit queued forms
-            syncState = SyncState.Syncing(0.7f, "Submitting forms...")
-            // In full implementation: POST each queued form XML to receiver endpoint
-
             syncState = SyncState.Syncing(1f, "Sync complete")
-            lastSyncTime = currentTimestamp()
+            lastSyncTime = "Just now"
             syncState = SyncState.Complete
         } catch (e: Exception) {
             syncState = SyncState.Error("Sync failed: ${e.message}")
@@ -79,22 +96,6 @@ class SyncViewModel(
 
     fun resetState() {
         syncState = SyncState.Idle
-    }
-
-    private fun extractSyncToken(body: String?): String? {
-        if (body == null) return null
-        // CommCare restore XML contains <Sync><restore_id>TOKEN</restore_id></Sync>
-        val start = body.indexOf("<restore_id>")
-        val end = body.indexOf("</restore_id>")
-        if (start >= 0 && end > start) {
-            return body.substring(start + "<restore_id>".length, end)
-        }
-        return null
-    }
-
-    private fun currentTimestamp(): String {
-        // Simple timestamp — no platform date API needed for display
-        return "Just now"
     }
 }
 

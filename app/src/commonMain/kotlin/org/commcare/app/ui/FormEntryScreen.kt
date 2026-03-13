@@ -16,6 +16,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -77,67 +78,83 @@ fun FormEntryScreen(
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    viewModel.submitForm()
-                    onComplete()
-                }) {
+                Button(onClick = { onComplete() }) {
                     Text("Submit")
                 }
             }
         } else {
             // Question display
-            val question = viewModel.currentQuestion
-            if (question != null) {
+            val questionList = viewModel.questions
+            if (questionList.isNotEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
-                    Text(
-                        text = question.questionText,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-
-                    if (question.isRequired) {
+                    for ((index, question) in questionList.withIndex()) {
                         Text(
-                            text = "* Required",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
+                            text = question.questionText,
+                            style = MaterialTheme.typography.bodyLarge
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Simple input for text questions
-                    when (question.questionType) {
-                        QuestionType.TEXT,
-                        QuestionType.INTEGER,
-                        QuestionType.DECIMAL -> {
-                            OutlinedTextField(
-                                value = question.answer ?: "",
-                                onValueChange = { viewModel.answerQuestion(it) },
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Answer") }
-                            )
-                        }
-                        QuestionType.LABEL -> {
-                            // Label only, no input
-                        }
-                        else -> {
+                        if (question.isRequired) {
                             Text(
-                                text = "Question type: ${question.questionType}",
+                                text = "* Required",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        when (question.questionType) {
+                            QuestionType.TEXT,
+                            QuestionType.INTEGER,
+                            QuestionType.DECIMAL -> {
+                                OutlinedTextField(
+                                    value = question.answer,
+                                    onValueChange = { viewModel.answerQuestionString(index, it) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    label = { Text("Answer") }
+                                )
+                            }
+                            QuestionType.SELECT_ONE -> {
+                                for (choice in question.choices) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.clickable {
+                                            viewModel.answerQuestionString(index, choice)
+                                        }
+                                    ) {
+                                        RadioButton(
+                                            selected = question.answer == choice,
+                                            onClick = { viewModel.answerQuestionString(index, choice) }
+                                        )
+                                        Text(text = choice)
+                                    }
+                                }
+                            }
+                            QuestionType.LABEL -> {
+                                // Label only, no input
+                            }
+                            else -> {
+                                Text(
+                                    text = "Question type: ${question.questionType}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     // Validation message
                     if (viewModel.validationMessage != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = viewModel.validationMessage!!,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -148,9 +165,7 @@ fun FormEntryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         OutlinedButton(onClick = {
-                            if (!viewModel.previousQuestion()) {
-                                onBack()
-                            }
+                            viewModel.previousQuestion()
                         }) {
                             Text("Back")
                         }

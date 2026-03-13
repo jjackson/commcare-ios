@@ -1,0 +1,80 @@
+package org.commcare.app.engine
+
+import org.commcare.app.storage.SqlDelightUserSandbox
+import org.commcare.modern.session.SessionWrapper
+import org.commcare.session.SessionFrame
+import org.commcare.session.SessionNavigationResponder
+import org.commcare.suite.model.SessionDatum
+import org.commcare.util.CommCarePlatform
+
+/**
+ * Navigates through the CommCare session state machine.
+ * Wraps SessionWrapper and dispatches getNeededData() to determine the next UI screen.
+ */
+class SessionNavigatorImpl(
+    val platform: CommCarePlatform,
+    val sandbox: SqlDelightUserSandbox
+) {
+    val session = SessionWrapper(platform, sandbox)
+
+    /**
+     * Determine what the session needs next to proceed.
+     */
+    fun getNextStep(): NavigationStep {
+        return try {
+            val evalContext = session.getEvaluationContext()
+            when (session.getNeededData(evalContext)) {
+                SessionFrame.STATE_COMMAND_ID -> NavigationStep.ShowMenu
+                SessionFrame.STATE_DATUM_VAL -> {
+                    val datum = session.getNeededDatum()
+                    NavigationStep.ShowCaseList(datum)
+                }
+                SessionFrame.STATE_DATUM_COMPUTED -> {
+                    val evalCtx = session.getEvaluationContext()
+                    session.setComputedDatum(evalCtx)
+                    getNextStep() // recurse past computed datums
+                }
+                SessionFrame.STATE_SYNC_REQUEST -> NavigationStep.SyncRequired
+                null -> {
+                    val formXmlns = session.getForm()
+                    NavigationStep.StartForm(formXmlns)
+                }
+                else -> NavigationStep.Error("Unknown session state")
+            }
+        } catch (e: Exception) {
+            NavigationStep.Error("Navigation error: ${e.message}")
+        }
+    }
+
+    fun selectCommand(commandId: String) {
+        session.setCommand(commandId)
+    }
+
+    fun selectCase(caseId: String) {
+        val datum = session.getNeededDatum()
+        if (datum != null) {
+            session.setEntityDatum(datum, caseId)
+        }
+    }
+
+    fun stepBack() {
+        try {
+            val evalContext = session.getEvaluationContext()
+            session.stepBack(evalContext)
+        } catch (_: Exception) {
+            // At root, nothing to step back to
+        }
+    }
+
+    fun clearSession() {
+        session.clearAllState()
+    }
+}
+
+sealed class NavigationStep {
+    data object ShowMenu : NavigationStep()
+    data class ShowCaseList(val datum: SessionDatum?) : NavigationStep()
+    data class StartForm(val xmlns: String?) : NavigationStep()
+    data object SyncRequired : NavigationStep()
+    data class Error(val message: String) : NavigationStep()
+}

@@ -2,10 +2,13 @@ plugins {
     kotlin("multiplatform") version "2.0.21"
     id("org.jetbrains.compose") version "1.7.3"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
+    id("app.cash.sqldelight") version "2.0.2"
 }
 
 kotlin {
     jvmToolchain(17)
+
+    jvm()
 
     listOf(iosArm64(), iosSimulatorArm64()).forEach {
         it.binaries.framework {
@@ -21,6 +24,28 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
+                implementation("app.cash.sqldelight:runtime:2.0.2")
+                implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("app.cash.sqldelight:sqlite-driver:2.0.2")
             }
         }
 
@@ -30,6 +55,17 @@ kotlin {
             dependsOn(commonMain)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
+            dependencies {
+                implementation("app.cash.sqldelight:native-driver:2.0.2")
+            }
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("CommCareDatabase") {
+            packageName.set("org.commcare.app.storage")
         }
     }
 }

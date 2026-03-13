@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 docs/.dry-run/
 commcare-core/.kotlin/
+app/build/
+app/.gradle/
