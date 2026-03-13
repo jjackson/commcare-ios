@@ -18,8 +18,8 @@ commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
 │   ├── src/commonMain/      # KMP shared code (643 .kt files — platform-agnostic)
 │   ├── src/jvmMain/         # JVM platform implementations (100 .kt files)
-│   ├── src/iosMain/         # iOS/Native platform implementations (42 .kt files)
-│   ├── src/main/java/       # JVM-only Java compat (1 .java file)
+│   ├── src/iosMain/         # iOS/Native platform implementations (45 .kt files)
+│   ├── src/main/java/       # JVM-only: 1 Java compat file + parser specs + resources
 │   ├── src/test/java/       # JUnit 4 tests (JVM)
 │   ├── src/commonTest/      # Cross-platform tests (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
@@ -39,37 +39,17 @@ commcare-ios/
 
 ## Current Status
 
-**Migration Complete.** All open issues closed. Gavaghan geodesy replaced with pure Kotlin Vincenty implementation (PR #163), removing the last external lib blocker. commonMain: 643 files. jvmMain: 100 files (intentionally JVM-only: kxml2 parsers, javax.crypto, OkHttp, database helpers). 1 Java compat file remains (StorageManagerCompat.java).
+**All phases complete.** The Java→Kotlin conversion, KMP multiplatform migration, and iOS app shell are finished. All 65 GitHub issues closed, 8 phases delivered across 187 PRs.
 
-**Phase 1-7: Core Port → KMP Migration** — All done. See completion reports in Key Docs below.
-
-**Phase 8: iOS App Implementation** — Complete. Full iOS app shell with Compose Multiplatform: login, menus, cases, forms, sync, settings. See `docs/plans/2026-03-12-phase8-completion-report.md`.
-
-| Wave | Group | PR | Status |
-|------|-------|----|--------|
-| 1 | Platform Adapters — Crypto & Files | #178 | Done |
-| 2 | Networking & JSON (NSURLSession, NSJSONSerialization) | #179 | Done |
-| 3 | Storage Layer (IosInMemoryStorage) | #180 | Done |
-| 4 | Login & App State | #181 | Done |
-| 5 | Menu Navigation | #182 | Done |
-| 6 | Case Management | #183 | Done |
-| 7 | Form Entry | #184 | Done |
-| 8 | Sync & Offline Queue | #185 | Done |
-| 9 | Settings & Debug Info | #186 | Done |
+- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 1 Java compat file remains (StorageManagerCompat.java). Gavaghan geodesy replaced with pure Kotlin Vincenty (PR #163).
+- **iOS app** (`app/`): Compose Multiplatform shell with login, menus, cases, forms, sync, settings. See `docs/plans/2026-03-12-phase8-completion-report.md`.
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
-- **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — full iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves merged
-- **Phase 8 plan**: `docs/plans/2026-03-12-phase8-ios-app-implementation-plan.md` — 9 waves: platform adapters, storage, login, menus, cases, forms, sync, polish
-- **Phase 7 completion**: `docs/plans/2026-03-12-phase7-completion-report.md` — 636 commonMain files, 392-file connected component broken, bulk migration complete
-- **Phase 6 completion**: `docs/plans/2026-03-12-phase6-completion-report.md` — 264 commonMain files, circular dependency ceiling
-- **Phase 5 completion**: `docs/plans/2026-03-12-phase5-completion-report.md` — 227 commonMain files, serialization framework moved
-- **Phase 4 completion**: `docs/plans/2026-03-11-phase4-completion-report.md` — 204 commonMain files, ExtUtil serialization ceiling
-- **Phase 3 completion**: `docs/plans/2026-03-11-phase3-completion-report.md` — 184 commonMain files, blocker analysis
-- **Phase 2 completion**: `docs/plans/2026-03-10-phase2-completion-report.md` — file distribution, test coverage, Phase 3 readiness
-- **Phase 1 completion**: `docs/plans/2026-03-10-phase1-completion-report.md` — 710 tests, 611 .kt + 32 .java, verification results
+- **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves
+- **Phase 1-7 completion reports**: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md` — progressive migration from 611 .kt files (Phase 1) to 643 commonMain (Phase 7)
 - **Performance testing**: `docs/plans/2026-03-11-performance-testing-design.md` — kotlinx-benchmark infrastructure for JVM/Native comparison
 
 **Learnings (by category):**
@@ -78,7 +58,7 @@ commcare-ios/
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
 - **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
-- **iOS app**: `phase8-ios-app-learnings` — NSURLSession sync pattern, NSJSONSerialization, git branch pitfall, Case nullability, Text.evaluate() without context
+- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system)
 
 All learning files are in `docs/learnings/`.
 
@@ -113,7 +93,7 @@ When converting Java files to Kotlin in commcare-core, check for these **before 
 
 - **All PRs in commcare-ios** — no PRs on the separate commcare-core repo during development
 - **One PR per wave** — each wave gets its own PR
-- **Branch naming**: `kotlin-port/wave-N-<group-name>`
+- **Branch naming**: `<phase-or-feature>/<description>` (e.g., `phase8/wave1-crypto-files`, `fix/ios-platform-timezone`)
 - **Target**: `main` branch of commcare-ios
 - **Squash fix commits**: All compilation/interop fixes squashed into one commit per wave
 - **Size**: ~100-150 files max per PR
