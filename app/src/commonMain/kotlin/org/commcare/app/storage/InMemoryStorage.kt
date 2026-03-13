@@ -116,7 +116,7 @@ class InMemoryStorage<T : Persistable>(
 
     override fun getNumRecords(): Int = data.size
 
-    override fun isEmpty(): Boolean = data.size > 0
+    override fun isEmpty(): Boolean = data.isEmpty()
 
     override fun exists(id: Int): Boolean = data.containsKey(DataUtil.integer(id))
 
