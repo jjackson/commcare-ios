@@ -79,28 +79,14 @@ actual object SerializationHelpers {
     }
 
     actual fun readTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any {
-        val tag = ByteArray(PrototypeFactory.getClassHashSize())
-        `in`.read(tag, 0, tag.size)
-
-        if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
-            throw DeserializationException(
-                "Wrapper tags in tagged serialization not yet supported on iOS"
-            )
+        return ExtWrapTagged.readTag(`in`, pf).let { type ->
+            ExtUtil.read(`in`, type, pf)
         }
-
-        val obj = pf.getInstance(tag)
-        if (obj is Externalizable) {
-            obj.readExternal(`in`, pf)
-        }
-        return obj
     }
 
     actual fun writeTagged(out: PlatformDataOutputStream, obj: Any) {
-        // On iOS, we need the PrototypeFactory to compute the class hash
-        // For now, throw — tagged writes require platform-specific hash computation
-        throw UnsupportedOperationException(
-            "Tagged serialization writes not yet supported on iOS"
-        )
+        ExtWrapTagged.writeTag(out, obj)
+        ExtUtil.write(out, obj)
     }
 
     actual fun readListPoly(`in`: PlatformDataInputStream, pf: PrototypeFactory): ArrayList<Any?> {

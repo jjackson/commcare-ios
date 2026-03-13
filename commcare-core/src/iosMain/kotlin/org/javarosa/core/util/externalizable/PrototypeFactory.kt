@@ -10,15 +10,19 @@ import kotlin.reflect.KClass
  * pre-registered factory functions keyed by class name hash.
  *
  * All serializable types must be registered at app startup via [registerFactory].
+ *
+ * Hash algorithm matches JVM ClassNameHasher + Hasher:
+ * 1. Reverse the class name string
+ * 2. Encode to UTF-8 bytes
+ * 3. Copy first 32 bytes into a 32-byte array (pad with zeros if shorter)
  */
 actual open class PrototypeFactory actual constructor() {
 
     private val factories = mutableMapOf<String, () -> Externalizable>()
     private val hashToName = mutableMapOf<List<Byte>, String>()
+    private val nameToKClass = mutableMapOf<String, KClass<*>>()
 
     actual constructor(classNames: HashSet<String>) : this() {
-        // On iOS, class names alone can't create instances — factory lambdas must be
-        // registered via registerFactory(). This constructor exists for API compatibility.
         for (name in classNames) {
             val hash = computeHash(name)
             hashToName[hash.toList()] = name
@@ -34,6 +38,22 @@ actual open class PrototypeFactory actual constructor() {
         factories[className] = factory
         val hash = computeHash(className)
         hashToName[hash.toList()] = className
+    }
+
+    /**
+     * Register a factory function with its KClass for reverse lookup support.
+     */
+    fun registerFactory(className: String, kClass: KClass<*>, factory: () -> Externalizable) {
+        registerFactory(className, factory)
+        nameToKClass[className] = kClass
+    }
+
+    /**
+     * Look up a KClass by class name from the registry.
+     * Returns null if not registered.
+     */
+    fun getKClassForName(className: String): KClass<*>? {
+        return nameToKClass[className]
     }
 
     /**
@@ -64,20 +84,24 @@ actual open class PrototypeFactory actual constructor() {
         return getInstance(name)
     }
 
-    /**
-     * Simple hash computation matching Java's ClassNameHasher behavior.
-     */
-    private fun computeHash(className: String): ByteArray {
-        val bytes = className.encodeToByteArray()
-        val hash = ByteArray(DEFAULT_HASH_SIZE)
-        for (i in bytes.indices) {
-            hash[i % DEFAULT_HASH_SIZE] = (hash[i % DEFAULT_HASH_SIZE].toInt() xor bytes[i].toInt()).toByte()
-        }
-        return hash
-    }
-
     actual companion object {
-        private const val DEFAULT_HASH_SIZE = 4
+        private const val DEFAULT_HASH_SIZE = 32
+
+        /**
+         * Compute hash matching JVM ClassNameHasher + Hasher behavior:
+         * 1. Reverse the class name
+         * 2. Encode reversed string to UTF-8
+         * 3. Copy first min(32, length) bytes into a 32-byte array
+         */
+        private fun computeHash(className: String): ByteArray {
+            val reversed = StringBuilder(className).reverse().toString()
+            val bytes = reversed.encodeToByteArray()
+            val hash = ByteArray(DEFAULT_HASH_SIZE)
+            for (i in 0 until minOf(hash.size, bytes.size)) {
+                hash[i] = bytes[i]
+            }
+            return hash
+        }
 
         actual fun compareHash(a: ByteArray, b: ByteArray): Boolean {
             if (a.size != b.size) return false
@@ -98,21 +122,11 @@ actual open class PrototypeFactory actual constructor() {
         actual fun getClassHashSize(): Int = DEFAULT_HASH_SIZE
 
         actual fun getClassHashByName(className: String): ByteArray {
-            return computeHashStatic(className)
+            return computeHash(className)
         }
 
         actual fun getClassHashForType(type: KClass<*>): ByteArray {
             return getClassHashByName(type.qualifiedName ?: throw IllegalArgumentException("No name for $type"))
-        }
-
-        private fun computeHashStatic(className: String): ByteArray {
-            val reversed = StringBuilder(className).reverse().toString()
-            val bytes = reversed.encodeToByteArray()
-            val hash = ByteArray(DEFAULT_HASH_SIZE)
-            for (i in bytes.indices) {
-                hash[i % DEFAULT_HASH_SIZE] = (hash[i % DEFAULT_HASH_SIZE].toInt() xor bytes[i].toInt()).toByte()
-            }
-            return hash
         }
     }
 }
