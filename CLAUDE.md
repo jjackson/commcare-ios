@@ -39,15 +39,19 @@ commcare-ios/
 
 ## Current Status
 
-**All phases complete.** The Java→Kotlin conversion, KMP multiplatform migration, and iOS app shell are finished. All 65 GitHub issues closed, 8 phases delivered across 187 PRs.
+**Phases 1-8 complete.** The Java→Kotlin conversion, KMP multiplatform migration, and iOS app shell are finished. All 65 GitHub issues closed, 8 phases delivered across 187 PRs.
 
-- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 1 Java compat file remains (StorageManagerCompat.java). Gavaghan geodesy replaced with pure Kotlin Vincenty (PR #163).
+- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 1 Java compat file remains (StorageManagerCompat.java). Gavaggan geodesy replaced with pure Kotlin Vincenty (PR #163).
 - **iOS app** (`app/`): Compose Multiplatform shell with login, menus, cases, forms, sync, settings. See `docs/plans/2026-03-12-phase8-completion-report.md`.
+
+**Phase 3: Feature Implementation** — Planned. Full feature parity with commcare-android (90-125 tasks across 4 tiers). Vertical slice approach: Tier 1 (MVP) → Tier 2 (daily field worker) → Tier 3 (advanced) → Tier 4 (Connect, PersonalID). Both Android and iOS targets from day one, SQLDelight storage, oracle test harness. See design and Tier 1 plan in Key Docs.
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 3 design**: `docs/plans/2026-03-12-phase3-feature-implementation-design.md` — full parity spec from commcare-android audit (90-125 tasks, 4 tiers)
+- **Phase 3 Tier 1 plan**: `docs/plans/2026-03-12-phase3-tier1-implementation-plan.md` — 14 tasks: Android target, SQLDelight, auth, install, menu, form entry, sync, oracle tests
 - **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves
 - **Phase 1-7 completion reports**: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md` — progressive migration from 611 .kt files (Phase 1) to 643 commonMain (Phase 7)
 - **Performance testing**: `docs/plans/2026-03-11-performance-testing-design.md` — kotlinx-benchmark infrastructure for JVM/Native comparison
@@ -56,7 +60,7 @@ commcare-ios/
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
 - **KMP migration**: `wave6-7-kmp-migration-learnings`, `ios-ci-learnings`, `commonmain-migration-blockers`, `phase4-deep-migration-learnings`, `phase6-deep-migration-learnings`, `phase7-bulk-migration-learnings`, `wave6-xpath-migration-learnings`, `wave7-commonmain-dependency-inversion`, `wave7-commonmain-migration-learnings`
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
-- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
+- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `phase3-planning-learnings`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
 - **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system)
 
@@ -168,7 +172,9 @@ Do not skip straight to code. The plan is the first deliverable of every phase.
 
 ## AI Agent Guidelines
 
+- **Always `git pull` before starting work** — local main can silently fall behind remote, leading to decisions based on stale project state
 - **Check the Phase Transition Checklist** when a phase completes — plan before code
+- **For feature parity work**: derive the feature list from the target app's codebase + docs, not from design doc estimates. See `docs/learnings/2026-03-12-phase3-planning-learnings.md`.
 - Read the relevant issue's full description before starting work — it contains "Files to Read", "What to Do", and "Tests That Must Pass"
 - Read `docs/learnings/` files before starting a conversion wave — they document real failures
 - Follow the Kotlin Conversion Checklist above for every file
