@@ -3,18 +3,33 @@ package org.commcare.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import org.commcare.app.engine.AppInstaller
 import org.commcare.app.state.AppState
+import org.commcare.app.storage.CommCareDatabase
+import org.commcare.app.storage.SqlDelightUserSandbox
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.createHttpClient
+import org.commcare.core.parse.ParseUtils
+import org.javarosa.core.io.createByteArrayInputStream
 
 /**
  * Manages login state and HQ authentication.
+ * On successful auth, parses the restore response to populate the sandbox.
  */
-class LoginViewModel {
+class LoginViewModel(private val db: CommCareDatabase) {
     var serverUrl by mutableStateOf("https://www.commcarehq.org")
     var username by mutableStateOf("")
     var password by mutableStateOf("")
+    var profileUrl by mutableStateOf("")
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
+        private set
+
+    /** The sandbox populated after successful login */
+    var sandbox: SqlDelightUserSandbox? = null
+        private set
+
+    /** Auth header for subsequent requests */
+    var authHeader: String? = null
         private set
 
     private val httpClient = createHttpClient()
@@ -28,16 +43,17 @@ class LoginViewModel {
         appState = AppState.LoggingIn(serverUrl, username)
 
         try {
-            // CommCare HQ login endpoint
-            val loginUrl = "${serverUrl.trimEnd('/')}/a/${getDomain()}/phone/restore/"
+            val domain = getDomain()
+            val loginUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
             val credentials = encodeBasicAuth(username, password)
+            authHeader = "Basic $credentials"
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = loginUrl,
                     method = "GET",
                     headers = mapOf(
-                        "Authorization" to "Basic $credentials",
+                        "Authorization" to authHeader!!,
                         "X-CommCareHQ-LastSyncToken" to ""
                     )
                 )
@@ -45,7 +61,8 @@ class LoginViewModel {
 
             when {
                 response.code in 200..299 -> {
-                    appState = AppState.Installing(0f, "Login successful, preparing install...")
+                    appState = AppState.Installing(0.1f, "Parsing restore data...")
+                    parseRestoreResponse(response.body, domain)
                 }
                 response.code == 401 -> {
                     appState = AppState.LoginError("Invalid username or password")
@@ -62,18 +79,79 @@ class LoginViewModel {
         }
     }
 
+    private fun parseRestoreResponse(body: ByteArray?, domain: String) {
+        if (body == null || body.isEmpty()) {
+            appState = AppState.InstallError("Empty restore response")
+            return
+        }
+
+        try {
+            val newSandbox = SqlDelightUserSandbox(db)
+
+            // Extract sync token from response before parsing
+            val bodyString = body.decodeToString()
+            val syncToken = extractSyncToken(bodyString)
+            if (syncToken != null) {
+                newSandbox.syncToken = syncToken
+            }
+
+            // Parse restore XML into sandbox (cases, users, fixtures, ledgers)
+            val stream = createByteArrayInputStream(body)
+            ParseUtils.parseIntoSandbox(stream, newSandbox, failfast = false)
+
+            sandbox = newSandbox
+            appState = AppState.Installing(0.5f, "Restore complete. Installing app...")
+
+            // Now try to install the app
+            installApp(newSandbox, domain)
+        } catch (e: Exception) {
+            appState = AppState.InstallError("Failed to parse restore: ${e.message}")
+        }
+    }
+
+    private fun installApp(sandbox: SqlDelightUserSandbox, domain: String) {
+        try {
+            val installer = AppInstaller(sandbox)
+
+            if (profileUrl.isNotBlank()) {
+                // Full installation from profile URL
+                val platform = installer.install(profileUrl) { progress, message ->
+                    appState = AppState.Installing(0.5f + progress * 0.5f, message)
+                }
+                appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
+            } else {
+                // Minimal platform for development (no app profile configured)
+                val platform = installer.createMinimalPlatform()
+                appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
+            }
+        } catch (e: Exception) {
+            appState = AppState.InstallError("App installation failed: ${e.message}")
+        }
+    }
+
+    private fun extractSyncToken(body: String): String? {
+        val startTag = "<restore_id>"
+        val endTag = "</restore_id>"
+        val start = body.indexOf(startTag)
+        if (start == -1) return null
+        val end = body.indexOf(endTag, start)
+        if (end == -1) return null
+        return body.substring(start + startTag.length, end).trim()
+    }
+
     fun resetError() {
         appState = AppState.LoggedOut
     }
 
-    private fun getDomain(): String {
-        // Extract domain from username (user@domain format) or use default
+    fun getDomain(): String {
         return if (username.contains("@")) {
             username.substringAfter("@")
         } else {
-            "demo" // fallback
+            "demo"
         }
     }
+
+    fun getCredentials(): String? = authHeader
 
     private fun encodeBasicAuth(user: String, pass: String): String {
         val raw = "$user:$pass"

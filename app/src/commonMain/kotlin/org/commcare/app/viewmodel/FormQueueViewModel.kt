@@ -3,18 +3,20 @@ package org.commcare.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import org.commcare.app.storage.CommCareDatabase
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
 
 /**
  * Manages the offline form submission queue.
- * Forms are queued locally and submitted during sync.
+ * Forms are queued locally in SQLDelight and submitted during sync.
  */
 class FormQueueViewModel(
     private val httpClient: PlatformHttpClient,
     private val serverUrl: String,
     private val domain: String,
-    private val authHeader: String
+    private val authHeader: String,
+    private val db: CommCareDatabase? = null
 ) {
     var queuedForms by mutableStateOf<List<QueuedForm>>(emptyList())
         private set
@@ -25,9 +27,32 @@ class FormQueueViewModel(
 
     private val formQueue = mutableListOf<QueuedForm>()
 
-    fun enqueueForm(formXml: String, formName: String) {
+    /**
+     * Load pending forms from SQLDelight on startup.
+     */
+    fun loadFromDatabase() {
+        if (db == null) return
+        try {
+            val pending = db.commCareQueries.selectPendingForms().executeAsList()
+            for (row in pending) {
+                formQueue.add(QueuedForm(
+                    formId = row.form_id,
+                    formName = row.xmlns,
+                    formXml = row.xml_content,
+                    status = FormStatus.PENDING,
+                    retryCount = 0
+                ))
+            }
+            queuedForms = formQueue.toList()
+        } catch (_: Exception) {
+            // DB not yet initialized
+        }
+    }
+
+    fun enqueueForm(formXml: String, formName: String, xmlns: String = "") {
+        val formId = generateId()
         val form = QueuedForm(
-            formId = generateId(),
+            formId = formId,
             formName = formName,
             formXml = formXml,
             status = FormStatus.PENDING,
@@ -35,6 +60,16 @@ class FormQueueViewModel(
         )
         formQueue.add(form)
         queuedForms = formQueue.toList()
+
+        // Persist to SQLDelight
+        db?.commCareQueries?.insertFormQueue(
+            form_id = formId,
+            xmlns = xmlns.ifEmpty { formName },
+            xml_content = formXml,
+            status = "pending",
+            created_at = currentTimestamp(),
+            submitted_at = null
+        )
     }
 
     fun submitAll(): Int {
@@ -65,13 +100,16 @@ class FormQueueViewModel(
 
                     if (response.code in 200..299) {
                         updateFormStatus(form.formId, FormStatus.SUBMITTED)
+                        db?.commCareQueries?.updateFormStatus("submitted", currentTimestamp(), form.formId)
                         submitted++
                     } else if (response.code == 401) {
                         updateFormStatus(form.formId, FormStatus.FAILED)
+                        db?.commCareQueries?.updateFormStatus("failed", null, form.formId)
                         lastError = "Authentication expired"
                         break
                     } else {
                         updateFormStatus(form.formId, FormStatus.FAILED, form.retryCount + 1)
+                        db?.commCareQueries?.updateFormStatus("failed", null, form.formId)
                     }
                 } catch (e: Exception) {
                     updateFormStatus(form.formId, FormStatus.FAILED, form.retryCount + 1)
@@ -89,6 +127,7 @@ class FormQueueViewModel(
     fun clearSubmitted() {
         formQueue.removeAll { it.status == FormStatus.SUBMITTED }
         queuedForms = formQueue.toList()
+        db?.commCareQueries?.deleteSubmittedForms()
     }
 
     val pendingCount: Int
@@ -107,6 +146,8 @@ class FormQueueViewModel(
 
     private var nextId = 1
     private fun generateId(): String = "form-${nextId++}"
+
+    private fun currentTimestamp(): String = "now"
 }
 
 data class QueuedForm(

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import org.commcare.app.state.AppState
+import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.ui.HomeScreen
 import org.commcare.app.ui.InstallErrorScreen
 import org.commcare.app.ui.InstallScreen
@@ -14,8 +15,8 @@ import org.commcare.app.ui.LoginScreen
 import org.commcare.app.viewmodel.LoginViewModel
 
 @Composable
-fun App() {
-    val loginViewModel = remember { LoginViewModel() }
+fun App(db: CommCareDatabase) {
+    val loginViewModel = remember { LoginViewModel(db) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
