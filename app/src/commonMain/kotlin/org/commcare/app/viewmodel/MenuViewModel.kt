@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.commcare.app.engine.NavigationStep
 import org.commcare.app.engine.SessionNavigatorImpl
+import org.commcare.app.ui.BreadcrumbSegment
 import org.commcare.session.SessionFrame
 import org.commcare.util.CommCarePlatform
 
@@ -23,6 +24,8 @@ class MenuViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
     var navigationState by mutableStateOf<NavigationState>(NavigationState.Menu)
+        private set
+    var breadcrumbs by mutableStateOf<List<BreadcrumbSegment>>(listOf(BreadcrumbSegment("Home")))
         private set
 
     fun loadMenus(menuId: String? = null) {
@@ -95,8 +98,10 @@ class MenuViewModel(
     fun selectItem(item: MenuItem) {
         try {
             if (item.isMenu) {
+                breadcrumbs = breadcrumbs + BreadcrumbSegment(item.displayText, item.commandId)
                 loadMenus(item.commandId)
             } else {
+                breadcrumbs = breadcrumbs + BreadcrumbSegment(item.displayText, item.commandId)
                 navigator.selectCommand(item.commandId)
                 // Check what the session needs next
                 when (val step = navigator.getNextStep()) {
@@ -119,6 +124,9 @@ class MenuViewModel(
     fun goBack() {
         try {
             navigator.stepBack()
+            if (breadcrumbs.size > 1) {
+                breadcrumbs = breadcrumbs.dropLast(1)
+            }
             val step = navigator.getNextStep()
             when (step) {
                 is NavigationStep.ShowMenu -> {
@@ -129,6 +137,29 @@ class MenuViewModel(
                 else -> loadMenus()
             }
         } catch (_: Exception) {
+            navigationState = NavigationState.Menu
+            breadcrumbs = listOf(BreadcrumbSegment("Home"))
+            loadMenus()
+        }
+    }
+
+    /**
+     * Navigate to a specific breadcrumb level by popping back to it.
+     */
+    fun navigateToBreadcrumb(index: Int) {
+        if (index >= breadcrumbs.size - 1) return // Already there
+        try {
+            // Pop back to target level
+            val stepsBack = breadcrumbs.size - 1 - index
+            for (i in 0 until stepsBack) {
+                navigator.stepBack()
+            }
+            breadcrumbs = breadcrumbs.take(index + 1)
+            navigationState = NavigationState.Menu
+            val menuId = breadcrumbs.lastOrNull()?.menuId
+            loadMenus(menuId)
+        } catch (_: Exception) {
+            breadcrumbs = listOf(BreadcrumbSegment("Home"))
             navigationState = NavigationState.Menu
             loadMenus()
         }

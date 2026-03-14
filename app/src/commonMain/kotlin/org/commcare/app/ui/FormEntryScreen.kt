@@ -1,6 +1,7 @@
 package org.commcare.app.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import org.commcare.app.viewmodel.FormEntryViewModel
@@ -144,8 +147,23 @@ fun FormEntryScreen(
         } else {
             val questionList = viewModel.questions
             if (questionList.isNotEmpty()) {
+                val swipeThreshold = 100f
                 Column(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
+                        .pointerInput(Unit) {
+                            var totalDrag = 0f
+                            detectHorizontalDragGestures(
+                                onDragStart = { totalDrag = 0f },
+                                onHorizontalDrag = { _, dragAmount -> totalDrag += dragAmount },
+                                onDragEnd = {
+                                    if (totalDrag < -swipeThreshold) {
+                                        viewModel.nextQuestion()
+                                    } else if (totalDrag > swipeThreshold) {
+                                        viewModel.previousQuestion()
+                                    }
+                                }
+                            )
+                        }
                 ) {
                     Column(
                         modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
