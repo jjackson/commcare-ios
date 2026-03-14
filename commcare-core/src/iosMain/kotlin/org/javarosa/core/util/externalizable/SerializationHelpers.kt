@@ -80,7 +80,7 @@ actual object SerializationHelpers {
 
     actual fun readTagged(`in`: PlatformDataInputStream, pf: PrototypeFactory): Any {
         return ExtWrapTagged.readTag(`in`, pf).let { type ->
-            ExtUtil.read(`in`, type, pf)
+            ExtUtil.read(`in`, type, pf)!!
         }
     }
 
