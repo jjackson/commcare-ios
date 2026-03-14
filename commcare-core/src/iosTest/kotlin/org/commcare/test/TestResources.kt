@@ -2,7 +2,6 @@ package org.commcare.test
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.refTo
-import kotlinx.cinterop.toKString
 import platform.posix.SEEK_END
 import platform.posix.SEEK_SET
 import platform.posix.fclose
@@ -10,26 +9,20 @@ import platform.posix.fopen
 import platform.posix.fread
 import platform.posix.fseek
 import platform.posix.ftell
-import platform.posix.getcwd
 
 @OptIn(ExperimentalForeignApi::class)
 actual object TestResources {
     actual fun loadResource(path: String): ByteArray {
         val relativePath = path.trimStart('/')
 
-        // Try multiple base paths — the working directory varies between
-        // local dev, CI, and where the native test binary runs from.
+        // Use the absolute path generated at build time (IOS_TEST_RESOURCE_PATH).
+        // Kotlin/Native simulator tests run via xcrun simctl with an unpredictable
+        // working directory, so relative paths are unreliable.
         val candidates = listOf(
-            // From project root (commcare-core/)
+            "$IOS_TEST_RESOURCE_PATH/$relativePath",
+            // Fallbacks for local dev where CWD may be the project directory
             "src/commonTest/resources/$relativePath",
-            // From repo root
-            "commcare-core/src/commonTest/resources/$relativePath",
-            // From repo root (via ..)
-            "../commcare-core/src/commonTest/resources/$relativePath",
-            // From build output directory (build/bin/iosSimulatorArm64/debugTest/)
-            "../../../../src/commonTest/resources/$relativePath",
-            // From build directory (build/)
-            "../src/commonTest/resources/$relativePath"
+            "commcare-core/src/commonTest/resources/$relativePath"
         )
 
         for (candidate in candidates) {
@@ -47,13 +40,8 @@ actual object TestResources {
             }
         }
 
-        // Get CWD for debugging
-        val cwdBuf = ByteArray(1024)
-        val cwd = getcwd(cwdBuf.refTo(0), 1024u)?.toKString() ?: "unknown"
-
         throw IllegalArgumentException(
             "Test resource not found: $path\n" +
-            "  CWD: $cwd\n" +
             "  Tried: ${candidates.joinToString("\n         ")}"
         )
     }
