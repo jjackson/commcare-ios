@@ -295,24 +295,19 @@ class FormSerializationCrossPlatformTest {
 
     @Test
     fun testConstraintsValidMatchesGolden() {
+        // Use step-by-step navigation (not field-list getQuestionPrompts) for
+        // cross-platform compatibility — answer each question individually.
+        val answers = listOf(
+            IntegerData(25),
+            StringData("Jane"),
+            StringData("j@e.co")
+        )
         val xml = fillWithNavigation("/test_field_list_constraints.xml") { model, controller ->
+            var answerIdx = 0
             while (model.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
-                if (model.getEvent() == FormEntryController.EVENT_GROUP) {
-                    try {
-                        val prompts = controller.getQuestionPrompts()
-                        if (prompts.isNotEmpty()) {
-                            for ((i, prompt) in prompts.withIndex()) {
-                                val idx = prompt.getIndex()!!
-                                when (i) {
-                                    0 -> controller.answerQuestion(idx, IntegerData(25))
-                                    1 -> controller.answerQuestion(idx, StringData("Jane"))
-                                    2 -> controller.answerQuestion(idx, StringData("j@e.co"))
-                                }
-                            }
-                        }
-                    } catch (_: Exception) {
-                        // Not a field-list group
-                    }
+                if (model.getEvent() == FormEntryController.EVENT_QUESTION && answerIdx < answers.size) {
+                    controller.answerQuestion(model.getFormIndex(), answers[answerIdx])
+                    answerIdx++
                 }
                 controller.stepToNextEvent()
             }
