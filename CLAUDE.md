@@ -42,12 +42,13 @@ commcare-ios/
 
 ## Current Status
 
-**Phase 3 Tier 2 complete + cross-platform validation.** All 30 daily field worker features implemented across 8 waves. XFormParser ported to commonMain — iOS can now parse XForms natively. 800+ JVM tests, 27 cross-platform tests passing on both JVM and iOS.
+**Phase 3 Tier 3 planned.** Tiers 1-2 complete (44 tasks). 800+ JVM tests, 100+ cross-platform tests on both JVM and iOS. Planning Tier 3: Advanced Features (32 tasks, 8 waves).
 
 - **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
 - **iOS app** (`app/`): Full daily field worker feature set: all question types, repeat groups, field-lists, case management, form drafts/review/queue, incremental sync, multi-language, RTL, breadcrumbs, swipe navigation, geopoint, image, fixtures.
-- **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest.
+- **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest. 100+ cross-platform tests (27 validation + 75 engine).
 
+**Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): Planned**
 **Phase 3 Tier 2 — Daily Field Worker Features (8 waves, 30 tasks): All Done**
 **Phase 3 Tier 1 — Engine Integration (14 tasks): All Done**
 **Foundation Hardening (6 waves): All Done**
@@ -56,6 +57,7 @@ commcare-ios/
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 3 Tier 3 plan**: `docs/plans/2026-03-14-phase3-tier3-implementation-plan.md` — 32-task plan for advanced features (8 waves)
 - **Phase 3 Tier 2 completion**: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, 8 waves, daily field worker features
 - **iOS cross-platform validation**: `docs/plans/2026-03-14-ios-cross-platform-validation-plan.md` — golden file testing for iOS parity
 - **Phase 3 Tier 2 plan**: `docs/plans/2026-03-13-phase3-tier2-implementation-plan.md` — 30-task plan for daily field worker features
