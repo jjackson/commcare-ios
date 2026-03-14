@@ -100,6 +100,13 @@ class LoginViewModel(private val db: CommCareDatabase) {
             ParseUtils.parseIntoSandbox(stream, newSandbox, failfast = false)
 
             sandbox = newSandbox
+
+            // Persist sync token for incremental syncs
+            val userId = extractUserId(bodyString)
+            if (syncToken != null && userId != null) {
+                newSandbox.persistSyncToken(userId)
+            }
+
             appState = AppState.Installing(0.5f, "Restore complete. Installing app...")
 
             // Now try to install the app
@@ -127,6 +134,17 @@ class LoginViewModel(private val db: CommCareDatabase) {
         } catch (e: Exception) {
             appState = AppState.InstallError("App installation failed: ${e.message}")
         }
+    }
+
+    private fun extractUserId(body: String): String? {
+        // Try <user_id> tag first, then <registration> block
+        val startTag = "<user_id>"
+        val endTag = "</user_id>"
+        val start = body.indexOf(startTag)
+        if (start == -1) return null
+        val end = body.indexOf(endTag, start)
+        if (end == -1) return null
+        return body.substring(start + startTag.length, end).trim()
     }
 
     private fun extractSyncToken(body: String): String? {

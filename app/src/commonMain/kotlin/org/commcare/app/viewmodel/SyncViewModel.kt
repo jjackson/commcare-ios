@@ -18,7 +18,8 @@ class SyncViewModel(
     private val serverUrl: String,
     private val domain: String,
     private val authHeader: String,
-    private val sandbox: SqlDelightUserSandbox
+    private val sandbox: SqlDelightUserSandbox,
+    private val userId: String = ""
 ) {
     var syncState by mutableStateOf<SyncState>(SyncState.Idle)
         private set
@@ -27,9 +28,19 @@ class SyncViewModel(
     var lastSyncToken by mutableStateOf<String?>(null)
         private set
 
+    companion object {
+        const val MAX_FORM_RETRIES = 3
+    }
+
     init {
-        // Restore last sync token from sandbox
+        // Restore last sync token from sandbox or database
         lastSyncToken = sandbox.syncToken
+        if (lastSyncToken == null && userId.isNotEmpty()) {
+            lastSyncToken = sandbox.loadSyncToken(userId)
+            if (lastSyncToken != null) {
+                sandbox.syncToken = lastSyncToken
+            }
+        }
     }
 
     fun sync(formQueue: FormQueueViewModel? = null) {
@@ -38,7 +49,7 @@ class SyncViewModel(
             // Phase 1: Submit queued forms first (send before receive)
             if (formQueue != null && formQueue.pendingCount > 0) {
                 syncState = SyncState.Syncing(0.1f, "Submitting ${formQueue.pendingCount} forms...")
-                formQueue.submitAll()
+                submitFormsWithRetry(formQueue)
             }
 
             // Phase 2: Pull restore data from HQ
@@ -74,6 +85,10 @@ class SyncViewModel(
 
                         // Update sync token from sandbox (set by CommCareTransactionParserFactory)
                         lastSyncToken = sandbox.syncToken
+                        // Persist sync token to database for next app launch
+                        if (userId.isNotEmpty() && lastSyncToken != null) {
+                            sandbox.persistSyncToken(userId)
+                        }
                     }
                 }
                 response.code == 401 -> {
@@ -91,6 +106,18 @@ class SyncViewModel(
             syncState = SyncState.Complete
         } catch (e: Exception) {
             syncState = SyncState.Error("Sync failed: ${e.message}")
+        }
+    }
+
+    /**
+     * Submit forms with retry logic. Forms exceeding MAX_FORM_RETRIES are left as failed.
+     */
+    private fun submitFormsWithRetry(formQueue: FormQueueViewModel) {
+        val submitted = formQueue.submitAll()
+        if (submitted == 0 && formQueue.pendingCount > 0) {
+            // Retry once for transient failures
+            syncState = SyncState.Syncing(0.2f, "Retrying failed form submissions...")
+            formQueue.submitAll()
         }
     }
 

@@ -80,7 +80,10 @@ class FormQueueViewModel(
 
         try {
             val submitUrl = "${serverUrl.trimEnd('/')}/a/$domain/receiver/"
-            val pending = formQueue.filter { it.status == FormStatus.PENDING || it.status == FormStatus.FAILED }
+            val maxRetries = 3
+            val pending = formQueue.filter {
+                (it.status == FormStatus.PENDING || it.status == FormStatus.FAILED) && it.retryCount < maxRetries
+            }
 
             for (form in pending) {
                 try {
