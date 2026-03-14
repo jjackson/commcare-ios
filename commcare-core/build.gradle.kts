@@ -131,6 +131,12 @@ kotlin {
     }
 }
 
+// Configure native test tasks to run from the project directory
+// so that src/commonTest/resources/ paths resolve correctly.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest> {
+    workingDir = projectDir.absolutePath
+}
+
 benchmark {
     configurations {
         named("main") {
