@@ -95,7 +95,7 @@ class EntryParserTest {
         val parser = ParserTestUtils.buildParser(xml, EntryParser::buildEntryParser)
         val entry = parser.parse() as FormEntry
         assertEquals(entry.getXFormNamespace(), "http://openrosa.org/formdesigner/2f9")
-        assertEquals(entry.getPostRequest()!!.getUrl().toString(), "https://www.fake.com/claim_patient/")
+        assertEquals(entry.getPostRequest()!!.url.toString(), "https://www.fake.com/claim_patient/")
     }
 
     @Throws(UnfullfilledRequirementsException::class, InvalidStructureException::class,

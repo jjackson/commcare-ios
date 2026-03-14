@@ -24,7 +24,8 @@ import kotlin.jvm.JvmStatic
  * @author ctsims
  */
 class StackOperation : Externalizable {
-    private var opType: Int = 0
+    var op: Int = 0
+        private set
     private var ifCondition: String? = null
     private var elements: ArrayList<StackFrameStep> = ArrayList()
 
@@ -35,7 +36,7 @@ class StackOperation : Externalizable {
 
     // Copy Constructor
     constructor(oldStackOp: StackOperation) {
-        this.opType = oldStackOp.opType
+        this.op = oldStackOp.op
         this.ifCondition = oldStackOp.ifCondition
         this.elements = ArrayList(oldStackOp.elements.size)
         for (element in oldStackOp.elements) {
@@ -45,15 +46,13 @@ class StackOperation : Externalizable {
 
     @Throws(XPathSyntaxException::class)
     private constructor(opType: Int, ifCondition: String?, elements: ArrayList<StackFrameStep>) {
-        this.opType = opType
+        this.op = opType
         this.ifCondition = ifCondition
         if (ifCondition != null) {
             XPathParseTool.parseXPath(ifCondition)
         }
         this.elements = elements
     }
-
-    fun getOp(): Int = opType
 
     fun isOperationTriggered(ec: EvaluationContext): Boolean {
         val cond = ifCondition
@@ -77,7 +76,7 @@ class StackOperation : Externalizable {
      * @throws IllegalStateException if this operation do not support stack frame steps
      */
     fun getStackFrameSteps(): ArrayList<StackFrameStep> {
-        if (opType == OPERATION_CLEAR) {
+        if (op == OPERATION_CLEAR) {
             throw IllegalStateException("Clear Operations do not define frame steps")
         }
         return elements
@@ -85,14 +84,14 @@ class StackOperation : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        opType = SerializationHelpers.readInt(`in`)
+        op = SerializationHelpers.readInt(`in`)
         ifCondition = nullIfEmpty(SerializationHelpers.readString(`in`))
         elements = SerializationHelpers.readList(`in`, pf) { StackFrameStep() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        SerializationHelpers.writeNumeric(out, opType.toLong())
+        SerializationHelpers.writeNumeric(out, op.toLong())
         SerializationHelpers.writeString(out, emptyIfNull(ifCondition))
         SerializationHelpers.writeList(out, elements)
     }

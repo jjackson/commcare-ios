@@ -135,7 +135,7 @@ class EntryParser private constructor(
         } else if ("display" == tagName) {
             display = parseDisplayBlock()
             //check that we have text to display;
-            if (display.getText() == null) {
+            if (display.text == null) {
                 throw InvalidStructureException("Expected CommandText in Display block", parser)
             }
         }

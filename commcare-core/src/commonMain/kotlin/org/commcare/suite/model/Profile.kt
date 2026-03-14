@@ -181,10 +181,10 @@ class Profile : Persistable {
     fun initializeProperties(platform: CommCarePlatform, enableForce: Boolean) {
         val propertyManager = platform.getPropertyManager()!!
         for (setter in properties) {
-            val property = propertyManager.getSingularProperty(setter.getKey())
+            val property = propertyManager.getSingularProperty(setter.key)
             // We only want to set properties which are undefined or are forced
             if (property == null || (enableForce && setter.force)) {
-                propertyManager.setProperty(setter.getKey(), setter.getValue())
+                propertyManager.setProperty(setter.key, setter.value)
             }
         }
     }

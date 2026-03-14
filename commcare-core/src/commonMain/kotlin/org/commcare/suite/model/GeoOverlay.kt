@@ -13,8 +13,10 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * Defines a polygon region to be displayed on a map
  */
 class GeoOverlay : Externalizable {
-    private var coordinates: DisplayUnit? = null
-    private var label: DisplayUnit? = null
+    var coordinates: DisplayUnit? = null
+        private set
+    var label: DisplayUnit? = null
+        private set
 
     /**
      * Serialization Only
@@ -37,8 +39,4 @@ class GeoOverlay : Externalizable {
         SerializationHelpers.writeNullable(out, coordinates)
         SerializationHelpers.writeNullable(out, label)
     }
-
-    fun getCoordinates(): DisplayUnit? = coordinates
-
-    fun getLabel(): DisplayUnit? = label
 }

@@ -74,7 +74,7 @@ class Menu : Externalizable, MenuDisplayable {
      * @return A Text which should be displayed to the user as
      * the action which will display this menu.
      */
-    fun getName(): Text? = display?.getText()
+    fun getName(): Text? = display?.text
 
     /**
      * @return The ID of this menu. If this value is "root"
@@ -174,28 +174,28 @@ class Menu : Externalizable, MenuDisplayable {
     }
 
     override fun getImageURI(): String? {
-        val imageUri = display?.getImageURI() ?: return null
+        val imageUri = display?.imageURI ?: return null
         return imageUri.evaluate()
     }
 
     override fun getAudioURI(): String? {
-        val audioUri = display?.getAudioURI() ?: return null
+        val audioUri = display?.audioURI ?: return null
         return audioUri.evaluate()
     }
 
     override fun getDisplayText(ec: EvaluationContext?): String? {
-        val text = display?.getText() ?: return null
+        val text = display?.text ?: return null
         return text.evaluate(ec)
     }
 
     override fun getTextForBadge(ec: EvaluationContext?): PlatformSingle<String> {
-        val badgeText = display?.getBadgeText() ?: return platformSingleJust("")
+        val badgeText = display?.badgeText ?: return platformSingleJust("")
         return badgeText.getDisposableSingleForEvaluation(ec)
     }
 
-    override fun getRawBadgeTextObject(): Text? = display?.getBadgeText()
+    override fun getRawBadgeTextObject(): Text? = display?.badgeText
 
-    override fun getRawText(): Text? = display?.getText()
+    override fun getRawText(): Text? = display?.text
 
     override fun getCommandID(): String? = _id
 

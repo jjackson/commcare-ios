@@ -28,7 +28,7 @@ class MarkRewindSessionTests {
         val shortDetail = session.getPlatform()!!.getDetail("case-list")!!
         val action = shortDetail.getCustomActions(session.getEvaluationContext())[0]
         // queue up action
-        var didRewindOrNewFrame = session.executeStackOperations(action.getStackOperations()!!, session.getEvaluationContext())
+        var didRewindOrNewFrame = session.executeStackOperations(action.stackOperations!!, session.getEvaluationContext())
         assertFalse(didRewindOrNewFrame)
 
         // test backing out of action
@@ -40,7 +40,7 @@ class MarkRewindSessionTests {
         )
 
         // queue up action again
-        session.executeStackOperations(action.getStackOperations()!!, session.getEvaluationContext())
+        session.executeStackOperations(action.stackOperations!!, session.getEvaluationContext())
 
         // finish action
         didRewindOrNewFrame = session.finishExecuteAndPop(session.getEvaluationContext())

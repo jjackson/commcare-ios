@@ -20,7 +20,7 @@ class StackObserverTest {
         val action = shortDetail.getCustomActions(session.getEvaluationContext())[0]
 
         val observer = StackObserver()
-        session.executeStackOperations(action.getStackOperations()!!, session.getEvaluationContext(), observer)
+        session.executeStackOperations(action.stackOperations!!, session.getEvaluationContext(), observer)
 
         assertEvents(
             observer,

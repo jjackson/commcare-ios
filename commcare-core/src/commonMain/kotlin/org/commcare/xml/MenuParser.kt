@@ -50,7 +50,7 @@ class MenuParser(parser: PlatformXmlParser) : CommCareElementParser<Menu>(parser
         } else if (parser.getName() == "display") {
             display = parseDisplayBlock()
             //check that we have a commandText;
-            if (display.getText() == null)
+            if (display.text == null)
                 throw InvalidStructureException("Expected Menu Text in Display block", parser)
         } else {
             throw InvalidStructureException("Expected either <text> or <display> in menu", parser)

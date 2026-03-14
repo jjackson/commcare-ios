@@ -13,8 +13,10 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
  * Apps use this model to convey the types of credentials it issues
  */
 class Credential : Externalizable {
-    private var level: String? = null
-    private var type: String? = null
+    var level: String? = null
+        private set
+    var type: String? = null
+        private set
 
     /**
      * Serialization Only!!!
@@ -37,10 +39,6 @@ class Credential : Externalizable {
         SerializationHelpers.writeString(out, level!!)
         SerializationHelpers.writeString(out, type!!)
     }
-
-    fun getLevel(): String? = level
-
-    fun getType(): String? = type
 
     override fun toString(): String {
         return "Credential{level='$level', type='$type'}"

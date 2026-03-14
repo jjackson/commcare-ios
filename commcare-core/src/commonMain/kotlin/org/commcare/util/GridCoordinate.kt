@@ -8,20 +8,12 @@ package org.commcare.util
  * @author wspride
  */
 class GridCoordinate(
-    private val gridX: Int,
-    private val gridY: Int,
-    private val gridWidth: Int,
-    private val gridHeight: Int
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int
 ) {
-    fun getX(): Int = gridX
-
-    fun getY(): Int = gridY
-
-    fun getWidth(): Int = gridWidth
-
-    fun getHeight(): Int = gridHeight
-
     override fun toString(): String {
-        return "x: $gridX, y: $gridY, gridWidth: $gridWidth, gridHeight: $gridHeight"
+        return "x: $x, y: $y, gridWidth: $width, gridHeight: $height"
     }
 }

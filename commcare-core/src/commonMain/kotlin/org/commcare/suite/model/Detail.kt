@@ -45,10 +45,14 @@ class Detail : Externalizable {
 
     // id will be null if this is a child detail / tab
     internal var id: String? = null
-    private var nodeset: TreeReference? = null
-    private var title: DisplayUnit? = null
-    private var noItemsText: Text? = null
-    private var selectText: Text? = null
+    var nodeset: TreeReference? = null
+        private set
+    var title: DisplayUnit? = null
+        private set
+    var noItemsText: Text? = null
+        private set
+    var selectText: Text? = null
+        private set
 
     /**
      * Optional and only relevant if this detail has child details. In that
@@ -56,31 +60,41 @@ class Detail : Externalizable {
      */
     private var titleForm: String? = null
 
-    private lateinit var details: Array<Detail>
-    internal lateinit var fields: Array<DetailField>
-    internal var callout: Callout? = null
+    lateinit var details: Array<Detail>
+        private set
+    lateinit var fields: Array<DetailField>
+        internal set
+    var callout: Callout? = null
+        internal set
     private var variables: OrderedHashtable<String, String> = OrderedHashtable()
     private var variablesCompiled: OrderedHashtable<String, XPathExpression>? = null
     private var actions: ArrayList<Action> = ArrayList()
 
     // Force the activity that is showing this detail to show itself in landscape view only
     private var forceLandscapeView: Boolean = false
-    private var focusFunction: XPathExpression? = null
+    var focusFunction: XPathExpression? = null
+        private set
 
     // A button to print this detail should be provided
-    private var printEnabled: Boolean = false
-    private var printTemplatePath: String? = null
+    var printEnabled: Boolean = false
+        private set
+    var printTemplatePath: String? = null
+        private set
     private var parsedRelevancyExpression: XPathExpression? = null
-    private var global: Global? = null
+    var global: Global? = null
+        private set
 
     // REGION -- These fields are only used if this detail is a case tile
-    private var numEntitiesToDisplayPerRow: Int = 0
-    private var useUniformUnitsInCaseTile: Boolean = false
+    var numEntitiesToDisplayPerRow: Int = 0
+        private set
+    var useUniformUnitsInCaseTile: Boolean = false
+        private set
     private var _lazyLoading: Boolean = false
     val isLazyLoading: Boolean get() = _lazyLoading
     private var _cacheEnabled: Boolean = false
     val isCacheEnabled: Boolean get() = _cacheEnabled
-    internal var group: DetailGroup? = null
+    var group: DetailGroup? = null
+        internal set
     // ENDREGION
 
     /**
@@ -152,18 +166,6 @@ class Detail : Externalizable {
         this._cacheEnabled = cacheEnabled
     }
 
-    fun getTitle(): DisplayUnit? = title
-
-    fun getNoItemsText(): Text? = noItemsText
-
-    fun getSelectText(): Text? = selectText
-
-    fun getNodeset(): TreeReference? = nodeset
-
-    fun getFields(): Array<DetailField> = fields
-
-    fun getDetails(): Array<Detail> = details
-
     /**
      * Given a detail, return an array of details that will contain either
      * - all child details
@@ -171,7 +173,7 @@ class Detail : Externalizable {
      */
     fun getFlattenedDetails(): Array<Detail> {
         return if (this.isCompound()) {
-            this.getDetails()
+            this.details
         } else {
             arrayOf(this)
         }
@@ -190,7 +192,7 @@ class Detail : Externalizable {
     @Deprecated("Legacy way to turn on cache and index")
     fun useAsyncStrategy(): Boolean {
         for (f in fields) {
-            if (f.getSortOrder() == DetailField.SORT_ORDER_CACHABLE) {
+            if (f.sortOrder == DetailField.SORT_ORDER_CACHABLE) {
                 return true
             }
         }
@@ -283,7 +285,7 @@ class Detail : Externalizable {
         val cacheAndIndexedIndices = ArrayList<Int>()
         var i = 0
         outer@ while (i < fields.size) {
-            val order = fields[i].getSortOrder()
+            val order = fields[i].sortOrder
             if (order == -2) {
                 cacheAndIndexedIndices.add(i)
             }
@@ -292,7 +294,7 @@ class Detail : Externalizable {
                 continue
             }
             for (j in 0 until indices.size) {
-                if (order < fields[indices[j]].getSortOrder()) {
+                if (order < fields[indices[j]].sortOrder) {
                     indices.add(j, i)
                     i++
                     continue@outer
@@ -311,7 +313,7 @@ class Detail : Externalizable {
     fun getTemplateSizeHints(): Array<String?> {
         val result = arrayOfNulls<String>(fields.size)
         for (i in fields.indices) {
-            result[i] = fields[i].getTemplateWidthHint()
+            result[i] = fields[i].templateWidthHint
         }
         return result
     }
@@ -319,7 +321,7 @@ class Detail : Externalizable {
     val headerForms: Array<String?> get() {
         val result = arrayOfNulls<String>(fields.size)
         for (i in fields.indices) {
-            result[i] = fields[i].getHeaderForm()
+            result[i] = fields[i].headerForm
         }
         return result
     }
@@ -327,7 +329,7 @@ class Detail : Externalizable {
     fun getTemplateForms(): Array<String?> {
         val result = arrayOfNulls<String>(fields.size)
         for (i in fields.indices) {
-            result[i] = fields[i].getTemplateForm()
+            result[i] = fields[i].templateForm
         }
         return result
     }
@@ -335,8 +337,8 @@ class Detail : Externalizable {
     fun usesEntityTileView(): Boolean {
         var usingEntityTile = false
         for (currentField in fields) {
-            if (currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
-                currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0
+            if (currentField.gridX >= 0 && currentField.gridY >= 0 &&
+                currentField.gridWidth >= 0 && currentField.gridHeight > 0
             ) {
                 usingEntityTile = true
             }
@@ -348,11 +350,7 @@ class Detail : Externalizable {
         return numEntitiesToDisplayPerRow > 1 && usesEntityTileView()
     }
 
-    fun getNumEntitiesToDisplayPerRow(): Int = numEntitiesToDisplayPerRow
-
-    fun useUniformUnitsInCaseTile(): Boolean = useUniformUnitsInCaseTile
-
-    fun forcesLandscape(): Boolean = forceLandscapeView
+    val forcesLandscape: Boolean get() = forceLandscapeView
 
     fun getMaxWidthHeight(): Pair<Int, Int> {
         var maxWidth = 0
@@ -360,8 +358,8 @@ class Detail : Externalizable {
 
         for (i in fields.indices) {
             val currentField = fields[i]
-            val currentWidth = currentField.getGridX() + currentField.getGridWidth()
-            val currentHeight = currentField.getGridY() + currentField.getGridHeight()
+            val currentWidth = currentField.gridX + currentField.gridWidth
+            val currentHeight = currentField.gridY + currentField.gridHeight
             maxWidth = if (currentWidth > maxWidth) currentWidth else maxWidth
             maxHeight = if (currentHeight > maxHeight) currentHeight else maxHeight
         }
@@ -373,8 +371,8 @@ class Detail : Externalizable {
         return Array(fields.size) { i ->
             val currentField = fields[i]
             GridCoordinate(
-                currentField.getGridX(), currentField.getGridY(),
-                currentField.getGridWidth(), currentField.getGridHeight()
+                currentField.gridX, currentField.gridY,
+                currentField.gridWidth, currentField.gridHeight
             )
         }
     }
@@ -383,17 +381,15 @@ class Detail : Externalizable {
         return Array(fields.size) { i ->
             val currentField = fields[i]
             GridStyle(
-                currentField.getFontSize(), currentField.getHorizontalAlign(),
-                currentField.getVerticalAlign(), currentField.getCssId()
+                currentField.fontSize, currentField.horizontalAlign,
+                currentField.verticalAlign, currentField.cssID
             )
         }
     }
 
-    fun getCallout(): Callout? = callout
-
     fun hasSortField(): Boolean {
         for (f in fields) {
-            if (f.getSortOrder() > 0) {
+            if (f.sortOrder > 0) {
                 return true
             }
         }
@@ -438,8 +434,6 @@ class Detail : Externalizable {
         return FunctionUtils.toBoolean(value)
     }
 
-    fun getFocusFunction(): XPathExpression? = focusFunction
-
     private fun templatePathValid(templatePathProvided: String?): Boolean {
         if (PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING == templatePathProvided) {
             return true
@@ -454,10 +448,6 @@ class Detail : Externalizable {
         }
         return false
     }
-
-    fun isPrintEnabled(): Boolean = this.printEnabled
-
-    fun getPrintTemplatePath(): String? = this.printTemplatePath
 
     fun getKeyValueMapForPrint(
         selectedEntityRef: TreeReference,
@@ -526,10 +516,6 @@ class Detail : Externalizable {
         }
         return FunctionUtils.toBoolean(parsedRelevancyExpression!!.eval(context))
     }
-
-    fun getGlobal(): Global? = global
-
-    fun getGroup(): DetailGroup? = group
 
     companion object {
         const val PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING = "provided-globally"

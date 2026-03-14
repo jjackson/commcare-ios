@@ -17,11 +17,20 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 class DisplayUnit : Externalizable, DetailTemplate {
-    private var name: Text? = null
-    private var imageReference: Text? = null
-    private var audioReference: Text? = null
-    private var badgeFunction: Text? = null
-    private var hintText: Text? = null
+    /**
+     * A Text which should be displayed to the user as
+     * the action which will display this menu.
+     */
+    var text: Text? = null
+        private set
+    var imageURI: Text? = null
+        private set
+    var audioURI: Text? = null
+        private set
+    var badgeText: Text? = null
+        private set
+    var hintText: Text? = null
+        private set
 
     /**
      * Serialization only!!!
@@ -37,10 +46,10 @@ class DisplayUnit : Externalizable, DetailTemplate {
         badge: Text?,
         hintText: Text?
     ) {
-        this.name = name
-        this.imageReference = imageReference
-        this.audioReference = audioReference
-        this.badgeFunction = badge
+        this.text = name
+        this.imageURI = imageReference
+        this.audioURI = audioReference
+        this.badgeText = badge
         this.hintText = hintText
     }
 
@@ -49,42 +58,28 @@ class DisplayUnit : Externalizable, DetailTemplate {
     }
 
     override fun evaluate(ec: EvaluationContext?): DisplayData {
-        val imageRef = imageReference?.evaluate(ec)
-        val audioRef = audioReference?.evaluate(ec)
-        val textForBadge = badgeFunction?.evaluate(ec)
+        val imageRef = imageURI?.evaluate(ec)
+        val audioRef = audioURI?.evaluate(ec)
+        val textForBadge = badgeText?.evaluate(ec)
         val textForHint = hintText?.evaluate(ec)
-        return DisplayData(name!!.evaluate(ec), imageRef, audioRef, textForBadge, textForHint)
+        return DisplayData(text!!.evaluate(ec), imageRef, audioRef, textForBadge, textForHint)
     }
-
-    /**
-     * @return A Text which should be displayed to the user as
-     * the action which will display this menu.
-     */
-    fun getText(): Text? = name
-
-    fun getImageURI(): Text? = imageReference
-
-    fun getAudioURI(): Text? = audioReference
-
-    fun getBadgeText(): Text? = badgeFunction
-
-    fun getHintText(): Text? = hintText
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        name = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
-        imageReference = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
-        audioReference = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
-        badgeFunction = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        text = SerializationHelpers.readExternalizable(`in`, pf) { Text() }
+        imageURI = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        audioURI = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
+        badgeText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
         hintText = SerializationHelpers.readNullableExternalizable(`in`, pf) { Text() }
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        SerializationHelpers.write(out, name!!)
-        SerializationHelpers.writeNullable(out, imageReference)
-        SerializationHelpers.writeNullable(out, audioReference)
-        SerializationHelpers.writeNullable(out, badgeFunction)
+        SerializationHelpers.write(out, text!!)
+        SerializationHelpers.writeNullable(out, imageURI)
+        SerializationHelpers.writeNullable(out, audioURI)
+        SerializationHelpers.writeNullable(out, badgeText)
         SerializationHelpers.writeNullable(out, hintText)
     }
 }

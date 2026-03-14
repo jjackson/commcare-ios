@@ -15,9 +15,12 @@ import org.javarosa.core.util.externalizable.emptyIfNull
  * Model class to represent an argument to Endpoint
  */
 class EndpointArgument : Externalizable {
-    private var id: String? = null
-    private var instanceId: String? = null
-    private var instanceSrc: String? = null
+    var id: String? = null
+        private set
+    var instanceId: String? = null
+        private set
+    var instanceSrc: String? = null
+        private set
 
     // for serialization
     constructor()
@@ -41,12 +44,6 @@ class EndpointArgument : Externalizable {
         SerializationHelpers.writeString(out, emptyIfNull(instanceId))
         SerializationHelpers.writeString(out, emptyIfNull(instanceSrc))
     }
-
-    fun getId(): String? = id
-
-    fun getInstanceId(): String? = instanceId
-
-    fun getInstanceSrc(): String? = instanceSrc
 
     /**
      * If the argument should be processed into a external data instance

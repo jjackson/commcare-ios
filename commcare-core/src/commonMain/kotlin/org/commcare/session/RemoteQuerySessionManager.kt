@@ -62,16 +62,16 @@ class RemoteQuerySessionManager private constructor(
             val promptId = en.next() as String
             val prompt = queryPrompts[promptId]
 
-            if (isPromptSupported(prompt!!) && prompt.getDefaultValueExpr() != null) {
-                var value = FunctionUtils.toString(prompt.getDefaultValueExpr()!!.eval(evaluationContext))
-                if (INPUT_TYPE_DATERANGE == prompt.getInput()) {
+            if (isPromptSupported(prompt!!) && prompt.defaultValueExpr != null) {
+                var value = FunctionUtils.toString(prompt.defaultValueExpr!!.eval(evaluationContext))
+                if (INPUT_TYPE_DATERANGE == prompt.input) {
                     try {
                         value = DateRangeUtils.formatDateRangeAnswer(value)
                     } catch (e: PlatformParseException) {
                         Logger.exception("Error parsing default date range $value for $promptId", e)
                     }
                 }
-                userAnswers[prompt.getKey()!!] = value
+                userAnswers[prompt.key!!] = value
             }
         }
     }
@@ -131,7 +131,7 @@ class RemoteQuerySessionManager private constructor(
                 val key = en.next() as String
                 val value = userAnswers[key]
                 val prompt = queryDatum.getUserQueryPrompts()?.get(key)
-                val excludeExpr = prompt!!.getExclude()
+                val excludeExpr = prompt!!.exclude
                 if (!(params.containsKey(key) && params[key].contains(value))) {
                     if (value != null && (excludeExpr == null || !(excludeExpr.eval(evaluationContext) as Boolean))) {
                         val choices = extractMultipleChoices(value)
@@ -167,7 +167,7 @@ class RemoteQuerySessionManager private constructor(
     }
 
     fun populateItemSetChoices(queryPrompt: QueryPrompt) {
-        queryPrompt.getItemsetBinding()?.let {
+        queryPrompt.itemsetBinding?.let {
             ItemSetUtils.populateDynamicChoices(it, getEvaluationContextWithUserInputInstance())
         }
     }
@@ -215,7 +215,7 @@ class RemoteQuerySessionManager private constructor(
                     val selectedChoices = extractMultipleChoices(answer)
                     val validSelectedChoices = ArrayList<String>()
                     for (selectedChoice in selectedChoices) {
-                        if (queryPrompt.getItemsetBinding() != null && checkForValidSelectValue(queryPrompt.getItemsetBinding()!!, selectedChoice)) {
+                        if (queryPrompt.itemsetBinding != null && checkForValidSelectValue(queryPrompt.itemsetBinding!!, selectedChoice)) {
                             validSelectedChoices.add(selectedChoice)
                         } else {
                             dirty = true
@@ -272,7 +272,7 @@ class RemoteQuerySessionManager private constructor(
     }
 
     fun isPromptSupported(queryPrompt: QueryPrompt): Boolean {
-        return queryPrompt.getInput() == null || supportedPrompts.indexOf(queryPrompt.getInput()) != -1
+        return queryPrompt.input == null || supportedPrompts.indexOf(queryPrompt.input) != -1
     }
 
     // checks if value is one of the select choices given in items

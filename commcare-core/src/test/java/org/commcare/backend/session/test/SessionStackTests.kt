@@ -53,7 +53,7 @@ class SessionStackTests {
         }
         val dblManagement = actions[0]
 
-        session.executeStackOperations(dblManagement.getStackOperations()!!, session.getEvaluationContext())
+        session.executeStackOperations(dblManagement.stackOperations!!, session.getEvaluationContext())
 
         if (session.getNeededData() != null) {
             fail("After executing stack frame steps, session should be redirected")
@@ -340,11 +340,11 @@ class SessionStackTests {
 
         val actionToInspect = actions[1]
         assertTrue(actionToInspect.hasActionBarIcon())
-        assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.getDisplay()!!!!.getText()!!.evaluate(ec))
-        assertEquals(1, actionToInspect.getStackOperations()!!.size)
-        assertTrue(actionToInspect.getAutoLaunchExpr() == null)
+        assertEquals("Jump to Menu 2 Form 1, with icon", actionToInspect.display!!.text!!.evaluate(ec))
+        assertEquals(1, actionToInspect.stackOperations!!.size)
+        assertTrue(actionToInspect.autoLaunchExpr == null)
 
-        assertTrue(FunctionUtils.toString(actions[0].getAutoLaunchExpr()!!.eval(ec)).contentEquals("true"))
+        assertTrue(FunctionUtils.toString(actions[0].autoLaunchExpr!!.eval(ec)).contentEquals("true"))
     }
 
     /**

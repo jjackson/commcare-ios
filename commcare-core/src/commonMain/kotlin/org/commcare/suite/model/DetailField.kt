@@ -32,38 +32,54 @@ class DetailField : Externalizable {
     internal var sort: Text? = null
     private var relevancy: String? = null
     private var parsedRelevancy: XPathExpression? = null
-    private var headerWidthHint: String? = null  // Something like "500" or "10%"
-    private var templateWidthHint: String? = null
+    var headerWidthHint: String? = null  // Something like "500" or "10%"
+        internal set
+    var templateWidthHint: String? = null
+        internal set
     private var printIdentifier: String? = null
     internal var altText: Text? = null
-    private var endpointAction: EndpointAction? = null
+    var endpointAction: EndpointAction? = null
+        internal set
 
-    private var showBorder: Boolean = false
-    private var showShading: Boolean = false
+    var showBorder: Boolean = false
+        internal set
+    var showShading: Boolean = false
+        internal set
 
     /**
      * Optional hint which provides a hint for whether rich media should be
      * displayed based on `<text>` returning a URI.  May be either 'image' or
      * 'audio'
      */
-    private var headerForm: String? = null
+    var headerForm: String? = null
+        internal set
 
     /**
      * Same as 'headerForm' except can also be set to 'graph'
      */
-    private var templateForm: String? = null
-    private var sortOrder: Int = -1
+    var templateForm: String? = null
+        internal set
+    var sortOrder: Int = -1
+        internal set
     internal var sortDirection: Int = DIRECTION_ASCENDING
     internal var sortType: Int = Constants.DATATYPE_TEXT
     private var showBlanksLastInSort: Boolean = false
-    private var gridX: Int = -1
-    private var gridY: Int = -1
-    private var gridWidth: Int = -1
-    private var gridHeight: Int = -1
-    private var horizontalAlign: String? = null
-    private var verticalAlign: String? = null
-    private var fontSize: String? = null
-    private var cssID: String? = null
+    var gridX: Int = -1
+        internal set
+    var gridY: Int = -1
+        internal set
+    var gridWidth: Int = -1
+        internal set
+    var gridHeight: Int = -1
+        internal set
+    var horizontalAlign: String? = null
+        internal set
+    var verticalAlign: String? = null
+        internal set
+    var fontSize: String? = null
+        internal set
+    var cssID: String? = null
+        internal set
 
     private var _lazyLoading: Boolean = false
     val isLazyLoading: Boolean get() = _lazyLoading
@@ -109,15 +125,6 @@ class DetailField : Externalizable {
         return FunctionUtils.toBoolean(parsedRelevancy!!.eval(context))
     }
 
-    fun getHeaderWidthHint(): String? = headerWidthHint
-
-    fun getTemplateWidthHint(): String? = templateWidthHint
-
-    fun getHeaderForm(): String? = headerForm
-
-    fun getTemplateForm(): String? = templateForm
-
-    fun getSortOrder(): Int = sortOrder
 
     fun showBlanksLastInSort(): Boolean = this.showBlanksLastInSort
 
@@ -196,18 +203,7 @@ class DetailField : Externalizable {
         SerializationHelpers.writeBool(out, _lazyLoading)
     }
 
-    fun getGridX(): Int = gridX
-    fun getGridY(): Int = gridY
-    fun getGridWidth(): Int = gridWidth
-    fun getGridHeight(): Int = gridHeight
-    fun getHorizontalAlign(): String? = horizontalAlign
-    fun getVerticalAlign(): String? = verticalAlign
     // altText is internal property
-    fun getEndpointAction(): EndpointAction? = endpointAction
-    fun getFontSize(): String? = fontSize
-    fun getCssId(): String? = cssID
-    fun getShowBorder(): Boolean = showBorder
-    fun getShowShading(): Boolean = showShading
     // isLazyLoading and isCacheEnabled are public properties
 
     class Builder {

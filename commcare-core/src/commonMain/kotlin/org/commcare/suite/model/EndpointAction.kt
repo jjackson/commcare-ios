@@ -11,8 +11,10 @@ import org.javarosa.core.util.externalizable.SerializationHelpers
 import org.javarosa.core.util.externalizable.emptyIfNull
 
 class EndpointAction : Externalizable {
-    private var endpointId: String? = null
-    private var isBackground: Boolean = false
+    var endpointId: String? = null
+        private set
+    var isBackground: Boolean = false
+        private set
 
     constructor()
 
@@ -32,8 +34,4 @@ class EndpointAction : Externalizable {
         SerializationHelpers.writeString(out, emptyIfNull(endpointId))
         SerializationHelpers.writeBool(out, isBackground)
     }
-
-    fun getEndpointId(): String? = endpointId
-
-    fun isBackground(): Boolean = isBackground
 }
