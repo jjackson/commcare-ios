@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Calculation Test Form</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+              xmlns="http://openrosa.org/formdesigner/test-calculations">
+          <quantity/>
+          <price/>
+          <total/>
+          <discount/>
+          <final_price/>
+          <greeting/>
+          <name/>
+        </data>
+      </instance>
+      <bind nodeset="/data/quantity" type="xsd:int"/>
+      <bind nodeset="/data/price" type="xsd:decimal"/>
+      <bind nodeset="/data/total" type="xsd:decimal" calculate="/data/quantity * /data/price"/>
+      <bind nodeset="/data/discount" type="xsd:decimal"/>
+      <bind nodeset="/data/final_price" type="xsd:decimal" calculate="/data/total - /data/discount"/>
+      <bind nodeset="/data/greeting" type="xsd:string" calculate="concat('Hello ', /data/name)"/>
+      <bind nodeset="/data/name" type="xsd:string"/>
+    </model>
+  </h:head>
+  <h:body>
+    <input ref="/data/quantity"><label>Quantity</label></input>
+    <input ref="/data/price"><label>Price per unit</label></input>
+    <input ref="/data/discount"><label>Discount</label></input>
+    <input ref="/data/name"><label>Your name</label></input>
+  </h:body>
+</h:html>

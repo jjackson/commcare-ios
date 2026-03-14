@@ -1,6 +1,6 @@
 package org.javarosa.xform.parse
 
-import org.kxml2.kdom.Element
+import org.javarosa.xml.dom.XmlElement
 
 /**
  * An IElementHandler is responsible for handling the parsing of a particular
@@ -9,5 +9,5 @@ import org.kxml2.kdom.Element
  * @author Drew Roos
  */
 fun interface IElementHandler {
-    fun handle(p: XFormParser, e: Element, parent: Any)
+    fun handle(p: XFormParser, e: XmlElement, parent: Any)
 }

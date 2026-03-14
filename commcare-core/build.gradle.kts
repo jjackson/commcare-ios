@@ -127,8 +127,34 @@ kotlin {
             dependsOn(commonTest)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
+            // Add generated test config (absolute resource path) to the shared iosTest source set
+            kotlin.srcDir(layout.buildDirectory.dir("generated/iosTestConfig"))
         }
     }
+}
+
+// Generate a Kotlin source file at build time with the absolute path to test resources.
+// Kotlin/Native test binaries run via xcrun simctl and their working directory is
+// unpredictable, so relative paths are unreliable. This embeds the absolute path
+// as a compile-time constant.
+val generateIosTestConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/iosTestConfig/org/commcare/test")
+    outputs.dir(layout.buildDirectory.dir("generated/iosTestConfig"))
+    doLast {
+        val dir = outputDir.get().asFile
+        dir.mkdirs()
+        val resourcePath = "${projectDir.absolutePath}/src/commonTest/resources"
+            .replace("\\", "\\\\")
+        dir.resolve("IosTestConfig.kt").writeText(
+            "package org.commcare.test\n\n" +
+            "internal const val IOS_TEST_RESOURCE_PATH = \"$resourcePath\"\n"
+        )
+    }
+}
+
+// Ensure iOS test compilation depends on the generated config
+tasks.matching { it.name.startsWith("compileTestKotlinIos") }.configureEach {
+    dependsOn(generateIosTestConfig)
 }
 
 benchmark {

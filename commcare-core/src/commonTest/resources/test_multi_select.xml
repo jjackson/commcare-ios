@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Multi-Select Test Form</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+              xmlns="http://openrosa.org/formdesigner/test-multi-select">
+          <favorite_color/>
+          <symptoms/>
+          <severity/>
+        </data>
+      </instance>
+      <bind nodeset="/data/favorite_color" type="xsd:string"/>
+      <bind nodeset="/data/symptoms" type="xsd:string"/>
+      <bind nodeset="/data/severity" type="xsd:string"/>
+    </model>
+  </h:head>
+  <h:body>
+    <select1 ref="/data/favorite_color">
+      <label>Favorite Color</label>
+      <item><label>Red</label><value>red</value></item>
+      <item><label>Blue</label><value>blue</value></item>
+      <item><label>Green</label><value>green</value></item>
+    </select1>
+    <select ref="/data/symptoms">
+      <label>Select all symptoms</label>
+      <item><label>Fever</label><value>fever</value></item>
+      <item><label>Cough</label><value>cough</value></item>
+      <item><label>Headache</label><value>headache</value></item>
+      <item><label>Fatigue</label><value>fatigue</value></item>
+    </select>
+    <select1 ref="/data/severity">
+      <label>Severity</label>
+      <item><label>Mild</label><value>mild</value></item>
+      <item><label>Moderate</label><value>moderate</value></item>
+      <item><label>Severe</label><value>severe</value></item>
+    </select1>
+  </h:body>
+</h:html>

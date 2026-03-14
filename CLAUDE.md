@@ -42,28 +42,23 @@ commcare-ios/
 
 ## Current Status
 
-**Foundation hardening complete.** Phase 3 Tier 1 MVP + foundation hardening (bug fixes, cross-platform engine tests, full test migration to Kotlin, property conversion). 896 JVM tests passing.
+**Phase 3 Tier 2 complete.** All 30 daily field worker features implemented across 8 waves. XFormParser ported to commonMain — iOS can now parse XForms natively. 800+ JVM tests, 27 cross-platform tests.
 
-- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 16 commonTest .kt files (cross-platform engine tests). 129 Kotlin + 4 Java test files in src/test/java/. 1 Java compat file remains (StorageManagerCompat.java).
-- **iOS app** (`app/`): Compose Multiplatform app wired to real CommCare engine APIs. SQLDelight storage, real restore parsing, session-based navigation, form entry with FormEntryController, cross-platform form serialization, sync with incremental tokens.
+- **commcare-core**: 650+ commonMain, ~95 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
+- **iOS app** (`app/`): Full daily field worker feature set: all question types, repeat groups, field-lists, case management, form drafts/review/queue, incremental sync, multi-language, RTL, breadcrumbs, swipe navigation, geopoint, image, fixtures.
+- **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest.
 
-**Foundation Hardening (6 waves):**
-
-| Wave | Description | Status |
-|------|-------------|--------|
-| 0 | Foundation bug fixes (hash, serialization, isEmpty) | Done |
-| 1 | Cross-platform engine tests (59 test methods) | Done |
-| 2 | Test migration Tier 1 — 40 pure unit tests Java→Kotlin | Done |
-| 3 | Test migration Tier 2+3 — 83 integration tests + utilities | Done |
-| 4 | Getter/setter → property conversion (18 classes, 76 props) | Done |
-| 5 | CLAUDE.md + documentation | Done |
-
+**Phase 3 Tier 2 — Daily Field Worker Features (8 waves, 30 tasks): All Done**
 **Phase 3 Tier 1 — Engine Integration (14 tasks): All Done**
+**Foundation Hardening (6 waves): All Done**
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 3 Tier 2 completion**: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, 8 waves, daily field worker features
+- **iOS cross-platform validation**: `docs/plans/2026-03-14-ios-cross-platform-validation-plan.md` — golden file testing for iOS parity
+- **Phase 3 Tier 2 plan**: `docs/plans/2026-03-13-phase3-tier2-implementation-plan.md` — 30-task plan for daily field worker features
 - **Foundation hardening plan**: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md` — 6-wave plan: bug fixes, engine tests, test migration, property conversion
 - **Phase 3 Tier 1 completion**: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP with real engine integration
 - **Phase 3 Tier 1 plan**: `docs/plans/2026-03-12-phase3-tier1-implementation-plan.md` — 14-task plan for minimum viable app
@@ -76,6 +71,7 @@ commcare-ios/
 - **KMP migration**: `wave6-7-kmp-migration-learnings`, `ios-ci-learnings`, `commonmain-migration-blockers`, `phase4-deep-migration-learnings`, `phase6-deep-migration-learnings`, `phase7-bulk-migration-learnings`, `wave6-xpath-migration-learnings`, `wave7-commonmain-dependency-inversion`, `wave7-commonmain-migration-learnings`
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
 - **Foundation hardening**: `foundation-hardening-learnings` — test migration patterns, serialization bugs, property conversion
+- **Cross-platform validation**: XFormParser port (kxml2→XmlElement/XmlDomBuilder), PlatformXmlParser namespace enumeration, golden file testing pattern, test_constraints.xml classpath collision
 - **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
 - **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system)

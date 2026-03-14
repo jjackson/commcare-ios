@@ -41,7 +41,7 @@ public class FormInstanceValidator {
     public FormInstanceValidator(InputStream formInput, InputStream instanceInput) throws Exception {
         theForm = XFormUtils.getFormFromInputStream(formInput);
 
-        savedModel = XFormParser.restoreDataModel(instanceInput, null);
+        savedModel = XFormParser.restoreDataModel(instanceInput.readAllBytes());
         TreeElement templateRoot = theForm.getInstance().getRoot().deepCopy(true);
 
         //sanity check instance names before loading

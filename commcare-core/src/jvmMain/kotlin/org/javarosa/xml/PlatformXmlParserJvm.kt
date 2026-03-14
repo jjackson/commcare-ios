@@ -52,6 +52,27 @@ class JvmXmlParser : PlatformXmlParser {
     override fun nextText(): String = parser.nextText()
     override fun nextTag(): Int = mapEventType(parser.nextTag())
 
+    override fun getNamespaceCount(): Int {
+        val depth = parser.depth
+        // KXmlParser.getNamespaceCount(depth) returns cumulative count.
+        // We want only the declarations at the current depth.
+        val total = parser.getNamespaceCount(depth)
+        val prev = if (depth > 0) parser.getNamespaceCount(depth - 1) else 0
+        return total - prev
+    }
+
+    override fun getNamespacePrefix(index: Int): String? {
+        val depth = parser.depth
+        val prev = if (depth > 0) parser.getNamespaceCount(depth - 1) else 0
+        return parser.getNamespacePrefix(prev + index)
+    }
+
+    override fun getNamespaceUri(index: Int): String? {
+        val depth = parser.depth
+        val prev = if (depth > 0) parser.getNamespaceCount(depth - 1) else 0
+        return parser.getNamespaceUri(prev + index)
+    }
+
     private fun mapEventType(kxmlType: Int): Int {
         return when (kxmlType) {
             KXmlParser.START_DOCUMENT -> PlatformXmlParser.START_DOCUMENT

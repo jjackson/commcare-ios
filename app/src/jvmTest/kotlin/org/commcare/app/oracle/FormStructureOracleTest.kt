@@ -137,7 +137,7 @@ class FormStructureOracleTest {
 
     @Test
     fun testConstraintViolation() {
-        val formDef = loadForm("/test_constraints.xml")!!
+        val formDef = loadForm("/test_field_list_constraints.xml")!!
         formDef.initialize(true, null)
         val model = FormEntryModel(formDef)
         val controller = FormEntryController(model)
@@ -161,7 +161,7 @@ class FormStructureOracleTest {
 
     @Test
     fun testConstraintAcceptsValidValue() {
-        val formDef = loadForm("/test_constraints.xml")!!
+        val formDef = loadForm("/test_field_list_constraints.xml")!!
         formDef.initialize(true, null)
         val model = FormEntryModel(formDef)
         val controller = FormEntryController(model)
@@ -177,7 +177,7 @@ class FormStructureOracleTest {
 
     @Test
     fun testFieldListGroupShowsMultipleQuestions() {
-        val formDef = loadForm("/test_constraints.xml")!!
+        val formDef = loadForm("/test_field_list_constraints.xml")!!
         formDef.initialize(true, null)
         val model = FormEntryModel(formDef)
         val controller = FormEntryController(model)
@@ -190,7 +190,7 @@ class FormStructureOracleTest {
 
     @Test
     fun testViewModelConstraintMessage() {
-        val formDef = loadForm("/test_constraints.xml")!!
+        val formDef = loadForm("/test_field_list_constraints.xml")!!
         val session = FormEntrySession(formDef)
         val vm = FormEntryViewModel(session)
 
@@ -214,7 +214,7 @@ class FormStructureOracleTest {
 
     @Test
     fun testViewModelRequiredValidation() {
-        val formDef = loadForm("/test_constraints.xml")!!
+        val formDef = loadForm("/test_field_list_constraints.xml")!!
         val session = FormEntrySession(formDef)
         val vm = FormEntryViewModel(session)
 
