@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.CaseItem
 import org.commcare.app.viewmodel.CaseListViewModel
+import org.commcare.app.viewmodel.SortMode
 
 @Composable
 fun CaseListScreen(
@@ -58,7 +59,30 @@ fun CaseListScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Sort toggle
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${viewModel.cases.size} cases",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = when (viewModel.sortMode) {
+                    SortMode.NAME_ASC -> "Name A-Z"
+                    SortMode.NAME_DESC -> "Name Z-A"
+                    SortMode.DATE_ASC -> "Oldest first"
+                    SortMode.DATE_DESC -> "Newest first"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { viewModel.cycleSortMode() }.padding(8.dp)
+            )
+        }
+
         HorizontalDivider()
 
         if (viewModel.isLoading) {

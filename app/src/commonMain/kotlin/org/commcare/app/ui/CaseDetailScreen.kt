@@ -48,13 +48,16 @@ fun CaseDetailScreen(
             // Case type
             DetailRow(label = "Type", value = caseItem.caseType)
             DetailRow(label = "Case ID", value = caseItem.caseId)
+            if (caseItem.dateOpened.isNotBlank()) {
+                DetailRow(label = "Date Opened", value = caseItem.dateOpened)
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Properties
             for ((key, value) in caseItem.properties) {
-                if (key != "status" && key != "case-id" && key != "case-type") {
-                    DetailRow(label = key, value = value)
+                if (key !in setOf("status", "case-id", "case-type", "case-status", "date-opened")) {
+                    DetailRow(label = formatLabel(key), value = value)
                 }
             }
 
@@ -82,9 +85,16 @@ private fun DetailRow(label: String, value: String) {
             modifier = Modifier.weight(0.4f)
         )
         Text(
-            text = value,
+            text = value.ifBlank { "-" },
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(0.6f)
         )
     }
+}
+
+private fun formatLabel(key: String): String {
+    return key.replace("-", " ").replace("_", " ")
+        .split(" ").joinToString(" ") { word ->
+            word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
 }
