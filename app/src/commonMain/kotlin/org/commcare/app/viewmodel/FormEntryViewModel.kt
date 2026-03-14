@@ -40,6 +40,13 @@ class FormEntryViewModel(
     var repeatPromptText by mutableStateOf("")
         private set
 
+    /** True when form is in read-only review mode (completed form review). */
+    var isReadOnly by mutableStateOf(false)
+        private set
+
+    /** Draft form ID, set when resuming or after first save. */
+    var draftFormId by mutableStateOf<String?>(null)
+
     private var questionIndex = 0
     private val totalQuestions: Int get() = formSession.getQuestionCount().coerceAtLeast(1)
 
@@ -233,6 +240,30 @@ class FormEntryViewModel(
      */
     fun getFormXmlns(): String {
         return formSession.formDef.getInstance()?.getRoot()?.getNamespace() ?: ""
+    }
+
+    /**
+     * Save current form state as a draft to the FormRecordViewModel.
+     * Returns the draft form ID.
+     */
+    fun saveDraft(formRecordViewModel: FormRecordViewModel): String? {
+        return try {
+            val xml = FormSerializer.serializeForm(formSession.formDef)
+            val xmlns = getFormXmlns()
+            val id = formRecordViewModel.saveDraft(xml, xmlns, formTitle, draftFormId)
+            draftFormId = id
+            id
+        } catch (e: Exception) {
+            errorMessage = "Failed to save draft: ${e.message}"
+            null
+        }
+    }
+
+    /**
+     * Enable read-only review mode. All questions are displayed but not editable.
+     */
+    fun enableReviewMode() {
+        isReadOnly = true
     }
 
     private fun advanceToQuestion() {

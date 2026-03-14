@@ -35,7 +35,8 @@ import org.commcare.app.viewmodel.QuestionType
 fun FormEntryScreen(
     viewModel: FormEntryViewModel,
     onComplete: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSaveDraft: (() -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
@@ -120,7 +121,7 @@ fun FormEntryScreen(
                         modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
                     ) {
                         for ((index, question) in questionList.withIndex()) {
-                            QuestionWidget(question, index, viewModel)
+                            QuestionWidget(question, index, viewModel, enabled = !viewModel.isReadOnly)
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
@@ -133,8 +134,15 @@ fun FormEntryScreen(
                         OutlinedButton(onClick = { viewModel.previousQuestion() }) {
                             Text("Back")
                         }
-                        Button(onClick = { viewModel.nextQuestion() }) {
-                            Text("Next")
+                        if (onSaveDraft != null && !viewModel.isReadOnly) {
+                            OutlinedButton(onClick = { onSaveDraft() }) {
+                                Text("Save Draft")
+                            }
+                        }
+                        Button(onClick = { viewModel.nextQuestion() },
+                            enabled = !viewModel.isReadOnly
+                        ) {
+                            Text(if (viewModel.isReadOnly) "Review" else "Next")
                         }
                     }
                 }
@@ -147,7 +155,8 @@ fun FormEntryScreen(
 private fun QuestionWidget(
     question: QuestionState,
     index: Int,
-    viewModel: FormEntryViewModel
+    viewModel: FormEntryViewModel,
+    enabled: Boolean = true
 ) {
     // Question text
     Text(
@@ -180,7 +189,8 @@ private fun QuestionWidget(
                 label = { Text("Answer") },
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 singleLine = !isMultiline,
-                minLines = if (isMultiline) 3 else 1
+                minLines = if (isMultiline) 3 else 1,
+                enabled = enabled
             )
         }
 
@@ -191,7 +201,8 @@ private fun QuestionWidget(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Integer") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true
+                singleLine = true,
+                enabled = enabled
             )
         }
 
@@ -202,7 +213,8 @@ private fun QuestionWidget(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Decimal") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true
+                singleLine = true,
+                enabled = enabled
             )
         }
 
@@ -213,7 +225,8 @@ private fun QuestionWidget(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Date (YYYY-MM-DD)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true
+                singleLine = true,
+                enabled = enabled
             )
         }
 
@@ -224,7 +237,8 @@ private fun QuestionWidget(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Time (HH:MM)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true
+                singleLine = true,
+                enabled = enabled
             )
         }
 
@@ -232,13 +246,13 @@ private fun QuestionWidget(
             for (choice in question.choices) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
+                    modifier = if (enabled) Modifier.clickable {
                         viewModel.answerQuestionString(index, choice)
-                    }
+                    } else Modifier
                 ) {
                     RadioButton(
                         selected = question.answer == choice,
-                        onClick = { viewModel.answerQuestionString(index, choice) }
+                        onClick = if (enabled) {{ viewModel.answerQuestionString(index, choice) }} else null
                     )
                     Text(text = choice)
                 }
@@ -250,13 +264,14 @@ private fun QuestionWidget(
                 val isSelected = question.selectedChoices.contains(choice)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
+                    modifier = if (enabled) Modifier.clickable {
                         viewModel.toggleMultiSelectChoice(index, choice)
-                    }
+                    } else Modifier
                 ) {
                     Checkbox(
                         checked = isSelected,
-                        onCheckedChange = { viewModel.toggleMultiSelectChoice(index, choice) }
+                        onCheckedChange = if (enabled) {{ viewModel.toggleMultiSelectChoice(index, choice) }} else null,
+                        enabled = enabled
                     )
                     Text(text = choice)
                 }
@@ -265,7 +280,8 @@ private fun QuestionWidget(
 
         QuestionType.TRIGGER -> {
             Button(
-                onClick = { viewModel.answerQuestionString(index, "OK") }
+                onClick = { viewModel.answerQuestionString(index, "OK") },
+                enabled = enabled
             ) {
                 Text("OK")
             }
