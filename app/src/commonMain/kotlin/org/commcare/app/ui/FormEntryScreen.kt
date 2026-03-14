@@ -27,7 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import org.commcare.app.viewmodel.FormEntryViewModel
+import org.commcare.app.viewmodel.LanguageViewModel
 import org.commcare.app.viewmodel.QuestionState
 import org.commcare.app.viewmodel.QuestionType
 
@@ -36,8 +40,11 @@ fun FormEntryScreen(
     viewModel: FormEntryViewModel,
     onComplete: () -> Unit,
     onBack: () -> Unit,
-    onSaveDraft: (() -> Unit)? = null
+    onSaveDraft: (() -> Unit)? = null,
+    languageViewModel: LanguageViewModel? = null
 ) {
+    val layoutDirection = if (languageViewModel?.isRtl == true) LayoutDirection.Rtl else LayoutDirection.Ltr
+    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Row(
@@ -54,6 +61,29 @@ fun FormEntryScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+
+        // Language selector
+        if (languageViewModel != null && languageViewModel.availableLanguages.size > 1) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                for (lang in languageViewModel.availableLanguages) {
+                    Text(
+                        text = lang,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (lang == languageViewModel.currentLanguage)
+                            MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable {
+                            if (languageViewModel.setLanguage(lang)) {
+                                viewModel.refreshAfterLanguageChange()
+                            }
+                        }.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
         }
 
         // Progress
@@ -149,6 +179,7 @@ fun FormEntryScreen(
             }
         }
     }
+    } // CompositionLocalProvider
 }
 
 @Composable

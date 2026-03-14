@@ -62,6 +62,22 @@ class FormEntryViewModel(
         }
     }
 
+    /**
+     * Load available languages into the LanguageViewModel from this form's localizer.
+     */
+    fun loadLanguages(languageViewModel: LanguageViewModel) {
+        val localizer = formSession.formDef.getLocalizer() ?: return
+        languageViewModel.loadLanguages(localizer)
+    }
+
+    /**
+     * Refresh form display after a language change.
+     */
+    fun refreshAfterLanguageChange() {
+        formTitle = formSession.getFormTitle()
+        updateQuestions()
+    }
+
     fun answerQuestion(index: Int, answer: IAnswerData?) {
         try {
             val result = formSession.answerAtIndex(index, answer)
