@@ -127,12 +127,9 @@ kotlin {
             dependsOn(commonTest)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
+            // Add generated test config (absolute resource path) to the shared iosTest source set
+            kotlin.srcDir(layout.buildDirectory.dir("generated/iosTestConfig"))
         }
-
-        // Add generated test config (absolute resource path) to both iOS test targets
-        val iosTestConfigDir = layout.buildDirectory.dir("generated/iosTestConfig")
-        iosArm64Test.kotlin.srcDir(iosTestConfigDir)
-        iosSimulatorArm64Test.kotlin.srcDir(iosTestConfigDir)
     }
 }
 
