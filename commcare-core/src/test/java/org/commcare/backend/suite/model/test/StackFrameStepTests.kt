@@ -140,7 +140,7 @@ class StackFrameStepTests {
         // We're using the second action for this screen which requires us to still need another datum
         val dblManagement = actions[1]
         assertEquals(1, session.getFrame().getSteps().size)
-        session.executeStackOperations(dblManagement.getStackOperations()!!, session.getEvaluationContext())
+        session.executeStackOperations(dblManagement.stackOperations!!, session.getEvaluationContext())
         assertEquals(5, session.getFrame().getSteps().size)
         session.stepBack()
         assertEquals(1, session.getFrame().getSteps().size)

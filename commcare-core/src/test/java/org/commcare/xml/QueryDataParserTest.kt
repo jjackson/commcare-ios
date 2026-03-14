@@ -52,8 +52,8 @@ class QueryDataParserTest {
         val queryData = parser.parse()
 
         val evalContext = EvaluationContext(null, TestInstances.getInstances())
-        assertTrue(queryData.getRequired()!!.getTest()!!.eval(evalContext) as Boolean)
-        assertNull(queryData.getRequired()!!.getMessage())
+        assertTrue(queryData.required!!.test!!.eval(evalContext) as Boolean)
+        assertNull(queryData.required!!.message)
     }
 
     @Test
@@ -67,7 +67,7 @@ class QueryDataParserTest {
         val parser = ParserTestUtils.buildParser(query, QueryPromptParser::class.java)
         val queryData = parser.parse()
         val evalContext = EvaluationContext(null, TestInstances.getInstances())
-        assertTrue(queryData.getRequired()!!.getTest()!!.eval(evalContext) as Boolean)
+        assertTrue(queryData.required!!.test!!.eval(evalContext) as Boolean)
         assertTrue(queryData.getRequiredMessage(evalContext).contentEquals("This field can't be empty"))
     }
 
@@ -146,7 +146,7 @@ class QueryDataParserTest {
         val query = "<prompt key=\"name\" group_key=\"group_header_1\"></prompt>"
         val parser = ParserTestUtils.buildParser(query, QueryPromptParser::class.java)
         val queryData = parser.parse()
-        assertEquals("group_header_1", queryData.getGroupKey())
+        assertEquals("group_header_1", queryData.groupKey)
     }
 
     @Test

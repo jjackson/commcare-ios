@@ -7,20 +7,20 @@ package org.commcare.util
  * @author wspride
  */
 class GridStyle(
-    private val fontSize: String?,
-    private val horzAlign: String?,
-    private val vertAlign: String?,
-    private val cssID: String?
+    private val _fontSize: String?,
+    private val _horzAlign: String?,
+    private val _vertAlign: String?,
+    private val _cssID: String?
 ) {
-    fun getFontSize(): String = fontSize ?: "normal"
+    val fontSize: String get() = _fontSize ?: "normal"
 
-    fun getHorzAlign(): String = horzAlign ?: "none"
+    val horzAlign: String get() = _horzAlign ?: "none"
 
-    fun getVertAlign(): String = vertAlign ?: "none"
+    val vertAlign: String get() = _vertAlign ?: "none"
 
-    fun getCssID(): String = cssID ?: "none"
+    val cssID: String get() = _cssID ?: "none"
 
     override fun toString(): String {
-        return "font size: $fontSize, horzAlign: $horzAlign, vertAlign: $vertAlign"
+        return "font size: $_fontSize, horzAlign: $_horzAlign, vertAlign: $_vertAlign"
     }
 }

@@ -75,7 +75,7 @@ object FormDataUtil {
             return null
         }
 
-        val detailText = sessionCopy.getDetail(entityDatum.getLongDetail())?.getTitle()?.getText()
+        val detailText = sessionCopy.getDetail(entityDatum.getLongDetail())?.title?.text
         var isPrettyPrint = true
 
         // CTS: this is... not awesome.

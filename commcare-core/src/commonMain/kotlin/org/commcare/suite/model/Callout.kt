@@ -20,13 +20,19 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author wpride1 on 4/14/15.
  */
 class Callout : Externalizable, DetailTemplate {
-    private var actionName: String? = null
-    private var image: String? = null
-    private var displayName: String? = null
+    var actionName: String? = null
+        private set
+    var image: String? = null
+        private set
+    var displayName: String? = null
+        private set
     private var type: String? = null
-    private var extras: MutableMap<String, String>? = null
-    private var responses: ArrayList<String>? = null
-    private var isAutoLaunching: Boolean = false
+    var extras: MutableMap<String, String>? = null
+        private set
+    var responses: ArrayList<String>? = null
+        private set
+    var isAutoLaunching: Boolean = false
+        private set
     private var assumePlainTextValues: Boolean = false
 
     /**
@@ -34,7 +40,8 @@ class Callout : Externalizable, DetailTemplate {
      * is the column header text and 'template' is the key used for mapping a
      * callout result data point to a case, should usually be the case id.
      */
-    internal var responseDetailField: DetailField? = null
+    var responseDetailField: DetailField? = null
+        internal set
 
     /**
      * For externalization
@@ -119,20 +126,6 @@ class Callout : Externalizable, DetailTemplate {
         SerializationHelpers.writeNullable(out, type)
         SerializationHelpers.writeBool(out, isAutoLaunching)
     }
-
-    fun getImage(): String? = image
-
-    fun getActionName(): String? = actionName
-
-    fun getDisplayName(): String? = displayName
-
-    fun getExtras(): MutableMap<String, String>? = extras
-
-    fun getResponses(): ArrayList<String>? = responses
-
-    fun getResponseDetailField(): DetailField? = responseDetailField
-
-    fun isAutoLaunching(): Boolean = isAutoLaunching
 
     fun isSimprintsCallout(): Boolean = "com.simprints.id.IDENTIFY" == actionName
 

@@ -20,12 +20,17 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author ctsims
  */
 class Action : Externalizable {
-    private var display: DisplayUnit? = null
-    private var stackOps: ArrayList<StackOperation>? = null
+    var display: DisplayUnit? = null
+        private set
+    var stackOperations: ArrayList<StackOperation>? = null
+        private set
     private var relevantExpr: XPathExpression? = null
-    private var iconReferenceForActionBar: String? = null
-    private var autoLaunchExpr: XPathExpression? = null
-    private var redoLast: Boolean = false
+    var actionBarIconReference: String? = null
+        private set
+    var autoLaunchExpr: XPathExpression? = null
+        private set
+    var isRedoLast: Boolean = false
+        private set
 
     /**
      * Serialization only!!!
@@ -45,24 +50,12 @@ class Action : Externalizable {
         redoLast: Boolean
     ) {
         this.display = display
-        this.stackOps = stackOps
+        this.stackOperations = stackOps
         this.relevantExpr = relevantExpr
-        this.iconReferenceForActionBar = if (iconForActionBar == null) "" else iconForActionBar
+        this.actionBarIconReference = if (iconForActionBar == null) "" else iconForActionBar
         this.autoLaunchExpr = autoLaunchExpr
-        this.redoLast = redoLast
+        this.isRedoLast = redoLast
     }
-
-    /**
-     * @return The Display model for showing this action to the user
-     */
-    fun getDisplay(): DisplayUnit? = display
-
-    /**
-     * @return A vector of the StackOperation models which
-     * should be processed sequentially upon this action
-     * being triggered by the user.
-     */
-    fun getStackOperations(): ArrayList<StackOperation>? = stackOps
 
     fun isRelevant(evalContext: EvaluationContext): Boolean {
         val re = relevantExpr ?: return true
@@ -76,32 +69,26 @@ class Action : Externalizable {
         return "true" == result
     }
 
-    fun getAutoLaunchExpr(): XPathExpression? = autoLaunchExpr
-
-    fun isRedoLast(): Boolean = redoLast
-
-    fun hasActionBarIcon(): Boolean = "" != iconReferenceForActionBar
-
-    fun getActionBarIconReference(): String? = iconReferenceForActionBar
+    fun hasActionBarIcon(): Boolean = "" != actionBarIconReference
 
     @Suppress("UNCHECKED_CAST")
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
         display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
-        stackOps = SerializationHelpers.readList(`in`, pf) { StackOperation() }
+        stackOperations = SerializationHelpers.readList(`in`, pf) { StackOperation() }
         autoLaunchExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
         relevantExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
-        iconReferenceForActionBar = SerializationHelpers.readString(`in`)
-        redoLast = SerializationHelpers.readBool(`in`)
+        actionBarIconReference = SerializationHelpers.readString(`in`)
+        isRedoLast = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
         SerializationHelpers.write(out, display as Any)
-        SerializationHelpers.writeList(out, stackOps!!)
+        SerializationHelpers.writeList(out, stackOperations!!)
         SerializationHelpers.writeNullableTagged(out, autoLaunchExpr)
         SerializationHelpers.writeNullableTagged(out, relevantExpr)
-        SerializationHelpers.writeString(out, iconReferenceForActionBar ?: "")
-        SerializationHelpers.writeBool(out, redoLast)
+        SerializationHelpers.writeString(out, actionBarIconReference ?: "")
+        SerializationHelpers.writeBool(out, isRedoLast)
     }
 }

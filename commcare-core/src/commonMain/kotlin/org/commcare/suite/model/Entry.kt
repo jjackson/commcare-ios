@@ -77,7 +77,7 @@ abstract class Entry : Externalizable, MenuDisplayable {
      * @return A text whose evaluated string should be presented to the
      * user as the entry point for this operation
      */
-    fun getText(): Text? = display?.getText()
+    fun getText(): Text? = display?.text
 
     fun getSessionDataReqs(): ArrayList<SessionDatum>? = data
 
@@ -98,28 +98,28 @@ abstract class Entry : Externalizable, MenuDisplayable {
     fun getPostEntrySessionOperations(): ArrayList<StackOperation>? = stackOperations
 
     override fun getImageURI(): String? {
-        val imageUri = display?.getImageURI() ?: return null
+        val imageUri = display?.imageURI ?: return null
         return imageUri.evaluate()
     }
 
     override fun getAudioURI(): String? {
-        val audioUri = display?.getAudioURI() ?: return null
+        val audioUri = display?.audioURI ?: return null
         return audioUri.evaluate()
     }
 
     override fun getDisplayText(ec: EvaluationContext?): String? {
-        val text = display?.getText() ?: return null
+        val text = display?.text ?: return null
         return text.evaluate(ec)
     }
 
     override fun getTextForBadge(ec: EvaluationContext?): PlatformSingle<String> {
-        val badgeText = display?.getBadgeText() ?: return platformSingleJust("")
+        val badgeText = display?.badgeText ?: return platformSingleJust("")
         return badgeText.getDisposableSingleForEvaluation(ec)
     }
 
-    override fun getRawBadgeTextObject(): Text? = display?.getBadgeText()
+    override fun getRawBadgeTextObject(): Text? = display?.badgeText
 
-    override fun getRawText(): Text? = display?.getText()
+    override fun getRawText(): Text? = display?.text
 
     override fun getCommandID(): String? = commandId
 

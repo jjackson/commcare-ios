@@ -22,7 +22,8 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * @author Phillip Mates (pmates@dimagi.com).
  */
 class PostRequest : Externalizable {
-    private var url: PlatformUrl? = null
+    var url: PlatformUrl? = null
+        private set
     private var relevantExpr: XPathExpression? = null
     private var params: List<QueryData>? = null
 
@@ -33,8 +34,6 @@ class PostRequest : Externalizable {
         this.params = params
         this.relevantExpr = relevantExpr
     }
-
-    fun getUrl(): PlatformUrl? = url
 
     /**
      * Evaluates parameters for post request

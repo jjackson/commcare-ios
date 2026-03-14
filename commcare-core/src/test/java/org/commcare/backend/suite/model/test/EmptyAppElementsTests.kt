@@ -32,7 +32,7 @@ class EmptyAppElementsTests {
 
     @Test
     fun testEmptyGlobal() {
-        val global = mApp.getSession().getPlatform()!!.getDetail("m0_case_short")!!.getGlobal()!!
+        val global = mApp.getSession().getPlatform()!!.getDetail("m0_case_short")!!.global!!
         Assert.assertEquals(0, global.getGeoOverlays().size)
     }
 

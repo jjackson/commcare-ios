@@ -14,8 +14,10 @@ import org.javarosa.core.util.externalizable.PlatformIOException
  * Model for `<validation>` node in [QueryPrompt]
  */
 class QueryPromptCondition : Externalizable {
-    private var test: XPathExpression? = null
-    private var message: Text? = null
+    var test: XPathExpression? = null
+        private set
+    var message: Text? = null
+        private set
 
     constructor()
 
@@ -35,8 +37,4 @@ class QueryPromptCondition : Externalizable {
         SerializationHelpers.writeTagged(out, test!!)
         SerializationHelpers.writeNullable(out, message)
     }
-
-    fun getTest(): XPathExpression? = test
-
-    fun getMessage(): Text? = message
 }

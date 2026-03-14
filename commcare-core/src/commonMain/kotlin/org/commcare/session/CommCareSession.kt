@@ -726,7 +726,7 @@ open class CommCareSession {
      * @return false if current frame was rewound
      */
     private fun processStackOp(op: StackOperation, ec: EvaluationContext, observer: StackObserver): Boolean {
-        when (op.getOp()) {
+        when (op.op) {
             StackOperation.OPERATION_CREATE -> {
                 val createdFrame = SessionFrame()
                 createFrame(createdFrame, op, ec, observer)
@@ -737,7 +737,7 @@ open class CommCareSession {
                 }
             }
             StackOperation.OPERATION_CLEAR -> performClearOperation(op, ec, observer)
-            else -> throw RuntimeException("Undefined stack operation: " + op.getOp())
+            else -> throw RuntimeException("Undefined stack operation: " + op.op)
         }
 
         return true

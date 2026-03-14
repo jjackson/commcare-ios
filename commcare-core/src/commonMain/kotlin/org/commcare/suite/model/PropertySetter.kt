@@ -18,10 +18,12 @@ import kotlin.jvm.JvmField
  * @author ctsims
  */
 class PropertySetter : Externalizable {
-    private var _key: String = ""
-    private var _value: String = ""
+    var key: String = ""
+        private set
+    var value: String = ""
+        private set
     @JvmField
-    internal var force: Boolean = false
+    var force: Boolean = false
 
     /**
      * Serialization Only!!!
@@ -29,28 +31,22 @@ class PropertySetter : Externalizable {
     constructor()
 
     internal constructor(key: String, value: String, force: Boolean) {
-        this._key = key
-        this._value = value
+        this.key = key
+        this.value = value
         this.force = force
     }
 
-    fun getKey(): String = _key
-
-    fun getValue(): String = _value
-
-    fun isForce(): Boolean = force
-
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = SerializationHelpers.readString(`in`)
-        _value = SerializationHelpers.readString(`in`)
+        key = SerializationHelpers.readString(`in`)
+        value = SerializationHelpers.readString(`in`)
         force = SerializationHelpers.readBool(`in`)
     }
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        SerializationHelpers.writeString(out, _key)
-        SerializationHelpers.writeString(out, _value)
+        SerializationHelpers.writeString(out, key)
+        SerializationHelpers.writeString(out, value)
         SerializationHelpers.writeBool(out, force)
     }
 
@@ -59,15 +55,15 @@ class PropertySetter : Externalizable {
             return false
         }
 
-        return this._key == other._key &&
-                this._value == other._value &&
+        return this.key == other.key &&
+                this.value == other.value &&
                 force == other.force
     }
 
     override fun hashCode(): Int {
         var result = 11
-        result = 31 * result + _key.hashCode()
-        result = 31 * result + _value.hashCode()
+        result = 31 * result + key.hashCode()
+        result = 31 * result + value.hashCode()
         result = 31 * result + if (force) 0 else 1
         return result
     }

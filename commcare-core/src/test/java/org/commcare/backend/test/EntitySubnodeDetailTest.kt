@@ -33,10 +33,10 @@ class EntitySubnodeDetailTest {
         assertEquals(entityDatum.getLongDetail(), "reports.my_report.data")
 
         val confirmDetail = session.getDetail(entityDatum.getLongDetail())!!
-        assertNotNull(confirmDetail.getNodeset())
+        assertNotNull(confirmDetail.nodeset)
 
         val detailReference = entityDatum.getNodeset()!!
-        val contextualizedRef = confirmDetail.getNodeset()!!.contextualize(detailReference)!!
+        val contextualizedRef = confirmDetail.nodeset!!.contextualize(detailReference)!!
         val references = session.getEvaluationContext().expandReference(contextualizedRef)!!
         assertEquals(4, references.size)
     }

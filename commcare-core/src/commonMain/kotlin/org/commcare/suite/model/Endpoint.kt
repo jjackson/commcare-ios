@@ -74,13 +74,13 @@ class Endpoint : Externalizable {
             if (endpointArguments.size > args.size) {
                 val missingArguments = ArrayList<String>()
                 for (i in args.size until endpointArguments.size) {
-                    missingArguments.add(endpointArguments[i].getId()!!)
+                    missingArguments.add(endpointArguments[i].id!!)
                 }
                 throw InvalidEndpointArgumentsException(missingArguments, null)
             }
 
             for (i in 0 until endpointArguments.size) {
-                val argumentName = endpointArguments[i].getId()!!
+                val argumentName = endpointArguments[i].id!!
                 evaluationContext.setVariable(argumentName, args[i])
             }
         }
@@ -95,8 +95,8 @@ class Endpoint : Externalizable {
             val argumentIds = args.keys
             val missingArguments = ArrayList<String>()
             for (endpointArgument in endpointArguments) {
-                if (!argumentIds.contains(endpointArgument.getId())) {
-                    missingArguments.add(endpointArgument.getId()!!)
+                if (!argumentIds.contains(endpointArgument.id)) {
+                    missingArguments.add(endpointArgument.id!!)
                 }
             }
 
@@ -112,7 +112,7 @@ class Endpoint : Externalizable {
             }
 
             for (i in 0 until endpointArguments.size) {
-                val argumentName = endpointArguments[i].getId()!!
+                val argumentName = endpointArguments[i].id!!
                 if (args.containsKey(argumentName)) {
                     evaluationContext.setVariable(argumentName, args[argumentName])
                 }
@@ -124,7 +124,7 @@ class Endpoint : Externalizable {
             argumentId: String
         ): Boolean {
             for (endpointArgument in endpointArguments) {
-                if (endpointArgument.getId()!!.contentEquals(argumentId)) {
+                if (endpointArgument.id!!.contentEquals(argumentId)) {
                     return true
                 }
             }

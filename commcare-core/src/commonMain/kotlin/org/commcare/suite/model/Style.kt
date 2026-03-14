@@ -4,42 +4,49 @@ package org.commcare.suite.model
  * Created by willpride on 4/13/16.
  */
 class Style {
-    private var displayFormats: DisplayFormat? = null
-    private var fontSize: Int = 0
-    private var widthHint: Int = 0
-    private var horizontalAlign: String? = null
-    private var verticalAlign: String? = null
-    private var showBorder: Boolean = false
-    private var showShading: Boolean = false
+    var displayFormat: DisplayFormat? = null
+        private set
+    var fontSize: Int = 0
+        private set
+    var widthHint: Int = 0
+        private set
+    var horizontalAlign: String? = null
+        private set
+    var verticalAlign: String? = null
+        private set
+    var showBorder: Boolean = false
+        private set
+    var showShading: Boolean = false
+        private set
 
     constructor()
 
     constructor(detail: DetailField) {
-        val fontSizeStr = detail.getFontSize()
+        val fontSizeStr = detail.fontSize
         if (fontSizeStr != null) {
             try {
-                setFontSize(fontSizeStr.toInt())
+                fontSize = fontSizeStr.toInt()
             } catch (nfe: NumberFormatException) {
-                setFontSize(12)
+                fontSize = 12
             }
         }
         // For width, default to -1 since '0' is reserved for hidden (Search) fields
-        val widthHintStr = detail.getTemplateWidthHint()
+        val widthHintStr = detail.templateWidthHint
         if (widthHintStr != null) {
             try {
-                setWidthHint(widthHintStr.toInt())
+                widthHint = widthHintStr.toInt()
             } catch (nfe: NumberFormatException) {
-                setWidthHint(-1)
+                widthHint = -1
             }
         } else {
-            setWidthHint(-1)
+            widthHint = -1
         }
-        setDisplayFormatFromString(detail.getTemplateForm())
+        setDisplayFormatFromString(detail.templateForm)
 
-        verticalAlign = detail.getVerticalAlign()
-        horizontalAlign = detail.getHorizontalAlign()
-        showBorder = detail.getShowBorder()
-        showShading = detail.getShowShading()
+        verticalAlign = detail.verticalAlign
+        horizontalAlign = detail.horizontalAlign
+        showBorder = detail.showBorder
+        showShading = detail.showShading
     }
 
     enum class DisplayFormat {
@@ -54,47 +61,21 @@ class Style {
         ClickableIcon,
     }
 
-    fun getDisplayFormat(): DisplayFormat? = displayFormats
-
-    private fun setDisplayFormat(displayFormats: DisplayFormat) {
-        this.displayFormats = displayFormats
-    }
-
-    fun getFontSize(): Int = fontSize
-
-    private fun setFontSize(fontSize: Int) {
-        this.fontSize = fontSize
-    }
-
-    fun getWidthHint(): Int = widthHint
-
-    private fun setWidthHint(widthHint: Int) {
-        this.widthHint = widthHint
-    }
-
     private fun setDisplayFormatFromString(displayFormat: String?) {
         when (displayFormat) {
-            "image", "enum-image" -> setDisplayFormat(DisplayFormat.Image)
-            "audio" -> setDisplayFormat(DisplayFormat.Audio)
-            "text" -> setDisplayFormat(DisplayFormat.Text)
-            "address" -> setDisplayFormat(DisplayFormat.Address)
-            "address-popup" -> setDisplayFormat(DisplayFormat.AddressPopup)
-            "graph" -> setDisplayFormat(DisplayFormat.Graph)
-            "phone" -> setDisplayFormat(DisplayFormat.Phone)
-            "markdown" -> setDisplayFormat(DisplayFormat.Markdown)
-            "clickable-icon" -> setDisplayFormat(DisplayFormat.ClickableIcon)
+            "image", "enum-image" -> this.displayFormat = DisplayFormat.Image
+            "audio" -> this.displayFormat = DisplayFormat.Audio
+            "text" -> this.displayFormat = DisplayFormat.Text
+            "address" -> this.displayFormat = DisplayFormat.Address
+            "address-popup" -> this.displayFormat = DisplayFormat.AddressPopup
+            "graph" -> this.displayFormat = DisplayFormat.Graph
+            "phone" -> this.displayFormat = DisplayFormat.Phone
+            "markdown" -> this.displayFormat = DisplayFormat.Markdown
+            "clickable-icon" -> this.displayFormat = DisplayFormat.ClickableIcon
         }
     }
 
     override fun toString(): String {
-        return "Style: [displayFormat=$displayFormats, fontSize=$fontSize]"
+        return "Style: [displayFormat=$displayFormat, fontSize=$fontSize]"
     }
-
-    fun getHorizontalAlign(): String? = horizontalAlign
-
-    fun getVerticalAlign(): String? = verticalAlign
-
-    fun getShowBorder(): Boolean = showBorder
-
-    fun getShowShading(): Boolean = showShading
 }

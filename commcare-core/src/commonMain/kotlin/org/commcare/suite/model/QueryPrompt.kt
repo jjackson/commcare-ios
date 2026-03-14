@@ -17,19 +17,32 @@ import org.javarosa.core.util.externalizable.PlatformIOException
 // Model for <prompt> node
 class QueryPrompt : Externalizable {
 
-    private var _key: String? = null
-    private var appearance: String? = null
-    private var input: String? = null
-    private var receive: String? = null
-    private var hidden: String? = null
-    private var display: DisplayUnit? = null
-    private var defaultValueExpr: XPathExpression? = null
-    private var itemsetBinding: ItemsetBinding? = null
-    private var exclude: XPathExpression? = null
-    private var required: QueryPromptCondition? = null
-    private var allowBlankValue: Boolean = false
-    private var validation: QueryPromptCondition? = null
-    private var groupKey: String? = null
+    var key: String? = null
+        private set
+    var appearance: String? = null
+        private set
+    var input: String? = null
+        private set
+    var receive: String? = null
+        private set
+    var hidden: String? = null
+        private set
+    var display: DisplayUnit? = null
+        private set
+    var defaultValueExpr: XPathExpression? = null
+        private set
+    var itemsetBinding: ItemsetBinding? = null
+        private set
+    var exclude: XPathExpression? = null
+        private set
+    var required: QueryPromptCondition? = null
+        private set
+    var isAllowBlankValue: Boolean = false
+        private set
+    var validation: QueryPromptCondition? = null
+        private set
+    var groupKey: String? = null
+        private set
 
     constructor()
 
@@ -39,7 +52,7 @@ class QueryPrompt : Externalizable {
         defaultValueExpr: XPathExpression?, allowBlankValue: Boolean, exclude: XPathExpression?,
         required: QueryPromptCondition?, validation: QueryPromptCondition?, groupKey: String?
     ) {
-        this._key = key
+        this.key = key
         this.appearance = appearance
         this.input = input
         this.receive = receive
@@ -47,7 +60,7 @@ class QueryPrompt : Externalizable {
         this.display = display
         this.itemsetBinding = itemsetBinding
         this.defaultValueExpr = defaultValueExpr
-        this.allowBlankValue = allowBlankValue
+        this.isAllowBlankValue = allowBlankValue
         this.exclude = exclude
         this.required = required
         this.validation = validation
@@ -56,7 +69,7 @@ class QueryPrompt : Externalizable {
 
     @Throws(PlatformIOException::class, DeserializationException::class)
     override fun readExternal(`in`: PlatformDataInputStream, pf: PrototypeFactory) {
-        _key = SerializationHelpers.readString(`in`)
+        key = SerializationHelpers.readString(`in`)
         appearance = SerializationHelpers.readNullableString(`in`, pf)
         input = SerializationHelpers.readNullableString(`in`, pf)
         receive = SerializationHelpers.readNullableString(`in`, pf)
@@ -64,7 +77,7 @@ class QueryPrompt : Externalizable {
         display = SerializationHelpers.readExternalizable(`in`, pf) { DisplayUnit() }
         itemsetBinding = SerializationHelpers.readNullableExternalizable(`in`, pf) { ItemsetBinding() }
         defaultValueExpr = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
-        allowBlankValue = SerializationHelpers.readBool(`in`)
+        isAllowBlankValue = SerializationHelpers.readBool(`in`)
         exclude = SerializationHelpers.readNullableTagged(`in`, pf) as XPathExpression?
         validation = SerializationHelpers.readNullableExternalizable(`in`, pf) { QueryPromptCondition() }
         required = SerializationHelpers.readNullableExternalizable(`in`, pf) { QueryPromptCondition() }
@@ -73,7 +86,7 @@ class QueryPrompt : Externalizable {
 
     @Throws(PlatformIOException::class)
     override fun writeExternal(out: PlatformDataOutputStream) {
-        SerializationHelpers.write(out, _key!!)
+        SerializationHelpers.write(out, key!!)
         SerializationHelpers.writeNullable(out, appearance)
         SerializationHelpers.writeNullable(out, input)
         SerializationHelpers.writeNullable(out, receive)
@@ -81,56 +94,30 @@ class QueryPrompt : Externalizable {
         SerializationHelpers.write(out, display!!)
         SerializationHelpers.writeNullable(out, itemsetBinding)
         SerializationHelpers.writeNullableTagged(out, defaultValueExpr)
-        SerializationHelpers.writeBool(out, allowBlankValue)
+        SerializationHelpers.writeBool(out, isAllowBlankValue)
         SerializationHelpers.writeNullableTagged(out, exclude)
         SerializationHelpers.writeNullable(out, validation)
         SerializationHelpers.writeNullable(out, required)
         SerializationHelpers.writeNullable(out, groupKey)
     }
 
-    fun getKey(): String? = _key
-
-    fun getAppearance(): String? = appearance
-
-    fun getInput(): String? = input
-
-    fun getReceive(): String? = receive
-
-    fun getHidden(): String? = hidden
-
-    fun isAllowBlankValue(): Boolean = allowBlankValue
-
-    fun getDisplay(): DisplayUnit? = display
-
-    fun getItemsetBinding(): ItemsetBinding? = itemsetBinding
-
-    fun getDefaultValueExpr(): XPathExpression? = defaultValueExpr
-
-    fun getExclude(): XPathExpression? = exclude
-
-    fun getRequired(): QueryPromptCondition? = required
-
-    fun getValidation(): QueryPromptCondition? = validation
-
-    fun getGroupKey(): String? = groupKey
-
     /**
      * @return whether the prompt has associated choices to select from
      */
-    fun isSelect(): Boolean = getItemsetBinding() != null
+    fun isSelect(): Boolean = itemsetBinding != null
 
     // Evaluates required in the given eval context
     fun isRequired(ec: EvaluationContext): Boolean {
-        if (required != null && required!!.getTest() != null) {
-            return required!!.getTest()!!.eval(ec) as Boolean
+        if (required != null && required!!.test != null) {
+            return required!!.test!!.eval(ec) as Boolean
         }
         return false
     }
 
     // Evaluates required message in the given eval context
     fun getRequiredMessage(ec: EvaluationContext): String? {
-        if (required != null && required!!.getMessage() != null) {
-            return required!!.getMessage()!!.evaluate(ec)
+        if (required != null && required!!.message != null) {
+            return required!!.message!!.evaluate(ec)
         }
 
         return try {
@@ -147,8 +134,8 @@ class QueryPrompt : Externalizable {
      * @return evaluated validation message or a default text if no validation message is defined
      */
     fun getValidationMessage(ec: EvaluationContext): String {
-        if (validation != null && validation!!.getMessage() != null) {
-            return validation!!.getMessage()!!.evaluate(ec)
+        if (validation != null && validation!!.message != null) {
+            return validation!!.message!!.evaluate(ec)
         }
 
         return try {
@@ -165,7 +152,7 @@ class QueryPrompt : Externalizable {
      * @return whether the input is invalid
      */
     fun isInvalidInput(ec: EvaluationContext): Boolean {
-        return validation != null && !(validation!!.getTest()!!.eval(ec) as Boolean)
+        return validation != null && !(validation!!.test!!.eval(ec) as Boolean)
     }
 
     companion object {

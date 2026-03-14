@@ -81,7 +81,7 @@ class CaseClaimModelTests {
         val districtPrompt = inputDisplays["district"]!!
 
         remoteQuerySessionManager.populateItemSetChoices(districtPrompt)
-        val choices = districtPrompt.getItemsetBinding()!!.getChoices()!!
+        val choices = districtPrompt.itemsetBinding!!.getChoices()!!
             .map { it.value }
         assertEquals(expected, choices)
         return remoteQuerySessionManager
