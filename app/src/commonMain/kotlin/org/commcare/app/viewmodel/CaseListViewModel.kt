@@ -26,6 +26,8 @@ class CaseListViewModel(
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
+    var sortMode by mutableStateOf(SortMode.NAME_ASC)
+        private set
 
     private var allCases: List<CaseItem> = emptyList()
 
@@ -76,25 +78,45 @@ class CaseListViewModel(
                     caseId = c.getCaseId() ?: "",
                     name = c.getName() ?: "Unnamed",
                     caseType = c.getTypeId() ?: "",
+                    dateOpened = c.getMetaData("date-opened")?.toString() ?: "",
                     properties = buildPropertyMap(c)
                 ))
             }
         }
         allCases = items
-        applyFilter()
+        applyFilterAndSort()
     }
 
     fun updateSearch(query: String) {
         searchQuery = query
-        applyFilter()
+        applyFilterAndSort()
     }
 
-    private fun applyFilter() {
-        cases = if (searchQuery.isBlank()) {
+    fun cycleSortMode() {
+        sortMode = when (sortMode) {
+            SortMode.NAME_ASC -> SortMode.NAME_DESC
+            SortMode.NAME_DESC -> SortMode.DATE_DESC
+            SortMode.DATE_DESC -> SortMode.DATE_ASC
+            SortMode.DATE_ASC -> SortMode.NAME_ASC
+        }
+        applyFilterAndSort()
+    }
+
+    private fun applyFilterAndSort() {
+        val filtered = if (searchQuery.isBlank()) {
             allCases
         } else {
             val q = searchQuery.lowercase()
-            allCases.filter { it.name.lowercase().contains(q) }
+            allCases.filter { item ->
+                item.name.lowercase().contains(q) ||
+                    item.properties.values.any { it.lowercase().contains(q) }
+            }
+        }
+        cases = when (sortMode) {
+            SortMode.NAME_ASC -> filtered.sortedBy { it.name.lowercase() }
+            SortMode.NAME_DESC -> filtered.sortedByDescending { it.name.lowercase() }
+            SortMode.DATE_ASC -> filtered.sortedBy { it.dateOpened }
+            SortMode.DATE_DESC -> filtered.sortedByDescending { it.dateOpened }
         }
     }
 
@@ -132,5 +154,10 @@ data class CaseItem(
     val caseId: String,
     val name: String,
     val caseType: String,
+    val dateOpened: String = "",
     val properties: Map<String, String> = emptyMap()
 )
+
+enum class SortMode {
+    NAME_ASC, NAME_DESC, DATE_ASC, DATE_DESC
+}

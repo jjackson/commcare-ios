@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.FormSerializer
+import org.commcare.core.interfaces.UserSandbox
+import org.commcare.core.process.XmlFormRecordProcessor
+import org.javarosa.core.io.createByteArrayInputStream
 import org.javarosa.core.model.Constants
 import org.javarosa.core.model.data.IAnswerData
 import org.javarosa.core.model.data.SelectMultiData
@@ -206,6 +209,23 @@ class FormEntryViewModel(
             errorMessage = "Failed to serialize form: ${e.message}"
             null
         }
+    }
+
+    /**
+     * Serialize the form and process case blocks locally.
+     * Applies case create/update/close to the sandbox immediately,
+     * so case list reflects changes without waiting for server sync.
+     * Returns the serialized XML for queueing, or null on error.
+     */
+    fun submitForm(sandbox: UserSandbox): String? {
+        val xml = serializeForm() ?: return null
+        try {
+            val stream = createByteArrayInputStream(xml.encodeToByteArray())
+            XmlFormRecordProcessor.process(sandbox, stream)
+        } catch (e: Exception) {
+            errorMessage = "Failed to process case updates: ${e.message}"
+        }
+        return xml
     }
 
     /**
