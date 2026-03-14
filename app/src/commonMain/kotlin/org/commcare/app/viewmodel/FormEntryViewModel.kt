@@ -282,6 +282,14 @@ class FormEntryViewModel(
         isReadOnly = true
     }
 
+    /**
+     * Determine the next navigation destination after form completion.
+     * Returns a hint for the UI layer to decide what screen to show.
+     */
+    fun getPostCompletionDestination(): PostFormDestination {
+        return PostFormDestination.RETURN_TO_MENU
+    }
+
     private fun advanceToQuestion() {
         var event = formSession.currentEvent()
         while (event != FormEntryController.EVENT_QUESTION &&
@@ -392,4 +400,10 @@ enum class QuestionType {
     TEXT, INTEGER, DECIMAL, DATE, TIME,
     SELECT_ONE, SELECT_MULTI,
     LABEL, TRIGGER, GROUP, REPEAT
+}
+
+enum class PostFormDestination {
+    RETURN_TO_MENU,
+    RETURN_TO_CASE_LIST,
+    CHAINED_FORM
 }
