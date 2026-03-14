@@ -179,6 +179,39 @@ DELETE FROM form_queue;
 countPendingForms:
 SELECT COUNT(*) FROM form_queue WHERE status = 'pending';
 
+-- Form records (drafts, completed, submitted)
+CREATE TABLE form_records (
+    form_id TEXT PRIMARY KEY NOT NULL,
+    xmlns TEXT NOT NULL,
+    form_name TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'incomplete',
+    serialized_instance TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+-- Queries: Form records
+insertFormRecord:
+INSERT OR REPLACE INTO form_records VALUES (?, ?, ?, ?, ?, ?, ?);
+
+selectIncompleteFormRecords:
+SELECT * FROM form_records WHERE status = 'incomplete' ORDER BY updated_at DESC;
+
+selectCompleteFormRecords:
+SELECT * FROM form_records WHERE status = 'complete' ORDER BY updated_at DESC;
+
+selectFormRecordById:
+SELECT * FROM form_records WHERE form_id = ?;
+
+updateFormRecordStatus:
+UPDATE form_records SET status = ?, updated_at = ? WHERE form_id = ?;
+
+deleteFormRecord:
+DELETE FROM form_records WHERE form_id = ?;
+
+deleteAllFormRecords:
+DELETE FROM form_records;
+
 -- Queries: Resources
 insertResource:
 INSERT OR REPLACE INTO resources VALUES (?, ?, ?, ?, ?, ?);

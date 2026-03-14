@@ -1,5 +1,6 @@
 package org.commcare.app.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.commcare.app.viewmodel.FormRecordStatus
+import org.commcare.app.viewmodel.FormRecordViewModel
 import org.commcare.app.viewmodel.FormStatus
 import org.commcare.app.viewmodel.FormQueueViewModel
 import org.commcare.app.viewmodel.SyncState
@@ -31,7 +34,10 @@ import org.commcare.app.viewmodel.SyncViewModel
 fun SyncScreen(
     syncViewModel: SyncViewModel,
     formQueueViewModel: FormQueueViewModel,
-    onBack: () -> Unit
+    formRecordViewModel: FormRecordViewModel? = null,
+    onBack: () -> Unit,
+    onReviewForm: ((String) -> Unit)? = null,
+    onResumeDraft: ((String) -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -167,6 +173,86 @@ fun SyncScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        if (formQueueViewModel.queuedForms.any { it.status == FormStatus.SUBMITTED }) {
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { formQueueViewModel.clearSubmitted() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Clear Submitted")
+            }
+        }
+
+        // Incomplete forms (drafts)
+        if (formRecordViewModel != null && formRecordViewModel.incompleteRecords.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Saved Drafts (${formRecordViewModel.incompleteRecords.size})",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            for (record in formRecordViewModel.incompleteRecords) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        .let { mod ->
+                            if (onResumeDraft != null) mod.clickable { onResumeDraft(record.formId) } else mod
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(record.formName.ifEmpty { record.xmlns }, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = "Draft — ${record.updatedAt}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        // Completed forms for review
+        if (formRecordViewModel != null && formRecordViewModel.completeRecords.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Completed Forms (${formRecordViewModel.completeRecords.size})",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            for (record in formRecordViewModel.completeRecords) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        .let { mod ->
+                            if (onReviewForm != null) mod.clickable { onReviewForm(record.formId) } else mod
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(record.formName.ifEmpty { record.xmlns }, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = "Complete — ${record.updatedAt}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
