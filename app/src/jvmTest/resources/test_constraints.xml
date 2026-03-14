@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Constraint Test</h:title>
+    <model>
+      <instance>
+        <data xmlns="http://test.commcare.org/constraints">
+          <age/>
+          <name/>
+          <email/>
+        </data>
+      </instance>
+      <bind nodeset="/data/age" type="xsd:int"
+            constraint=". &gt;= 0 and . &lt;= 120"
+            jr:constraintMsg="Age must be between 0 and 120"/>
+      <bind nodeset="/data/name" type="xsd:string" required="true()"/>
+      <bind nodeset="/data/email" type="xsd:string"
+            constraint="contains(., '@')"
+            jr:constraintMsg="Must contain @"/>
+    </model>
+  </h:head>
+  <h:body>
+    <group appearance="field-list">
+      <label>Personal Info</label>
+      <input ref="/data/age">
+        <label>Age</label>
+      </input>
+      <input ref="/data/name">
+        <label>Full name</label>
+      </input>
+      <input ref="/data/email">
+        <label>Email</label>
+      </input>
+    </group>
+  </h:body>
+</h:html>

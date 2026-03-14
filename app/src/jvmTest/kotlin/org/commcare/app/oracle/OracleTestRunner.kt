@@ -65,6 +65,33 @@ class OracleTestRunner {
     }
 
     /**
+     * Load a form, run custom navigation via lambda, then serialize.
+     * Use this for forms requiring non-linear navigation (repeats, skip logic).
+     */
+    fun fillAndSerialize(
+        formResource: String,
+        navigate: (FormEntryModel, FormEntryController) -> Unit
+    ): FormResult {
+        val formDef = loadForm(formResource)
+            ?: return FormResult.Error("Could not load form: $formResource")
+
+        formDef.initialize(true, null)
+
+        val model = FormEntryModel(formDef, FormEntryModel.REPEAT_STRUCTURE_LINEAR)
+        val controller = FormEntryController(model)
+
+        controller.stepToNextEvent()
+        navigate(model, controller)
+
+        return try {
+            val xml = FormSerializer.serializeForm(formDef)
+            FormResult.Success(xml, formDef)
+        } catch (e: Exception) {
+            FormResult.Error("Serialization failed: ${e.message}")
+        }
+    }
+
+    /**
      * Compare our cross-platform serialization against the JVM-only XFormSerializingVisitor.
      */
     fun compareSerializers(formResource: String, answers: List<IAnswerData?>): ComparisonResult {
