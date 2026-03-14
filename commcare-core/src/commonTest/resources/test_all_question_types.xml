@@ -1,0 +1,129 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>All Question Types Test</h:title>
+        <model>
+            <instance>
+                <data xmlns="http://commcarehq.org/test/all-question-types"
+                    uiVersion="1" version="1" name="All Question Types Test">
+
+                    <text_answer/>
+                    <integer_answer/>
+                    <decimal_answer/>
+                    <date_answer/>
+                    <time_answer/>
+                    <select_one_answer/>
+                    <select_multi_answer/>
+                    <trigger_answer/>
+
+                </data>
+            </instance>
+
+            <bind nodeset="/data/text_answer" type="xsd:string"/>
+            <bind nodeset="/data/integer_answer" type="xsd:int"/>
+            <bind nodeset="/data/decimal_answer" type="xsd:decimal"/>
+            <bind nodeset="/data/date_answer" type="xsd:date"/>
+            <bind nodeset="/data/time_answer" type="xsd:time"/>
+            <bind nodeset="/data/select_one_answer"/>
+            <bind nodeset="/data/select_multi_answer"/>
+            <bind nodeset="/data/trigger_answer"/>
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="text-label">
+                        <value>Enter some text</value>
+                    </text>
+                    <text id="integer-label">
+                        <value>Enter an integer</value>
+                    </text>
+                    <text id="decimal-label">
+                        <value>Enter a decimal</value>
+                    </text>
+                    <text id="date-label">
+                        <value>Enter a date</value>
+                    </text>
+                    <text id="time-label">
+                        <value>Enter a time</value>
+                    </text>
+                    <text id="select-one-label">
+                        <value>Select one option</value>
+                    </text>
+                    <text id="select-multi-label">
+                        <value>Select multiple options</value>
+                    </text>
+                    <text id="trigger-label">
+                        <value>Acknowledge this</value>
+                    </text>
+                    <text id="option-a">
+                        <value>Option A</value>
+                    </text>
+                    <text id="option-b">
+                        <value>Option B</value>
+                    </text>
+                    <text id="option-c">
+                        <value>Option C</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+
+    <h:body>
+        <input ref="/data/text_answer">
+            <label ref="jr:itext('text-label')"/>
+        </input>
+
+        <input ref="/data/integer_answer">
+            <label ref="jr:itext('integer-label')"/>
+        </input>
+
+        <input ref="/data/decimal_answer">
+            <label ref="jr:itext('decimal-label')"/>
+        </input>
+
+        <input ref="/data/date_answer">
+            <label ref="jr:itext('date-label')"/>
+        </input>
+
+        <input ref="/data/time_answer">
+            <label ref="jr:itext('time-label')"/>
+        </input>
+
+        <select1 ref="/data/select_one_answer">
+            <label ref="jr:itext('select-one-label')"/>
+            <item>
+                <label ref="jr:itext('option-a')"/>
+                <value>a</value>
+            </item>
+            <item>
+                <label ref="jr:itext('option-b')"/>
+                <value>b</value>
+            </item>
+            <item>
+                <label ref="jr:itext('option-c')"/>
+                <value>c</value>
+            </item>
+        </select1>
+
+        <select ref="/data/select_multi_answer">
+            <label ref="jr:itext('select-multi-label')"/>
+            <item>
+                <label ref="jr:itext('option-a')"/>
+                <value>a</value>
+            </item>
+            <item>
+                <label ref="jr:itext('option-b')"/>
+                <value>b</value>
+            </item>
+            <item>
+                <label ref="jr:itext('option-c')"/>
+                <value>c</value>
+            </item>
+        </select>
+
+        <trigger ref="/data/trigger_answer">
+            <label ref="jr:itext('trigger-label')"/>
+        </trigger>
+    </h:body>
+</h:html>

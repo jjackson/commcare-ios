@@ -1,0 +1,1 @@
+<data uiVersion="1" version="1" name="All Question Types Test" xmlns="http://commcarehq.org/test/all-question-types"><text_answer>John Doe</text_answer><integer_answer>30</integer_answer><decimal_answer>72.5</decimal_answer><date_answer /><time_answer /><select_one_answer>male</select_one_answer><select_multi_answer /><trigger_answer /></data>
