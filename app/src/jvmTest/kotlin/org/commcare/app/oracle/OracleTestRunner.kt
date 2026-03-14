@@ -143,14 +143,18 @@ class OracleTestRunner {
     }
 
     /**
-     * Normalize XML for comparison: trim whitespace, normalize line endings.
+     * Normalize XML for comparison: strip XML declaration, namespace attributes,
+     * trim whitespace, normalize line endings.
      */
     private fun normalizeXml(xml: String): String {
         return xml.trim()
+            .replace(Regex("""<\?xml[^?]*\?>"""), "")
+            .replace(Regex("""\s+xmlns(:\w+)?="[^"]*""""), "")
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .lines()
             .joinToString("\n") { it.trim() }
+            .trim()
     }
 }
 
