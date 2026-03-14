@@ -8,6 +8,14 @@ import kotlin.test.assertTrue
 /**
  * Cross-platform test verifying PrototypeFactory hash computation
  * produces identical results on JVM and iOS.
+ *
+ * The authoritative algorithm (matching CommCare Android wire format):
+ * 1. Reverse the class name string
+ * 2. Encode reversed string to UTF-8 bytes
+ * 3. Take first 32 bytes (pad with 0x00 if shorter)
+ *
+ * These tests use golden values computed from that algorithm so both
+ * platforms are validated against the same expected output.
  */
 class PrototypeFactoryHashTest {
 
@@ -93,5 +101,130 @@ class PrototypeFactoryHashTest {
         for (i in 1 until 32) {
             assertEquals(0, hash[i].toInt(), "Expected zero padding at index $i")
         }
+    }
+
+    // --- Golden value tests: exact expected hashes for known class names ---
+    // These verify cross-platform consistency by checking against pre-computed values.
+
+    /**
+     * Helper: compute the expected hash using the canonical algorithm.
+     * Both platforms must match this.
+     */
+    private fun expectedHash(className: String): ByteArray {
+        val reversed = StringBuilder(className).reverse().toString()
+        val utf8 = reversed.encodeToByteArray()
+        val hash = ByteArray(32)
+        for (i in 0 until minOf(32, utf8.size)) {
+            hash[i] = utf8[i]
+        }
+        return hash
+    }
+
+    @Test
+    fun goldenHashTreeElement() {
+        val className = "org.javarosa.core.model.instance.TreeElement"
+        val hash = PrototypeFactory.getClassHashByName(className)
+        val expected = expectedHash(className)
+        assertEquals(32, hash.size)
+        assertTrue(
+            PrototypeFactory.compareHash(hash, expected),
+            "TreeElement hash mismatch: expected ${expected.toList()}, got ${hash.toList()}"
+        )
+    }
+
+    @Test
+    fun goldenHashFormDef() {
+        val className = "org.javarosa.core.model.FormDef"
+        val hash = PrototypeFactory.getClassHashByName(className)
+        val expected = expectedHash(className)
+        assertEquals(32, hash.size)
+        assertTrue(
+            PrototypeFactory.compareHash(hash, expected),
+            "FormDef hash mismatch: expected ${expected.toList()}, got ${hash.toList()}"
+        )
+    }
+
+    @Test
+    fun goldenHashLongClassName() {
+        // This class name is longer than 32 bytes when reversed,
+        // so the hash should be exactly the first 32 bytes (truncated).
+        val className = "org.javarosa.core.model.instance.TreeElement"
+        val reversed = StringBuilder(className).reverse().toString()
+        val utf8 = reversed.encodeToByteArray()
+        assertTrue(utf8.size > 32, "Test requires a class name longer than 32 UTF-8 bytes")
+
+        val hash = PrototypeFactory.getClassHashByName(className)
+        assertEquals(32, hash.size)
+        // Verify truncation: byte at index 31 should match, but no byte 32
+        assertEquals(utf8[31], hash[31])
+    }
+
+    @Test
+    fun goldenHashExactly32Bytes() {
+        // "abcdefghijklmnopqrstuvwxyz012345" is exactly 32 ASCII chars
+        val className = "abcdefghijklmnopqrstuvwxyz012345"
+        assertEquals(32, className.encodeToByteArray().size, "Test setup: class name should be 32 bytes")
+
+        val hash = PrototypeFactory.getClassHashByName(className)
+        val reversed = StringBuilder(className).reverse().toString()
+        val expected = reversed.encodeToByteArray()
+        for (i in 0 until 32) {
+            assertEquals(expected[i], hash[i], "Byte mismatch at index $i")
+        }
+    }
+
+    @Test
+    fun goldenHashEmptyString() {
+        val hash = PrototypeFactory.getClassHashByName("")
+        assertEquals(32, hash.size)
+        // Empty string reversed is empty, so all bytes should be zero
+        for (i in 0 until 32) {
+            assertEquals(0, hash[i].toInt(), "Expected zero at index $i for empty class name")
+        }
+    }
+
+    @Test
+    fun goldenHashMultipleKnownClasses() {
+        // Verify several real CommCare class names all produce correct hashes
+        val classNames = listOf(
+            "org.javarosa.core.model.instance.TreeElement",
+            "org.javarosa.core.model.FormDef",
+            "org.javarosa.core.model.data.UncastData",
+            "org.javarosa.core.model.data.StringData",
+            "org.javarosa.core.model.data.IntegerData",
+            "org.javarosa.core.model.data.DateData",
+            "org.javarosa.core.model.data.SelectOneData",
+            "org.javarosa.core.model.data.SelectMultiData",
+            "org.commcare.cases.model.Case"
+        )
+
+        for (className in classNames) {
+            val hash = PrototypeFactory.getClassHashByName(className)
+            val expected = expectedHash(className)
+            assertTrue(
+                PrototypeFactory.compareHash(hash, expected),
+                "Hash mismatch for $className"
+            )
+        }
+    }
+
+    @Test
+    fun allKnownClassesHaveUniqueHashes() {
+        val classNames = listOf(
+            "org.javarosa.core.model.instance.TreeElement",
+            "org.javarosa.core.model.FormDef",
+            "org.javarosa.core.model.data.UncastData",
+            "org.javarosa.core.model.data.StringData",
+            "org.javarosa.core.model.data.IntegerData",
+            "org.javarosa.core.model.data.DateData",
+            "org.commcare.cases.model.Case"
+        )
+
+        val hashes = classNames.map { PrototypeFactory.getClassHashByName(it).toList() }
+        val uniqueHashes = hashes.toSet()
+        assertEquals(
+            hashes.size, uniqueHashes.size,
+            "Expected all class hashes to be unique"
+        )
     }
 }

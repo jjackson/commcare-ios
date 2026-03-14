@@ -155,6 +155,19 @@ actual open class PrototypeFactory : Any {
     actual companion object {
         private var mStaticHasher: Hasher? = null
 
+        /**
+         * Ensure the static hasher is initialized. Falls back to ClassNameHasher
+         * if no hasher has been explicitly set (e.g., when calling companion
+         * methods before any PrototypeFactory instance is created).
+         */
+        private fun ensureHasher(): Hasher {
+            val h = mStaticHasher
+            if (h != null) return h
+            val fallback = ClassNameHasher()
+            mStaticHasher = fallback
+            return fallback
+        }
+
         @JvmStatic
         fun getInstance(c: Class<*>): Any {
             try {
@@ -168,7 +181,7 @@ actual open class PrototypeFactory : Any {
 
         @JvmStatic
         fun getClassHash(type: Class<*>): ByteArray {
-            return mStaticHasher!!.getClassHashValue(type)
+            return ensureHasher().getClassHashValue(type)
         }
 
         @JvmStatic
@@ -193,12 +206,12 @@ actual open class PrototypeFactory : Any {
 
         @JvmStatic
         actual fun getClassHashSize(): Int {
-            return mStaticHasher!!.getHashSize()
+            return ensureHasher().getHashSize()
         }
 
         @JvmStatic
         actual fun getClassHashByName(className: String): ByteArray {
-            return mStaticHasher!!.getClassHashValueByName(className)
+            return ensureHasher().getClassHashValueByName(className)
         }
 
         @JvmStatic
