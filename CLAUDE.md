@@ -16,12 +16,12 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (643 .kt files — platform-agnostic)
-│   ├── src/jvmMain/         # JVM platform implementations (100 .kt files)
-│   ├── src/iosMain/         # iOS/Native platform implementations (45 .kt files)
+│   ├── src/commonMain/      # KMP shared code (656 .kt files — platform-agnostic)
+│   ├── src/jvmMain/         # JVM platform implementations (97 .kt files)
+│   ├── src/iosMain/         # iOS/Native platform implementations (47 .kt files)
 │   ├── src/main/java/       # JVM-only: 1 Java compat file + parser specs + resources
 │   ├── src/test/java/       # JUnit 4 tests — 129 .kt + 4 .java (JVM)
-│   ├── src/commonTest/      # Cross-platform tests — 16 .kt (run on both JVM and iOS)
+│   ├── src/commonTest/      # Cross-platform tests — 19 .kt (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
 │   └── gradlew              # Gradle wrapper
 ├── app/                     # Compose Multiplatform app (JVM + iOS)
@@ -42,9 +42,9 @@ commcare-ios/
 
 ## Current Status
 
-**Phase 3 Tier 2 complete.** All 30 daily field worker features implemented across 8 waves. XFormParser ported to commonMain — iOS can now parse XForms natively. 800+ JVM tests, 27 cross-platform tests.
+**Phase 3 Tier 2 complete + cross-platform validation.** All 30 daily field worker features implemented across 8 waves. XFormParser ported to commonMain — iOS can now parse XForms natively. 800+ JVM tests, 27 cross-platform tests passing on both JVM and iOS.
 
-- **commcare-core**: 650+ commonMain, ~95 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
+- **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
 - **iOS app** (`app/`): Full daily field worker feature set: all question types, repeat groups, field-lists, case management, form drafts/review/queue, incremental sync, multi-language, RTL, breadcrumbs, swipe navigation, geopoint, image, fixtures.
 - **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest.
 
