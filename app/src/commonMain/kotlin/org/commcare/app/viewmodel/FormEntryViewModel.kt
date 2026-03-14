@@ -371,6 +371,7 @@ class FormEntryViewModel(
                     Constants.DATATYPE_DECIMAL -> QuestionType.DECIMAL
                     Constants.DATATYPE_DATE -> QuestionType.DATE
                     Constants.DATATYPE_TIME -> QuestionType.TIME
+                    Constants.DATATYPE_GEOPOINT -> QuestionType.GEOPOINT
                     else -> QuestionType.TEXT
                 }
             }
@@ -378,6 +379,8 @@ class FormEntryViewModel(
             Constants.CONTROL_SELECT_MULTI -> QuestionType.SELECT_MULTI
             Constants.CONTROL_TRIGGER -> QuestionType.TRIGGER
             Constants.CONTROL_LABEL -> QuestionType.LABEL
+            Constants.CONTROL_UPLOAD -> QuestionType.IMAGE
+            Constants.CONTROL_IMAGE_CHOOSE -> QuestionType.IMAGE
             else -> QuestionType.TEXT
         }
     }
@@ -399,7 +402,8 @@ data class QuestionState(
 enum class QuestionType {
     TEXT, INTEGER, DECIMAL, DATE, TIME,
     SELECT_ONE, SELECT_MULTI,
-    LABEL, TRIGGER, GROUP, REPEAT
+    LABEL, TRIGGER, GROUP, REPEAT,
+    GEOPOINT, IMAGE
 }
 
 enum class PostFormDestination {

@@ -34,6 +34,9 @@ class FormEntrySession(
      */
     fun initialize() {
         if (sandbox != null && platform != null) {
+            val initializer = CommCareInstanceInitializer(null, sandbox, platform)
+            formDef.initialize(true, initializer)
+        } else if (sandbox != null) {
             val initializer = CommCareInstanceInitializer(sandbox)
             formDef.initialize(true, initializer)
         } else {

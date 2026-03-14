@@ -340,6 +340,44 @@ private fun QuestionWidget(
             // Label only, no input needed
         }
 
+        QuestionType.GEOPOINT -> {
+            // GeoPoint: display as text input for manual entry (lat lon alt accuracy)
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Location (lat lon alt accuracy)") },
+                singleLine = true,
+                enabled = enabled
+            )
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = formatGeoPoint(question.answer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        QuestionType.IMAGE -> {
+            // Image: placeholder with file path input
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Image path") },
+                singleLine = true,
+                enabled = enabled
+            )
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = "Image: ${question.answer}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
         else -> {
             Text(
                 text = "Unsupported: ${question.questionType}",
@@ -357,5 +395,14 @@ private fun QuestionWidget(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp)
         )
+    }
+}
+
+private fun formatGeoPoint(value: String): String {
+    val parts = value.split(" ")
+    return when {
+        parts.size >= 4 -> "Lat: ${parts[0]}, Lon: ${parts[1]}, Alt: ${parts[2]}m, Acc: ${parts[3]}m"
+        parts.size >= 2 -> "Lat: ${parts[0]}, Lon: ${parts[1]}"
+        else -> value
     }
 }
