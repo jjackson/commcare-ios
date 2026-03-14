@@ -20,8 +20,8 @@ commcare-ios/
 │   ├── src/jvmMain/         # JVM platform implementations (100 .kt files)
 │   ├── src/iosMain/         # iOS/Native platform implementations (45 .kt files)
 │   ├── src/main/java/       # JVM-only: 1 Java compat file + parser specs + resources
-│   ├── src/test/java/       # JUnit 4 tests (JVM)
-│   ├── src/commonTest/      # Cross-platform tests (run on both JVM and iOS)
+│   ├── src/test/java/       # JUnit 4 tests — 129 .kt + 4 .java (JVM)
+│   ├── src/commonTest/      # Cross-platform tests — 16 .kt (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
 │   └── gradlew              # Gradle wrapper
 ├── app/                     # Compose Multiplatform app (JVM + iOS)
@@ -42,35 +42,30 @@ commcare-ios/
 
 ## Current Status
 
-**Phase 3 Tier 1 complete.** Minimum Viable App with real engine integration: login → install → menu → case → form → submit → sync. All 14 tasks implemented, 16 JVM tests passing.
+**Foundation hardening complete.** Phase 3 Tier 1 MVP + foundation hardening (bug fixes, cross-platform engine tests, full test migration to Kotlin, property conversion). 896 JVM tests passing.
 
-- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 1 Java compat file remains (StorageManagerCompat.java). Gavagain geodesy replaced with pure Kotlin Vincenty (PR #163).
+- **commcare-core**: 643 commonMain, 100 jvmMain, 45 iosMain .kt files. 16 commonTest .kt files (cross-platform engine tests). 129 Kotlin + 4 Java test files in src/test/java/. 1 Java compat file remains (StorageManagerCompat.java).
 - **iOS app** (`app/`): Compose Multiplatform app wired to real CommCare engine APIs. SQLDelight storage, real restore parsing, session-based navigation, form entry with FormEntryController, cross-platform form serialization, sync with incremental tokens.
 
-**Phase 3 Tier 1 — Engine Integration (14 tasks):**
+**Foundation Hardening (6 waves):**
 
-| Task | Description | Status |
+| Wave | Description | Status |
 |------|-------------|--------|
-| 1 | JVM target for app module | Done |
-| 2 | SQLDelight storage infrastructure | Done |
-| 3 | SqlDelightUserSandbox | Done |
-| 4 | Real authentication with restore parsing | Done |
-| 5 | App installation (ResourceManager) | Done |
-| 6 | Menu navigation with session state machine | Done |
-| 7 | Case selection from storage | Done |
-| 8 | Form entry with FormEntryController | Done |
-| 9 | Form submission (cross-platform serialization) | Done |
-| 10 | Sync/restore parsing (ParseUtils) | Done |
-| 11 | Encrypted storage infrastructure | Done |
-| 12 | Oracle test harness | Done |
-| 13 | End-to-end validation | Done |
-| 14 | CLAUDE.md and completion report | Done |
+| 0 | Foundation bug fixes (hash, serialization, isEmpty) | Done |
+| 1 | Cross-platform engine tests (59 test methods) | Done |
+| 2 | Test migration Tier 1 — 40 pure unit tests Java→Kotlin | Done |
+| 3 | Test migration Tier 2+3 — 83 integration tests + utilities | Done |
+| 4 | Getter/setter → property conversion (18 classes, 76 props) | Done |
+| 5 | CLAUDE.md + documentation | Done |
+
+**Phase 3 Tier 1 — Engine Integration (14 tasks): All Done**
 
 ## Key Docs
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
-- **Phase 3 Tier 1 completion**: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP with real engine integration: 14 new files, 11 modified, 16 tests, SQLDelight + FormEntryController + cross-platform serialization
+- **Foundation hardening plan**: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md` — 6-wave plan: bug fixes, engine tests, test migration, property conversion
+- **Phase 3 Tier 1 completion**: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP with real engine integration
 - **Phase 3 Tier 1 plan**: `docs/plans/2026-03-12-phase3-tier1-implementation-plan.md` — 14-task plan for minimum viable app
 - **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves
 - **Phase 1-7 completion reports**: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md` — progressive migration from 611 .kt files (Phase 1) to 643 commonMain (Phase 7)
@@ -80,6 +75,7 @@ commcare-ios/
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
 - **KMP migration**: `wave6-7-kmp-migration-learnings`, `ios-ci-learnings`, `commonmain-migration-blockers`, `phase4-deep-migration-learnings`, `phase6-deep-migration-learnings`, `phase7-bulk-migration-learnings`, `wave6-xpath-migration-learnings`, `wave7-commonmain-dependency-inversion`, `wave7-commonmain-migration-learnings`
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
+- **Foundation hardening**: `foundation-hardening-learnings` — test migration patterns, serialization bugs, property conversion
 - **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
 - **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system)
