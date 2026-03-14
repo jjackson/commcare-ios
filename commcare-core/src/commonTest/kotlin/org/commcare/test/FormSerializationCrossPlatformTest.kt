@@ -50,6 +50,8 @@ class FormSerializationCrossPlatformTest {
             .replace(Regex("""<\?xml[^?]*\?>"""), "")
             .replace(Regex("""\s+xmlns(:\w+)?="[^"]*""""), "")
             .replace(Regex("""\s+(uiVersion|version|name)="[^"]*""""), "")
+            // Decode numeric XML character references so JVM (&#64;) and iOS (@) compare equal
+            .replace(Regex("""&#(\d+);""")) { Char(it.groupValues[1].toInt()).toString() }
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .lines()
