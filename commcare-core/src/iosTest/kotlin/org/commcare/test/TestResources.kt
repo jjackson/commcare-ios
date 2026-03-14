@@ -1,33 +1,35 @@
 package org.commcare.test
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.refTo
 import kotlinx.cinterop.toKString
+import platform.posix.SEEK_END
+import platform.posix.SEEK_SET
 import platform.posix.fclose
 import platform.posix.fopen
 import platform.posix.fread
 import platform.posix.fseek
 import platform.posix.ftell
-import platform.posix.SEEK_END
-import platform.posix.SEEK_SET
-import kotlinx.cinterop.refTo
+import platform.posix.getcwd
 
 @OptIn(ExperimentalForeignApi::class)
 actual object TestResources {
-    /**
-     * Load test resource from the commonTest/resources directory.
-     * On iOS/Native, reads from the filesystem relative to the project root.
-     *
-     * The path should start with "/" (e.g., "/test_all_question_types.xml").
-     */
     actual fun loadResource(path: String): ByteArray {
-        // Strip leading "/" from resource path
         val relativePath = path.trimStart('/')
 
-        // Try multiple base paths that may apply depending on where tests run
+        // Try multiple base paths — the working directory varies between
+        // local dev, CI, and where the native test binary runs from.
         val candidates = listOf(
+            // From project root (commcare-core/)
             "src/commonTest/resources/$relativePath",
+            // From repo root
+            "commcare-core/src/commonTest/resources/$relativePath",
+            // From repo root (via ..)
             "../commcare-core/src/commonTest/resources/$relativePath",
-            "commcare-core/src/commonTest/resources/$relativePath"
+            // From build output directory (build/bin/iosSimulatorArm64/debugTest/)
+            "../../../../src/commonTest/resources/$relativePath",
+            // From build directory (build/)
+            "../src/commonTest/resources/$relativePath"
         )
 
         for (candidate in candidates) {
@@ -45,8 +47,14 @@ actual object TestResources {
             }
         }
 
+        // Get CWD for debugging
+        val cwdBuf = ByteArray(1024)
+        val cwd = getcwd(cwdBuf.refTo(0), 1024u)?.toKString() ?: "unknown"
+
         throw IllegalArgumentException(
-            "Test resource not found: $path (tried: ${candidates.joinToString()})"
+            "Test resource not found: $path\n" +
+            "  CWD: $cwd\n" +
+            "  Tried: ${candidates.joinToString("\n         ")}"
         )
     }
 }
