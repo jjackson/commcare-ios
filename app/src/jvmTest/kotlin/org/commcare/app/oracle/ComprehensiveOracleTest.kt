@@ -116,7 +116,7 @@ class ComprehensiveOracleTest {
 
     @Test
     fun testConstraintsFormComparison() {
-        val result = runner.fillAndSerialize("/test_constraints.xml") { model, controller ->
+        val result = runner.fillAndSerialize("/test_field_list_constraints.xml") { model, controller ->
             // Navigate through field-list group
             while (model.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
                 if (model.getEvent() == FormEntryController.EVENT_QUESTION) {

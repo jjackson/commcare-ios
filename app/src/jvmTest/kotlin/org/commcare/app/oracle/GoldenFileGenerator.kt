@@ -130,7 +130,7 @@ class GoldenFileGenerator {
 
         // Constraints form with valid values
         GoldenScenario(
-            formResource = "/test_constraints.xml",
+            formResource = "/test_field_list_constraints.xml",
             outputName = "constraints_valid",
             answers = emptyList(),
             useCustomNavigation = true,
