@@ -140,6 +140,23 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
         return ""
     }
 
+    override fun getNamespaceCount(): Int {
+        if (depth <= 0 || depth > namespaceStack.size) return 0
+        return namespaceStack[depth - 1].size
+    }
+
+    override fun getNamespacePrefix(index: Int): String? {
+        if (depth <= 0 || depth > namespaceStack.size) return null
+        val entries = namespaceStack[depth - 1].entries.toList()
+        val prefix = entries[index].key
+        return if (prefix.isEmpty()) null else prefix
+    }
+
+    override fun getNamespaceUri(index: Int): String? {
+        if (depth <= 0 || depth > namespaceStack.size) return null
+        return namespaceStack[depth - 1].entries.toList()[index].value
+    }
+
     // --- Parsing Methods ---
 
     private fun parseStartTag() {

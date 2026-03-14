@@ -25,6 +25,23 @@ interface PlatformXmlParser {
     fun nextText(): String
     fun nextTag(): Int
 
+    /**
+     * Returns the number of namespace declarations at the current depth.
+     * Only valid when positioned on a START_TAG.
+     */
+    fun getNamespaceCount(): Int
+
+    /**
+     * Returns the prefix of the namespace declaration at [index].
+     * Returns null for the default namespace.
+     */
+    fun getNamespacePrefix(index: Int): String?
+
+    /**
+     * Returns the URI of the namespace declaration at [index].
+     */
+    fun getNamespaceUri(index: Int): String?
+
     companion object {
         const val START_DOCUMENT = 0
         const val END_DOCUMENT = 1

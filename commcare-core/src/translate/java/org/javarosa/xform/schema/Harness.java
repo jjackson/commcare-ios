@@ -220,18 +220,11 @@ public class Harness {
         }
         System.setOut(System.err);
 
-        InputStreamReader isr;
-        try {
-            isr = new InputStreamReader(inputStream, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            System.out.println("UTF 8 encoding unavailable, trying default encoding");
-            isr = new InputStreamReader(inputStream);
-        }
-
         try {
             JSONReporter reporter = new JSONReporter();
             try {
-                XFormParser parser = new XFormParser(isr);
+                byte[] xmlBytes = inputStream.readAllBytes();
+                XFormParser parser = new XFormParser(xmlBytes);
                 // setup xformparser with options parsed from command-line
                 parser.setupAllSpecExtensions(specExtensionKeywords,
                         suppressSpecExtensionWarnings,
@@ -255,7 +248,7 @@ public class Harness {
             responseStream.print(reporter.generateJSONReport());
         } finally {
             try {
-                isr.close();
+                inputStream.close();
                 // reset output stream on exit
                 System.setOut(defaultOutStream);
             } catch (IOException e) {
