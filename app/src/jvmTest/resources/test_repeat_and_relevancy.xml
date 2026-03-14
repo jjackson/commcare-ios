@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Repeat and Relevancy Test</h:title>
+    <model>
+      <instance>
+        <data xmlns="http://test.commcare.org/repeat_relevancy">
+          <has_children/>
+          <child_count/>
+          <child jr:template="">
+            <name/>
+            <age/>
+          </child>
+          <notes/>
+        </data>
+      </instance>
+      <bind nodeset="/data/has_children" type="xsd:string" required="true()"/>
+      <bind nodeset="/data/child_count" type="xsd:int"
+            relevant="/data/has_children = 'yes'"/>
+      <bind nodeset="/data/child/name" type="xsd:string"/>
+      <bind nodeset="/data/child/age" type="xsd:int"
+            constraint=". &gt; 0 and . &lt; 150"
+            jr:constraintMsg="Age must be between 1 and 149"/>
+      <bind nodeset="/data/notes" type="xsd:string"/>
+    </model>
+  </h:head>
+  <h:body>
+    <input ref="/data/has_children">
+      <label>Do you have children?</label>
+    </input>
+    <input ref="/data/child_count">
+      <label>How many children?</label>
+    </input>
+    <group ref="/data/child">
+      <label>Child</label>
+      <repeat nodeset="/data/child">
+        <input ref="/data/child/name">
+          <label>Child's name</label>
+        </input>
+        <input ref="/data/child/age">
+          <label>Child's age</label>
+        </input>
+      </repeat>
+    </group>
+    <input ref="/data/notes">
+      <label>Additional notes</label>
+    </input>
+  </h:body>
+</h:html>

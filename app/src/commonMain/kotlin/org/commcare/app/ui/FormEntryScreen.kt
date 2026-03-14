@@ -88,6 +88,28 @@ fun FormEntryScreen(
                     Text("Submit")
                 }
             }
+        } else if (viewModel.isRepeatPrompt) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = viewModel.repeatPromptText,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedButton(onClick = { viewModel.skipRepeat() }) {
+                        Text("No")
+                    }
+                    Button(onClick = { viewModel.addRepeat() }) {
+                        Text("Yes, add another")
+                    }
+                }
+            }
         } else {
             val questionList = viewModel.questions
             if (questionList.isNotEmpty()) {
@@ -100,16 +122,6 @@ fun FormEntryScreen(
                         for ((index, question) in questionList.withIndex()) {
                             QuestionWidget(question, index, viewModel)
                             Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        // Validation message
-                        if (viewModel.validationMessage != null) {
-                            Text(
-                                text = viewModel.validationMessage!!,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
 
@@ -270,5 +282,15 @@ private fun QuestionWidget(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+
+    // Per-question constraint message
+    if (question.constraintMessage != null) {
+        Text(
+            text = question.constraintMessage,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }

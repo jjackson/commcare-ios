@@ -28,9 +28,13 @@ class FormEntryViewModel(
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
-    var validationMessage by mutableStateOf<String?>(null)
-        private set
     var isSubmitting by mutableStateOf(false)
+        private set
+
+    /** True when we're at a repeat prompt asking "Add another?" */
+    var isRepeatPrompt by mutableStateOf(false)
+        private set
+    var repeatPromptText by mutableStateOf("")
         private set
 
     private var questionIndex = 0
@@ -53,18 +57,22 @@ class FormEntryViewModel(
             val result = formSession.answerAtIndex(index, answer)
             when (result) {
                 FormEntryController.ANSWER_OK -> {
-                    validationMessage = null
+                    // Clear constraint message for this question
+                    clearConstraint(index)
+                    // Refresh questions — relevancy may have changed (skip logic)
+                    updateQuestions()
                 }
                 FormEntryController.ANSWER_CONSTRAINT_VIOLATED -> {
                     val prompts = formSession.getPrompts()
-                    validationMessage = if (index < prompts.size) {
+                    val msg = if (index < prompts.size) {
                         prompts[index].getConstraintText() ?: "Constraint violated"
                     } else {
                         "Constraint violated"
                     }
+                    setConstraint(index, msg)
                 }
                 FormEntryController.ANSWER_REQUIRED_BUT_EMPTY -> {
-                    validationMessage = "This field is required"
+                    setConstraint(index, "This field is required")
                 }
             }
         } catch (e: Exception) {
@@ -104,8 +112,29 @@ class FormEntryViewModel(
         answerQuestion(index, data)
     }
 
-    fun nextQuestion() {
+    /**
+     * Add a new repeat instance and continue to the first question in it.
+     */
+    fun addRepeat() {
         try {
+            formSession.controller.newRepeat()
+            isRepeatPrompt = false
+            formSession.stepNext() // step into the new repeat
+            advanceToQuestion()
+            questionIndex++
+            progress = (questionIndex.toFloat() / totalQuestions).coerceIn(0f, 1f)
+            updateQuestions()
+        } catch (e: Exception) {
+            errorMessage = "Error adding repeat: ${e.message}"
+        }
+    }
+
+    /**
+     * Skip adding a new repeat and continue past the repeat group.
+     */
+    fun skipRepeat() {
+        try {
+            isRepeatPrompt = false
             val event = formSession.stepNext()
             if (event == FormEntryController.EVENT_END_OF_FORM) {
                 isComplete = true
@@ -120,9 +149,44 @@ class FormEntryViewModel(
         }
     }
 
+    fun nextQuestion() {
+        try {
+            // Validate all visible required questions before stepping
+            val prompts = formSession.getPrompts()
+            for ((i, prompt) in prompts.withIndex()) {
+                if (prompt.isRequired() && prompt.getAnswerValue() == null) {
+                    setConstraint(i, "This field is required")
+                    return
+                }
+            }
+
+            val event = formSession.stepNext()
+            if (event == FormEntryController.EVENT_END_OF_FORM) {
+                isComplete = true
+            } else {
+                advanceToQuestion()
+                if (!isRepeatPrompt) {
+                    questionIndex++
+                    progress = (questionIndex.toFloat() / totalQuestions).coerceIn(0f, 1f)
+                    updateQuestions()
+                }
+            }
+        } catch (e: Exception) {
+            errorMessage = "Navigation error: ${e.message}"
+        }
+    }
+
     fun previousQuestion() {
         try {
+            isRepeatPrompt = false
             formSession.stepPrev()
+            // Skip back past non-question events
+            var event = formSession.currentEvent()
+            while (event != FormEntryController.EVENT_QUESTION &&
+                event != FormEntryController.EVENT_BEGINNING_OF_FORM
+            ) {
+                event = formSession.stepPrev()
+            }
             if (questionIndex > 0) questionIndex--
             progress = (questionIndex.toFloat() / totalQuestions).coerceIn(0f, 1f)
             updateQuestions()
@@ -157,15 +221,36 @@ class FormEntryViewModel(
             event != FormEntryController.EVENT_END_OF_FORM &&
             event != FormEntryController.EVENT_PROMPT_NEW_REPEAT
         ) {
+            // Stop at field-list groups — they display all questions at once
+            if (event == FormEntryController.EVENT_GROUP && isFieldList()) {
+                break
+            }
             event = formSession.stepNext()
         }
-        if (event == FormEntryController.EVENT_END_OF_FORM) {
-            isComplete = true
+        when (event) {
+            FormEntryController.EVENT_END_OF_FORM -> {
+                isComplete = true
+            }
+            FormEntryController.EVENT_PROMPT_NEW_REPEAT -> {
+                isRepeatPrompt = true
+                repeatPromptText = formSession.model.getCaptionPrompt()?.getLongText()
+                    ?: "Add another group?"
+            }
+        }
+    }
+
+    private fun isFieldList(): Boolean {
+        return try {
+            formSession.controller.isHostWithAppearance(
+                formSession.model.getFormIndex(),
+                FormEntryController.FIELD_LIST
+            )
+        } catch (_: Exception) {
+            false
         }
     }
 
     private fun updateQuestions() {
-        validationMessage = null
         questions = try {
             formSession.getPrompts().map { prompt ->
                 QuestionState(
@@ -175,7 +260,6 @@ class FormEntryViewModel(
                     dataType = prompt.getDataType(),
                     answer = prompt.getAnswerValue()?.getDisplayText() ?: "",
                     isRequired = prompt.isRequired(),
-                    isRelevant = true,
                     constraintMessage = null,
                     choices = prompt.getSelectChoices()?.map {
                         it.labelInnerText ?: it.value ?: ""
@@ -185,6 +269,22 @@ class FormEntryViewModel(
             }
         } catch (_: Exception) {
             emptyList()
+        }
+    }
+
+    private fun setConstraint(index: Int, message: String) {
+        if (index < questions.size) {
+            questions = questions.toMutableList().also {
+                it[index] = it[index].copy(constraintMessage = message)
+            }
+        }
+    }
+
+    private fun clearConstraint(index: Int) {
+        if (index < questions.size && questions[index].constraintMessage != null) {
+            questions = questions.toMutableList().also {
+                it[index] = it[index].copy(constraintMessage = null)
+            }
         }
     }
 
@@ -215,7 +315,6 @@ data class QuestionState(
     val dataType: Int = 0,
     val answer: String = "",
     val isRequired: Boolean = false,
-    val isRelevant: Boolean = true,
     val constraintMessage: String? = null,
     val choices: List<String> = emptyList(),
     val appearance: String? = null,
