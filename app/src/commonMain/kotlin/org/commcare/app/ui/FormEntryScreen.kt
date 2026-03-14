@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
@@ -21,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.FormEntryViewModel
+import org.commcare.app.viewmodel.QuestionState
 import org.commcare.app.viewmodel.QuestionType
 
 @Composable
@@ -83,90 +89,36 @@ fun FormEntryScreen(
                 }
             }
         } else {
-            // Question display
             val questionList = viewModel.questions
             if (questionList.isNotEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
-                    for ((index, question) in questionList.withIndex()) {
-                        Text(
-                            text = question.questionText,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                    ) {
+                        for ((index, question) in questionList.withIndex()) {
+                            QuestionWidget(question, index, viewModel)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
 
-                        if (question.isRequired) {
+                        // Validation message
+                        if (viewModel.validationMessage != null) {
                             Text(
-                                text = "* Required",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
+                                text = viewModel.validationMessage!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        when (question.questionType) {
-                            QuestionType.TEXT,
-                            QuestionType.INTEGER,
-                            QuestionType.DECIMAL -> {
-                                OutlinedTextField(
-                                    value = question.answer,
-                                    onValueChange = { viewModel.answerQuestionString(index, it) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    label = { Text("Answer") }
-                                )
-                            }
-                            QuestionType.SELECT_ONE -> {
-                                for (choice in question.choices) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.clickable {
-                                            viewModel.answerQuestionString(index, choice)
-                                        }
-                                    ) {
-                                        RadioButton(
-                                            selected = question.answer == choice,
-                                            onClick = { viewModel.answerQuestionString(index, choice) }
-                                        )
-                                        Text(text = choice)
-                                    }
-                                }
-                            }
-                            QuestionType.LABEL -> {
-                                // Label only, no input
-                            }
-                            else -> {
-                                Text(
-                                    text = "Question type: ${question.questionType}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
-
-                    // Validation message
-                    if (viewModel.validationMessage != null) {
-                        Text(
-                            text = viewModel.validationMessage!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
 
                     // Navigation buttons
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        OutlinedButton(onClick = {
-                            viewModel.previousQuestion()
-                        }) {
+                        OutlinedButton(onClick = { viewModel.previousQuestion() }) {
                             Text("Back")
                         }
                         Button(onClick = { viewModel.nextQuestion() }) {
@@ -175,6 +127,148 @@ fun FormEntryScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun QuestionWidget(
+    question: QuestionState,
+    index: Int,
+    viewModel: FormEntryViewModel
+) {
+    // Question text
+    Text(
+        text = question.questionText,
+        style = MaterialTheme.typography.bodyLarge
+    )
+
+    if (question.isRequired) {
+        Text(
+            text = "* Required",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    when (question.questionType) {
+        QuestionType.TEXT -> {
+            val isMultiline = question.appearance?.contains("multiline") == true
+            val keyboardType = if (question.appearance?.contains("numeric") == true) {
+                KeyboardType.Number
+            } else {
+                KeyboardType.Text
+            }
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Answer") },
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                singleLine = !isMultiline,
+                minLines = if (isMultiline) 3 else 1
+            )
+        }
+
+        QuestionType.INTEGER -> {
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Integer") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+        }
+
+        QuestionType.DECIMAL -> {
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Decimal") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true
+            )
+        }
+
+        QuestionType.DATE -> {
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Date (YYYY-MM-DD)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true
+            )
+        }
+
+        QuestionType.TIME -> {
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Time (HH:MM)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true
+            )
+        }
+
+        QuestionType.SELECT_ONE -> {
+            for (choice in question.choices) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable {
+                        viewModel.answerQuestionString(index, choice)
+                    }
+                ) {
+                    RadioButton(
+                        selected = question.answer == choice,
+                        onClick = { viewModel.answerQuestionString(index, choice) }
+                    )
+                    Text(text = choice)
+                }
+            }
+        }
+
+        QuestionType.SELECT_MULTI -> {
+            for (choice in question.choices) {
+                val isSelected = question.selectedChoices.contains(choice)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable {
+                        viewModel.toggleMultiSelectChoice(index, choice)
+                    }
+                ) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = { viewModel.toggleMultiSelectChoice(index, choice) }
+                    )
+                    Text(text = choice)
+                }
+            }
+        }
+
+        QuestionType.TRIGGER -> {
+            Button(
+                onClick = { viewModel.answerQuestionString(index, "OK") }
+            ) {
+                Text("OK")
+            }
+        }
+
+        QuestionType.LABEL -> {
+            // Label only, no input needed
+        }
+
+        else -> {
+            Text(
+                text = "Unsupported: ${question.questionType}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
