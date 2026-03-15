@@ -132,9 +132,42 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                 CaseListScreen(
                     viewModel = clvm,
                     onCaseSelected = { caseItem ->
-                        handleCaseSelection(caseItem, clvm, navigator, state, languageViewModel)?.let { fevm ->
-                            formEntryViewModel = fevm
-                            nav = HomeNav.InFormEntry
+                        when (val result = handleCaseSelection(caseItem, clvm, navigator, state, languageViewModel)) {
+                            is CaseSelectionResult.FormReady -> {
+                                formEntryViewModel = result.viewModel
+                                nav = HomeNav.InFormEntry
+                            }
+                            is CaseSelectionResult.NextCaseList -> {
+                                // Tiered selection: load child case list
+                                caseListViewModel = result.viewModel
+                                // nav stays InCaseList, but with new ViewModel
+                            }
+                            is CaseSelectionResult.None -> {
+                                // No action
+                            }
+                        }
+                    },
+                    onActionSelected = { action ->
+                        // Action buttons execute stack operations then navigate
+                        try {
+                            val ops = action.stackOperations
+                            navigator.session.executeStackOperations(ops, navigator.session.getEvaluationContext())
+                            when (val step = navigator.getNextStep()) {
+                                is NavigationStep.StartForm -> {
+                                    val fevm = loadFormEntry(navigator, state, languageViewModel)
+                                    if (fevm != null) {
+                                        formEntryViewModel = fevm
+                                        nav = HomeNav.InFormEntry
+                                    }
+                                }
+                                is NavigationStep.ShowMenu -> {
+                                    menuViewModel.loadMenus()
+                                    nav = HomeNav.InMenu
+                                }
+                                else -> { /* ignore */ }
+                            }
+                        } catch (_: Exception) {
+                            // Action execution failed
                         }
                     },
                     onBack = {
@@ -274,7 +307,17 @@ private fun loadFormEntry(
 }
 
 /**
- * Handle case selection — advance session and potentially start a form.
+ * Result of case selection — either a form is ready, another case list is needed, or nothing.
+ */
+sealed class CaseSelectionResult {
+    data class FormReady(val viewModel: FormEntryViewModel) : CaseSelectionResult()
+    data class NextCaseList(val viewModel: CaseListViewModel) : CaseSelectionResult()
+    data object None : CaseSelectionResult()
+}
+
+/**
+ * Handle case selection — advance session and potentially start a form or next case list.
+ * Supports tiered selection (parent/child) by returning NextCaseList when another datum is needed.
  */
 private fun handleCaseSelection(
     caseItem: CaseItem,
@@ -282,16 +325,52 @@ private fun handleCaseSelection(
     navigator: SessionNavigatorImpl,
     state: AppState.Ready,
     languageViewModel: LanguageViewModel
-): FormEntryViewModel? {
+): CaseSelectionResult {
     return try {
         val step = caseListViewModel.selectCase(caseItem)
         when (step) {
             is NavigationStep.StartForm -> {
-                loadFormEntry(navigator, state, languageViewModel)
+                val fevm = loadFormEntry(navigator, state, languageViewModel)
+                if (fevm != null) {
+                    fevm.persistentTileData = buildPersistentTileData(caseItem, navigator, state)
+                    CaseSelectionResult.FormReady(fevm)
+                } else {
+                    CaseSelectionResult.None
+                }
             }
-            else -> null
+            is NavigationStep.ShowCaseList -> {
+                // Tiered selection: another case list needed (e.g., child cases)
+                val childClvm = CaseListViewModel(navigator, state.sandbox)
+                childClvm.loadCases()
+                CaseSelectionResult.NextCaseList(childClvm)
+            }
+            else -> CaseSelectionResult.None
         }
     } catch (_: Exception) {
-        null
+        CaseSelectionResult.None
+    }
+}
+
+/**
+ * Build persistent tile data from the selected case and detail configuration.
+ */
+private fun buildPersistentTileData(
+    caseItem: CaseItem,
+    navigator: SessionNavigatorImpl,
+    state: AppState.Ready
+): PersistentTileData? {
+    return try {
+        // Build from case properties
+        val fields = caseItem.properties.entries
+            .filter { it.key != "case_name" && it.key != "case_type" && it.value.isNotBlank() }
+            .take(4) // Show at most 4 fields
+            .map { (key, value) -> key.replace("_", " ").replaceFirstChar { it.uppercase() } to value }
+
+        PersistentTileData(
+            caseName = caseItem.name,
+            fields = fields
+        )
+    } catch (_: Exception) {
+        PersistentTileData(caseName = caseItem.name)
     }
 }

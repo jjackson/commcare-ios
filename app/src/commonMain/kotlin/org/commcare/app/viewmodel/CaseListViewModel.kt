@@ -6,12 +6,19 @@ import androidx.compose.runtime.setValue
 import org.commcare.app.engine.NavigationStep
 import org.commcare.app.engine.SessionNavigatorImpl
 import org.commcare.app.storage.SqlDelightUserSandbox
+import org.commcare.app.ui.TileConfig
+import org.commcare.app.ui.TileFieldData
 import org.commcare.cases.model.Case
+import org.commcare.suite.model.Detail
+import org.commcare.suite.model.DetailField
+import org.commcare.suite.model.EntityDatum
+import org.commcare.suite.model.Text
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 
 /**
  * Manages case list display — loading, filtering, sorting, selection.
  * Integrates with SessionNavigatorImpl for datum-based filtering and navigation.
+ * Supports tile-based display when Detail configuration has grid fields.
  */
 class CaseListViewModel(
     private val navigator: SessionNavigatorImpl,
@@ -29,7 +36,21 @@ class CaseListViewModel(
     var sortMode by mutableStateOf(SortMode.NAME_ASC)
         private set
 
+    /** Tile configuration loaded from suite Detail, null if list view */
+    var tileConfig by mutableStateOf<TileConfig?>(null)
+        private set
+
+    /** Detail actions (e.g., "Register New Case") */
+    var actions by mutableStateOf<List<ActionItem>>(emptyList())
+        private set
+
+    /** Whether auto-select is enabled for this case list */
+    var autoSelectEnabled by mutableStateOf(false)
+        private set
+
     private var allCases: List<CaseItem> = emptyList()
+    private var detail: Detail? = null
+    private var entityDatum: EntityDatum? = null
 
     /**
      * Load cases from the sandbox's case storage.
@@ -42,6 +63,13 @@ class CaseListViewModel(
             val storage = sandbox.getCaseStorage()
             val datum = navigator.session.getNeededDatum()
             val caseType = datum?.getDataId()
+
+            // Load detail configuration if available
+            if (datum is EntityDatum) {
+                entityDatum = datum
+                autoSelectEnabled = datum.isAutoSelectEnabled()
+                loadDetailConfig(datum)
+            }
 
             loadCasesFromStorage(storage, caseType)
         } catch (e: Exception) {
@@ -64,6 +92,136 @@ class CaseListViewModel(
         } finally {
             isLoading = false
         }
+    }
+
+    private fun loadDetailConfig(datum: EntityDatum) {
+        try {
+            val shortDetailId = datum.getShortDetail() ?: return
+            val d = navigator.platform.getDetail(shortDetailId) ?: return
+            detail = d
+
+            // Check if this detail uses tile layout
+            if (d.usesEntityTileView()) {
+                val maxWH = d.getMaxWidthHeight()
+                val tileFields = d.fields.filter { it.isCaseTileField() }.map { field ->
+                    TileFieldData(
+                        value = "", // populated per-case in buildTileFields
+                        gridX = field.gridX,
+                        gridY = field.gridY,
+                        gridWidth = field.gridWidth,
+                        gridHeight = field.gridHeight,
+                        fontSize = field.fontSize,
+                        horizontalAlign = field.horizontalAlign,
+                        verticalAlign = field.verticalAlign,
+                        isImage = field.templateForm == "image",
+                        headerText = evaluateHeader(field),
+                        showBorder = field.showBorder,
+                        showShading = field.showShading
+                    )
+                }
+                tileConfig = TileConfig(
+                    fields = tileFields,
+                    maxWidth = maxWH.first,
+                    maxHeight = maxWH.second,
+                    numPerRow = d.numEntitiesToDisplayPerRow
+                )
+            }
+
+            // Load actions
+            loadActions(d)
+        } catch (_: Exception) {
+            // Detail config is optional — fall back to list view
+        }
+    }
+
+    private fun loadActions(d: Detail) {
+        try {
+            val ec = navigator.session.getEvaluationContext()
+            val relevantActions = d.getCustomActions(ec)
+            actions = relevantActions.map { action ->
+                val displayText = try {
+                    action.display?.text?.evaluate() ?: "Action"
+                } catch (_: Exception) {
+                    "Action"
+                }
+                ActionItem(
+                    displayText = displayText,
+                    stackOperations = action.stackOperations ?: ArrayList()
+                )
+            }
+        } catch (_: Exception) {
+            actions = emptyList()
+        }
+    }
+
+    private fun evaluateHeader(field: DetailField): String? {
+        return try {
+            field.getHeader()?.evaluate()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Build tile field data for a specific case item by evaluating detail field templates.
+     */
+    fun buildTileFields(caseItem: CaseItem): List<TileFieldData> {
+        val d = detail ?: return emptyList()
+        val fields = d.fields
+        val result = mutableListOf<TileFieldData>()
+
+        for (field in fields) {
+            if (!field.isCaseTileField()) continue
+
+            val value = evaluateFieldForCase(field, caseItem)
+            result.add(TileFieldData(
+                value = value,
+                gridX = field.gridX,
+                gridY = field.gridY,
+                gridWidth = field.gridWidth,
+                gridHeight = field.gridHeight,
+                fontSize = field.fontSize,
+                horizontalAlign = field.horizontalAlign,
+                verticalAlign = field.verticalAlign,
+                isImage = field.templateForm == "image",
+                headerText = evaluateHeader(field),
+                showBorder = field.showBorder,
+                showShading = field.showShading
+            ))
+        }
+        return result
+    }
+
+    /**
+     * Evaluate a detail field template for a given case.
+     * Falls back to property lookup if XPath evaluation isn't available.
+     */
+    private fun evaluateFieldForCase(field: DetailField, caseItem: CaseItem): String {
+        val template = field.getTemplate()
+        if (template is Text) {
+            // Try to evaluate with the session's evaluation context
+            try {
+                val ec = navigator.session.getEvaluationContext()
+                return template.evaluate(ec)
+            } catch (_: Exception) {
+                // Fall through to property-based lookup
+            }
+
+            // Fallback: try to extract the xpath argument as a property name
+            try {
+                val arg = template.getArgument()
+                if (arg != null) {
+                    // Common pattern: argument is like "name" or "case_name"
+                    val propValue = caseItem.properties[arg]
+                    if (propValue != null) return propValue
+                }
+            } catch (_: Exception) {
+                // ignore
+            }
+        }
+
+        // Final fallback: use case name for first field
+        return ""
     }
 
     private fun loadCasesFromStorage(storage: IStorageUtilityIndexed<Case>, caseType: String?) {
@@ -134,6 +292,15 @@ class CaseListViewModel(
         selectedCase = null
     }
 
+    /**
+     * Check if auto-select should trigger (exactly one case in the list).
+     * Returns the single case if auto-select conditions are met, null otherwise.
+     */
+    fun getAutoSelectCase(): CaseItem? {
+        if (!autoSelectEnabled) return null
+        return if (cases.size == 1) cases[0] else null
+    }
+
     private fun buildPropertyMap(c: Case): Map<String, String> {
         val props = mutableMapOf<String, String>()
         try {
@@ -156,6 +323,11 @@ data class CaseItem(
     val caseType: String,
     val dateOpened: String = "",
     val properties: Map<String, String> = emptyMap()
+)
+
+data class ActionItem(
+    val displayText: String,
+    val stackOperations: ArrayList<org.commcare.suite.model.StackOperation>
 )
 
 enum class SortMode {

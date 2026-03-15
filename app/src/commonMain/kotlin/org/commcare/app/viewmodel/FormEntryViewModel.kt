@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.FormSerializer
+import org.commcare.app.ui.PersistentTileData
 import org.commcare.core.interfaces.UserSandbox
 import org.commcare.core.process.XmlFormRecordProcessor
 import org.javarosa.core.io.createByteArrayInputStream
@@ -46,6 +47,9 @@ class FormEntryViewModel(
 
     /** Draft form ID, set when resuming or after first save. */
     var draftFormId by mutableStateOf<String?>(null)
+
+    /** Persistent case tile data shown during form entry, set by HomeScreen. */
+    var persistentTileData by mutableStateOf<PersistentTileData?>(null)
 
     private var questionIndex = 0
     private val totalQuestions: Int get() = formSession.getQuestionCount().coerceAtLeast(1)
