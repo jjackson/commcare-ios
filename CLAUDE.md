@@ -44,8 +44,8 @@ commcare-ios/
 
 **Phase 3 complete.** All 3 tiers done (76 tasks). 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app.
 
-- **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
-- **iOS app** (`app/`): 51 commonMain, 5 jvmMain, 6 iosMain, 19 jvmTest .kt files. Feature-complete: all question types, repeat groups, field-lists, case tiles, tiered selection, case search/claim, grid menus, display conditions, session stack, chained forms, app updates, demo mode, biometric auth, heartbeat, diagnostics, background scheduler, graphing, UCR reports, alt calendars, printing, recovery mode, crash logging. 4 expect/actual platform abstractions (biometric, printing, scheduler, crash reporter).
+- **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. Zero Java source files remain — fully Kotlin.
+- **iOS app** (`app/`): 51 commonMain, 5 jvmMain, 6 iosMain, 20 jvmTest .kt files. Feature-complete: all question types, repeat groups, field-lists, case tiles, tiered selection, case search/claim, grid menus, display conditions, session stack, chained forms, app updates, demo mode, biometric auth, heartbeat, diagnostics, background scheduler, graphing, UCR reports, alt calendars, printing, recovery mode, crash logging. 4 expect/actual platform abstractions (biometric, printing, scheduler, crash reporter).
 - **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest. 100+ cross-platform tests (27 validation + 75 engine + 4 coroutine dispatch). iOS coroutine + mutableStateOf pattern validated on iOS simulator via CI.
 
 **Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): All Done**
@@ -61,7 +61,8 @@ commcare-ios/
 - **Phase 3 Tier 3 plan**: `docs/plans/2026-03-14-phase3-tier3-implementation-plan.md` — 32-task plan for advanced features (8 waves)
 - **Phase 3 Tier 2 completion**: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, 8 waves, daily field worker features
 - **iOS cross-platform validation**: `docs/plans/2026-03-14-ios-cross-platform-validation-plan.md` — golden file testing for iOS parity
-- **Xcode project setup**: `docs/plans/2026-03-14-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
+- **Xcode project setup**: `docs/plans/2026-03-15-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
+- **iOS cinterop plan**: `docs/plans/2026-03-15-ios-cinterop-implementation-plan.md` — replacing 4 iOS stubs with real implementations
 - **Phase 3 Tier 2 plan**: `docs/plans/2026-03-13-phase3-tier2-implementation-plan.md` — 30-task plan for daily field worker features
 - **Foundation hardening plan**: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md` — 6-wave plan: bug fixes, engine tests, test migration, property conversion
 - **Phase 3 Tier 1 completion**: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP with real engine integration
