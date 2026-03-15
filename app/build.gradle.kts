@@ -26,6 +26,7 @@ kotlin {
                 implementation(compose.material3)
                 implementation("app.cash.sqldelight:runtime:2.0.2")
                 implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
             }
         }
 
@@ -58,6 +59,14 @@ kotlin {
             dependencies {
                 implementation("app.cash.sqldelight:native-driver:2.0.2")
             }
+        }
+
+        val iosArm64Test by getting
+        val iosSimulatorArm64Test by getting
+        val iosTest by creating {
+            dependsOn(commonTest)
+            iosArm64Test.dependsOn(this)
+            iosSimulatorArm64Test.dependsOn(this)
         }
     }
 }

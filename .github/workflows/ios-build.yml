@@ -40,6 +40,10 @@ jobs:
         working-directory: commcare-core
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
 
+      - name: Run app iOS tests (coroutine + mutableStateOf validation)
+        working-directory: app
+        run: ./gradlew iosSimulatorArm64Test --no-daemon --stacktrace
+
       - name: Build iOS app framework
         working-directory: app
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace

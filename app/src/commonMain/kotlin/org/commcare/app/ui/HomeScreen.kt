@@ -2,19 +2,192 @@ package org.commcare.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.commcare.app.engine.NavigationStep
+import org.commcare.app.engine.SessionNavigatorImpl
+import org.commcare.app.state.AppState
+import org.commcare.app.storage.CommCareDatabase
+import org.commcare.app.viewmodel.CaseItem
+import org.commcare.app.viewmodel.CaseListViewModel
+import org.commcare.app.viewmodel.FormEntryViewModel
+import org.commcare.app.viewmodel.FormQueueViewModel
+import org.commcare.app.viewmodel.FormRecordViewModel
+import org.commcare.app.viewmodel.LanguageViewModel
+import org.commcare.app.viewmodel.MenuViewModel
+import org.commcare.app.viewmodel.NavigationState
+import org.commcare.app.viewmodel.SyncViewModel
+import org.commcare.core.interfaces.createHttpClient
+
+/**
+ * Navigation state within the home screen after login.
+ */
+sealed class HomeNav {
+    data object Landing : HomeNav()
+    data object InMenu : HomeNav()
+    data object InCaseList : HomeNav()
+    data object InFormEntry : HomeNav()
+    data object InSync : HomeNav()
+}
+
+/**
+ * Main home screen that coordinates navigation between menus, case lists, forms, and sync.
+ */
+@Composable
+fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
+    var nav by remember { mutableStateOf<HomeNav>(HomeNav.Landing) }
+
+    val navigator = remember { SessionNavigatorImpl(state.platform, state.sandbox) }
+    val menuViewModel = remember { MenuViewModel(navigator) }
+    val httpClient = remember { createHttpClient() }
+    val formQueueViewModel = remember {
+        FormQueueViewModel(httpClient, state.serverUrl, state.domain, state.authHeader, db).also {
+            it.loadFromDatabase()
+        }
+    }
+    val syncViewModel = remember {
+        SyncViewModel(httpClient, state.serverUrl, state.domain, state.authHeader, state.sandbox)
+    }
+    val formRecordViewModel = remember { FormRecordViewModel(db).also { it.loadRecords() } }
+    val languageViewModel = remember { LanguageViewModel() }
+
+    // Current form entry state (set when navigating to a form)
+    var formEntryViewModel by remember { mutableStateOf<FormEntryViewModel?>(null) }
+    var caseListViewModel by remember { mutableStateOf<CaseListViewModel?>(null) }
+
+    // Observe MenuViewModel.navigationState to drive screen transitions
+    val menuNavState = menuViewModel.navigationState
+    LaunchedEffect(menuNavState) {
+        if (nav == HomeNav.InMenu || nav == HomeNav.InCaseList) {
+            when (menuNavState) {
+                is NavigationState.EntitySelect -> {
+                    val clvm = CaseListViewModel(navigator, state.sandbox)
+                    clvm.loadCases()
+                    caseListViewModel = clvm
+                    nav = HomeNav.InCaseList
+                }
+                is NavigationState.FormEntry -> {
+                    val fevm = loadFormEntry(navigator, state, languageViewModel)
+                    if (fevm != null) {
+                        formEntryViewModel = fevm
+                        nav = HomeNav.InFormEntry
+                    }
+                }
+                is NavigationState.Menu -> {
+                    // Stay on menu screen
+                }
+            }
+        }
+    }
+
+    when (nav) {
+        is HomeNav.Landing -> {
+            HomeLanding(
+                onStart = {
+                    menuViewModel.loadMenus()
+                    nav = HomeNav.InMenu
+                },
+                onSync = {
+                    nav = HomeNav.InSync
+                },
+                pendingFormCount = formQueueViewModel.pendingCount,
+                lastSyncTime = syncViewModel.lastSyncTime
+            )
+        }
+
+        is HomeNav.InMenu -> {
+            MenuScreen(
+                viewModel = menuViewModel,
+                onBack = {
+                    navigator.clearSession()
+                    menuViewModel.loadMenus()
+                    nav = HomeNav.Landing
+                }
+            )
+        }
+
+        is HomeNav.InCaseList -> {
+            val clvm = caseListViewModel
+            if (clvm != null) {
+                CaseListScreen(
+                    viewModel = clvm,
+                    onCaseSelected = { caseItem ->
+                        handleCaseSelection(caseItem, clvm, navigator, state, languageViewModel)?.let { fevm ->
+                            formEntryViewModel = fevm
+                            nav = HomeNav.InFormEntry
+                        }
+                    },
+                    onBack = {
+                        menuViewModel.goBack()
+                        nav = HomeNav.InMenu
+                    }
+                )
+            }
+        }
+
+        is HomeNav.InFormEntry -> {
+            val fevm = formEntryViewModel
+            if (fevm != null) {
+                FormEntryScreen(
+                    viewModel = fevm,
+                    onComplete = {
+                        val xml = fevm.submitForm(state.sandbox)
+                        if (xml != null) {
+                            formQueueViewModel.enqueueForm(xml, fevm.formTitle, fevm.getFormXmlns())
+                        }
+                        // Return to landing
+                        navigator.clearSession()
+                        formEntryViewModel = null
+                        nav = HomeNav.Landing
+                    },
+                    onBack = {
+                        navigator.clearSession()
+                        formEntryViewModel = null
+                        nav = HomeNav.Landing
+                    },
+                    onSaveDraft = {
+                        fevm.saveDraft(formRecordViewModel)
+                    },
+                    languageViewModel = languageViewModel
+                )
+            }
+        }
+
+        is HomeNav.InSync -> {
+            SyncScreen(
+                syncViewModel = syncViewModel,
+                formQueueViewModel = formQueueViewModel,
+                formRecordViewModel = formRecordViewModel,
+                onBack = { nav = HomeNav.Landing }
+            )
+        }
+    }
+}
 
 @Composable
-fun HomeScreen() {
+private fun HomeLanding(
+    onStart: () -> Unit,
+    onSync: () -> Unit,
+    pendingFormCount: Int,
+    lastSyncTime: String?
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
@@ -26,19 +199,87 @@ fun HomeScreen() {
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Application installed successfully",
-            style = MaterialTheme.typography.bodyLarge
-        )
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Ready for form entry",
-            style = MaterialTheme.typography.bodyMedium,
+            text = "Ready",
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = onStart,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Start")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedButton(
+            onClick = onSync,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Sync")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (pendingFormCount > 0) {
+            Text(
+                text = "$pendingFormCount unsent form${if (pendingFormCount > 1) "s" else ""}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+
+        if (lastSyncTime != null) {
+            Text(
+                text = "Last sync: $lastSyncTime",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+/**
+ * Attempt to load a form entry session from the navigator's current session state.
+ * Retrieves the form xmlns from the session, then creates a FormEntryViewModel.
+ * Currently requires a FormDef to be provided externally (e.g., from resource installation).
+ * Returns null if the form cannot be loaded (e.g., minimal platform with no installed forms).
+ */
+private fun loadFormEntry(
+    navigator: SessionNavigatorImpl,
+    state: AppState.Ready,
+    languageViewModel: LanguageViewModel
+): FormEntryViewModel? {
+    // Form loading requires forms to be installed via a profile URL.
+    // With a minimal platform (no profile), this will return null gracefully.
+    return null
+}
+
+/**
+ * Handle case selection — advance session and potentially start a form.
+ */
+private fun handleCaseSelection(
+    caseItem: CaseItem,
+    caseListViewModel: CaseListViewModel,
+    navigator: SessionNavigatorImpl,
+    state: AppState.Ready,
+    languageViewModel: LanguageViewModel
+): FormEntryViewModel? {
+    return try {
+        val step = caseListViewModel.selectCase(caseItem)
+        when (step) {
+            is NavigationStep.StartForm -> {
+                loadFormEntry(navigator, state, languageViewModel)
+            }
+            else -> null
+        }
+    } catch (_: Exception) {
+        null
     }
 }

@@ -3,6 +3,9 @@ package org.commcare.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
@@ -26,6 +29,7 @@ class FormQueueViewModel(
         private set
 
     private val formQueue = mutableListOf<QueuedForm>()
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     /**
      * Load pending forms from SQLDelight on startup.
@@ -72,7 +76,20 @@ class FormQueueViewModel(
         )
     }
 
-    fun submitAll(): Int {
+    /**
+     * Submit all pending forms asynchronously. For UI button clicks.
+     */
+    fun submitAll() {
+        scope.launch {
+            submitAllSync()
+        }
+    }
+
+    /**
+     * Submit all pending forms synchronously. Returns count of successfully submitted forms.
+     * Called directly from SyncViewModel (already on background thread).
+     */
+    fun submitAllSync(): Int {
         if (isSubmitting) return 0
         isSubmitting = true
         lastError = null
