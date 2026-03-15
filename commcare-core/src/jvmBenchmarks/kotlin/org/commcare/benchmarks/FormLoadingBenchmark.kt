@@ -18,9 +18,9 @@ open class FormLoadingBenchmark {
     @Benchmark
     fun loadLargeFormWithSession(): Int {
         val mockApp = MockApp("/app_performance/")
-        val responder = MockSessionNavigationResponder(mockApp.session)
+        val responder = MockSessionNavigationResponder(mockApp.getSession())
         val navigator = SessionNavigator(responder)
-        val session: SessionWrapper = mockApp.session
+        val session: SessionWrapper = mockApp.getSession()
 
         navigator.startNextSessionStep()
         session.setCommand("m1")
@@ -46,6 +46,6 @@ open class FormLoadingBenchmark {
     @Benchmark
     fun parseLargeFormXml(): Int {
         val fpi = FormParseInit("/app_performance/large_tdh_form.xml")
-        return fpi.formDef.getChildren().size
+        return fpi.getFormDef()!!.getChildren().size
     }
 }

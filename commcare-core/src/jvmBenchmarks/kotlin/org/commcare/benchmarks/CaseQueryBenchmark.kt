@@ -14,7 +14,7 @@ open class CaseQueryBenchmark {
     @Setup(Level.Trial)
     fun setUp() {
         val mockApp = MockApp("/app_performance/")
-        val session = mockApp.session
+        val session = mockApp.getSession()
         evalContext = session.getEvaluationContext()
     }
 

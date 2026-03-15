@@ -21,9 +21,9 @@ open class XPathBenchmark {
     @Setup(Level.Trial)
     fun setUp() {
         val mockApp = MockApp("/app_performance/")
-        val responder = MockSessionNavigationResponder(mockApp.session)
+        val responder = MockSessionNavigationResponder(mockApp.getSession())
         val navigator = SessionNavigator(responder)
-        val session = mockApp.session
+        val session = mockApp.getSession()
 
         navigator.startNextSessionStep()
         session.setCommand("m1")

@@ -16,9 +16,9 @@ open class SessionNavigationBenchmark {
     @Benchmark
     fun navigateToForm(): Int {
         val mockApp = MockApp("/app_performance/")
-        val responder = MockSessionNavigationResponder(mockApp.session)
+        val responder = MockSessionNavigationResponder(mockApp.getSession())
         val navigator = SessionNavigator(responder)
-        val session: SessionWrapper = mockApp.session
+        val session: SessionWrapper = mockApp.getSession()
 
         navigator.startNextSessionStep()
         session.setCommand("m1")
@@ -43,6 +43,6 @@ open class SessionNavigationBenchmark {
     @Benchmark
     fun initializeApp(): Int {
         val mockApp = MockApp("/app_performance/")
-        return mockApp.session.hashCode()
+        return mockApp.getSession().hashCode()
     }
 }
