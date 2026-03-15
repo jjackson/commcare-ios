@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,8 +21,23 @@ import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.MenuItem
 import org.commcare.app.viewmodel.MenuViewModel
 
+/**
+ * Menu screen that renders either a list or grid layout based on the menu's style attribute.
+ * Grid style: renders a configurable-column grid of icon+label cards.
+ * List style (default): renders a vertical list of menu items.
+ */
 @Composable
 fun MenuScreen(viewModel: MenuViewModel, onBack: (() -> Unit)? = null) {
+    val style = viewModel.menuStyle
+    if (style == "grid") {
+        GridMenuScreen(viewModel = viewModel, onBack = onBack)
+    } else {
+        ListMenuScreen(viewModel = viewModel, onBack = onBack)
+    }
+}
+
+@Composable
+private fun ListMenuScreen(viewModel: MenuViewModel, onBack: (() -> Unit)? = null) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Row(
