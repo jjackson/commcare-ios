@@ -47,3 +47,71 @@ jobs:
       - name: Build iOS app framework
         working-directory: app
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: app/iosApp
+        run: xcodegen generate
+
+      - name: Build iOS app with xcodebuild
+        working-directory: app/iosApp
+        run: |
+          xcodebuild build \
+            -project CommCare.xcodeproj \
+            -scheme CommCare \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | tail -50
+
+      - name: Boot simulator and launch app
+        working-directory: app/iosApp
+        run: |
+          # Find the built .app
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "CommCare.app" -path "*/Debug-iphonesimulator/*" | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: CommCare.app not found in DerivedData"
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
+
+          # Boot simulator
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in data['devices'].items():
+            if 'iOS' in runtime:
+              for d in devices:
+                if 'iPhone 15 Pro' in d['name'] and d['isAvailable']:
+                  print(d['udid']); sys.exit(0)
+          sys.exit(1)
+          ")
+          echo "Using simulator: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+
+          # Install and launch
+          xcrun simctl install "$DEVICE_ID" "$APP_PATH"
+          xcrun simctl launch "$DEVICE_ID" org.commcare.ios
+
+          # Give the app 10 seconds to start, then check it hasn't crashed
+          sleep 10
+          APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep commcare || true)
+          if [ -z "$APP_PID" ]; then
+            echo "WARNING: App may have crashed on launch. Checking crash logs..."
+            xcrun simctl diagnose --no-archive "$DEVICE_ID" 2>/dev/null | tail -20 || true
+            # Collect crash log if available
+            find ~/Library/Logs/DiagnosticReports -name "*CommCare*" -newer "$APP_PATH" 2>/dev/null | while read f; do
+              echo "=== Crash log: $f ==="
+              cat "$f" | head -50
+            done
+            exit 1
+          fi
+          echo "App launched successfully and is still running!"
+
+          # Shutdown
+          xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true

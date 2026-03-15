@@ -1,0 +1,33 @@
+name: CommCare
+options:
+  bundleIdPrefix: org.commcare
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+
+targets:
+  CommCare:
+    type: application
+    platform: iOS
+    sources:
+      - path: iosApp
+        type: group
+    settings:
+      base:
+        INFOPLIST_FILE: iosApp/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: org.commcare.ios
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../build/bin/iosSimulatorArm64/debugFramework"
+          - "$(SRCROOT)/../build/bin/iosArm64/debugFramework"
+        OTHER_LINKER_FLAGS:
+          - "$(inherited)"
+          - "-framework"
+          - "CommCareApp"
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
