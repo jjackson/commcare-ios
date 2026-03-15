@@ -64,6 +64,7 @@ jobs:
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' \
             -configuration Debug \
+            -derivedDataPath build \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -72,10 +73,11 @@ jobs:
       - name: Boot simulator and launch app
         working-directory: app/iosApp
         run: |
-          # Find the built .app
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "CommCare.app" -path "*/Debug-iphonesimulator/*" | head -1)
-          if [ -z "$APP_PATH" ]; then
-            echo "ERROR: CommCare.app not found in DerivedData"
+          APP_PATH="build/Build/Products/Debug-iphonesimulator/CommCare.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: CommCare.app not found at $APP_PATH"
+            echo "Contents of build/Build/Products/:"
+            find build/Build/Products/ -name "*.app" 2>/dev/null || echo "No .app found"
             exit 1
           fi
           echo "Found app at: $APP_PATH"
@@ -103,11 +105,9 @@ jobs:
           APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep commcare || true)
           if [ -z "$APP_PID" ]; then
             echo "WARNING: App may have crashed on launch. Checking crash logs..."
-            xcrun simctl diagnose --no-archive "$DEVICE_ID" 2>/dev/null | tail -20 || true
-            # Collect crash log if available
             find ~/Library/Logs/DiagnosticReports -name "*CommCare*" -newer "$APP_PATH" 2>/dev/null | while read f; do
               echo "=== Crash log: $f ==="
-              cat "$f" | head -50
+              head -80 "$f"
             done
             exit 1
           fi
