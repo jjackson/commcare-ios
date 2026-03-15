@@ -53,13 +53,18 @@ jobs:
 
       - name: Generate Xcode project
         working-directory: app/iosApp
-        run: xcodegen generate
+        run: |
+          xcodegen generate
+          echo "Generated project contents:"
+          ls -la CommCare.xcodeproj/
+          cat CommCare.xcodeproj/project.pbxproj | head -20
 
       - name: Build iOS app with xcodebuild
         working-directory: app/iosApp
         run: |
+          set -o pipefail
           xcodebuild build \
-            -project CommCare.xcodeproj \
+            -project "$(pwd)/CommCare.xcodeproj" \
             -scheme CommCare \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' \
@@ -68,7 +73,7 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            | tail -50
+            2>&1 | tail -80
 
       - name: Boot simulator and launch app
         working-directory: app/iosApp
