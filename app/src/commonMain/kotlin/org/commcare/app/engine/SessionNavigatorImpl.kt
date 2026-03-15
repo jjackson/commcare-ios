@@ -10,6 +10,7 @@ import org.commcare.util.CommCarePlatform
 /**
  * Navigates through the CommCare session state machine.
  * Wraps SessionWrapper and dispatches getNeededData() to determine the next UI screen.
+ * Supports session stack operations for form linking and chained workflows.
  */
 class SessionNavigatorImpl(
     val platform: CommCarePlatform,
@@ -68,6 +69,30 @@ class SessionNavigatorImpl(
 
     fun clearSession() {
         session.clearAllState()
+    }
+
+    /**
+     * After form completion, execute post-entry stack operations and check for chained forms.
+     * Returns true if a new frame was popped (another form in the chain), false if done.
+     */
+    fun finishAndPop(): Boolean {
+        return try {
+            val ec = session.getEvaluationContext()
+            session.finishExecuteAndPop(ec)
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Get the current stack depth (number of pending frames).
+     */
+    fun getStackDepth(): Int {
+        return try {
+            session.frameStack.size
+        } catch (_: Exception) {
+            0
+        }
     }
 }
 
