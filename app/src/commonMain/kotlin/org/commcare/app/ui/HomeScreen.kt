@@ -21,8 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.NavigationStep
 import org.commcare.app.engine.SessionNavigatorImpl
+import org.javarosa.core.model.FormDef
+import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.viewmodel.CaseItem
@@ -246,19 +249,28 @@ private fun HomeLanding(
 }
 
 /**
- * Attempt to load a form entry session from the navigator's current session state.
- * Retrieves the form xmlns from the session, then creates a FormEntryViewModel.
- * Currently requires a FormDef to be provided externally (e.g., from resource installation).
- * Returns null if the form cannot be loaded (e.g., minimal platform with no installed forms).
+ * Load a FormDef from the platform's storage by xmlns, then create a FormEntryViewModel.
+ * Returns null if forms aren't installed or the xmlns isn't found.
  */
+@Suppress("UNCHECKED_CAST")
 private fun loadFormEntry(
     navigator: SessionNavigatorImpl,
     state: AppState.Ready,
     languageViewModel: LanguageViewModel
 ): FormEntryViewModel? {
-    // Form loading requires forms to be installed via a profile URL.
-    // With a minimal platform (no profile), this will return null gracefully.
-    return null
+    return try {
+        val xmlns = navigator.session.getForm() ?: return null
+        val storageManager = state.platform.getStorageManager() ?: return null
+        val formStorage = storageManager.getStorage(FormDef.STORAGE_KEY) as IStorageUtilityIndexed<FormDef>
+        val formDef = formStorage.getRecordForValue("XMLNS", xmlns)
+        val session = FormEntrySession(formDef, state.sandbox, state.platform)
+        val viewModel = FormEntryViewModel(session)
+        viewModel.loadForm()
+        viewModel.loadLanguages(languageViewModel)
+        viewModel
+    } catch (_: Exception) {
+        null
+    }
 }
 
 /**
