@@ -36,6 +36,10 @@ class SessionNavigatorImpl(
                     getNextStep() // recurse past computed datums
                 }
                 SessionFrame.STATE_SYNC_REQUEST -> NavigationStep.SyncRequired
+                SessionFrame.STATE_QUERY_REQUEST -> {
+                    val datum = session.getNeededDatum()
+                    NavigationStep.ShowCaseSearch(datum)
+                }
                 null -> {
                     val formXmlns = session.getForm()
                     NavigationStep.StartForm(formXmlns)
@@ -99,6 +103,7 @@ class SessionNavigatorImpl(
 sealed class NavigationStep {
     data object ShowMenu : NavigationStep()
     data class ShowCaseList(val datum: SessionDatum?) : NavigationStep()
+    data class ShowCaseSearch(val datum: SessionDatum?) : NavigationStep()
     data class StartForm(val xmlns: String?) : NavigationStep()
     data object SyncRequired : NavigationStep()
     data class Error(val message: String) : NavigationStep()

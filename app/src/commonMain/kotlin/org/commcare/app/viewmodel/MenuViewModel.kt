@@ -159,6 +159,7 @@ class MenuViewModel(
                 when (val step = navigator.getNextStep()) {
                     is NavigationStep.ShowMenu -> loadMenus()
                     is NavigationStep.ShowCaseList -> navigationState = NavigationState.EntitySelect
+                    is NavigationStep.ShowCaseSearch -> navigationState = NavigationState.CaseSearch
                     is NavigationStep.StartForm -> navigationState = NavigationState.FormEntry
                     is NavigationStep.SyncRequired -> {
                         errorMessage = "Sync required before proceeding"
@@ -228,5 +229,6 @@ data class MenuItem(
 sealed class NavigationState {
     data object Menu : NavigationState()
     data object EntitySelect : NavigationState()
+    data object CaseSearch : NavigationState()
     data object FormEntry : NavigationState()
 }
