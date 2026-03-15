@@ -10,17 +10,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.commcare.app.viewmodel.ActionItem
 import org.commcare.app.viewmodel.CaseItem
 import org.commcare.app.viewmodel.CaseListViewModel
 import org.commcare.app.viewmodel.SortMode
@@ -30,8 +35,17 @@ fun CaseListScreen(
     viewModel: CaseListViewModel,
     title: String = "Select Case",
     onCaseSelected: (CaseItem) -> Unit,
+    onActionSelected: ((ActionItem) -> Unit)? = null,
     onBack: () -> Unit
 ) {
+    // Auto-select: if enabled and exactly one case, select it immediately
+    val autoCase = viewModel.getAutoSelectCase()
+    LaunchedEffect(autoCase) {
+        if (autoCase != null) {
+            onCaseSelected(autoCase)
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Row(
@@ -48,6 +62,19 @@ fun CaseListScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+
+        // Action buttons (e.g., "Register New Case")
+        if (viewModel.actions.isNotEmpty() && onActionSelected != null) {
+            for (action in viewModel.actions) {
+                OutlinedButton(
+                    onClick = { onActionSelected(action) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp)
+                ) {
+                    Text(action.displayText)
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         // Search
@@ -103,9 +130,26 @@ fun CaseListScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(viewModel.cases) { caseItem ->
-                    CaseItemRow(caseItem = caseItem, onClick = { onCaseSelected(caseItem) })
+            val tc = viewModel.tileConfig
+            if (tc != null) {
+                // Tile view
+                CaseTileHeader(tc)
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(viewModel.cases) { caseItem ->
+                        val fields = viewModel.buildTileFields(caseItem)
+                        CaseTileRow(
+                            tileConfig = tc,
+                            fields = fields,
+                            onClick = { onCaseSelected(caseItem) }
+                        )
+                    }
+                }
+            } else {
+                // Standard list view
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(viewModel.cases) { caseItem ->
+                        CaseItemRow(caseItem = caseItem, onClick = { onCaseSelected(caseItem) })
+                    }
                 }
             }
         }

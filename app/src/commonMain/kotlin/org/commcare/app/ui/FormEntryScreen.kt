@@ -66,6 +66,12 @@ fun FormEntryScreen(
             )
         }
 
+        // Persistent case tile
+        val tileData = viewModel.persistentTileData
+        if (tileData != null) {
+            PersistentTileBar(data = tileData)
+        }
+
         // Language selector
         if (languageViewModel != null && languageViewModel.availableLanguages.size > 1) {
             Row(
