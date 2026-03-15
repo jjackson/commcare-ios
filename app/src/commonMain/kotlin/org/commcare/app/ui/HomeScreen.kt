@@ -188,10 +188,24 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                         if (xml != null) {
                             formQueueViewModel.enqueueForm(xml, fevm.formTitle, fevm.getFormXmlns())
                         }
-                        // Return to landing
-                        navigator.clearSession()
-                        formEntryViewModel = null
-                        nav = HomeNav.Landing
+                        // Check for chained forms via session stack
+                        val hasNext = navigator.finishAndPop()
+                        if (hasNext) {
+                            // Chained form: load the next form in the workflow
+                            val nextFevm = loadFormEntry(navigator, state, languageViewModel)
+                            if (nextFevm != null) {
+                                formEntryViewModel = nextFevm
+                                // nav stays InFormEntry
+                            } else {
+                                navigator.clearSession()
+                                formEntryViewModel = null
+                                nav = HomeNav.Landing
+                            }
+                        } else {
+                            navigator.clearSession()
+                            formEntryViewModel = null
+                            nav = HomeNav.Landing
+                        }
                     },
                     onBack = {
                         navigator.clearSession()
