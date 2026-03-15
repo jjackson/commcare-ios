@@ -37,7 +37,11 @@ import org.commcare.app.viewmodel.FormRecordViewModel
 import org.commcare.app.viewmodel.LanguageViewModel
 import org.commcare.app.viewmodel.MenuViewModel
 import org.commcare.app.viewmodel.NavigationState
+import org.commcare.app.viewmodel.DiagnosticsViewModel
+import org.commcare.app.viewmodel.RecoveryViewModel
+import org.commcare.app.viewmodel.SettingsViewModel
 import org.commcare.app.viewmodel.SyncViewModel
+import org.commcare.app.viewmodel.UpdateViewModel
 import org.commcare.core.interfaces.createHttpClient
 
 /**
@@ -50,6 +54,9 @@ sealed class HomeNav {
     data object InCaseSearch : HomeNav()
     data object InFormEntry : HomeNav()
     data object InSync : HomeNav()
+    data object InSettings : HomeNav()
+    data object InDiagnostics : HomeNav()
+    data object InRecovery : HomeNav()
 }
 
 /**
@@ -72,6 +79,16 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
     }
     val formRecordViewModel = remember { FormRecordViewModel(db).also { it.loadRecords() } }
     val languageViewModel = remember { LanguageViewModel() }
+    val settingsViewModel = remember { SettingsViewModel() }
+    val updateViewModel = remember {
+        if (state.serverUrl.isNotBlank()) {
+            UpdateViewModel(state.sandbox, state.platform, state.serverUrl)
+        } else null
+    }
+    val diagnosticsViewModel = remember {
+        DiagnosticsViewModel(httpClient, state.serverUrl, state.domain, state.authHeader)
+    }
+    val recoveryViewModel = remember { RecoveryViewModel() }
 
     // Current form entry state (set when navigating to a form)
     var formEntryViewModel by remember { mutableStateOf<FormEntryViewModel?>(null) }
@@ -118,6 +135,12 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                 },
                 onSync = {
                     nav = HomeNav.InSync
+                },
+                onSettings = {
+                    nav = HomeNav.InSettings
+                },
+                onDiagnostics = {
+                    nav = HomeNav.InDiagnostics
                 },
                 pendingFormCount = formQueueViewModel.pendingCount,
                 lastSyncTime = syncViewModel.lastSyncTime
@@ -271,6 +294,32 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                 onBack = { nav = HomeNav.Landing }
             )
         }
+
+        is HomeNav.InSettings -> {
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                updateViewModel = updateViewModel,
+                onBack = { nav = HomeNav.Landing },
+                onRecovery = { nav = HomeNav.InRecovery }
+            )
+        }
+
+        is HomeNav.InDiagnostics -> {
+            DiagnosticsScreen(
+                viewModel = diagnosticsViewModel,
+                lastSyncTime = syncViewModel.lastSyncTime,
+                pendingFormCount = formQueueViewModel.pendingCount,
+                onBack = { nav = HomeNav.Landing }
+            )
+        }
+
+        is HomeNav.InRecovery -> {
+            RecoveryScreen(
+                viewModel = recoveryViewModel,
+                onBack = { nav = HomeNav.Landing },
+                onClearData = { nav = HomeNav.Landing }
+            )
+        }
     }
 }
 
@@ -278,6 +327,8 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
 private fun HomeLanding(
     onStart: () -> Unit,
     onSync: () -> Unit,
+    onSettings: () -> Unit,
+    onDiagnostics: () -> Unit,
     pendingFormCount: Int,
     lastSyncTime: String?
 ) {
@@ -316,6 +367,26 @@ private fun HomeLanding(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Sync")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = onSettings,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Settings")
+            }
+            OutlinedButton(
+                onClick = onDiagnostics,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Diagnostics")
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

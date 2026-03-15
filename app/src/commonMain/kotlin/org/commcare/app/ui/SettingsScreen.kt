@@ -32,7 +32,8 @@ import org.commcare.app.viewmodel.UpdateViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     updateViewModel: UpdateViewModel?,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRecovery: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -201,6 +202,18 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Reset to Defaults")
+        }
+
+        if (onRecovery != null) {
+            Spacer(modifier = Modifier.height(24.dp))
+            SectionDivider()
+            SectionHeader("Troubleshooting")
+            OutlinedButton(
+                onClick = onRecovery,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Recovery Mode")
+            }
         }
     }
 }
