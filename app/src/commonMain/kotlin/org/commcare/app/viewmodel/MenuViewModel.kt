@@ -8,9 +8,11 @@ import org.commcare.app.engine.SessionNavigatorImpl
 import org.commcare.app.ui.BreadcrumbSegment
 import org.commcare.session.SessionFrame
 import org.commcare.util.CommCarePlatform
+import org.javarosa.xpath.expr.FunctionUtils
 
 /**
  * Manages menu navigation state using the CommCareSession state machine.
+ * Supports grid style, display conditions, and shadow modules.
  */
 class MenuViewModel(
     val navigator: SessionNavigatorImpl
@@ -28,6 +30,10 @@ class MenuViewModel(
     var breadcrumbs by mutableStateOf<List<BreadcrumbSegment>>(listOf(BreadcrumbSegment("Home")))
         private set
 
+    /** Menu display style: "grid", "list", or null (default list) */
+    var menuStyle by mutableStateOf<String?>(null)
+        private set
+
     fun loadMenus(menuId: String? = null) {
         try {
             navigationState = NavigationState.Menu
@@ -41,11 +47,21 @@ class MenuViewModel(
     private fun loadMenuItems(menuId: String?) {
         val items = mutableListOf<MenuItem>()
         val targetId = menuId ?: "root"
+        var detectedStyle: String? = null
 
         for (suite in platform.getInstalledSuites()) {
             val menus = suite.getMenusWithId(targetId)
             if (menus != null) {
                 for (menu in menus) {
+                    // Detect menu style (grid, list, etc.)
+                    val style = menu.getStyle()
+                    if (style != null) {
+                        detectedStyle = style
+                    }
+
+                    // Check menu-level relevancy
+                    if (!isMenuRelevant(menu)) continue
+
                     val menuTitle = try {
                         menu.getName()?.evaluate()
                     } catch (_: Exception) {
@@ -55,7 +71,13 @@ class MenuViewModel(
                         title = menuTitle
                     }
 
-                    for (cmdId in menu.getCommandIds()) {
+                    val commandIds = menu.getCommandIds()
+                    for (i in commandIds.indices) {
+                        val cmdId = commandIds[i]
+
+                        // Check per-command relevancy (display condition)
+                        if (!isCommandRelevant(menu, i)) continue
+
                         val entry = suite.getEntry(cmdId)
                         if (entry != null) {
                             val displayText = try {
@@ -75,6 +97,9 @@ class MenuViewModel(
             }
 
             for (subMenu in suite.getMenusWithRoot(targetId)) {
+                // Check sub-menu relevancy
+                if (!isMenuRelevant(subMenu)) continue
+
                 val displayText = try {
                     subMenu.getName()?.evaluate() ?: (subMenu.getId() ?: "Menu")
                 } catch (_: Exception) {
@@ -89,7 +114,34 @@ class MenuViewModel(
             }
         }
 
+        menuStyle = detectedStyle
         menuItems = items
+    }
+
+    /**
+     * Check if a menu passes its relevancy condition.
+     */
+    private fun isMenuRelevant(menu: org.commcare.suite.model.Menu): Boolean {
+        return try {
+            val relevance = menu.getMenuRelevance() ?: return true
+            val ec = navigator.session.getEvaluationContext()
+            FunctionUtils.toBoolean(relevance.eval(ec))
+        } catch (_: Exception) {
+            true // Show menu if relevance evaluation fails
+        }
+    }
+
+    /**
+     * Check if a specific command within a menu passes its display condition.
+     */
+    private fun isCommandRelevant(menu: org.commcare.suite.model.Menu, index: Int): Boolean {
+        return try {
+            val relevance = menu.getCommandRelevance(index) ?: return true
+            val ec = navigator.session.getEvaluationContext()
+            FunctionUtils.toBoolean(relevance.eval(ec))
+        } catch (_: Exception) {
+            true // Show command if relevance evaluation fails
+        }
     }
 
     /**
