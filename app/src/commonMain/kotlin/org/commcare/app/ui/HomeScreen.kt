@@ -30,6 +30,7 @@ import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.viewmodel.CaseItem
 import org.commcare.app.viewmodel.CaseListViewModel
+import org.commcare.app.viewmodel.CaseSearchViewModel
 import org.commcare.app.viewmodel.FormEntryViewModel
 import org.commcare.app.viewmodel.FormQueueViewModel
 import org.commcare.app.viewmodel.FormRecordViewModel
@@ -46,6 +47,7 @@ sealed class HomeNav {
     data object Landing : HomeNav()
     data object InMenu : HomeNav()
     data object InCaseList : HomeNav()
+    data object InCaseSearch : HomeNav()
     data object InFormEntry : HomeNav()
     data object InSync : HomeNav()
 }
@@ -74,17 +76,24 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
     // Current form entry state (set when navigating to a form)
     var formEntryViewModel by remember { mutableStateOf<FormEntryViewModel?>(null) }
     var caseListViewModel by remember { mutableStateOf<CaseListViewModel?>(null) }
+    var caseSearchViewModel by remember { mutableStateOf<CaseSearchViewModel?>(null) }
 
     // Observe MenuViewModel.navigationState to drive screen transitions
     val menuNavState = menuViewModel.navigationState
     LaunchedEffect(menuNavState) {
-        if (nav == HomeNav.InMenu || nav == HomeNav.InCaseList) {
+        if (nav == HomeNav.InMenu || nav == HomeNav.InCaseList || nav == HomeNav.InCaseSearch) {
             when (menuNavState) {
                 is NavigationState.EntitySelect -> {
                     val clvm = CaseListViewModel(navigator, state.sandbox)
                     clvm.loadCases()
                     caseListViewModel = clvm
                     nav = HomeNav.InCaseList
+                }
+                is NavigationState.CaseSearch -> {
+                    val csvm = CaseSearchViewModel(navigator, state.sandbox, httpClient, state.authHeader)
+                    csvm.loadSearchConfig()
+                    caseSearchViewModel = csvm
+                    nav = HomeNav.InCaseSearch
                 }
                 is NavigationState.FormEntry -> {
                     val fevm = loadFormEntry(navigator, state, languageViewModel)
@@ -168,6 +177,40 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                             }
                         } catch (_: Exception) {
                             // Action execution failed
+                        }
+                    },
+                    onBack = {
+                        menuViewModel.goBack()
+                        nav = HomeNav.InMenu
+                    }
+                )
+            }
+        }
+
+        is HomeNav.InCaseSearch -> {
+            val csvm = caseSearchViewModel
+            if (csvm != null) {
+                CaseSearchScreen(
+                    viewModel = csvm,
+                    onResultSelected = { caseItem ->
+                        csvm.selectResult(caseItem)
+                        // After selecting, check next step
+                        when (val step = navigator.getNextStep()) {
+                            is NavigationStep.StartForm -> {
+                                val fevm = loadFormEntry(navigator, state, languageViewModel)
+                                if (fevm != null) {
+                                    fevm.persistentTileData = buildPersistentTileData(caseItem, navigator, state)
+                                    formEntryViewModel = fevm
+                                    nav = HomeNav.InFormEntry
+                                }
+                            }
+                            is NavigationStep.ShowCaseList -> {
+                                val clvm = CaseListViewModel(navigator, state.sandbox)
+                                clvm.loadCases()
+                                caseListViewModel = clvm
+                                nav = HomeNav.InCaseList
+                            }
+                            else -> { /* stay */ }
                         }
                     },
                     onBack = {
