@@ -13,7 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -23,10 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.SettingsViewModel
+import org.commcare.app.viewmodel.UpdateState
+import org.commcare.app.viewmodel.UpdateViewModel
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
+    updateViewModel: UpdateViewModel?,
     onBack: () -> Unit
 ) {
     Column(
@@ -52,8 +57,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Server section
-        Text("Server", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
+        SectionHeader("Server")
         OutlinedTextField(
             value = viewModel.serverUrl,
             onValueChange = { viewModel.serverUrl = it },
@@ -62,20 +66,15 @@ fun SettingsScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(16.dp))
+        SectionDivider()
 
         // Sync section
-        Text("Sync", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
+        SectionHeader("Sync")
         CheckboxRow(
             label = "Auto-sync",
             checked = viewModel.autoSync,
             onCheckedChange = { viewModel.autoSync = it }
         )
-
         OutlinedTextField(
             value = viewModel.syncFrequencyMinutes.toString(),
             onValueChange = {
@@ -90,25 +89,89 @@ fun SettingsScreen(
             enabled = viewModel.autoSync
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(16.dp))
+        SectionDivider()
+
+        // Search section
+        SectionHeader("Search")
+        CheckboxRow(
+            label = "Fuzzy search",
+            checked = viewModel.fuzzySearchEnabled,
+            onCheckedChange = { viewModel.fuzzySearchEnabled = it }
+        )
+
+        SectionDivider()
+
+        // Auto-update section
+        SectionHeader("Updates")
+        CheckboxRow(
+            label = "Auto-update",
+            checked = viewModel.autoUpdateEnabled,
+            onCheckedChange = { viewModel.autoUpdateEnabled = it }
+        )
+        if (viewModel.autoUpdateEnabled) {
+            OutlinedTextField(
+                value = viewModel.autoUpdateFrequencyHours.toString(),
+                onValueChange = {
+                    val parsed = it.toIntOrNull()
+                    if (parsed != null && parsed > 0) {
+                        viewModel.autoUpdateFrequencyHours = parsed
+                    }
+                },
+                label = { Text("Update check frequency (hours)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+        }
+
+        // Manual update check
+        if (updateViewModel != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            UpdateSection(updateViewModel)
+        }
+
+        SectionDivider()
+
+        // Locale section
+        SectionHeader("Language")
+        OutlinedTextField(
+            value = viewModel.localeOverride ?: "",
+            onValueChange = { viewModel.localeOverride = it.ifBlank { null } },
+            label = { Text("Locale override (e.g., en, fra, hin)") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        SectionDivider()
 
         // Developer section
-        Text("Developer", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
+        SectionHeader("Developer")
         CheckboxRow(
             label = "Developer mode",
             checked = viewModel.developerMode,
             onCheckedChange = { viewModel.developerMode = it }
         )
-
         if (viewModel.developerMode) {
             CheckboxRow(
                 label = "Show debug info",
                 checked = viewModel.showDebugInfo,
                 onCheckedChange = { viewModel.showDebugInfo = it }
+            )
+            CheckboxRow(
+                label = "Show form hierarchy",
+                checked = viewModel.showFormHierarchy,
+                onCheckedChange = { viewModel.showFormHierarchy = it }
+            )
+            CheckboxRow(
+                label = "XPath tester",
+                checked = viewModel.enableXPathTester,
+                onCheckedChange = { viewModel.enableXPathTester = it }
+            )
+            OutlinedTextField(
+                value = viewModel.logLevel,
+                onValueChange = { viewModel.logLevel = it },
+                label = { Text("Log level (debug, info, warn, error)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
         }
 
@@ -140,6 +203,104 @@ fun SettingsScreen(
             Text("Reset to Defaults")
         }
     }
+}
+
+@Composable
+private fun UpdateSection(updateViewModel: UpdateViewModel) {
+    when (val state = updateViewModel.updateState) {
+        is UpdateState.Idle -> {
+            OutlinedButton(
+                onClick = { updateViewModel.checkForUpdates() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Check for Updates")
+            }
+        }
+        is UpdateState.Checking -> {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CircularProgressIndicator(modifier = Modifier)
+                Text("Checking for updates...", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        is UpdateState.Available -> {
+            Column {
+                Text(
+                    text = "Update available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Button(
+                    onClick = { updateViewModel.installUpdate() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Install Update")
+                }
+            }
+        }
+        is UpdateState.Installing -> {
+            Column {
+                Text(
+                    text = updateViewModel.updateMessage ?: "Installing...",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                LinearProgressIndicator(
+                    progress = { updateViewModel.updateProgress },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        is UpdateState.UpToDate -> {
+            Text(
+                text = "App is up to date",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+        is UpdateState.Complete -> {
+            Text(
+                text = "Update installed successfully",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+        is UpdateState.Error -> {
+            Column {
+                Text(
+                    text = state.message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedButton(
+                    onClick = { updateViewModel.dismissUpdate() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Dismiss")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(title, style = MaterialTheme.typography.titleMedium)
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+private fun SectionDivider() {
+    Spacer(modifier = Modifier.height(16.dp))
+    HorizontalDivider()
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable

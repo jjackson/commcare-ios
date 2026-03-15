@@ -24,7 +24,10 @@ import org.commcare.app.state.AppState
 import org.commcare.app.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    onDemoMode: (() -> Unit)? = null
+) {
     val isLoggingIn = viewModel.appState is AppState.LoggingIn
 
     Column(
@@ -97,6 +100,16 @@ fun LoginScreen(viewModel: LoginViewModel) {
                 enabled = viewModel.username.isNotBlank() && viewModel.password.isNotBlank()
             ) {
                 Text("Log In")
+            }
+
+            if (onDemoMode != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(
+                    onClick = onDemoMode,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Enter Demo Mode")
+                }
             }
         }
     }
