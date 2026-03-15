@@ -8,7 +8,18 @@ import org.commcare.resources.model.InstallerFactory
 import org.commcare.resources.model.InstallRequestSource
 import org.commcare.resources.model.Resource
 import org.commcare.resources.model.ResourceTable
+import org.commcare.suite.model.OfflineUserRestore
+import org.commcare.suite.model.Profile
+import org.commcare.suite.model.Suite
 import org.commcare.util.CommCarePlatform
+import org.javarosa.core.model.FormDef
+import org.javarosa.core.model.instance.FormInstance
+import org.javarosa.core.services.storage.IStorageIndexedFactory
+import org.javarosa.core.services.storage.IStorageUtilityIndexed
+import org.javarosa.core.services.storage.Persistable
+import org.javarosa.core.services.storage.StorageManager
+import org.javarosa.core.services.properties.Property
+import kotlin.reflect.KClass
 
 /**
  * Handles CommCare app installation from a profile URL.
@@ -29,7 +40,16 @@ class AppInstaller(
         onProgress: (Float, String) -> Unit = { _, _ -> }
     ): CommCarePlatform {
         onProgress(0.1f, "Creating platform...")
-        val platform = CommCarePlatform(2, 53, 0)
+        val storageFactory = InMemoryStorageFactory()
+        val storageManager = StorageManager(storageFactory)
+        storageManager.registerStorage(FormDef.STORAGE_KEY, FormDef::class)
+        storageManager.registerStorage(Profile.STORAGE_KEY, Profile::class)
+        storageManager.registerStorage(Suite.STORAGE_KEY, Suite::class)
+        storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance::class)
+        storageManager.registerStorage(OfflineUserRestore.STORAGE_KEY, OfflineUserRestore::class)
+        storageManager.registerStorage("fixture", FormInstance::class)
+
+        val platform = CommCarePlatform(2, 53, 0, storageManager)
 
         onProgress(0.2f, "Setting up resource tables...")
         val globalStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
@@ -65,6 +85,37 @@ class AppInstaller(
      * Useful for development/testing when no profile URL is available.
      */
     fun createMinimalPlatform(): CommCarePlatform {
-        return CommCarePlatform(2, 53, 0)
+        val storageFactory = InMemoryStorageFactory()
+        val storageManager = StorageManager(storageFactory)
+        storageManager.registerStorage(FormDef.STORAGE_KEY, FormDef::class)
+        storageManager.registerStorage(Profile.STORAGE_KEY, Profile::class)
+        storageManager.registerStorage(Suite.STORAGE_KEY, Suite::class)
+        storageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance::class)
+        return CommCarePlatform(2, 53, 0, storageManager)
+    }
+}
+
+/**
+ * Storage factory that creates InMemoryStorage instances for any registered type.
+ * Uses hardcoded constructors since Kotlin/Native doesn't support reflection-based instantiation.
+ */
+private class InMemoryStorageFactory : IStorageIndexedFactory {
+    @Suppress("UNCHECKED_CAST")
+    override fun newStorage(name: String, type: KClass<*>): IStorageUtilityIndexed<*> {
+        val factory = createFactory(type)
+        return InMemoryStorage(type, factory)
+    }
+
+    private fun createFactory(type: KClass<*>): () -> Persistable {
+        return when (type) {
+            FormDef::class -> { { FormDef() } }
+            FormInstance::class -> { { FormInstance() } }
+            Profile::class -> { { Profile() } }
+            Suite::class -> { { Suite() } }
+            Resource::class -> { { Resource() } }
+            OfflineUserRestore::class -> { { OfflineUserRestore() } }
+            Property::class -> { { Property() } }
+            else -> throw IllegalArgumentException("Unknown storage type: ${type.simpleName}")
+        }
     }
 }
