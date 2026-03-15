@@ -167,6 +167,13 @@ class LoginViewModel(private val db: CommCareDatabase) {
         appState = AppState.LoggedOut
     }
 
+    /**
+     * Set app state directly — used by demo mode to bypass login.
+     */
+    fun setReadyState(state: AppState) {
+        appState = state
+    }
+
     fun getDomain(): String {
         return if (username.contains("@")) {
             username.substringAfter("@")
