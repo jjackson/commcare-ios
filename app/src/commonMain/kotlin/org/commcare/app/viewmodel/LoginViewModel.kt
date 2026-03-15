@@ -3,6 +3,9 @@ package org.commcare.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
@@ -33,6 +36,7 @@ class LoginViewModel(private val db: CommCareDatabase) {
         private set
 
     private val httpClient = createHttpClient()
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     fun login() {
         if (username.isBlank() || password.isBlank()) {
@@ -42,40 +46,42 @@ class LoginViewModel(private val db: CommCareDatabase) {
 
         appState = AppState.LoggingIn(serverUrl, username)
 
-        try {
-            val domain = getDomain()
-            val loginUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
-            val credentials = encodeBasicAuth(username, password)
-            authHeader = "Basic $credentials"
+        scope.launch {
+            try {
+                val domain = getDomain()
+                val loginUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
+                val credentials = encodeBasicAuth(username, password)
+                authHeader = "Basic $credentials"
 
-            val response = httpClient.execute(
-                HttpRequest(
-                    url = loginUrl,
-                    method = "GET",
-                    headers = mapOf(
-                        "Authorization" to authHeader!!,
-                        "X-CommCareHQ-LastSyncToken" to ""
+                val response = httpClient.execute(
+                    HttpRequest(
+                        url = loginUrl,
+                        method = "GET",
+                        headers = mapOf(
+                            "Authorization" to authHeader!!,
+                            "X-CommCareHQ-LastSyncToken" to ""
+                        )
                     )
                 )
-            )
 
-            when {
-                response.code in 200..299 -> {
-                    appState = AppState.Installing(0.1f, "Parsing restore data...")
-                    parseRestoreResponse(response.body, domain)
+                when {
+                    response.code in 200..299 -> {
+                        appState = AppState.Installing(0.1f, "Parsing restore data...")
+                        parseRestoreResponse(response.body, domain)
+                    }
+                    response.code == 401 -> {
+                        appState = AppState.LoginError("Invalid username or password")
+                    }
+                    response.code == 404 -> {
+                        appState = AppState.LoginError("Domain not found. Check your server URL.")
+                    }
+                    else -> {
+                        appState = AppState.LoginError("Server error (${response.code})")
+                    }
                 }
-                response.code == 401 -> {
-                    appState = AppState.LoginError("Invalid username or password")
-                }
-                response.code == 404 -> {
-                    appState = AppState.LoginError("Domain not found. Check your server URL.")
-                }
-                else -> {
-                    appState = AppState.LoginError("Server error (${response.code})")
-                }
+            } catch (e: Exception) {
+                appState = AppState.LoginError("Connection failed: ${e.message}")
             }
-        } catch (e: Exception) {
-            appState = AppState.LoginError("Connection failed: ${e.message}")
         }
     }
 

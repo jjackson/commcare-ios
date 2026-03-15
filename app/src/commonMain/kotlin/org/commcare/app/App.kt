@@ -28,7 +28,7 @@ fun App(db: CommCareDatabase) {
                 is AppState.InstallError -> InstallErrorScreen(state) {
                     loginViewModel.resetError()
                 }
-                is AppState.Ready -> HomeScreen()
+                is AppState.Ready -> HomeScreen(state, db)
             }
         }
     }
