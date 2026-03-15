@@ -42,13 +42,13 @@ commcare-ios/
 
 ## Current Status
 
-**Phase 3 Tier 3 planned.** Tiers 1-2 complete (44 tasks). 800+ JVM tests, 100+ cross-platform tests on both JVM and iOS. Planning Tier 3: Advanced Features (32 tasks, 8 waves).
+**Phase 3 complete.** All 3 tiers done (76 tasks). 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app.
 
 - **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. 1 Java compat file remains (StorageManagerCompat.java).
-- **iOS app** (`app/`): Full daily field worker feature set: all question types, repeat groups, field-lists, case management, form drafts/review/queue, incremental sync, multi-language, RTL, breadcrumbs, swipe navigation, geopoint, image, fixtures. Async ViewModels (coroutines), HomeScreen navigation coordinator, form loading from platform storage by xmlns.
+- **iOS app** (`app/`): 51 commonMain, 5 jvmMain, 6 iosMain, 19 jvmTest .kt files. Feature-complete: all question types, repeat groups, field-lists, case tiles, tiered selection, case search/claim, grid menus, display conditions, session stack, chained forms, app updates, demo mode, biometric auth, heartbeat, diagnostics, background scheduler, graphing, UCR reports, alt calendars, printing, recovery mode, crash logging. 4 expect/actual platform abstractions (biometric, printing, scheduler, crash reporter).
 - **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest. 100+ cross-platform tests (27 validation + 75 engine + 4 coroutine dispatch). iOS coroutine + mutableStateOf pattern validated on iOS simulator via CI.
 
-**Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): Planned**
+**Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): All Done**
 **Phase 3 Tier 2 — Daily Field Worker Features (8 waves, 30 tasks): All Done**
 **Phase 3 Tier 1 — Engine Integration (14 tasks): All Done**
 **Foundation Hardening (6 waves): All Done**
@@ -57,6 +57,7 @@ commcare-ios/
 
 **Plans:**
 - **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
+- **Phase 3 Tier 3 completion**: `docs/plans/2026-03-15-phase3-tier3-completion-report.md` — 32 tasks, 8 waves, advanced features
 - **Phase 3 Tier 3 plan**: `docs/plans/2026-03-14-phase3-tier3-implementation-plan.md` — 32-task plan for advanced features (8 waves)
 - **Phase 3 Tier 2 completion**: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, 8 waves, daily field worker features
 - **iOS cross-platform validation**: `docs/plans/2026-03-14-ios-cross-platform-validation-plan.md` — golden file testing for iOS parity
