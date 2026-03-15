@@ -3,7 +3,8 @@ options:
   bundleIdPrefix: org.commcare
   deploymentTarget:
     iOS: "16.0"
-  xcodeVersion: "15.0"
+  xcodeVersion: "15.4"
+  defaultConfig: Debug
 
 settings:
   base:
