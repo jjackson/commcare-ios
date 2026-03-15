@@ -14,7 +14,7 @@ open class SyncRestoreBenchmark {
     @Benchmark
     fun fullRestoreAndInit(): Int {
         val mockApp = MockApp("/app_performance/")
-        val session = mockApp.session
+        val session = mockApp.getSession()
         // Force evaluation of the session to ensure all data is loaded
         return session.getEvaluationContext().hashCode()
     }
