@@ -58,29 +58,25 @@ actual open class CacheTable<T, K> {
                         if (cache == null) {
                             toRemove.add(DataUtil.integer(i))
                         } else {
-                            val table = cache.currentTable
-                            val en: MutableIterator<Any?> = table.keys.iterator()
-                            while (en.hasNext()) {
-                                val key = en.next()
-                                synchronized(cache) {
+                            synchronized(cache) {
+                                val table = cache.currentTable
+                                val en = table.keys.iterator()
+                                while (en.hasNext()) {
+                                    val key = en.next()
                                     if (table[key]?.get() == null) {
-                                        table.remove(key)
+                                        en.remove()
                                     }
                                 }
-                            }
 
-                            synchronized(cache) {
                                 if (cache.totalAdditions > 50 &&
-                                    cache.totalAdditions - cache.currentTable.size > (cache.currentTable.size shr 2)
+                                    cache.totalAdditions - table.size > (table.size shr 2)
                                 ) {
-                                    val newTable = HashMap<Any?, WeakReference<Any?>>(cache.currentTable.size)
-                                    val keys: MutableIterator<Any?> = table.keys.iterator()
-                                    while (keys.hasNext()) {
-                                        val key = keys.next()
-                                        newTable[key] = cache.currentTable[key]!!
+                                    val newTable = HashMap<Any?, WeakReference<Any?>>(table.size)
+                                    for ((key, value) in table) {
+                                        newTable[key] = value
                                     }
                                     cache.currentTable = newTable
-                                    cache.totalAdditions = cache.currentTable.size
+                                    cache.totalAdditions = newTable.size
                                 }
                             }
                         }
