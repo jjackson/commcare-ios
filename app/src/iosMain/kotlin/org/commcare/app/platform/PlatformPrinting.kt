@@ -2,9 +2,7 @@ package org.commcare.app.platform
 
 import platform.UIKit.UIPrintInteractionController
 import platform.UIKit.UIPrintInfo
-import platform.UIKit.UIPrintInfoOutputGeneral
 import platform.UIKit.UIMarkupTextPrintFormatter
-import platform.UIKit.UIApplication
 
 actual class PlatformPrinting actual constructor() {
     actual fun canPrint(): Boolean {
@@ -19,7 +17,8 @@ actual class PlatformPrinting actual constructor() {
 
         val controller = UIPrintInteractionController.sharedPrintController()
         val printInfo = UIPrintInfo.printInfo()
-        printInfo.outputType = UIPrintInfoOutputGeneral
+        // UIPrintInfoOutputGeneral = 0 (general-purpose output)
+        printInfo.outputType = 0L
         printInfo.jobName = jobTitle
         controller.printInfo = printInfo
 
