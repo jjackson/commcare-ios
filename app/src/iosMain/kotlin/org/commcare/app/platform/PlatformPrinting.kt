@@ -19,8 +19,6 @@ actual class PlatformPrinting actual constructor() {
 
         val controller = UIPrintInteractionController.sharedPrintController()
         val printInfo = UIPrintInfo.printInfo()
-        // UIPrintInfoOutputGeneral = 0 (general-purpose output)
-        printInfo.outputType = 0L
         printInfo.jobName = jobTitle
         controller.printInfo = printInfo
 
