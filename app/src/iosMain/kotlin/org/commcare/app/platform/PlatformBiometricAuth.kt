@@ -5,7 +5,6 @@ package org.commcare.app.platform
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometrics
 import platform.LocalAuthentication.LAErrorBiometryNotAvailable
-import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
 import platform.LocalAuthentication.LAErrorUserCancel
 import platform.Foundation.NSError
 import platform.darwin.dispatch_async
@@ -22,20 +21,8 @@ actual class PlatformBiometricAuth actual constructor() {
 
     actual fun authenticate(reason: String, onResult: (BiometricResult) -> Unit) {
         val context = LAContext()
-        var policyError: NSError? = null
-        val canEvaluate = context.canEvaluatePolicy(
-            LAPolicyDeviceOwnerAuthenticationWithBiometrics,
-            error = policyError
-        )
-
-        if (!canEvaluate) {
-            val code = policyError?.code
-            when (code) {
-                LAErrorBiometryNotAvailable, LAErrorBiometryNotEnrolled ->
-                    onResult(BiometricResult.Unavailable)
-                else ->
-                    onResult(BiometricResult.Failure(policyError?.localizedDescription ?: "Biometrics not available"))
-            }
+        if (!context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error = null)) {
+            onResult(BiometricResult.Unavailable)
             return
         }
 
