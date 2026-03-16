@@ -27,6 +27,8 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>CommCare uses Face ID to secure app access</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
