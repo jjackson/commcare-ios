@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -47,3 +47,79 @@ jobs:
       - name: Build iOS app framework
         working-directory: app
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: app/iosApp
+        run: |
+          xcodegen generate
+          echo "=== Project schemes ==="
+          xcodebuild -project CommCare.xcodeproj -list 2>&1 || true
+          echo "=== pbxproj file sources ==="
+          grep -i "\.swift" CommCare.xcodeproj/project.pbxproj || echo "No swift files in pbxproj"
+
+      - name: Build iOS app with xcodebuild
+        working-directory: app/iosApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CommCare.xcodeproj \
+            -scheme CommCare \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee /tmp/xcodebuild.log | tail -80
+
+      - name: Boot simulator and launch app
+        working-directory: app/iosApp
+        run: |
+          APP_PATH="build/Build/Products/Debug-iphonesimulator/CommCare.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "ERROR: CommCare.app not found at $APP_PATH"
+            echo "Contents of build/Build/Products/:"
+            find build/Build/Products/ -name "*.app" 2>/dev/null || echo "No .app found"
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
+
+          # Boot simulator
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in sorted(data['devices'].items(), reverse=True):
+            if 'iOS' in runtime:
+              for d in devices:
+                if 'iPhone' in d['name'] and d['isAvailable']:
+                  print(d['udid']); sys.exit(0)
+          sys.exit(1)
+          ")
+          echo "Using simulator: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+
+          # Install and launch
+          xcrun simctl install "$DEVICE_ID" "$APP_PATH"
+          xcrun simctl launch "$DEVICE_ID" org.commcare.ios
+
+          # Give the app 10 seconds to start, then check it hasn't crashed
+          sleep 10
+          APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep commcare || true)
+          if [ -z "$APP_PID" ]; then
+            echo "WARNING: App may have crashed on launch. Checking crash logs..."
+            find ~/Library/Logs/DiagnosticReports -name "*CommCare*" -newer "$APP_PATH" 2>/dev/null | while read f; do
+              echo "=== Crash log: $f ==="
+              head -80 "$f"
+            done
+            exit 1
+          fi
+          echo "App launched successfully and is still running!"
+
+          # Shutdown
+          xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
