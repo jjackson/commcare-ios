@@ -6,7 +6,7 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 
 **Monorepo.** commcare-core lives inside this repo as a `git subtree` at `commcare-core/`. This keeps all context (CLAUDE.md, learnings, plans, source code) in one worktree for AI agents. See `docs/learnings/2026-03-09-monorepo-for-agentic-development.md` for rationale.
 
-- **commcare-core/** — Fork of `dimagi/commcare-core`, being ported from Java to Kotlin. Managed via `git subtree`.
+- **commcare-core/** — Fork of `dimagi/commcare-core`, fully ported from Java to Kotlin. Managed via `git subtree`.
 - **docs/**, **pipeline/** — Plans, learnings, and autonomous pipeline tooling
 - **Issues** are tracked here in commcare-ios (commcare-core fork has issues disabled)
 - **Upstream extraction**: When ready to PR against `dimagi/commcare-core`, use `git subtree split --prefix=commcare-core -b upstream-ready`
@@ -19,16 +19,16 @@ commcare-ios/
 │   ├── src/commonMain/      # KMP shared code (656 .kt files — platform-agnostic)
 │   ├── src/jvmMain/         # JVM platform implementations (97 .kt files)
 │   ├── src/iosMain/         # iOS/Native platform implementations (47 .kt files)
-│   ├── src/main/java/       # JVM-only: 1 Java compat file + parser specs + resources
+│   ├── src/main/java/       # JVM-only: parser specs + resources (zero Java source files)
 │   ├── src/test/java/       # JUnit 4 tests — 129 .kt + 4 .java (JVM)
-│   ├── src/commonTest/      # Cross-platform tests — 19 .kt (run on both JVM and iOS)
+│   ├── src/commonTest/      # Cross-platform tests — 23 .kt (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
 │   └── gradlew              # Gradle wrapper
 ├── app/                     # Compose Multiplatform app (JVM + iOS)
-│   ├── src/commonMain/      # Shared app code (UI, ViewModels, engine wiring, storage)
-│   ├── src/jvmMain/         # JVM platform (DatabaseDriverFactory)
-│   ├── src/iosMain/         # iOS platform (DatabaseDriverFactory, MainViewController)
-│   ├── src/jvmTest/         # JVM tests (sandbox, oracle, e2e)
+│   ├── src/commonMain/      # Shared app code (51 .kt — UI, ViewModels, engine wiring, storage)
+│   ├── src/jvmMain/         # JVM platform (5 .kt)
+│   ├── src/iosMain/         # iOS platform (6 .kt)
+│   ├── src/jvmTest/         # JVM tests (20 .kt — sandbox, oracle, e2e)
 │   └── src/commonMain/sqldelight/  # SQLDelight schema
 ├── docs/
 │   ├── plans/               # Design docs, phase plans, completion reports
@@ -40,79 +40,51 @@ commcare-ios/
 └── CLAUDE.md                # You are here
 ```
 
-## Current Status
+## Current Status & What's Next
 
-**Phase 3 complete.** All 3 tiers done (76 tasks). 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app.
+**Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
 
-- **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. Zero Java source files remain — fully Kotlin.
-- **iOS app** (`app/`): 51 commonMain, 5 jvmMain, 6 iosMain, 20 jvmTest .kt files. Feature-complete: all question types, repeat groups, field-lists, case tiles, tiered selection, case search/claim, grid menus, display conditions, session stack, chained forms, app updates, demo mode, biometric auth, heartbeat, diagnostics, background scheduler, graphing, UCR reports, alt calendars, printing, recovery mode, crash logging. 4 expect/actual platform abstractions (biometric, printing, scheduler, crash reporter).
-- **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest. 100+ cross-platform tests (27 validation + 75 engine + 4 coroutine dispatch). iOS coroutine + mutableStateOf pattern validated on iOS simulator via CI.
-- **iOS simulator CI**: `ios-build.yml` builds the full app (Kotlin framework + Swift shell via xcodegen) and launches on iOS simulator with a 10s watchdog. Runs on macos-15.
-- **iOS cinterop**: All 4 expect/actual platform abstractions have real implementations — LAContext biometric auth, UIPrintInteractionController printing, NSTimer scheduler, NSUserDefaults crash reporter.
-- **Performance**: Java vs Kotlin benchmark comparison complete — Kotlin equal or faster across all 14 benchmarks. See `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md`.
+**Phase 4: Polish — NOT YET PLANNED.** The Phase Transition Checklist requires a detailed plan before any code. Write `docs/plans/2026-03-16-phase4-polish-plan.md` as the first task. The original design doc (`docs/plans/2026-03-07-commcare-ios-design.md`, Phase 4 section) outlines:
+- Fix remaining parity failures
+- Performance profiling and optimization
+- Accessibility (VoiceOver, Dynamic Type)
+- App Store metadata and submission prep
+- Final E2E test suite validation
+- Exit criteria: correctness scorecard at 99%+, App Store submission ready
 
-**Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): All Done**
-**Phase 3 Tier 2 — Daily Field Worker Features (8 waves, 30 tasks): All Done**
-**Phase 3 Tier 1 — Engine Integration (14 tasks): All Done**
-**Foundation Hardening (6 waves): All Done**
+**If you are an agent starting a session:** Your first job is to check whether the Phase 4 plan exists. If not, write it following the Phase Transition Checklist. If it does, pick up the next open issue.
 
 ## Key Docs
 
-**Plans:**
-- **Design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
-- **Phase 3 Tier 3 completion**: `docs/plans/2026-03-15-phase3-tier3-completion-report.md` — 32 tasks, 8 waves, advanced features
-- **Phase 3 Tier 3 plan**: `docs/plans/2026-03-14-phase3-tier3-implementation-plan.md` — 32-task plan for advanced features (8 waves)
-- **Phase 3 Tier 2 completion**: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, 8 waves, daily field worker features
-- **iOS cross-platform validation**: `docs/plans/2026-03-14-ios-cross-platform-validation-plan.md` — golden file testing for iOS parity
+**Active:**
+- **Original design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy, **Phase 4 outline**
 - **Xcode project setup**: `docs/plans/2026-03-15-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
-- **iOS cinterop plan**: `docs/plans/2026-03-15-ios-cinterop-implementation-plan.md` — replacing 4 iOS stubs with real implementations
-- **Phase 3 Tier 2 plan**: `docs/plans/2026-03-13-phase3-tier2-implementation-plan.md` — 30-task plan for daily field worker features
-- **Foundation hardening plan**: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md` — 6-wave plan: bug fixes, engine tests, test migration, property conversion
-- **Phase 3 Tier 1 completion**: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP with real engine integration
-- **Phase 3 Tier 1 plan**: `docs/plans/2026-03-12-phase3-tier1-implementation-plan.md` — 14-task plan for minimum viable app
-- **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves
-- **Phase 1-7 completion reports**: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md` — progressive migration from 611 .kt files (Phase 1) to 643 commonMain (Phase 7)
-- **Performance testing**: `docs/plans/2026-03-11-performance-testing-design.md` — kotlinx-benchmark infrastructure for JVM/Native comparison
-- **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster across the board
+- **iOS cinterop plan**: `docs/plans/2026-03-15-ios-cinterop-implementation-plan.md` — replacing 4 iOS stubs with real implementations (DONE)
+- **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster
+
+**Completion reports (historical):**
+- Phase 3 Tier 3: `docs/plans/2026-03-15-phase3-tier3-completion-report.md` — 32 tasks, advanced features
+- Phase 3 Tier 2: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, daily field worker features
+- Phase 3 Tier 1: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP engine integration
+- Foundation hardening: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md`
+- Phase 8: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell
+- Phases 1-7: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md`
 
 **Learnings (by category):**
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
 - **KMP migration**: `wave6-7-kmp-migration-learnings`, `ios-ci-learnings`, `commonmain-migration-blockers`, `phase4-deep-migration-learnings`, `phase6-deep-migration-learnings`, `phase7-bulk-migration-learnings`, `wave6-xpath-migration-learnings`, `wave7-commonmain-dependency-inversion`, `wave7-commonmain-migration-learnings`
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
-- **Foundation hardening**: `foundation-hardening-learnings` — test migration patterns, serialization bugs, property conversion
-- **Cross-platform validation**: XFormParser port (kxml2→XmlElement/XmlDomBuilder), PlatformXmlParser namespace enumeration, golden file testing pattern, test_constraints.xml classpath collision
-- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
+- **Foundation hardening**: `foundation-hardening-learnings` — test migration, serialization bugs, property conversion
+- **Cross-platform validation**: `xformparser-port-learnings` — XFormParser port, golden file testing, classpath collision traps
+- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `tier1-process-skip-learnings`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
-- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system), LAContext biometrics, UIPrintInteractionController, NSTimer scheduling, NSUserDefaults crash persistence
+- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — cinterop patterns, NSURLSession, LAContext biometrics, UIPrintInteractionController, NSTimer, NSUserDefaults
 
 All learning files are in `docs/learnings/`.
 
 ## Kotlin Conversion Checklist
 
-When converting Java files to Kotlin in commcare-core, check for these **before pushing**:
-
-1. **Nullable parameters**: Scan Java call sites. If any passes `null`, the Kotlin parameter must be `?` type.
-2. **Generic raw types**: Java raw types don't exist in Kotlin. If a generic type parameter is consistently bypassed, consider removing it.
-3. **Return type invariance**: `Vector<SubType>` is NOT `Vector<SuperType>` in Kotlin. Use `out` variance on interface declarations.
-4. **`open` keyword**: Kotlin classes are `final` by default. Check if the class is subclassed anywhere (including commcare-android, FormPlayer) and mark `open`.
-5. **`@JvmField` / `@JvmStatic`**: Java subclasses accessing `super.field` need `@JvmField`. Java callers of companion methods need `@JvmStatic`.
-6. **Local build first**: Run `./gradlew compileKotlin compileJava` locally before pushing. Run `./gradlew test` for final verification.
-7. **KDoc `*/` hazard**: Grep for `*/` inside `/** ... */` block comments — XPath wildcards like `/data/*/to` prematurely close the comment. Escape as `` `*` ``.
-8. **Preserve `abstract`**: If the Java class is `abstract`, the Kotlin class must be `abstract` too (not `open`). Reflection-based tests depend on this.
-9. **Nullable parameter threading**: Don't add `!!` on nullable params just to call a child method — make the child accept nullable too. Java silently passes null through call chains.
-10. **`protected` → `internal`**: Java `protected` = package + subclass access. Kotlin `protected` = subclass only. Use `internal` for same-package non-subclass callers.
-11. **Companion method inheritance**: Kotlin companion methods are NOT inherited by subclasses. Call them on the defining class (`DataInstance.unpackReference`), not a subclass (`FormInstance.unpackReference`).
-12. **`@JvmField` vs `open`**: `@JvmField` cannot be used on `open` properties. Drop `open` — subclasses access the inherited field directly.
-13. **Companion `protected`**: Companion object members cannot be `protected`. Use `internal const val` for constants that subclasses need within the same module.
-14. **Smart cast on `var`**: Kotlin won't smart-cast mutable properties after null checks. Capture to a local `val` first: `val el = element; if (el != null) ...`
-15. **`const val` auto-inlines**: `const val` in companion objects compiles to `public static final` in Java bytecode automatically. No `@JvmField` needed for String/Int/Long/Boolean constants.
-16. **JVM signature clash: `val` vs `fun`**: A constructor `val foo` generates `getFoo()`, which clashes with `override fun getFoo()` from an interface. Fix: rename the constructor param (e.g., `_foo`) and delegate from the override.
-17. **JVM signature clash: field vs getter**: A `var foo` field generates `getFoo()`, which clashes with an explicit `fun getFoo()`. Fix: rename the backing field to `_foo`.
-18. **Java boxed types in generics**: `Pair<Integer, Integer>` must be `Pair<Int, Int>` in Kotlin. Never use Java boxed types in Kotlin generic type arguments.
-19. **Kotlin-to-Kotlin `fun` calls**: When calling Kotlin code that defines `fun getFoo()`, use `getFoo()` not `foo`. Kotlin only synthesizes property access for *Java* getters, not Kotlin `fun` declarations.
-20. **`internal` hides from other source sets**: Kotlin `internal` mangles names in bytecode. Java code in separate Gradle source sets (ccapi, cli, test) can't access `internal` properties. Add explicit public getter methods.
-21. **Property getter/setter clash**: A `var foo` auto-generates `getFoo()`/`setFoo()`. Don't also define explicit `fun setFoo()` — remove it and let callers use property syntax.
-22. **`@Throws` must match exactly in commonMain**: Kotlin/Native (iOS) requires override methods to have **exactly** matching `@Throws` annotations as their parent declarations. On JVM, subsets are allowed, but in commonMain (compiled for both targets), every override must list the same exceptions. Check all levels of the hierarchy (interface → abstract class → concrete class).
+Java→Kotlin conversion is complete (zero Java source files remain). The full 22-item checklist is preserved in `docs/kotlin-conversion-checklist.md` for reference if converting remaining test .java files or future upstream Java code.
 
 ## PR Rules
 
@@ -180,23 +152,27 @@ git subtree split --prefix=commcare-core -b upstream-ready
 
 When all issues for a phase are closed, follow these steps **before writing any code for the next phase**:
 
-1. **Write a completion report** for the finished phase → `docs/plans/<date>-phase<N>-completion-report.md`
-2. **Write a detailed plan** for the next phase → `docs/plans/<date>-phase<N+1>-<name>-plan.md`
+1. **Close all open issues** for the finished phase with proper closure notes (per Issue Closure Rules)
+2. **Write a completion report** for the finished phase → `docs/plans/<date>-phase<N>-completion-report.md`
+3. **Write a detailed plan** for the next phase → `docs/plans/<date>-phase<N+1>-<name>-plan.md`
    - Include: dependency analysis, task breakdown with file counts, ordering/dependency graph, acceptance criteria per task, risk mitigations
    - Reference: Phase 1 plan (`docs/plans/2026-03-07-phase1-core-port-plan.md`) and Phase 2 plan (`docs/plans/2026-03-10-phase2-kmp-multiplatform-plan.md`) as examples of the expected detail level
-3. **Create GitHub issues** from the plan — one issue per wave/task, following the issue template in the plan
-4. **Update CLAUDE.md** — add the new phase's status table and link the plan doc in Key Docs
-5. **PR and merge** the plan doc and CLAUDE.md updates (doc PRs, per Doc PR Rules)
-6. **Then start Wave 1** of the new phase
+4. **Create GitHub issues** from the plan — one issue per wave/task, following the issue template in the plan
+5. **Update CLAUDE.md** — add the new phase's status and link the plan doc in Key Docs
+6. **PR and merge** the plan doc and CLAUDE.md updates (doc PRs, per Doc PR Rules)
+7. **Verify**: Confirm new phase plan exists, issues are created, CLAUDE.md is updated. If any are missing, that is the first task.
+8. **Then start Wave 1** of the new phase
 
 Do not skip straight to code. The plan is the first deliverable of every phase.
 
 ## AI Agent Guidelines
 
 - **Check the Phase Transition Checklist** when a phase completes — plan before code
+- **Always follow full workflow** regardless of speed — branch, PR, CI, merge per wave. Skipping steps (as happened in Tier 1) loses reviewability and traceability. See `docs/learnings/2026-03-13-tier1-process-skip-learnings.md`.
+- **First task of any session**: Check "Current Status & What's Next" above. If no plan exists for the current phase, writing the plan IS your task.
 - Read the relevant issue's full description before starting work — it contains "Files to Read", "What to Do", and "Tests That Must Pass"
 - Read `docs/learnings/` files before starting a conversion wave — they document real failures
-- Follow the Kotlin Conversion Checklist above for every file
+- Follow the Kotlin Conversion Checklist (in `docs/kotlin-conversion-checklist.md`) for any Java→Kotlin work
 - Follow PR Rules and Issue Closure Rules exactly — AI agents must not skip deliverable steps
 - When in doubt about a technical decision, document it in the PR description
 - Never mix documentation changes into code branches — use separate doc PRs (see Doc PR Rules)
