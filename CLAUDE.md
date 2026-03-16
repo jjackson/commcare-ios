@@ -47,6 +47,9 @@ commcare-ios/
 - **commcare-core**: 656 commonMain, 97 jvmMain, 47 iosMain .kt files. XFormParser + DOM abstraction in commonMain. Zero Java source files remain — fully Kotlin.
 - **iOS app** (`app/`): 51 commonMain, 5 jvmMain, 6 iosMain, 20 jvmTest .kt files. Feature-complete: all question types, repeat groups, field-lists, case tiles, tiered selection, case search/claim, grid menus, display conditions, session stack, chained forms, app updates, demo mode, biometric auth, heartbeat, diagnostics, background scheduler, graphing, UCR reports, alt calendars, printing, recovery mode, crash logging. 4 expect/actual platform abstractions (biometric, printing, scheduler, crash reporter).
 - **Cross-platform validation**: Golden file testing pattern — JVM oracle generates expected XML, both platforms compare in commonTest. 100+ cross-platform tests (27 validation + 75 engine + 4 coroutine dispatch). iOS coroutine + mutableStateOf pattern validated on iOS simulator via CI.
+- **iOS simulator CI**: `ios-build.yml` builds the full app (Kotlin framework + Swift shell via xcodegen) and launches on iOS simulator with a 10s watchdog. Runs on macos-15.
+- **iOS cinterop**: All 4 expect/actual platform abstractions have real implementations — LAContext biometric auth, UIPrintInteractionController printing, NSTimer scheduler, NSUserDefaults crash reporter.
+- **Performance**: Java vs Kotlin benchmark comparison complete — Kotlin equal or faster across all 14 benchmarks. See `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md`.
 
 **Phase 3 Tier 3 — Advanced Features (8 waves, 32 tasks): All Done**
 **Phase 3 Tier 2 — Daily Field Worker Features (8 waves, 30 tasks): All Done**
@@ -70,6 +73,7 @@ commcare-ios/
 - **Phase 8 completion**: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell: 17 UI/ViewModel files, 5 platform implementations, 9 waves
 - **Phase 1-7 completion reports**: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md` — progressive migration from 611 .kt files (Phase 1) to 643 commonMain (Phase 7)
 - **Performance testing**: `docs/plans/2026-03-11-performance-testing-design.md` — kotlinx-benchmark infrastructure for JVM/Native comparison
+- **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster across the board
 
 **Learnings (by category):**
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
@@ -79,7 +83,7 @@ commcare-ios/
 - **Cross-platform validation**: XFormParser port (kxml2→XmlElement/XmlDomBuilder), PlatformXmlParser namespace enumeration, golden file testing pattern, test_constraints.xml classpath collision
 - **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
-- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system)
+- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — NSURLSession sync, NSJSONSerialization, cinterop patterns (CommonCrypto, SecureRandom, file system), LAContext biometrics, UIPrintInteractionController, NSTimer scheduling, NSUserDefaults crash persistence
 
 All learning files are in `docs/learnings/`.
 
@@ -154,7 +158,7 @@ cd ..                                                   # Back to repo root for 
 
 # CI workflows:
 # - kotlin-tests.yml: runs on PRs touching commcare-core/, gradle files
-# - ios-build.yml: runs on PRs touching app/, commcare-core/, gradle files (macOS runner)
+# - ios-build.yml: builds Kotlin framework + Swift app via xcodegen, launches on iOS simulator (macos-15 runner)
 ```
 
 ## Subtree Management
