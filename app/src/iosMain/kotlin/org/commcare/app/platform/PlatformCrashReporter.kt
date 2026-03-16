@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package org.commcare.app.platform
 
 import platform.Foundation.NSUserDefaults
