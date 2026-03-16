@@ -19,8 +19,6 @@ targets:
         type: group
     dependencies:
       - sdk: libsqlite3.tbd
-      - sdk: CommonCrypto.framework
-        embed: false
     settings:
       base:
         INFOPLIST_FILE: iosApp/Info.plist
