@@ -44,19 +44,25 @@ commcare-ios/
 
 **Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
 
-**Phase 4: Polish — NOT YET PLANNED.** The Phase Transition Checklist requires a detailed plan before any code. Write `docs/plans/2026-03-16-phase4-polish-plan.md` as the first task. The original design doc (`docs/plans/2026-03-07-commcare-ios-design.md`, Phase 4 section) outlines:
-- Fix remaining parity failures
-- Performance profiling and optimization
-- Accessibility (VoiceOver, Dynamic Type)
-- App Store metadata and submission prep
-- Final E2E test suite validation
-- Exit criteria: correctness scorecard at 99%+, App Store submission ready
+**Phase 4: Polish — PLANNED.** 19 tasks across 6 waves. See `docs/plans/2026-03-16-phase4-polish-plan.md`.
 
-**If you are an agent starting a session:** Your first job is to check whether the Phase 4 plan exists. If not, write it following the Phase Transition Checklist. If it does, pick up the next open issue.
+| Wave | Title | Issues | Status |
+|------|-------|--------|--------|
+| 1 | Correctness Scorecard & Integration Testing | #253 | Open |
+| 2 | Media Capture (camera, audio, signature) | #254 | Open |
+| 3 | Location & Barcode Scanning | #255 | Open |
+| 4 | Accessibility (VoiceOver, Dynamic Type) | #256 | Open |
+| 5 | App Store Preparation | #257 | Open |
+| 6 | Performance & Final Validation | #258 | Open |
+
+Waves 2 & 3 can run in parallel after Wave 1. Exit criteria: correctness scorecard at 99%+, App Store submission ready.
+
+**If you are an agent starting a session:** Pick up the next open issue from the table above. Read the issue description for "Files to Read", "What to Do", and "Tests That Must Pass".
 
 ## Key Docs
 
 **Active:**
+- **Phase 4 plan**: `docs/plans/2026-03-16-phase4-polish-plan.md` — 19 tasks, 6 waves: scorecard, media, location, accessibility, App Store, validation
 - **Original design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy, **Phase 4 outline**
 - **Xcode project setup**: `docs/plans/2026-03-15-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
 - **iOS cinterop plan**: `docs/plans/2026-03-15-ios-cinterop-implementation-plan.md` — replacing 4 iOS stubs with real implementations (DONE)
