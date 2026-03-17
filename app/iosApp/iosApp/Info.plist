@@ -29,6 +29,14 @@
 	<dict/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>CommCare uses Face ID to secure app access</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CommCare needs camera access to capture images and scan barcodes</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CommCare needs microphone access to record audio</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CommCare needs photo library access to attach images</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CommCare needs location access to capture GPS coordinates for forms</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

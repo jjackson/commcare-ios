@@ -33,6 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import org.commcare.app.platform.PlatformAudioCapture
+import org.commcare.app.platform.PlatformBarcodeScanner
+import org.commcare.app.platform.PlatformImageCapture
+import org.commcare.app.platform.PlatformLocationProvider
+import org.commcare.app.platform.PlatformSignatureCapture
 import org.commcare.app.viewmodel.FormEntryViewModel
 import org.commcare.app.viewmodel.LanguageViewModel
 import org.commcare.app.viewmodel.QuestionState
@@ -347,7 +352,6 @@ private fun QuestionWidget(
         }
 
         QuestionType.GEOPOINT -> {
-            // GeoPoint: display as text input for manual entry (lat lon alt accuracy)
             OutlinedTextField(
                 value = question.answer,
                 onValueChange = { viewModel.answerQuestionString(index, it) },
@@ -356,6 +360,12 @@ private fun QuestionWidget(
                 singleLine = true,
                 enabled = enabled
             )
+            if (enabled) {
+                val locationProvider = remember { PlatformLocationProvider() }
+                Button(onClick = { viewModel.captureLocation(index, locationProvider) }) {
+                    Text("Capture GPS")
+                }
+            }
             if (question.answer.isNotBlank()) {
                 Text(
                     text = formatGeoPoint(question.answer),
@@ -366,21 +376,74 @@ private fun QuestionWidget(
         }
 
         QuestionType.IMAGE -> {
-            // Image: placeholder with file path input
-            OutlinedTextField(
-                value = question.answer,
-                onValueChange = { viewModel.answerQuestionString(index, it) },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Image path") },
-                singleLine = true,
-                enabled = enabled
-            )
+            if (enabled) {
+                val imageCapture = remember { PlatformImageCapture() }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { viewModel.captureImage(index, imageCapture) }) {
+                        Text("Take Photo")
+                    }
+                    OutlinedButton(onClick = { imageCapture.pickFromGallery { path ->
+                        if (path != null) viewModel.answerQuestionString(index, path)
+                    }}) {
+                        Text("Gallery")
+                    }
+                }
+            }
             if (question.answer.isNotBlank()) {
                 Text(
                     text = "Image: ${question.answer}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        QuestionType.AUDIO -> {
+            if (enabled) {
+                val audioCapture = remember { PlatformAudioCapture() }
+                Button(onClick = { viewModel.captureAudio(index, audioCapture) }) {
+                    Text("Record Audio")
+                }
+            }
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = "Audio: ${question.answer}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        QuestionType.SIGNATURE -> {
+            if (enabled) {
+                val signatureCapture = remember { PlatformSignatureCapture() }
+                Button(onClick = { viewModel.captureSignature(index, signatureCapture) }) {
+                    Text("Capture Signature")
+                }
+            }
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = "Signature: ${question.answer}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        QuestionType.BARCODE -> {
+            OutlinedTextField(
+                value = question.answer,
+                onValueChange = { viewModel.answerQuestionString(index, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Barcode") },
+                singleLine = true,
+                enabled = enabled
+            )
+            if (enabled) {
+                val barcodeScanner = remember { PlatformBarcodeScanner() }
+                Button(onClick = { viewModel.scanBarcode(index, barcodeScanner) }) {
+                    Text("Scan Barcode")
+                }
             }
         }
 

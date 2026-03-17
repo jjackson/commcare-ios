@@ -143,6 +143,51 @@ class FormEntryViewModel(
     }
 
     /**
+     * Capture an image for the question at the given index.
+     */
+    fun captureImage(index: Int, imageCapture: org.commcare.app.platform.PlatformImageCapture) {
+        imageCapture.captureFromCamera { path ->
+            if (path != null) answerQuestionString(index, path)
+        }
+    }
+
+    /**
+     * Capture audio for the question at the given index.
+     */
+    fun captureAudio(index: Int, audioCapture: org.commcare.app.platform.PlatformAudioCapture) {
+        audioCapture.startRecording { path ->
+            if (path != null) answerQuestionString(index, path)
+        }
+    }
+
+    /**
+     * Capture a signature for the question at the given index.
+     */
+    fun captureSignature(index: Int, signatureCapture: org.commcare.app.platform.PlatformSignatureCapture) {
+        signatureCapture.captureSignature { path ->
+            if (path != null) answerQuestionString(index, path)
+        }
+    }
+
+    /**
+     * Capture GPS location for the question at the given index.
+     */
+    fun captureLocation(index: Int, locationProvider: org.commcare.app.platform.PlatformLocationProvider) {
+        locationProvider.requestLocation { result ->
+            if (result != null) answerQuestionString(index, result.toGeoPointString())
+        }
+    }
+
+    /**
+     * Scan a barcode for the question at the given index.
+     */
+    fun scanBarcode(index: Int, barcodeScanner: org.commcare.app.platform.PlatformBarcodeScanner) {
+        barcodeScanner.scanBarcode { value ->
+            if (value != null) answerQuestionString(index, value)
+        }
+    }
+
+    /**
      * Add a new repeat instance and continue to the first question in it.
      */
     fun addRepeat() {
@@ -383,8 +428,14 @@ class FormEntryViewModel(
             Constants.CONTROL_SELECT_MULTI -> QuestionType.SELECT_MULTI
             Constants.CONTROL_TRIGGER -> QuestionType.TRIGGER
             Constants.CONTROL_LABEL -> QuestionType.LABEL
-            Constants.CONTROL_UPLOAD -> QuestionType.IMAGE
+            Constants.CONTROL_UPLOAD -> {
+                when {
+                    dataType == Constants.DATATYPE_BINARY -> QuestionType.IMAGE
+                    else -> QuestionType.IMAGE
+                }
+            }
             Constants.CONTROL_IMAGE_CHOOSE -> QuestionType.IMAGE
+            Constants.CONTROL_AUDIO_CAPTURE -> QuestionType.AUDIO
             else -> QuestionType.TEXT
         }
     }
@@ -407,7 +458,7 @@ enum class QuestionType {
     TEXT, INTEGER, DECIMAL, DATE, TIME,
     SELECT_ONE, SELECT_MULTI,
     LABEL, TRIGGER, GROUP, REPEAT,
-    GEOPOINT, IMAGE
+    GEOPOINT, IMAGE, AUDIO, SIGNATURE, BARCODE
 }
 
 enum class PostFormDestination {
