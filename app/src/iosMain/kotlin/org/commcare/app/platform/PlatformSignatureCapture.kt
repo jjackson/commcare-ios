@@ -55,15 +55,15 @@ private class SignatureViewController(
         view.addSubview(canvasView)
 
         val doneButton = UIButton.buttonWithType(UIButtonTypeSystem)
-        doneButton.setTitle("Done", forState = 0u)
+        doneButton.setTitle("Done", forState = 0uL)
         doneButton.setFrame(CGRectMake(boundsWidth - 80.0, 10.0, 70.0, 40.0))
-        doneButton.addTarget(this, action = platform.objc.sel_registerName("doneTapped"), forControlEvents = 1u shl 6) // touchUpInside
+        doneButton.addTarget(this, action = platform.objc.sel_registerName("doneTapped"), forControlEvents = 1uL shl 6) // touchUpInside
         view.addSubview(doneButton)
 
         val cancelButton = UIButton.buttonWithType(UIButtonTypeSystem)
-        cancelButton.setTitle("Cancel", forState = 0u)
+        cancelButton.setTitle("Cancel", forState = 0uL)
         cancelButton.setFrame(CGRectMake(10.0, 10.0, 70.0, 40.0))
-        cancelButton.addTarget(this, action = platform.objc.sel_registerName("cancelTapped"), forControlEvents = 1u shl 6)
+        cancelButton.addTarget(this, action = platform.objc.sel_registerName("cancelTapped"), forControlEvents = 1uL shl 6)
         view.addSubview(cancelButton)
     }
 

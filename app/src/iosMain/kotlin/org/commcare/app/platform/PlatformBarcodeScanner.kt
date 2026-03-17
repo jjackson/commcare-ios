@@ -90,10 +90,10 @@ private class BarcodeScannerViewController(
 
         // Cancel button
         val cancelButton = UIButton.buttonWithType(UIButtonTypeSystem)
-        cancelButton.setTitle("Cancel", forState = 0u)
-        cancelButton.setTitleColor(UIColor.whiteColor, forState = 0u)
+        cancelButton.setTitle("Cancel", forState = 0uL)
+        cancelButton.setTitleColor(UIColor.whiteColor, forState = 0uL)
         cancelButton.setFrame(CGRectMake(10.0, 40.0, 70.0, 40.0))
-        cancelButton.addTarget(this, action = platform.objc.sel_registerName("cancelTapped"), forControlEvents = 1u shl 6)
+        cancelButton.addTarget(this, action = platform.objc.sel_registerName("cancelTapped"), forControlEvents = 1uL shl 6)
         view.addSubview(cancelButton)
 
         captureSession = session
