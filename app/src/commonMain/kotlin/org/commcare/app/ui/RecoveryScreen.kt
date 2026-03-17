@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +45,9 @@ fun RecoveryScreen(
             Text(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                modifier = Modifier.clickable { onBack() }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                    .padding(end = 8.dp)
             )
             Text(
                 text = "Recovery Mode",
@@ -151,9 +154,18 @@ private fun UnsentFormCard(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextButton(onClick = onRetry) { Text("Retry") }
-                TextButton(onClick = onExport) { Text("Export") }
-                TextButton(onClick = onDelete) {
+                TextButton(
+                    onClick = onRetry,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) { Text("Retry") }
+                TextButton(
+                    onClick = onExport,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) { Text("Export") }
+                TextButton(
+                    onClick = onDelete,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
             }

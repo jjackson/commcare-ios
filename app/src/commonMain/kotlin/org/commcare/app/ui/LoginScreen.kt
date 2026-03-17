@@ -92,7 +92,9 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (isLoggingIn) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier
+            )
         } else {
             Button(
                 onClick = { viewModel.login() },

@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
@@ -62,7 +63,10 @@ fun FormEntryScreen(
             Text(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                modifier = Modifier
+                    .clickable { onBack() }
+                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                    .padding(end = 8.dp)
             )
             Text(
                 text = viewModel.formTitle,
@@ -90,11 +94,14 @@ fun FormEntryScreen(
                         color = if (lang == languageViewModel.currentLanguage)
                             MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable {
-                            if (languageViewModel.setLanguage(lang)) {
-                                viewModel.refreshAfterLanguageChange()
+                        modifier = Modifier
+                            .clickable {
+                                if (languageViewModel.setLanguage(lang)) {
+                                    viewModel.refreshAfterLanguageChange()
+                                }
                             }
-                        }.padding(horizontal = 8.dp, vertical = 4.dp)
+                            .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -114,7 +121,9 @@ fun FormEntryScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    modifier = Modifier
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Submitting form...")
             }
@@ -306,9 +315,9 @@ private fun QuestionWidget(
             for (choice in question.choices) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = if (enabled) Modifier.clickable {
+                    modifier = (if (enabled) Modifier.clickable {
                         viewModel.answerQuestionString(index, choice)
-                    } else Modifier
+                    } else Modifier).defaultMinSize(minHeight = 44.dp)
                 ) {
                     RadioButton(
                         selected = question.answer == choice,
@@ -324,9 +333,9 @@ private fun QuestionWidget(
                 val isSelected = question.selectedChoices.contains(choice)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = if (enabled) Modifier.clickable {
+                    modifier = (if (enabled) Modifier.clickable {
                         viewModel.toggleMultiSelectChoice(index, choice)
-                    } else Modifier
+                    } else Modifier).defaultMinSize(minHeight = 44.dp)
                 ) {
                     Checkbox(
                         checked = isSelected,

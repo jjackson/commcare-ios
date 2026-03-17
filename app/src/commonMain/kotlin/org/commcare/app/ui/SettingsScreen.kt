@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,7 +47,9 @@ fun SettingsScreen(
             Text(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                modifier = Modifier.clickable { onBack() }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                    .padding(end = 8.dp)
             )
             Text(
                 text = "Settings",
@@ -235,7 +238,9 @@ private fun UpdateSection(updateViewModel: UpdateViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CircularProgressIndicator(modifier = Modifier)
+                CircularProgressIndicator(
+                    modifier = Modifier
+                )
                 Text("Checking for updates...", style = MaterialTheme.typography.bodyMedium)
             }
         }

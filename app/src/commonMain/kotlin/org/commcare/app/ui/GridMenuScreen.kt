@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,7 +50,9 @@ fun GridMenuScreen(
                 Text(
                     text = "<",
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                    modifier = Modifier.clickable { onBack() }
+                        .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                        .padding(end = 8.dp)
                 )
             }
             Text(

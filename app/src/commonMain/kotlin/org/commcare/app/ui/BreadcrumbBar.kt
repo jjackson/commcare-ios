@@ -3,6 +3,7 @@ package org.commcare.app.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +46,7 @@ fun BreadcrumbBar(
                 color = if (isLast) MaterialTheme.colorScheme.onSurface
                 else MaterialTheme.colorScheme.primary,
                 modifier = if (!isLast) Modifier.clickable { onSegmentClick(index) }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
                 else Modifier
             )
         }

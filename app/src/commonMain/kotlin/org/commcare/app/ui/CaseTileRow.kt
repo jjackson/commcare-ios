@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * Data class representing a resolved tile field ready for display.
@@ -96,12 +95,12 @@ fun CaseTileRow(
                     else -> TextAlign.Start
                 }
 
-                val fontSize = when (field.fontSize) {
-                    "large" -> 18.sp
-                    "small" -> 12.sp
-                    "extra-small" -> 10.sp
-                    "extra-large" -> 22.sp
-                    else -> 14.sp
+                val textStyle = when (field.fontSize) {
+                    "large" -> MaterialTheme.typography.titleMedium
+                    "small" -> MaterialTheme.typography.bodySmall
+                    "extra-small" -> MaterialTheme.typography.labelSmall
+                    "extra-large" -> MaterialTheme.typography.titleLarge
+                    else -> MaterialTheme.typography.bodyMedium
                 }
 
                 Box(
@@ -122,7 +121,7 @@ fun CaseTileRow(
                     } else {
                         Text(
                             text = field.value,
-                            fontSize = fontSize,
+                            style = textStyle,
                             textAlign = textAlign,
                             maxLines = if (field.gridHeight > 1) field.gridHeight else 1,
                             overflow = TextOverflow.Ellipsis
