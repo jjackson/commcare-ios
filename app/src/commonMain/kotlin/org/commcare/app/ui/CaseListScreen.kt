@@ -25,8 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.ActionItem
 import org.commcare.app.viewmodel.CaseItem
@@ -60,7 +58,6 @@ fun CaseListScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.clickable { onBack() }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                    .semantics { contentDescription = "Go back" }
                     .padding(end = 8.dp)
             )
             Text(
@@ -114,7 +111,6 @@ fun CaseListScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable { viewModel.cycleSortMode() }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                    .semantics { contentDescription = "Change sort order" }
                     .padding(8.dp)
             )
         }
@@ -124,7 +120,6 @@ fun CaseListScreen(
         if (viewModel.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(24.dp)
-                    .semantics { contentDescription = "Loading" }
             )
         } else if (viewModel.errorMessage != null) {
             Text(
@@ -172,8 +167,7 @@ fun CaseItemRow(caseItem: CaseItem, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clickable { onClick() }
-            .semantics { contentDescription = "Case: ${caseItem.name}, type: ${caseItem.caseType}" },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )

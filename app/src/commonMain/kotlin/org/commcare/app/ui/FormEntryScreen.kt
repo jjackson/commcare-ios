@@ -27,8 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.CompositionLocalProvider
@@ -66,7 +64,6 @@ fun FormEntryScreen(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier
-                    .semantics { contentDescription = "Go back" }
                     .clickable { onBack() }
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .padding(end = 8.dp)
@@ -98,10 +95,6 @@ fun FormEntryScreen(
                             MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
-                            .semantics {
-                                contentDescription = if (lang == languageViewModel.currentLanguage)
-                                    "$lang, selected" else "Switch to $lang"
-                            }
                             .clickable {
                                 if (languageViewModel.setLanguage(lang)) {
                                     viewModel.refreshAfterLanguageChange()
@@ -118,7 +111,6 @@ fun FormEntryScreen(
         LinearProgressIndicator(
             progress = { viewModel.progress },
             modifier = Modifier.fillMaxWidth()
-                .semantics { contentDescription = "Form progress" }
         )
 
         HorizontalDivider()
@@ -130,7 +122,7 @@ fun FormEntryScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = "Submitting form" }
+                    modifier = Modifier
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Submitting form...")

@@ -16,8 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.CaseItem
 
@@ -38,7 +36,6 @@ fun CaseDetailScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.clickable { onBack() }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                    .semantics { contentDescription = "Go back" }
                     .padding(end = 8.dp)
             )
             Text(

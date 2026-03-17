@@ -24,8 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.SettingsViewModel
 import org.commcare.app.viewmodel.UpdateState
@@ -51,7 +49,6 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.clickable { onBack() }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                    .semantics { contentDescription = "Go back" }
                     .padding(end = 8.dp)
             )
             Text(
@@ -242,7 +239,7 @@ private fun UpdateSection(updateViewModel: UpdateViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = "Loading" }
+                    modifier = Modifier
                 )
                 Text("Checking for updates...", style = MaterialTheme.typography.bodyMedium)
             }
@@ -273,7 +270,6 @@ private fun UpdateSection(updateViewModel: UpdateViewModel) {
                 LinearProgressIndicator(
                     progress = { updateViewModel.updateProgress },
                     modifier = Modifier.fillMaxWidth()
-                        .semantics { contentDescription = "Loading" }
                 )
             }
         }

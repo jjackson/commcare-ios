@@ -12,8 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
@@ -49,7 +47,6 @@ fun BreadcrumbBar(
                 else MaterialTheme.colorScheme.primary,
                 modifier = if (!isLast) Modifier.clickable { onSegmentClick(index) }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                    .semantics { contentDescription = "Navigate to ${segment.label}" }
                 else Modifier
             )
         }

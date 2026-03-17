@@ -18,8 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.MenuItem
 import org.commcare.app.viewmodel.MenuViewModel
@@ -53,7 +51,6 @@ private fun ListMenuScreen(viewModel: MenuViewModel, onBack: (() -> Unit)? = nul
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.clickable { onBack() }
                         .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
-                        .semantics { contentDescription = "Go back" }
                         .padding(end = 8.dp)
                 )
             }
@@ -98,7 +95,6 @@ fun MenuItemRow(item: MenuItem, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .clickable { onClick() }
-            .semantics { contentDescription = item.displayText }
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

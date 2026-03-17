@@ -22,8 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.FormRecordStatus
 import org.commcare.app.viewmodel.FormRecordViewModel
@@ -68,7 +66,6 @@ fun SyncScreen(
                 LinearProgressIndicator(
                     progress = { state.progress },
                     modifier = Modifier.fillMaxWidth()
-                        .semantics { contentDescription = "Loading" }
                 )
             }
             is SyncState.Complete -> {
@@ -209,8 +206,7 @@ fun SyncScreen(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         .let { mod ->
                             if (onResumeDraft != null) mod.clickable { onResumeDraft(record.formId) } else mod
-                        }
-                        .semantics { contentDescription = "Draft: ${record.formName.ifEmpty { record.xmlns }}" },
+                        },
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
@@ -245,8 +241,7 @@ fun SyncScreen(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         .let { mod ->
                             if (onReviewForm != null) mod.clickable { onReviewForm(record.formId) } else mod
-                        }
-                        .semantics { contentDescription = "Completed: ${record.formName.ifEmpty { record.xmlns }}" },
+                        },
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )

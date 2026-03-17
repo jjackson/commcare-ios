@@ -14,8 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.state.AppState
 
@@ -36,7 +34,6 @@ fun InstallScreen(state: AppState.Installing) {
         LinearProgressIndicator(
             progress = { state.progress },
             modifier = Modifier.fillMaxWidth()
-                .semantics { contentDescription = "Loading" }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
