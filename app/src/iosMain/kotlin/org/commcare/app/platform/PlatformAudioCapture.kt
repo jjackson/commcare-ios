@@ -1,11 +1,10 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
 
 package org.commcare.app.platform
 
 import platform.AVFAudio.AVAudioRecorder
 import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryRecord
-import platform.AVFAudio.AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
 import platform.AVFAudio.AVFormatIDKey
 import platform.AVFAudio.AVSampleRateKey
 import platform.AVFAudio.AVNumberOfChannelsKey
@@ -20,9 +19,14 @@ actual class PlatformAudioCapture actual constructor() {
     private var pendingResult: ((String?) -> Unit)? = null
 
     actual fun startRecording(onResult: (String?) -> Unit) {
-        val session = AVAudioSession.sharedInstance()
-        session.setCategory(AVAudioSessionCategoryRecord, error = null)
-        session.setActive(true, withOptions = 0u, error = null)
+        try {
+            val session = AVAudioSession.sharedInstance()
+            session.setCategory(AVAudioSessionCategoryRecord, error = null)
+            // Use the @Throws variant which doesn't require error param
+            session.setActive(true)
+        } catch (_: Exception) {
+            // Ignore audio session errors — recording may still work
+        }
 
         val path = NSTemporaryDirectory() + NSUUID().UUIDString + ".m4a"
         outputPath = path
