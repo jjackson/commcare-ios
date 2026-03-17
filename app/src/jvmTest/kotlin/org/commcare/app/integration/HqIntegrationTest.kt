@@ -8,7 +8,10 @@ import org.commcare.app.viewmodel.FormQueueViewModel
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.createHttpClient
 import org.commcare.core.parse.ParseUtils
+import org.commcare.modern.reference.JavaHttpRoot
+import org.commcare.resources.model.JvmInstallerFactory
 import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.reference.ReferenceManager
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
@@ -47,6 +50,8 @@ class HqIntegrationTest {
             "HQ credentials not configured — set COMMCARE_USERNAME/PASSWORD/DOMAIN env vars",
             config.isConfigured
         )
+        // Register HTTP reference factory so ResourceManager can fetch https:// URLs
+        ReferenceManager.instance().addReferenceFactory(JavaHttpRoot())
     }
 
     private fun createDatabase(): CommCareDatabase {
@@ -139,27 +144,23 @@ class HqIntegrationTest {
 
         // Step 2: Install app from media profile URL
         println("Step 2: Install app...")
-        val installer = AppInstaller(sandbox)
+        val installer = AppInstaller(sandbox, JvmInstallerFactory())
+        // Use non-media profile to skip audio/image resource downloads
         val profileUrl = "${config.hqUrl.trimEnd('/')}/a/${config.domain}" +
-            "/apps/download/${config.appId}/media_profile.ccpr"
-        try {
-            val platform = installer.install(profileUrl) { progress, message ->
-                println("  Install: $message (${"%.0f".format(progress * 100)}%)")
-            }
-            assertNotNull(platform, "Platform should be created")
-            println("  App installed successfully")
+            "/apps/download/${config.appId}/profile.ccpr"
+        val platform = installer.install(profileUrl) { progress, message ->
+            println("  Install: $message (${"%.0f".format(progress * 100)}%)")
+        }
+        assertNotNull(platform, "Platform should be created")
+        println("  App installed successfully")
 
-            // Step 3: Verify platform has suites installed
-            println("Step 3: Verify app structure...")
-            val suites = platform.getInstalledSuites()
-            assertTrue(suites.isNotEmpty(), "App should have at least one suite")
-            println("  Suites installed: ${suites.size}")
-            for (suite in suites) {
-                println("  Suite entries: ${suite.getEntries().size}")
-            }
-        } catch (e: Exception) {
-            println("  App install failed (known limitation): ${e.message}")
-            println("  Skipping app structure verification — testing sync only")
+        // Step 3: Verify platform has suites installed
+        println("Step 3: Verify app structure...")
+        val suites = platform.getInstalledSuites()
+        assertTrue(suites.isNotEmpty(), "App should have at least one suite")
+        println("  Suites installed: ${suites.size}")
+        for (suite in suites) {
+            println("  Suite entries: ${suite.getEntries().size}")
         }
 
         // Step 3/4: Incremental sync

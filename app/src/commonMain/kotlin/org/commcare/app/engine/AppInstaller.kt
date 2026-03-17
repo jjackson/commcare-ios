@@ -26,7 +26,8 @@ import kotlin.reflect.KClass
  * Downloads profile, suites, forms, and initializes the CommCarePlatform.
  */
 class AppInstaller(
-    private val sandbox: SqlDelightUserSandbox
+    private val sandbox: SqlDelightUserSandbox,
+    private val installerFactory: InstallerFactory = InstallerFactory()
 ) {
 
     /**
@@ -55,8 +56,6 @@ class AppInstaller(
         val globalStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
         val upgradeStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
         val tempStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
-
-        val installerFactory = InstallerFactory()
 
         val globalTable = ResourceTable.RetrieveTable(globalStorage, installerFactory)
         val upgradeTable = ResourceTable.RetrieveTable(upgradeStorage, installerFactory)
