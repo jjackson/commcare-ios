@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,8 +40,7 @@ fun LoginScreen(
         Text(
             text = "CommCare",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { heading() }
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(32.dp))

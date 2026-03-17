@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -62,8 +61,7 @@ fun GridMenuScreen(
             Text(
                 text = viewModel.title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { heading() }
+                color = MaterialTheme.colorScheme.primary
             )
         }
 

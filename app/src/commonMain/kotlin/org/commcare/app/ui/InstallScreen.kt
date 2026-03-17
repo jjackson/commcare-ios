@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.state.AppState
@@ -29,8 +28,7 @@ fun InstallScreen(state: AppState.Installing) {
     ) {
         Text(
             text = "Installing Application",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.semantics { heading() }
+            style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -61,8 +59,7 @@ fun InstallErrorScreen(state: AppState.InstallError, onRetry: () -> Unit) {
         Text(
             text = "Installation Failed",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.semantics { heading() }
+            color = MaterialTheme.colorScheme.error
         )
 
         Spacer(modifier = Modifier.height(16.dp))

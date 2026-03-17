@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.defaultMinSize
@@ -75,8 +74,7 @@ fun FormEntryScreen(
             Text(
                 text = viewModel.formTitle,
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { heading() }
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -145,8 +143,7 @@ fun FormEntryScreen(
             ) {
                 Text(
                     text = "Form Complete",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.semantics { heading() }
+                    style = MaterialTheme.typography.headlineMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = { onComplete() }) {

@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
@@ -52,8 +51,7 @@ fun DebugInfoScreen(
             Text(
                 text = "Debug Info",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { heading() }
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -90,7 +88,7 @@ private fun SectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(bottom = 8.dp).semantics { heading() }
+        modifier = Modifier.padding(bottom = 8.dp)
     )
 }
 

@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.SettingsViewModel
@@ -58,8 +57,7 @@ fun SettingsScreen(
             Text(
                 text = "Settings",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { heading() }
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -316,7 +314,7 @@ private fun UpdateSection(updateViewModel: UpdateViewModel) {
 
 @Composable
 private fun SectionHeader(title: String) {
-    Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+    Text(title, style = MaterialTheme.typography.titleMedium)
     Spacer(modifier = Modifier.height(8.dp))
 }
 

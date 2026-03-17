@@ -26,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.ActionItem
@@ -67,8 +66,7 @@ fun CaseListScreen(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.semantics { heading() }
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
