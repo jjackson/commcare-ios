@@ -1,4 +1,4 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 
 package org.commcare.app.platform
 
@@ -19,14 +19,10 @@ actual class PlatformAudioCapture actual constructor() {
     private var pendingResult: ((String?) -> Unit)? = null
 
     actual fun startRecording(onResult: (String?) -> Unit) {
-        try {
-            val session = AVAudioSession.sharedInstance()
-            session.setCategory(AVAudioSessionCategoryRecord, error = null)
-            // Use the @Throws variant which doesn't require error param
-            session.setActive(true)
-        } catch (_: Exception) {
-            // Ignore audio session errors — recording may still work
-        }
+        val session = AVAudioSession.sharedInstance()
+        session.setCategory(AVAudioSessionCategoryRecord, error = null)
+        // AVAudioSession.setActive is not exposed in K/N bindings.
+        // The session activates implicitly when recording starts.
 
         val path = NSTemporaryDirectory() + NSUUID().UUIDString + ".m4a"
         outputPath = path
