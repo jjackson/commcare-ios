@@ -9,7 +9,6 @@ import platform.AVFAudio.AVFormatIDKey
 import platform.AVFAudio.AVSampleRateKey
 import platform.AVFAudio.AVNumberOfChannelsKey
 import platform.AVFAudio.AVEncoderAudioQualityKey
-import platform.AVFAudio.AVAudioQuality
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUUID
 import platform.Foundation.NSURL
@@ -22,7 +21,7 @@ actual class PlatformAudioCapture actual constructor() {
     actual fun startRecording(onResult: (String?) -> Unit) {
         val session = AVAudioSession.sharedInstance()
         session.setCategory(AVAudioSessionCategoryRecord, error = null)
-        session.setActive(true, error = null)
+        session.setActive(active = true, error = null)
 
         val path = NSTemporaryDirectory() + NSUUID().UUIDString + ".m4a"
         outputPath = path
@@ -31,7 +30,7 @@ actual class PlatformAudioCapture actual constructor() {
             AVFormatIDKey to 1633772320L, // kAudioFormatMPEG4AAC
             AVSampleRateKey to 44100.0,
             AVNumberOfChannelsKey to 1L,
-            AVEncoderAudioQualityKey to AVAudioQuality.AVAudioQualityHigh.toLong()
+            AVEncoderAudioQualityKey to 96L // AVAudioQualityHigh = 96
         )
 
         val url = NSURL.fileURLWithPath(path)

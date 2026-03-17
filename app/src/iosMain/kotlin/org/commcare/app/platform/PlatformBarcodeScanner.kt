@@ -84,7 +84,7 @@ private class BarcodeScannerViewController(
         )
 
         val previewLayer = AVCaptureVideoPreviewLayer(session = session)
-        previewLayer.frame = view.bounds
+        previewLayer.setFrame(view.bounds)
         previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
         view.layer.addSublayer(previewLayer)
 
@@ -92,7 +92,7 @@ private class BarcodeScannerViewController(
         val cancelButton = UIButton.buttonWithType(UIButtonTypeSystem)
         cancelButton.setTitle("Cancel", forState = 0u)
         cancelButton.setTitleColor(UIColor.whiteColor, forState = 0u)
-        cancelButton.frame = CGRectMake(10.0, 40.0, 70.0, 40.0)
+        cancelButton.setFrame(CGRectMake(10.0, 40.0, 70.0, 40.0))
         cancelButton.addTarget(this, action = platform.objc.sel_registerName("cancelTapped"), forControlEvents = 1u shl 6)
         view.addSubview(cancelButton)
 

@@ -2,11 +2,11 @@
 
 package org.commcare.app.platform
 
+import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.CLLocation
 import platform.CoreLocation.kCLLocationAccuracyBest
-import platform.CoreLocation.CLAuthorizationStatus
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedWhenInUse
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
 import platform.CoreLocation.kCLAuthorizationStatusNotDetermined
@@ -20,16 +20,11 @@ actual class PlatformLocationProvider actual constructor() {
         manager.desiredAccuracy = kCLLocationAccuracyBest
 
         val status = CLLocationManager.authorizationStatus()
-        if (status == kCLAuthorizationStatusNotDetermined) {
-            manager.requestWhenInUseAuthorization()
-        }
-
         if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
             status == kCLAuthorizationStatusAuthorizedAlways
         ) {
             manager.requestLocation()
         } else {
-            // Will request after authorization change
             manager.requestWhenInUseAuthorization()
         }
     }
@@ -43,14 +38,15 @@ private class LocationDelegate(
     override fun locationManager(manager: CLLocationManager, didUpdateLocations: List<*>) {
         val location = didUpdateLocations.lastOrNull() as? CLLocation
         if (location != null) {
-            onResult(
+            val result = location.coordinate.useContents {
                 LocationResult(
-                    latitude = location.coordinate.latitude,
-                    longitude = location.coordinate.longitude,
+                    latitude = latitude,
+                    longitude = longitude,
                     altitude = location.altitude,
                     accuracy = location.horizontalAccuracy
                 )
-            )
+            }
+            onResult(result)
         } else {
             onResult(null)
         }
