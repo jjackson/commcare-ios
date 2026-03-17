@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.RecoveryViewModel
 import org.commcare.app.viewmodel.UnsentForm
@@ -44,12 +48,16 @@ fun RecoveryScreen(
             Text(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                modifier = Modifier.clickable { onBack() }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                    .semantics { contentDescription = "Go back" }
+                    .padding(end = 8.dp)
             )
             Text(
                 text = "Recovery Mode",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { heading() }
             )
         }
 
@@ -151,9 +159,18 @@ private fun UnsentFormCard(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TextButton(onClick = onRetry) { Text("Retry") }
-                TextButton(onClick = onExport) { Text("Export") }
-                TextButton(onClick = onDelete) {
+                TextButton(
+                    onClick = onRetry,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) { Text("Retry") }
+                TextButton(
+                    onClick = onExport,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) { Text("Export") }
+                TextButton(
+                    onClick = onDelete,
+                    modifier = Modifier.defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
             }

@@ -17,6 +17,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -38,7 +41,8 @@ fun LoginScreen(
         Text(
             text = "CommCare",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { heading() }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -92,7 +96,9 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (isLoggingIn) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.semantics { contentDescription = "Loading" }
+            )
         } else {
             Button(
                 onClick = { viewModel.login() },

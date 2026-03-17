@@ -20,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.NavigationStep
@@ -340,7 +342,8 @@ private fun HomeLanding(
         Text(
             text = "CommCare",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { heading() }
         )
 
         Spacer(modifier = Modifier.height(8.dp))

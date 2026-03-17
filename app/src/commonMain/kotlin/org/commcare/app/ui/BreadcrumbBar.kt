@@ -3,6 +3,7 @@ package org.commcare.app.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
@@ -45,6 +48,8 @@ fun BreadcrumbBar(
                 color = if (isLast) MaterialTheme.colorScheme.onSurface
                 else MaterialTheme.colorScheme.primary,
                 modifier = if (!isLast) Modifier.clickable { onSegmentClick(index) }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                    .semantics { contentDescription = "Navigate to ${segment.label}" }
                 else Modifier
             )
         }

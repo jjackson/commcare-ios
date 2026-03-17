@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.ReportState
@@ -42,12 +46,16 @@ fun ReportScreen(
             Text(
                 text = "<",
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable { onBack() }.padding(end = 8.dp)
+                modifier = Modifier.clickable { onBack() }
+                    .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
+                    .semantics { contentDescription = "Go back" }
+                    .padding(end = 8.dp)
             )
             Text(
                 text = viewModel.reportTitle.ifBlank { "Report" },
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.semantics { heading() }
             )
         }
 
@@ -66,6 +74,7 @@ fun ReportScreen(
             is ReportState.Loading -> {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(24.dp)
+                        .semantics { contentDescription = "Loading" }
                 )
             }
             is ReportState.Loaded -> {
