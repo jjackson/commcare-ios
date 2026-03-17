@@ -5,6 +5,7 @@ package org.commcare.app.platform
 import platform.AVFAudio.AVAudioRecorder
 import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryRecord
+import platform.AVFAudio.AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
 import platform.AVFAudio.AVFormatIDKey
 import platform.AVFAudio.AVSampleRateKey
 import platform.AVFAudio.AVNumberOfChannelsKey
@@ -21,7 +22,7 @@ actual class PlatformAudioCapture actual constructor() {
     actual fun startRecording(onResult: (String?) -> Unit) {
         val session = AVAudioSession.sharedInstance()
         session.setCategory(AVAudioSessionCategoryRecord, error = null)
-        session.setActive(active = true, error = null)
+        session.setActive(true, withOptions = 0u, error = null)
 
         val path = NSTemporaryDirectory() + NSUUID().UUIDString + ".m4a"
         outputPath = path
