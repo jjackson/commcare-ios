@@ -2,8 +2,11 @@ package org.commcare.app.integration
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import org.commcare.app.engine.AppInstaller
+import org.commcare.app.engine.FormEntrySession
+import org.commcare.app.engine.FormSerializer
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.storage.SqlDelightUserSandbox
+import org.commcare.app.viewmodel.FormEntryViewModel
 import org.commcare.app.viewmodel.FormQueueViewModel
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.createHttpClient
@@ -11,6 +14,7 @@ import org.commcare.core.parse.ParseUtils
 import org.commcare.modern.reference.JavaHttpRoot
 import org.commcare.resources.model.JvmInstallerFactory
 import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.model.FormDef
 import org.javarosa.core.reference.ReferenceManager
 import org.junit.Assume
 import org.junit.Before
