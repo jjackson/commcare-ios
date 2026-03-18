@@ -18,6 +18,7 @@ import org.javarosa.core.services.storage.IStorageIndexedFactory
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.commcare.app.platform.createHttpReferenceFactory
 import org.javarosa.core.reference.ReferenceManager
+import org.javarosa.core.services.locale.Localization
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.services.storage.StorageManager
 import org.javarosa.core.services.properties.Property
@@ -80,8 +81,40 @@ class AppInstaller(
         onProgress(0.8f, "Initializing platform...")
         platform.initialize(globalTable, false)
 
+        // Set the current locale from the profile's cur_locale property.
+        // Without this, Localization.get() throws UnregisteredLocaleException
+        // and all display text (menus, form questions) falls back to IDs.
+        setDefaultLocale(platform)
+
         onProgress(1.0f, "Installation complete")
         return platform
+    }
+
+    /**
+     * Activate the locale specified by the profile's cur_locale property.
+     * Mirrors CommCareConfigEngine.setDefaultLocale() on Android/CLI.
+     */
+    private fun setDefaultLocale(platform: CommCarePlatform) {
+        var locale = "default"
+        val profile = platform.getCurrentProfile()
+        if (profile != null) {
+            for (setter in profile.getPropertySetters()) {
+                if (setter.key == "cur_locale") {
+                    locale = setter.value
+                    break
+                }
+            }
+        }
+        try {
+            Localization.setLocale(locale)
+        } catch (e: Exception) {
+            // If the exact locale isn't available, try setting to default
+            try {
+                Localization.getGlobalLocalizerAdvanced().setToDefault()
+            } catch (_: Exception) {
+                // No locales available at all — display will fall back to IDs
+            }
+        }
     }
 
     /**

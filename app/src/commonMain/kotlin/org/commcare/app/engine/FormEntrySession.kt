@@ -53,7 +53,8 @@ class FormEntrySession(
     fun getPrompts(): Array<FormEntryPrompt> {
         return try {
             controller.getQuestionPrompts()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            println("[FORM-DEBUG] getPrompts failed: ${e::class.simpleName}: ${e.message}")
             emptyArray()
         }
     }
