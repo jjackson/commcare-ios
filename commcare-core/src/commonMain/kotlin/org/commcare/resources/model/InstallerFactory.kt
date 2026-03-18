@@ -1,5 +1,6 @@
 package org.commcare.resources.model
 
+import org.commcare.resources.model.installers.CommonXFormInstaller
 import org.commcare.resources.model.installers.LocaleFileInstaller
 import org.commcare.resources.model.installers.LoginImageInstaller
 import org.commcare.resources.model.installers.MediaInstaller
@@ -17,9 +18,7 @@ open class InstallerFactory {
     }
 
     open fun getXFormInstaller(): ResourceInstaller<*> {
-        throw UnsupportedOperationException(
-            "XFormInstaller not available. Use JvmInstallerFactory on JVM."
-        )
+        return CommonXFormInstaller()
     }
 
     open fun getUserRestoreInstaller(): ResourceInstaller<*> {

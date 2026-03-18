@@ -1,10 +1,6 @@
 # Full HQ round-trip E2E test:
 #   Login → Sync → Navigate to form → Fill form → Submit → Sync again
 #
-# BLOCKED: Requires iOS HTTP reference factory in AppInstaller to download
-# app resources from HQ. Without it, app install fails with
-# "No external or local definition could be found for resource Application Descriptor"
-#
 # Run:
 #   .maestro/run.sh .maestro/flows/hq-round-trip.yaml
 appId: org.commcare.ios
@@ -38,32 +34,43 @@ env:
 # Go back to home
 - tapOn: "Back"
 
-# ---- Step 3: Navigate into a form ----
+# ---- Step 3: Navigate through menus into a form ----
 - tapOn: "Start"
-
-# Wait for menu to load
 - waitForAnimationToEnd:
     timeout: 5000
 
-# Tap the first visible menu item
-- tapOn:
-    index: 0
-
-# Wait — could be another menu, case list, or form entry
+# Bonsaaso app structure: Start → menus (m0..m3) → forms
+# Try each module until we find one that opens a form without needing cases.
+# m3 is often a standalone registration module.
+- tapOn: "m3"
 - waitForAnimationToEnd:
     timeout: 5000
 
-# If we see a case list (Search field), select the first case
+# If this is a form list, tap the first form
 - runFlow:
     when:
-      visible: "Search"
+      visible: "m3-f0"
     commands:
-      - tapOn:
-          text: ".*"
-          index: 1
+      - tapOn: "m3-f0"
+      - waitForAnimationToEnd:
+          timeout: 5000
+
+# If we're on a case list with cases, select first case
+- runFlow:
+    when:
+      visible: "Select Case"
+    commands:
+      - runFlow:
+          when:
+            notVisible: "No cases found"
+          commands:
+            - tapOn:
+                text: ".*"
+                index: 2
+            - waitForAnimationToEnd:
+                timeout: 5000
 
 # ---- Step 4: Fill the form ----
-# Wait for form entry screen
 - extendedWaitUntil:
     visible: "Next"
     timeout: 30000
