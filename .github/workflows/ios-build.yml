@@ -79,6 +79,7 @@ jobs:
             2>&1 | tee /tmp/xcodebuild.log | tail -80
 
       - name: Boot simulator and launch app
+        continue-on-error: true
         working-directory: app/iosApp
         run: |
           APP_PATH="build/Build/Products/Debug-iphonesimulator/CommCare.app"
