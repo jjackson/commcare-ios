@@ -107,6 +107,15 @@ class LoginViewModel(private val db: CommCareDatabase) {
             val stream = createByteArrayInputStream(body)
             ParseUtils.parseIntoSandbox(stream, newSandbox, failfast = false)
 
+            // Set the logged-in user from the parsed user storage.
+            // Without this, CommCareInstanceInitializer throws "No user logged in"
+            // when initializing forms that reference the #user instance.
+            val userStorage = newSandbox.getUserStorage()
+            if (userStorage.getNumRecords() > 0) {
+                val user = userStorage.iterate().nextRecord()
+                newSandbox.setLoggedInUser(user)
+            }
+
             sandbox = newSandbox
 
             // Persist sync token for incremental syncs
