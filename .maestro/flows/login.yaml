@@ -1,0 +1,58 @@
+# Shared login flow — included by other tests via runFlow.
+# Expects env: COMMCARE_USERNAME, COMMCARE_PASSWORD, COMMCARE_DOMAIN
+# Optional env: COMMCARE_APP_ID (for full app install)
+appId: org.commcare.ios
+
+---
+
+- launchApp:
+    appId: "org.commcare.ios"
+
+# Wait for login screen to appear
+- extendedWaitUntil:
+    visible: "Log In"
+    timeout: 10000
+
+# Fill Username
+- tapOn: "Username"
+- inputText: "${COMMCARE_USERNAME}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Fill Domain
+- tapOn: "Domain"
+- inputText: "${COMMCARE_DOMAIN}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Fill Password — scroll down since more fields push it lower
+- scrollUntilVisible:
+    element: "Password"
+    direction: DOWN
+- tapOn: "Password"
+- inputText: "${COMMCARE_PASSWORD}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Tap Log In
+- scrollUntilVisible:
+    element: "Log In"
+    direction: DOWN
+- tapOn: "Log In"
+
+# Wait for install/restore to complete
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 120000

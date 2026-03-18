@@ -1,0 +1,61 @@
+# Sync test: Login → Sync → verify case data populated → sync again
+#
+# Run:
+#   .maestro/run.sh .maestro/flows/sync-and-verify.yaml
+appId: org.commcare.ios
+
+env:
+  COMMCARE_HQ_URL: ${COMMCARE_HQ_URL}
+  COMMCARE_USERNAME: ${COMMCARE_USERNAME}
+  COMMCARE_PASSWORD: ${COMMCARE_PASSWORD}
+  COMMCARE_DOMAIN: ${COMMCARE_DOMAIN}
+
+---
+
+# Login (restore happens during login)
+- runFlow: login.yaml
+
+# ---- Initial sync ----
+- tapOn: "Sync"
+- tapOn: "Sync Now"
+- extendedWaitUntil:
+    visible: "Sync complete"
+    timeout: 60000
+- tapOn: "Back"
+
+# ---- Navigate to case list to verify data ----
+- tapOn: "Start"
+
+# Wait for menu
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Tap first menu item
+- tapOn:
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Go back to home
+- tapOn: "<"
+- runFlow:
+    when:
+      notVisible: "Start"
+    commands:
+      - tapOn: "<"
+
+# Wait for home
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 10000
+
+# ---- Incremental sync ----
+- tapOn: "Sync"
+- tapOn: "Sync Now"
+- extendedWaitUntil:
+    visible: "Sync complete"
+    timeout: 60000
+
+- tapOn: "Back"
+- assertVisible: "Start"

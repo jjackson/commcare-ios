@@ -1,0 +1,28 @@
+# Maestro E2E Test Configuration for CommCare iOS
+#
+# Setup:
+#   1. Copy .env.example to .env and fill in HQ credentials
+#   2. Boot an iOS simulator with the CommCare app installed
+#   3. Run tests via the wrapper script
+#
+# Run all passing tests:
+#   .maestro/run.sh .maestro/flows/login-and-home.yaml
+#   .maestro/run.sh .maestro/flows/sync-and-verify.yaml
+#
+# Run a single flow:
+#   .maestro/run.sh .maestro/flows/<flow-name>.yaml
+#
+# Test status:
+#   login-and-home.yaml       — PASSING (login + verify all home sections)
+#   sync-and-verify.yaml      — PASSING (login + sync + case list + incremental sync)
+#   hq-round-trip.yaml        — BLOCKED (needs iOS HTTP reference factory for app install)
+#   form-entry-navigation.yaml — BLOCKED (same — needs full app install)
+#
+# Known issues:
+#   - Compose Multiplatform on iOS doesn't dismiss keyboard on tap-outside by default.
+#     We added pointerInput-based dismissal to LoginScreen.
+#   - CMP 1.10+ requires CADisableMinimumFrameDurationOnPhone in Info.plist or app crashes.
+#   - AppInstaller on iOS can't resolve https:// URLs for app resource download.
+#     Needs an iOS equivalent of JavaHttpRoot registered with ReferenceManager.
+
+appId: org.commcare.ios

@@ -23,6 +23,8 @@ class LoginViewModel(private val db: CommCareDatabase) {
     var serverUrl by mutableStateOf("https://www.commcarehq.org")
     var username by mutableStateOf("")
     var password by mutableStateOf("")
+    var domain by mutableStateOf("")
+    var appId by mutableStateOf("")
     var profileUrl by mutableStateOf("")
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
         private set
@@ -48,8 +50,8 @@ class LoginViewModel(private val db: CommCareDatabase) {
 
         scope.launch {
             try {
-                val domain = getDomain()
-                val loginUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
+                val resolvedDomain = resolveDomain()
+                val loginUrl = "${serverUrl.trimEnd('/')}/a/$resolvedDomain/phone/restore/"
                 val credentials = encodeBasicAuth(username, password)
                 authHeader = "Basic $credentials"
 
@@ -67,7 +69,7 @@ class LoginViewModel(private val db: CommCareDatabase) {
                 when {
                     response.code in 200..299 -> {
                         appState = AppState.Installing(0.1f, "Parsing restore data...")
-                        parseRestoreResponse(response.body, domain)
+                        parseRestoreResponse(response.body, resolvedDomain)
                     }
                     response.code == 401 -> {
                         appState = AppState.LoginError("Invalid username or password")
@@ -126,9 +128,16 @@ class LoginViewModel(private val db: CommCareDatabase) {
         try {
             val installer = AppInstaller(sandbox)
 
-            if (profileUrl.isNotBlank()) {
+            // Build profile URL from appId if no explicit profileUrl set
+            val resolvedProfileUrl = when {
+                profileUrl.isNotBlank() -> profileUrl
+                appId.isNotBlank() -> "${serverUrl.trimEnd('/')}/a/$domain/apps/download/$appId/profile.ccpr"
+                else -> ""
+            }
+
+            if (resolvedProfileUrl.isNotBlank()) {
                 // Full installation from profile URL
-                val platform = installer.install(profileUrl) { progress, message ->
+                val platform = installer.install(resolvedProfileUrl) { progress, message ->
                     appState = AppState.Installing(0.5f + progress * 0.5f, message)
                 }
                 appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
@@ -138,7 +147,8 @@ class LoginViewModel(private val db: CommCareDatabase) {
                 appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
             }
         } catch (e: Exception) {
-            appState = AppState.InstallError("App installation failed: ${e.message}")
+            val cause = e.cause?.let { " Cause: ${it::class.simpleName}: ${it.message}" } ?: ""
+            appState = AppState.InstallError("App installation failed: ${e::class.simpleName}: ${e.message}$cause")
         }
     }
 
@@ -174,9 +184,11 @@ class LoginViewModel(private val db: CommCareDatabase) {
         appState = state
     }
 
-    fun getDomain(): String {
+    fun resolveDomain(): String {
+        // Use explicit domain field if set, otherwise extract from username
+        if (domain.isNotBlank()) return domain
         return if (username.contains("@")) {
-            username.substringAfter("@")
+            username.substringAfter("@").removeSuffix(".commcarehq.org")
         } else {
             "demo"
         }

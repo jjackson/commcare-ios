@@ -295,7 +295,20 @@ class IosXmlParser(data: ByteArray, encoding: String) : PlatformXmlParser {
     }
 
     private fun skipWhitespaceAndComments() {
-        // Only skip at document level, not inside elements
+        // Only skip at document level (depth 0), not inside elements where
+        // whitespace text might be meaningful content.
+        if (depth > 0) return
+        while (pos < input.length) {
+            val ch = input[pos]
+            if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+                pos++
+            } else if (input.startsWith("<!--", pos)) {
+                val end = input.indexOf("-->", pos + 4)
+                pos = if (end != -1) end + 3 else input.length
+            } else {
+                break
+            }
+        }
     }
 
     // --- Helper Methods ---

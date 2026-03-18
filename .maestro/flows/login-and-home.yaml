@@ -1,0 +1,44 @@
+# Smoke test: Login → verify home screen → navigate each section and back
+#
+# Run:
+#   ~/.maestro/bin/maestro test .maestro/flows/login-and-home.yaml
+appId: org.commcare.ios
+
+env:
+  COMMCARE_HQ_URL: ${COMMCARE_HQ_URL}
+  COMMCARE_USERNAME: ${COMMCARE_USERNAME}
+  COMMCARE_PASSWORD: ${COMMCARE_PASSWORD}
+
+---
+
+# Login
+- runFlow: login.yaml
+
+# Verify all home screen buttons
+- assertVisible: "Start"
+- assertVisible: "Sync"
+- assertVisible: "Settings"
+- assertVisible: "Diagnostics"
+
+# Check status text
+- assertVisible: "CommCare"
+- assertVisible: "Ready"
+
+# ---- Settings round-trip ----
+- tapOn: "Settings"
+- assertVisible: "Settings"
+- tapOn: "<"
+- assertVisible: "Start"
+
+# ---- Diagnostics round-trip ----
+- tapOn: "Diagnostics"
+- assertVisible: "Connection Diagnostics"
+- assertVisible: "Run Diagnostics"
+- tapOn: "<"
+- assertVisible: "Start"
+
+# ---- Sync screen round-trip ----
+- tapOn: "Sync"
+- assertVisible: "Sync Now"
+- tapOn: "Back"
+- assertVisible: "Start"
