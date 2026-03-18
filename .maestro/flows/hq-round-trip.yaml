@@ -1,0 +1,139 @@
+# Full HQ round-trip E2E test:
+#   Login → Sync → Navigate to form → Fill form → Submit → Sync again
+#
+# BLOCKED: Requires iOS HTTP reference factory in AppInstaller to download
+# app resources from HQ. Without it, app install fails with
+# "No external or local definition could be found for resource Application Descriptor"
+#
+# Run:
+#   .maestro/run.sh .maestro/flows/hq-round-trip.yaml
+appId: org.commcare.ios
+
+env:
+  COMMCARE_HQ_URL: ${COMMCARE_HQ_URL}
+  COMMCARE_USERNAME: ${COMMCARE_USERNAME}
+  COMMCARE_PASSWORD: ${COMMCARE_PASSWORD}
+  COMMCARE_DOMAIN: ${COMMCARE_DOMAIN}
+  COMMCARE_APP_ID: ${COMMCARE_APP_ID}
+
+---
+
+# ---- Step 1: Login with full app install ----
+- runFlow: login-with-app.yaml
+
+# Verify we're on the home screen
+- assertVisible: "Start"
+- assertVisible: "Sync"
+
+# ---- Step 2: Initial sync ----
+- tapOn: "Sync"
+- assertVisible: "Sync Now"
+- tapOn: "Sync Now"
+
+# Wait for sync to complete
+- extendedWaitUntil:
+    visible: "Sync complete"
+    timeout: 60000
+
+# Go back to home
+- tapOn: "Back"
+
+# ---- Step 3: Navigate into a form ----
+- tapOn: "Start"
+
+# Wait for menu to load
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Tap the first visible menu item
+- tapOn:
+    index: 0
+
+# Wait — could be another menu, case list, or form entry
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# If we see a case list (Search field), select the first case
+- runFlow:
+    when:
+      visible: "Search"
+    commands:
+      - tapOn:
+          text: ".*"
+          index: 1
+
+# ---- Step 4: Fill the form ----
+# Wait for form entry screen
+- extendedWaitUntil:
+    visible: "Next"
+    timeout: 30000
+
+# Answer text question if visible
+- runFlow:
+    when:
+      visible: "Answer"
+    commands:
+      - tapOn: "Answer"
+      - inputText: "Maestro E2E test"
+
+# Navigate through the form using repeat
+- evalScript: ${output.formDone = 0}
+
+- runFlow:
+    when:
+      visible: "Form Complete"
+    commands:
+      - evalScript: ${output.formDone = 1}
+
+- repeat:
+    while:
+      true: ${output.formDone == 0}
+    commands:
+      - tapOn: "Next"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - runFlow:
+          when:
+            visible: "Form Complete"
+          commands:
+            - evalScript: ${output.formDone = 1}
+      # Answer text fields on new pages
+      - runFlow:
+          when:
+            visible: "Answer"
+          commands:
+            - tapOn: "Answer"
+            - inputText: "Maestro E2E"
+
+# ---- Step 5: Submit the form ----
+- assertVisible: "Form Complete"
+- assertVisible: "Submit"
+- tapOn: "Submit"
+
+# Should return to home landing
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 30000
+
+# ---- Step 6: Verify form queued and sync ----
+- tapOn: "Sync"
+
+# Submit any pending forms
+- runFlow:
+    when:
+      visible: "Submit All"
+    commands:
+      - tapOn: "Submit All"
+      - extendedWaitUntil:
+          visible: "Submitted"
+          timeout: 60000
+
+# Final sync to confirm server accepted it
+- tapOn: "Sync Now"
+- extendedWaitUntil:
+    visible: "Sync complete"
+    timeout: 60000
+
+# Go back and verify app is in good state
+- tapOn: "Back"
+- assertVisible: "Start"

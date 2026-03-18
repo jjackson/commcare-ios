@@ -1,0 +1,64 @@
+# Form entry navigation test: Login → open form → navigate forward/back → exit
+#
+# BLOCKED: Requires full app install (same as hq-round-trip) — needs iOS HTTP
+# reference factory in AppInstaller to download forms from HQ.
+#
+# Run:
+#   .maestro/run.sh .maestro/flows/form-entry-navigation.yaml
+appId: org.commcare.ios
+
+env:
+  COMMCARE_HQ_URL: ${COMMCARE_HQ_URL}
+  COMMCARE_USERNAME: ${COMMCARE_USERNAME}
+  COMMCARE_PASSWORD: ${COMMCARE_PASSWORD}
+  COMMCARE_DOMAIN: ${COMMCARE_DOMAIN}
+
+---
+
+- runFlow: login.yaml
+
+# Navigate into a form
+- tapOn: "Start"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Tap first menu item
+- tapOn:
+    index: 0
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Handle case list if present
+- runFlow:
+    when:
+      visible: "Search"
+    commands:
+      - tapOn:
+          text: ".*"
+          index: 1
+
+# Wait for form
+- extendedWaitUntil:
+    visible: "Next"
+    timeout: 30000
+
+# ---- Forward navigation ----
+- tapOn: "Next"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# ---- Back navigation ----
+- runFlow:
+    when:
+      visible: "Back"
+    commands:
+      - tapOn: "Back"
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+# Go back to home via "<" breadcrumb
+- tapOn: "<"
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 10000

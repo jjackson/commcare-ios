@@ -16,6 +16,8 @@ import org.javarosa.core.model.FormDef
 import org.javarosa.core.model.instance.FormInstance
 import org.javarosa.core.services.storage.IStorageIndexedFactory
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
+import org.commcare.app.platform.createHttpReferenceFactory
+import org.javarosa.core.reference.ReferenceManager
 import org.javarosa.core.services.storage.Persistable
 import org.javarosa.core.services.storage.StorageManager
 import org.javarosa.core.services.properties.Property
@@ -62,6 +64,9 @@ class AppInstaller(
         val tempTable = ResourceTable.RetrieveTable(tempStorage, installerFactory)
 
         onProgress(0.3f, "Downloading app profile...")
+
+        // Register HTTP reference factory so ResourceManager can resolve https:// URLs
+        ReferenceManager.instance().addReferenceFactory(createHttpReferenceFactory())
 
         ResourceManager.installAppResources(
             platform,

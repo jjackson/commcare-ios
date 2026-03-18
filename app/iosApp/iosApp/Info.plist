@@ -37,6 +37,8 @@
 	<string>CommCare needs photo library access to attach images</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>CommCare needs location access to capture GPS coordinates for forms</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

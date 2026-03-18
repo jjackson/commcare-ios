@@ -1,0 +1,67 @@
+# Login flow WITH full app install — fills App ID for real form access.
+# Expects env: COMMCARE_USERNAME, COMMCARE_PASSWORD, COMMCARE_DOMAIN, COMMCARE_APP_ID
+appId: org.commcare.ios
+
+---
+
+- launchApp:
+    appId: "org.commcare.ios"
+
+# Wait for login screen to appear
+- extendedWaitUntil:
+    visible: "Log In"
+    timeout: 10000
+
+# Fill Username
+- tapOn: "Username"
+- inputText: "${COMMCARE_USERNAME}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Fill Domain
+- tapOn: "Domain"
+- inputText: "${COMMCARE_DOMAIN}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Fill App ID
+- tapOn: "App ID"
+- inputText: "${COMMCARE_APP_ID}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Fill Password
+- scrollUntilVisible:
+    element: "Password"
+    direction: DOWN
+- tapOn: "Password"
+- inputText: "${COMMCARE_PASSWORD}"
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Tap Log In
+- scrollUntilVisible:
+    element: "Log In"
+    direction: DOWN
+- tapOn: "Log In"
+
+# Wait for full app install — downloads all resources, can take 3+ minutes
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 300000

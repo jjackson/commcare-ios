@@ -1,5 +1,7 @@
 # Test credentials (never commit)
 HQTestCredentials.plist
+.maestro/.env
+.maestro/tests/
 
 pipeline/src/pipeline/__pycache__/
 pipeline/tests/__pycache__/
@@ -8,4 +10,6 @@ __pycache__/
 docs/.dry-run/
 commcare-core/.kotlin/
 app/build/
+app/iosApp/build/
+app/iosApp/CommCare.xcodeproj/
 app/.gradle/
