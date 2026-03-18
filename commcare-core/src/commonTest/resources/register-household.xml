@@ -1,0 +1,624 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Register Household</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/16fca2d3a5cfbb3acd4c724c83e8549d17b42908" uiVersion="1" version="9" name="Register Household">
+          <subdistrict/>
+          <health_facility_tontokrom/>
+          <health_facility_keniago/>
+          <aboaboso_township/>
+          <akyerekyerekrom/>
+          <datano/>
+          <tontokrom/>
+          <watreso_township/>
+          <assamang/>
+          <keniago/>
+          <gps_location/>
+          <household_head_health_id/>
+          <hh_head_first_name/>
+          <hh_head_middle_name/>
+          <household_head_surname/>
+          <gender/>
+          <dob_known/>
+          <dob/>
+          <age/>
+          <mobile_phone_number/>
+          <health_insurance_number/>
+          <health_insurance_expiry_date/>
+          <dob_calc/>
+          <full_name/>
+          <household_head_id/>
+          <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+            <create>
+              <case_name/>
+              <owner_id/>
+              <case_type>household</case_type>
+            </create>
+            <update>
+              <aboaboso/>
+              <age/>
+              <akyerekyerekrom/>
+              <assamang/>
+              <datano/>
+              <dob/>
+              <dob_calc/>
+              <dob_known/>
+              <first_name/>
+              <full_name/>
+              <gender/>
+              <gps_location/>
+              <health_facility_keniago/>
+              <health_facility_tontokrom/>
+              <health_insurance_expiry_date/>
+              <health_insurance_number/>
+              <household_head_health_id/>
+              <keniago/>
+              <middle_name/>
+              <mobile_phone_number/>
+              <sub_district/>
+              <surname/>
+              <tontokrom/>
+              <watreso_township/>
+            </update>
+          </case>
+          <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+            <orx:deviceID/>
+            <orx:timeStart/>
+            <orx:timeEnd/>
+            <orx:username/>
+            <orx:userID/>
+            <orx:instanceID/>
+            <cc:appVersion/>
+            <orx:drift/>
+          </orx:meta>
+        </data>
+      </instance>
+      <instance id="commcaresession" src="jr://instance/session"/>
+      <bind nodeset="/data/subdistrict" required="true()"/>
+      <bind nodeset="/data/health_facility_tontokrom" relevant="/data/subdistrict = 'tontokrom'" required="true()"/>
+      <bind nodeset="/data/health_facility_keniago" relevant="/data/subdistrict = 'keniago'" required="true()"/>
+      <bind nodeset="/data/aboaboso_township" relevant="/data/health_facility_tontokrom= 'aboaboso'" required="true()"/>
+      <bind nodeset="/data/akyerekyerekrom" relevant="/data/health_facility_tontokrom = 'akyerekyerekrom'" required="true()"/>
+      <bind nodeset="/data/datano" relevant="/data/health_facility_tontokrom='datano'" required="true()"/>
+      <bind nodeset="/data/tontokrom" relevant="/data/health_facility_tontokrom= 'tontokrom'" required="true()"/>
+      <bind nodeset="/data/watreso_township" relevant="/data/health_facility_tontokrom= 'watreso'" required="true()"/>
+      <bind nodeset="/data/assamang" relevant="/data/health_facility_keniago= 'assamang'" required="true()"/>
+      <bind nodeset="/data/keniago" relevant="/data/health_facility_keniago = 'keniago'" required="true()"/>
+      <bind nodeset="/data/gps_location" type="geopoint" required="false()"/>
+      <bind nodeset="/data/household_head_health_id" type="xsd:string" constraint="string-length(.) = 4 or string-length(.) = 5" required="true()"/>
+      <bind nodeset="/data/hh_head_first_name" type="xsd:string" required="true()"/>
+      <bind nodeset="/data/hh_head_middle_name" type="xsd:string"/>
+      <bind nodeset="/data/household_head_surname" type="xsd:string" required="true()"/>
+      <bind nodeset="/data/gender" required="true()"/>
+      <bind nodeset="/data/dob_known" required="true()"/>
+      <bind nodeset="/data/dob" type="xsd:date" constraint="int(today() - /data/dob) &gt; 5844 and int(today() - /data/dob) &lt; 43200" relevant="/data/dob_known = 'yes'"/>
+      <bind nodeset="/data/age" type="xsd:int" constraint=". &lt; 121 and . &gt; 15" relevant="/data/dob_known = 'no'"/>
+      <bind nodeset="/data/mobile_phone_number" type="xsd:string" constraint="string-length(.) = 10" jr:constraintMsg="jr:itext('mobile_phone_number_constraintMsg')" required="false()"/>
+      <bind nodeset="/data/health_insurance_number" type="xsd:string" constraint="string-length(.) = 8" jr:constraintMsg="jr:itext('health_insurance_number-constraintMsg')"/>
+      <bind nodeset="/data/health_insurance_expiry_date" type="xsd:date" relevant="/data/health_insurance_number != ''"/>
+      <bind nodeset="/data/dob_calc" calculate="if(/data/dob != '', /data/dob, date(today() - int(/data/age*365.25)))"/>
+      <bind nodeset="/data/full_name" calculate="concat(/data/hh_head_first_name, ' ', /data/hh_head_middle_name, ' ', /data/household_head_surname)" required="true()"/>
+      <bind nodeset="/data/household_head_id"/>
+      <itext>
+        <translation lang="en" default="">
+          <text id="subdistrict-label">
+            <value>What is the sub-district</value>
+          </text>
+          <text id="parish-bugongi-label">
+            <value>Tontokrom</value>
+          </text>
+          <text id="health_facility_tontokrom-label">
+            <value>Health Facility Tontokrom</value>
+          </text>
+          <text id="location_bg-BG10-label">
+            <value>Aboaboso </value>
+          </text>
+          <text id="location_bg-BG08-label">
+            <value>Datano </value>
+          </text>
+          <text id="location_bg-BG11-label">
+            <value>Tontokrom </value>
+          </text>
+          <text id="location_bg-BG07-label">
+            <value>Watreso </value>
+          </text>
+          <text id="health_facility_keniago-label">
+            <value> Health Facility Keniago</value>
+          </text>
+          <text id="aboaboso_township-label">
+            <value>Townships Under Aboaboso</value>
+          </text>
+          <text id="aboaboso-britchkrom-label">
+            <value>Britcherkrom</value>
+          </text>
+          <text id="aboaboso-aboaboso1-label">
+            <value>Aboaboso</value>
+          </text>
+          <text id="aboaboso-nyamebekyere-label">
+            <value>Nyamebekyere</value>
+          </text>
+          <text id="aboaboso_township-jumakro-label">
+            <value>Jumakro</value>
+          </text>
+          <text id="aboaboso_township-ohiampeanika-label">
+            <value>Ohiampeanika</value>
+          </text>
+          <text id="akyerekyerekrom-label">
+            <value>Townships Under Akyerekyerekrom</value>
+          </text>
+          <text id="akyerekyerekrom-akyerekyerekrom1-label">
+            <value>Akyerekyerekrom</value>
+          </text>
+          <text id="akyerekyerekrom-groso-label">
+            <value>Groso</value>
+          </text>
+          <text id="akyerekyerekrom-dunhura-label">
+            <value>Dunhura</value>
+          </text>
+          <text id="akyerekyerekrom-manukrom-label">
+            <value>Manukrom</value>
+          </text>
+          <text id="akyerekyerekrom-nkrumakrom-label">
+            <value>Nkrumakrom</value>
+          </text>
+          <text id="akyerekyerekrom-tabosere-label">
+            <value>Tabosere</value>
+          </text>
+          <text id="datano-label">
+            <value>Townships Under Datano</value>
+          </text>
+          <text id="datano-afraso-label">
+            <value>Afraso</value>
+          </text>
+          <text id="datano-dadease-label">
+            <value>Dadease</value>
+          </text>
+          <text id="datano-datano1-label">
+            <value>Datano</value>
+          </text>
+          <text id="datano-takorase-label">
+            <value>Takorase</value>
+          </text>
+          <text id="tontokrom-label">
+            <value>Townships Under Tontokrom</value>
+          </text>
+          <text id="tontokrom-apenimadi-label">
+            <value>Apenimadi</value>
+          </text>
+          <text id="tontokrom-bonsaaso-label">
+            <value>Bonsaaso</value>
+          </text>
+          <text id="tontokrom-dunwura-label">
+            <value>Dunwura</value>
+          </text>
+          <text id="tontokrom-kojonsiakrom-label">
+            <value>Kojonsiakrom</value>
+          </text>
+          <text id="tontokrom-yawkasakrom-label">
+            <value>Yawkasakrom</value>
+          </text>
+          <text id="watreso_township-label">
+            <value>Townships Under Watreso</value>
+          </text>
+          <text id="watreso-adagya_no_1_and_2-label">
+            <value>Adagya</value>
+          </text>
+          <text id="watreso-hiampeanika-label">
+            <value>Hiampeanika</value>
+          </text>
+          <text id="watreso-jumakrom-label">
+            <value>Jumakrom</value>
+          </text>
+          <text id="watreso-watreso1-label">
+            <value>Watreso</value>
+          </text>
+          <text id="watreso-wonipaninadue-label">
+            <value>Wonipaninadue</value>
+          </text>
+          <text id="assamang-label">
+            <value>Townships Under Assamang</value>
+          </text>
+          <text id="assamang-assamang1-label">
+            <value>Assamang</value>
+          </text>
+          <text id="assamang-ayiem-label">
+            <value>Ayiem</value>
+          </text>
+          <text id="assamang-dawusaso-label">
+            <value>Dawusaso</value>
+          </text>
+          <text id="assamang-edwinase-label">
+            <value>Edwinase</value>
+          </text>
+          <text id="assamang-essienkyem-label">
+            <value>Essienkyem</value>
+          </text>
+          <text id="assamang-gyegyetreso-label">
+            <value>Gyegyetreso</value>
+          </text>
+          <text id="keniago-label">
+            <value>Townships Under Keniago</value>
+          </text>
+          <text id="keniago-edwenase-label">
+            <value>Edwenase</value>
+          </text>
+          <text id="keniago_health_facility-fahiakobo-label">
+            <value>Fahiakobo</value>
+          </text>
+          <text id="keniago_health_facility-hiamankwa-label">
+            <value>Hiamankwa</value>
+          </text>
+          <text id="keniago_health_facility-keniago1-label">
+            <value>Keniago</value>
+          </text>
+          <text id="keniago_health_facility-kobriso-label">
+            <value>Kobriso</value>
+          </text>
+          <text id="gps_location-label">
+            <value>Collect the location (optional)</value>
+          </text>
+          <text id="household_head_health_id-label">
+            <value>Household Head Health ID</value>
+          </text>
+          <text id="hh_head_first_name-label3">
+            <value>First name of household head</value>
+          </text>
+          <text id="hh_head_middle_name-label">
+            <value>Middle name of household head (optional)</value>
+          </text>
+          <text id="household_head_surname-label2">
+            <value>Surname of household head</value>
+          </text>
+          <text id="gender-label">
+            <value>Gender of household head</value>
+          </text>
+          <text id="gender-gender-male-label">
+            <value>Male</value>
+          </text>
+          <text id="gender-gender-female-label">
+            <value>Female</value>
+          </text>
+          <text id="dob_known-label">
+            <value>Household head date of birth known?</value>
+          </text>
+          <text id="dob_known-dob_known_yes-label2">
+            <value>Yes</value>
+          </text>
+          <text id="dob_known-dob_known_no-label2">
+            <value>No</value>
+          </text>
+          <text id="dob-label">
+            <value>Enter date of birth</value>
+          </text>
+          <text id="age-label">
+            <value>Enter Age</value>
+          </text>
+          <text id="mobile_phone_number-label">
+            <value>Mobile phone number for household (optional)</value>
+          </text>
+          <text id="mobile_phone_number_constraintMsg">
+            <value>must be 10 digits</value>
+          </text>
+          <text id="health_insurance_number-label">
+            <value>Health insurance number for household head(optional)</value>
+          </text>
+          <text id="health_insurance_number-constraintMsg">
+            <value>Must be 8 digits</value>
+          </text>
+          <text id="health_insurance_expiry_date-label">
+            <value>Health insurance expiry date</value>
+          </text>
+        </translation>
+      </itext>
+      <bind nodeset="/data/case/@date_modified" type="xsd:dateTime" calculate="/data/meta/timeEnd"/>
+      <bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/>
+      <setvalue ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_household_0" event="xforms-ready"/>
+      <bind nodeset="/data/case/create/case_name" calculate="/data/full_name"/>
+      <bind nodeset="/data/case/create/owner_id" calculate="/data/meta/userID"/>
+      <bind nodeset="/data/case/update/aboaboso" calculate="/data/aboaboso_township" relevant="count(/data/aboaboso_township) &gt; 0"/>
+      <bind nodeset="/data/case/update/age" calculate="/data/age" relevant="count(/data/age) &gt; 0"/>
+      <bind nodeset="/data/case/update/akyerekyerekrom" calculate="/data/akyerekyerekrom" relevant="count(/data/akyerekyerekrom) &gt; 0"/>
+      <bind nodeset="/data/case/update/assamang" calculate="/data/assamang" relevant="count(/data/assamang) &gt; 0"/>
+      <bind nodeset="/data/case/update/datano" calculate="/data/datano" relevant="count(/data/datano) &gt; 0"/>
+      <bind nodeset="/data/case/update/dob" calculate="/data/dob" relevant="count(/data/dob) &gt; 0"/>
+      <bind nodeset="/data/case/update/dob_calc" calculate="/data/dob_calc" relevant="count(/data/dob_calc) &gt; 0"/>
+      <bind nodeset="/data/case/update/dob_known" calculate="/data/dob_known" relevant="count(/data/dob_known) &gt; 0"/>
+      <bind nodeset="/data/case/update/first_name" calculate="/data/hh_head_first_name" relevant="count(/data/hh_head_first_name) &gt; 0"/>
+      <bind nodeset="/data/case/update/full_name" calculate="/data/full_name" relevant="count(/data/full_name) &gt; 0"/>
+      <bind nodeset="/data/case/update/gender" calculate="/data/gender" relevant="count(/data/gender) &gt; 0"/>
+      <bind nodeset="/data/case/update/gps_location" calculate="/data/gps_location" relevant="count(/data/gps_location) &gt; 0"/>
+      <bind nodeset="/data/case/update/health_facility_keniago" calculate="/data/health_facility_keniago" relevant="count(/data/health_facility_keniago) &gt; 0"/>
+      <bind nodeset="/data/case/update/health_facility_tontokrom" calculate="/data/health_facility_tontokrom" relevant="count(/data/health_facility_tontokrom) &gt; 0"/>
+      <bind nodeset="/data/case/update/health_insurance_expiry_date" calculate="/data/health_insurance_expiry_date" relevant="count(/data/health_insurance_expiry_date) &gt; 0"/>
+      <bind nodeset="/data/case/update/health_insurance_number" calculate="/data/health_insurance_number" relevant="count(/data/health_insurance_number) &gt; 0"/>
+      <bind nodeset="/data/case/update/household_head_health_id" calculate="/data/household_head_health_id" relevant="count(/data/household_head_health_id) &gt; 0"/>
+      <bind nodeset="/data/case/update/keniago" calculate="/data/keniago" relevant="count(/data/keniago) &gt; 0"/>
+      <bind nodeset="/data/case/update/middle_name" calculate="/data/hh_head_middle_name" relevant="count(/data/hh_head_middle_name) &gt; 0"/>
+      <bind nodeset="/data/case/update/mobile_phone_number" calculate="/data/mobile_phone_number" relevant="count(/data/mobile_phone_number) &gt; 0"/>
+      <bind nodeset="/data/case/update/sub_district" calculate="/data/subdistrict" relevant="count(/data/subdistrict) &gt; 0"/>
+      <bind nodeset="/data/case/update/surname" calculate="/data/household_head_surname" relevant="count(/data/household_head_surname) &gt; 0"/>
+      <bind nodeset="/data/case/update/tontokrom" calculate="/data/tontokrom" relevant="count(/data/tontokrom) &gt; 0"/>
+      <bind nodeset="/data/case/update/watreso_township" calculate="/data/watreso_township" relevant="count(/data/watreso_township) &gt; 0"/>
+      <setvalue ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid" event="xforms-ready"/>
+      <setvalue ref="/data/meta/timeStart" value="now()" event="xforms-ready"/>
+      <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+      <setvalue ref="/data/meta/timeEnd" value="now()" event="xforms-revalidate"/>
+      <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+      <setvalue ref="/data/meta/username" value="instance('commcaresession')/session/context/username" event="xforms-ready"/>
+      <setvalue ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid" event="xforms-ready"/>
+      <setvalue ref="/data/meta/instanceID" value="uuid()" event="xforms-ready"/>
+      <setvalue ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion" event="xforms-ready"/>
+      <setvalue ref="/data/meta/drift" value="if(count(instance('commcaresession')/session/context/drift) = 1, instance('commcaresession')/session/context/drift, '')" event="xforms-revalidate"/>
+      <orx:pollsensor event="xforms-ready"/>
+    </model>
+  </h:head>
+  <h:body>
+    <select1 ref="/data/subdistrict">
+      <label ref="jr:itext('subdistrict-label')"/>
+      <item>
+        <label ref="jr:itext('parish-bugongi-label')"/>
+        <value>tontokrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-keniago1-label')"/>
+        <value>keniago</value>
+      </item>
+    </select1>
+    <select1 ref="/data/health_facility_tontokrom">
+      <label ref="jr:itext('health_facility_tontokrom-label')"/>
+      <item>
+        <label ref="jr:itext('location_bg-BG10-label')"/>
+        <value>aboaboso</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-akyerekyerekrom1-label')"/>
+        <value>akyerekyerekrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('location_bg-BG08-label')"/>
+        <value>datano</value>
+      </item>
+      <item>
+        <label ref="jr:itext('location_bg-BG11-label')"/>
+        <value>tontokrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('location_bg-BG07-label')"/>
+        <value>watreso</value>
+      </item>
+    </select1>
+    <select1 ref="/data/health_facility_keniago">
+      <label ref="jr:itext('health_facility_keniago-label')"/>
+      <item>
+        <label ref="jr:itext('assamang-assamang1-label')"/>
+        <value>assamang</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-keniago1-label')"/>
+        <value>keniago</value>
+      </item>
+    </select1>
+    <select1 ref="/data/aboaboso_township">
+      <label ref="jr:itext('aboaboso_township-label')"/>
+      <item>
+        <label ref="jr:itext('aboaboso-britchkrom-label')"/>
+        <value>britcherkrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('aboaboso-aboaboso1-label')"/>
+        <value>aboaboso1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('aboaboso-nyamebekyere-label')"/>
+        <value>nyamebekyere</value>
+      </item>
+      <item>
+        <label ref="jr:itext('aboaboso_township-jumakro-label')"/>
+        <value>jumakro</value>
+      </item>
+      <item>
+        <label ref="jr:itext('aboaboso_township-ohiampeanika-label')"/>
+        <value>ohiampeanika</value>
+      </item>
+    </select1>
+    <select1 ref="/data/akyerekyerekrom">
+      <label ref="jr:itext('akyerekyerekrom-label')"/>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-akyerekyerekrom1-label')"/>
+        <value>akyerekyerekrom1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-groso-label')"/>
+        <value>groso</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-dunhura-label')"/>
+        <value>dunhura</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-manukrom-label')"/>
+        <value>manukrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-nkrumakrom-label')"/>
+        <value>nkrumakrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('akyerekyerekrom-tabosere-label')"/>
+        <value>tabosere</value>
+      </item>
+    </select1>
+    <select1 ref="/data/datano">
+      <label ref="jr:itext('datano-label')"/>
+      <item>
+        <label ref="jr:itext('datano-afraso-label')"/>
+        <value>afraso</value>
+      </item>
+      <item>
+        <label ref="jr:itext('datano-dadease-label')"/>
+        <value>dadease</value>
+      </item>
+      <item>
+        <label ref="jr:itext('datano-datano1-label')"/>
+        <value>datano1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('datano-takorase-label')"/>
+        <value>takorase</value>
+      </item>
+    </select1>
+    <select1 ref="/data/tontokrom">
+      <label ref="jr:itext('tontokrom-label')"/>
+      <item>
+        <label ref="jr:itext('tontokrom-apenimadi-label')"/>
+        <value>apenimadi</value>
+      </item>
+      <item>
+        <label ref="jr:itext('tontokrom-bonsaaso-label')"/>
+        <value>bonsaaso</value>
+      </item>
+      <item>
+        <label ref="jr:itext('tontokrom-dunwura-label')"/>
+        <value>dunwura</value>
+      </item>
+      <item>
+        <label ref="jr:itext('tontokrom-kojonsiakrom-label')"/>
+        <value>kojonsiakrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('parish-bugongi-label')"/>
+        <value>tontokrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('tontokrom-yawkasakrom-label')"/>
+        <value>yawkasakrom</value>
+      </item>
+    </select1>
+    <select1 ref="/data/watreso_township">
+      <label ref="jr:itext('watreso_township-label')"/>
+      <item>
+        <label ref="jr:itext('watreso-adagya_no_1_and_2-label')"/>
+        <value>adagya</value>
+      </item>
+      <item>
+        <label ref="jr:itext('watreso-hiampeanika-label')"/>
+        <value>hiampeanika</value>
+      </item>
+      <item>
+        <label ref="jr:itext('watreso-jumakrom-label')"/>
+        <value>jumakrom</value>
+      </item>
+      <item>
+        <label ref="jr:itext('watreso-watreso1-label')"/>
+        <value>watreso1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('watreso-wonipaninadue-label')"/>
+        <value>wonipaninadue</value>
+      </item>
+    </select1>
+    <select1 ref="/data/assamang">
+      <label ref="jr:itext('assamang-label')"/>
+      <item>
+        <label ref="jr:itext('assamang-assamang1-label')"/>
+        <value>assamang1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('assamang-ayiem-label')"/>
+        <value>ayiem</value>
+      </item>
+      <item>
+        <label ref="jr:itext('assamang-dawusaso-label')"/>
+        <value>dawusaso</value>
+      </item>
+      <item>
+        <label ref="jr:itext('assamang-edwinase-label')"/>
+        <value>edwinase</value>
+      </item>
+      <item>
+        <label ref="jr:itext('assamang-essienkyem-label')"/>
+        <value>essienkyem</value>
+      </item>
+      <item>
+        <label ref="jr:itext('assamang-gyegyetreso-label')"/>
+        <value>gyegyetreso</value>
+      </item>
+    </select1>
+    <select1 ref="/data/keniago">
+      <label ref="jr:itext('keniago-label')"/>
+      <item>
+        <label ref="jr:itext('keniago-edwenase-label')"/>
+        <value>edwenase</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-fahiakobo-label')"/>
+        <value>fahiakobo</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-hiamankwa-label')"/>
+        <value>hiamankwa</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-keniago1-label')"/>
+        <value>keniago1</value>
+      </item>
+      <item>
+        <label ref="jr:itext('keniago_health_facility-kobriso-label')"/>
+        <value>kobriso</value>
+      </item>
+    </select1>
+    <input ref="/data/gps_location">
+      <label ref="jr:itext('gps_location-label')"/>
+    </input>
+    <input ref="/data/household_head_health_id">
+      <label ref="jr:itext('household_head_health_id-label')"/>
+    </input>
+    <input ref="/data/hh_head_first_name">
+      <label ref="jr:itext('hh_head_first_name-label3')"/>
+    </input>
+    <input ref="/data/hh_head_middle_name">
+      <label ref="jr:itext('hh_head_middle_name-label')"/>
+    </input>
+    <input ref="/data/household_head_surname">
+      <label ref="jr:itext('household_head_surname-label2')"/>
+    </input>
+    <select1 ref="/data/gender">
+      <label ref="jr:itext('gender-label')"/>
+      <item>
+        <label ref="jr:itext('gender-gender-male-label')"/>
+        <value>gender-male</value>
+      </item>
+      <item>
+        <label ref="jr:itext('gender-gender-female-label')"/>
+        <value>gender-female</value>
+      </item>
+    </select1>
+    <select1 ref="/data/dob_known">
+      <label ref="jr:itext('dob_known-label')"/>
+      <item>
+        <label ref="jr:itext('dob_known-dob_known_yes-label2')"/>
+        <value>yes</value>
+      </item>
+      <item>
+        <label ref="jr:itext('dob_known-dob_known_no-label2')"/>
+        <value>no</value>
+      </item>
+    </select1>
+    <input ref="/data/dob">
+      <label ref="jr:itext('dob-label')"/>
+    </input>
+    <input ref="/data/age">
+      <label ref="jr:itext('age-label')"/>
+    </input>
+    <input ref="/data/mobile_phone_number" appearance="numeric">
+      <label ref="jr:itext('mobile_phone_number-label')"/>
+    </input>
+    <input ref="/data/health_insurance_number" appearance="numeric">
+      <label ref="jr:itext('health_insurance_number-label')"/>
+    </input>
+    <input ref="/data/health_insurance_expiry_date">
+      <label ref="jr:itext('health_insurance_expiry_date-label')"/>
+    </input>
+  </h:body>
+</h:html>

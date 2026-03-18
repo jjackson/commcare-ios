@@ -76,7 +76,15 @@ class FormEntryViewModel(
                 errorMessage = "No questions at event=$eventName, prompts=${formSession.getPrompts().size}"
             }
         } catch (e: Exception) {
-            errorMessage = "Failed to load form: ${e::class.simpleName}: ${e.message}"
+            val causeChain = buildString {
+                var current: Throwable? = e
+                while (current != null) {
+                    append("${current::class.simpleName}: ${current.message}")
+                    current = current.cause
+                    if (current != null) append(" → ")
+                }
+            }
+            errorMessage = "Failed to load form: $causeChain"
         }
     }
 

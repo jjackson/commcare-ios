@@ -115,7 +115,28 @@ fun FormEntryScreen(
 
         HorizontalDivider()
 
-        if (viewModel.isSubmitting) {
+        if (viewModel.errorMessage != null) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Form Error",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = viewModel.errorMessage!!,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                OutlinedButton(onClick = { onBack() }) {
+                    Text("Go Back")
+                }
+            }
+        } else if (viewModel.isSubmitting) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
