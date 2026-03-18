@@ -39,21 +39,18 @@ env:
 - waitForAnimationToEnd:
     timeout: 5000
 
-# Bonsaaso app structure: Start → menus (m0..m3) → forms
-# Try each module until we find one that opens a form without needing cases.
-# m3 is often a standalone registration module.
-- tapOn: "m3"
+# Bonsaaso app: Pregnancy List, Child List, Household List, Registration
+# "Registration" → "Register Household" creates new households — no cases required.
+- tapOn:
+    text: ".*Registration.*"
 - waitForAnimationToEnd:
     timeout: 5000
 
-# If this is a form list, tap the first form
-- runFlow:
-    when:
-      visible: "m3-f0"
-    commands:
-      - tapOn: "m3-f0"
-      - waitForAnimationToEnd:
-          timeout: 5000
+# Tap "Register Household" to open a registration form
+- tapOn:
+    text: ".*Register Household.*"
+- waitForAnimationToEnd:
+    timeout: 10000
 
 # If we're on a case list with cases, select first case
 - runFlow:
@@ -65,15 +62,15 @@ env:
             notVisible: "No cases found"
           commands:
             - tapOn:
-                text: ".*"
                 index: 2
             - waitForAnimationToEnd:
                 timeout: 5000
 
 # ---- Step 4: Fill the form ----
+# Wait longer — form parsing may take time on first load
 - extendedWaitUntil:
     visible: "Next"
-    timeout: 30000
+    timeout: 60000
 
 # Answer text question if visible
 - runFlow:

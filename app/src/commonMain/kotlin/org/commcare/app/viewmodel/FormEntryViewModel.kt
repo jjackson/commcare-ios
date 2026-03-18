@@ -61,8 +61,22 @@ class FormEntryViewModel(
             formSession.stepNext() // Move past BEGINNING_OF_FORM
             advanceToQuestion()
             updateQuestions()
+            // Debug: if no questions loaded, report form state
+            if (questions.isEmpty() && !isComplete && !isRepeatPrompt) {
+                val event = formSession.currentEvent()
+                val eventName = when (event) {
+                    FormEntryController.EVENT_BEGINNING_OF_FORM -> "BEGINNING"
+                    FormEntryController.EVENT_END_OF_FORM -> "END"
+                    FormEntryController.EVENT_QUESTION -> "QUESTION"
+                    FormEntryController.EVENT_GROUP -> "GROUP"
+                    FormEntryController.EVENT_REPEAT -> "REPEAT"
+                    FormEntryController.EVENT_PROMPT_NEW_REPEAT -> "NEW_REPEAT"
+                    else -> "UNKNOWN($event)"
+                }
+                errorMessage = "No questions at event=$eventName, prompts=${formSession.getPrompts().size}"
+            }
         } catch (e: Exception) {
-            errorMessage = "Failed to load form: ${e.message}"
+            errorMessage = "Failed to load form: ${e::class.simpleName}: ${e.message}"
         }
     }
 
@@ -391,7 +405,8 @@ class FormEntryViewModel(
                     appearance = prompt.getAppearanceHint()
                 )
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            errorMessage = "Question load error: ${e::class.simpleName}: ${e.message}"
             emptyList()
         }
     }
