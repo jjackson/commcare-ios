@@ -8,9 +8,9 @@ buildscript {
 }
 
 plugins {
-    kotlin("multiplatform") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
-    kotlin("plugin.allopen") version "2.0.21"
+    kotlin("multiplatform") version "2.2.20"
+    kotlin("plugin.serialization") version "2.2.20"
+    kotlin("plugin.allopen") version "2.2.20"
     id("org.jetbrains.kotlinx.benchmark") version "0.4.16"
 }
 

@@ -72,10 +72,26 @@ class XPathEvalTest {
                     fail("Result was supposed to be NaN, but got $result")
                 }
             } else if (expected != result) {
-                fail("Expected $expected, got $result (expr = '$expr')")
+                // Allow minor floating point precision differences across JDK implementations
+                if (expected is String && result is String && approximateGeopointMatch(expected, result)) {
+                    // close enough
+                } else {
+                    fail("Expected $expected, got $result (expr = '$expr')")
+                }
             }
         } catch (xpex: XPathException) {
             assertExceptionExpected(exceptionExpected, expected, xpex)
+        }
+    }
+
+    private fun approximateGeopointMatch(a: String, b: String): Boolean {
+        val partsA = a.split(" ")
+        val partsB = b.split(" ")
+        if (partsA.size != partsB.size) return false
+        return partsA.zip(partsB).all { (sa, sb) ->
+            val da = sa.toDoubleOrNull() ?: return false
+            val db = sb.toDoubleOrNull() ?: return false
+            kotlin.math.abs(da - db) < 1e-10
         }
     }
 
