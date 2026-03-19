@@ -10,9 +10,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import org.commcare.app.network.ConnectIdApi
+import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.AppRecordRepository
 import org.commcare.app.storage.CommCareDatabase
+import org.commcare.app.storage.ConnectIdRepository
 import org.commcare.app.ui.AppManagerScreen
 import org.commcare.app.ui.EnterCodeScreen
 import org.commcare.app.ui.HomeScreen
@@ -22,8 +25,10 @@ import org.commcare.app.ui.InstallProgressScreen
 import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
+import org.commcare.app.ui.connect.PersonalIdScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.AppManagerViewModel
+import org.commcare.app.viewmodel.ConnectIdViewModel
 import org.commcare.app.viewmodel.DemoModeManager
 import org.commcare.app.viewmodel.InstallState
 import org.commcare.app.viewmodel.LoginViewModel
@@ -33,6 +38,10 @@ import org.commcare.app.viewmodel.SetupViewModel
 @Composable
 fun App(db: CommCareDatabase) {
     val appRepository = remember { AppRecordRepository(db) }
+    val connectIdRepository = remember { ConnectIdRepository(db) }
+    val connectIdApi = remember { ConnectIdApi() }
+    val keychainStore = remember { PlatformKeychainStore() }
+    val connectIdViewModel = remember { ConnectIdViewModel(connectIdApi, connectIdRepository, keychainStore) }
     val loginViewModel = remember { LoginViewModel(db) }
     val demoModeManager = remember { DemoModeManager(db) }
     val setupViewModel = remember { SetupViewModel() }
@@ -41,10 +50,21 @@ fun App(db: CommCareDatabase) {
     // Track whether any apps are installed; starts false on first launch
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
     var showAppManager by remember { mutableStateOf(false) }
+    var showPersonalIdRegistration by remember { mutableStateOf(false) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val appState = loginViewModel.appState
+
+            // Show PersonalIdScreen overlay when registration is requested
+            if (showPersonalIdRegistration) {
+                PersonalIdScreen(
+                    viewModel = connectIdViewModel,
+                    onComplete = { showPersonalIdRegistration = false },
+                    onCancel = { showPersonalIdRegistration = false }
+                )
+                return@Surface
+            }
 
             // Once an app is seated (NeedsLogin or Ready), flip hasApps so we leave setup flow
             if (appState is AppState.NeedsLogin || appState is AppState.Ready) {
@@ -67,7 +87,8 @@ fun App(db: CommCareDatabase) {
                     setupViewModel = setupViewModel,
                     loginViewModel = loginViewModel,
                     appInstallViewModel = appInstallViewModel,
-                    hasApps = hasApps
+                    hasApps = hasApps,
+                    onSignUpPersonalId = { showPersonalIdRegistration = true }
                 )
             } else {
                 // Normal routing: login, install, home, etc.
@@ -81,6 +102,9 @@ fun App(db: CommCareDatabase) {
                             if (demoState != null) {
                                 loginViewModel.setReadyState(demoState)
                             }
+                        },
+                        onConnectIdLogin = {
+                            showPersonalIdRegistration = true
                         }
                     )
                     is AppState.NeedsLogin -> {
@@ -121,7 +145,10 @@ fun App(db: CommCareDatabase) {
                                     val allApps = appRepository.getAllApps()
                                     loginViewModel.setReadyState(AppState.NeedsLogin(app, allApps))
                                 },
-                                onAppManager = { showAppManager = true }
+                                onAppManager = { showAppManager = true },
+                                onConnectIdLogin = {
+                                    showPersonalIdRegistration = true
+                                }
                             )
                         }
                     }
@@ -145,7 +172,8 @@ private fun SetupFlow(
     setupViewModel: SetupViewModel,
     loginViewModel: LoginViewModel,
     appInstallViewModel: AppInstallViewModel,
-    hasApps: MutableState<Boolean>
+    hasApps: MutableState<Boolean>,
+    onSignUpPersonalId: (() -> Unit)? = null
 ) {
     // React to AppInstallViewModel state transitions
     when (val installState = appInstallViewModel.installState) {
@@ -197,7 +225,8 @@ private fun SetupFlow(
             setupViewModel = setupViewModel,
             onInstall = { profileUrl ->
                 appInstallViewModel.install(profileUrl)
-            }
+            },
+            onSignUpPersonalId = onSignUpPersonalId
         )
         SetupStep.ENTER_CODE -> EnterCodeScreen(
             setupViewModel = setupViewModel,
@@ -221,7 +250,8 @@ private fun SetupFlow(
                 setupViewModel = setupViewModel,
                 onInstall = { profileUrl ->
                     appInstallViewModel.install(profileUrl)
-                }
+                },
+                onSignUpPersonalId = onSignUpPersonalId
             )
         }
     }

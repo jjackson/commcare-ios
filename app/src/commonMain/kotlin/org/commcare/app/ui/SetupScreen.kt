@@ -27,7 +27,8 @@ import org.commcare.app.viewmodel.SetupViewModel
 @Composable
 fun SetupScreen(
     setupViewModel: SetupViewModel,
-    onInstall: (String) -> Unit
+    onInstall: (String) -> Unit,
+    onSignUpPersonalId: (() -> Unit)? = null
 ) {
     val scanner = remember { PlatformBarcodeScanner() }
 
@@ -149,16 +150,18 @@ fun SetupScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Sign up link (placeholder, not functional)
-        TextButton(
-            onClick = { /* placeholder */ },
-            modifier = Modifier.testTag("signup_link")
-        ) {
-            Text(
-                text = "Sign up for Personal ID",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+        // Sign up for Personal ID link — only shown when callback is wired
+        if (onSignUpPersonalId != null) {
+            TextButton(
+                onClick = { onSignUpPersonalId.invoke() },
+                modifier = Modifier.testTag("signup_link")
+            ) {
+                Text(
+                    text = "Sign up for Personal ID",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
