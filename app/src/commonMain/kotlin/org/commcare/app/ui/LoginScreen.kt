@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,7 +50,8 @@ fun LoginScreen(
     seatedApp: ApplicationRecord? = null,
     allApps: List<ApplicationRecord> = emptyList(),
     onSwitchApp: ((ApplicationRecord) -> Unit)? = null,
-    onAppManager: (() -> Unit)? = null
+    onAppManager: (() -> Unit)? = null,
+    onConnectIdLogin: (() -> Unit)? = null
 ) {
     val isLoggingIn = viewModel.appState is AppState.LoggingIn
     val focusManager = LocalFocusManager.current
@@ -187,6 +191,32 @@ fun LoginScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        if (onConnectIdLogin != null && !isLoggingIn) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                HorizontalDivider(Modifier.weight(1f).align(Alignment.CenterVertically))
+                Text(
+                    " or ",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                HorizontalDivider(Modifier.weight(1f).align(Alignment.CenterVertically))
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = { onConnectIdLogin.invoke() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Login with Connect ID")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         if (isLoggingIn) {
             CircularProgressIndicator(
