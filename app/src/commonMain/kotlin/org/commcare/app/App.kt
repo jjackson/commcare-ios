@@ -23,6 +23,8 @@ fun App(db: CommCareDatabase) {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             when (val state = loginViewModel.appState) {
+                is AppState.NoAppsInstalled,
+                is AppState.NeedsLogin,
                 is AppState.LoggedOut,
                 is AppState.LoginError -> LoginScreen(
                     viewModel = loginViewModel,
@@ -39,6 +41,9 @@ fun App(db: CommCareDatabase) {
                     loginViewModel.resetError()
                 }
                 is AppState.Ready -> HomeScreen(state, db)
+                is AppState.AppCorrupted -> InstallErrorScreen(
+                    AppState.InstallError("App corrupted: ${state.message}")
+                ) { loginViewModel.resetError() }
             }
         }
     }

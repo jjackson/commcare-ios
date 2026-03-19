@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
+import org.commcare.app.model.ApplicationRecord
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.storage.SqlDelightUserSandbox
@@ -27,6 +28,7 @@ class LoginViewModel(private val db: CommCareDatabase) {
     private var serverUrl = "https://www.commcarehq.org"
     private var appId = ""
     private var profileUrl = ""
+    private var currentApp: ApplicationRecord? = null
 
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
         private set
@@ -46,9 +48,10 @@ class LoginViewModel(private val db: CommCareDatabase) {
      * Configure server and app details from an installed application.
      * Called by the setup/dispatch flow after an app is installed.
      */
-    fun configureApp(serverUrl: String, appId: String) {
+    fun configureApp(serverUrl: String, appId: String, app: ApplicationRecord? = null) {
         this.serverUrl = serverUrl
         this.appId = appId
+        this.currentApp = app
     }
 
     fun login() {
@@ -160,11 +163,34 @@ class LoginViewModel(private val db: CommCareDatabase) {
                 val platform = installer.install(resolvedProfileUrl) { progress, message ->
                     appState = AppState.Installing(0.5f + progress * 0.5f, message)
                 }
-                appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
+                val profileDisplayName = try {
+                    platform.getCurrentProfile().getDisplayName() ?: "CommCare"
+                } catch (_: Exception) {
+                    "CommCare"
+                }
+                val app = currentApp ?: ApplicationRecord(
+                    id = appId.ifBlank { "unknown" },
+                    profileUrl = resolvedProfileUrl,
+                    displayName = profileDisplayName,
+                    domain = domain,
+                    majorVersion = platform.majorVersion,
+                    minorVersion = platform.minorVersion,
+                    installDate = 0L
+                )
+                appState = AppState.Ready(platform, sandbox, app, serverUrl, domain, authHeader!!)
             } else {
                 // Minimal platform for development (no app profile configured)
                 val platform = installer.createMinimalPlatform()
-                appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
+                val app = currentApp ?: ApplicationRecord(
+                    id = appId.ifBlank { "unknown" },
+                    profileUrl = "",
+                    displayName = "CommCare",
+                    domain = domain,
+                    majorVersion = platform.majorVersion,
+                    minorVersion = platform.minorVersion,
+                    installDate = 0L
+                )
+                appState = AppState.Ready(platform, sandbox, app, serverUrl, domain, authHeader!!)
             }
         } catch (e: Exception) {
             val cause = e.cause?.let { " Cause: ${it::class.simpleName}: ${it.message}" } ?: ""

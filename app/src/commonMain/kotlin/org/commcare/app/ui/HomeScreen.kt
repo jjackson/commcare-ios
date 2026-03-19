@@ -129,6 +129,7 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
     when (nav) {
         is HomeNav.Landing -> {
             HomeLanding(
+                appName = state.app.displayName,
                 onStart = {
                     menuViewModel.loadMenus()
                     nav = HomeNav.InMenu
@@ -325,6 +326,7 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
 
 @Composable
 private fun HomeLanding(
+    appName: String,
     onStart: () -> Unit,
     onSync: () -> Unit,
     onSettings: () -> Unit,
@@ -341,6 +343,14 @@ private fun HomeLanding(
             text = "CommCare",
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = appName,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(8.dp))
