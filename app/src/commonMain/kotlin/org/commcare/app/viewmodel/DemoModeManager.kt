@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.commcare.app.engine.AppInstaller
+import org.commcare.app.model.ApplicationRecord
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.storage.SqlDelightUserSandbox
@@ -43,9 +44,19 @@ class DemoModeManager(
             isDemoMode = true
             demoState = DemoState.Active
 
+            val demoApp = ApplicationRecord(
+                id = "demo",
+                profileUrl = "",
+                displayName = "Demo Mode",
+                domain = "demo",
+                majorVersion = 2,
+                minorVersion = 53,
+                installDate = 0L
+            )
             AppState.Ready(
                 platform = platform,
                 sandbox = sandbox,
+                app = demoApp,
                 serverUrl = "demo://localhost",
                 domain = "demo",
                 authHeader = "Demo demo_user"
@@ -74,9 +85,19 @@ class DemoModeManager(
             val platform = installer.createMinimalPlatform()
 
             demoState = DemoState.Active
+            val demoApp = ApplicationRecord(
+                id = "demo",
+                profileUrl = "",
+                displayName = "Demo Mode",
+                domain = "demo",
+                majorVersion = 2,
+                minorVersion = 53,
+                installDate = 0L
+            )
             AppState.Ready(
                 platform = platform,
                 sandbox = sandbox,
+                app = demoApp,
                 serverUrl = "demo://localhost",
                 domain = "demo",
                 authHeader = "Demo demo_user"

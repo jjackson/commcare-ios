@@ -1,13 +1,19 @@
 package org.commcare.app.state
 
+import org.commcare.app.model.ApplicationRecord
 import org.commcare.app.storage.SqlDelightUserSandbox
 import org.commcare.util.CommCarePlatform
 
 /**
  * Top-level app state machine.
- * LoggedOut → LoggingIn → Installing → Ready → InSession
+ * NoAppsInstalled / NeedsLogin → LoggingIn → Installing → Ready
  */
 sealed class AppState {
+    data object NoAppsInstalled : AppState()
+    data class NeedsLogin(
+        val seatedApp: ApplicationRecord,
+        val allApps: List<ApplicationRecord>
+    ) : AppState()
     data object LoggedOut : AppState()
     data class LoggingIn(val serverUrl: String, val username: String) : AppState()
     data class LoginError(val message: String) : AppState()
@@ -16,8 +22,10 @@ sealed class AppState {
     data class Ready(
         val platform: CommCarePlatform,
         val sandbox: SqlDelightUserSandbox,
+        val app: ApplicationRecord,
         val serverUrl: String,
         val domain: String,
         val authHeader: String
     ) : AppState()
+    data class AppCorrupted(val app: ApplicationRecord, val message: String) : AppState()
 }

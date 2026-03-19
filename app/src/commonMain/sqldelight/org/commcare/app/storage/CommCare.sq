@@ -240,3 +240,51 @@ SELECT * FROM ledgers WHERE entity_id = ? AND section_id = ? AND entry_id = ?;
 
 deleteAllLedgers:
 DELETE FROM ledgers;
+
+-- Application registry (Phase 5)
+CREATE TABLE IF NOT EXISTS application_record (
+    id TEXT PRIMARY KEY,
+    profile_url TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    major_version INTEGER NOT NULL,
+    minor_version INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'INSTALLED',
+    resources_validated INTEGER NOT NULL DEFAULT 0,
+    install_date INTEGER NOT NULL,
+    banner_url TEXT,
+    icon_url TEXT
+);
+
+CREATE TABLE IF NOT EXISTS seated_app_preference (
+    key TEXT PRIMARY KEY DEFAULT 'seated_app',
+    app_id TEXT NOT NULL
+);
+
+getAllApps:
+SELECT * FROM application_record ORDER BY install_date DESC;
+
+getUsableApps:
+SELECT * FROM application_record WHERE status = 'INSTALLED' ORDER BY install_date DESC;
+
+getAppById:
+SELECT * FROM application_record WHERE id = ?;
+
+getAppCount:
+SELECT COUNT(*) FROM application_record WHERE status = 'INSTALLED';
+
+insertApp:
+INSERT OR REPLACE INTO application_record(id, profile_url, display_name, domain, major_version, minor_version, status, resources_validated, install_date, banner_url, icon_url)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateAppStatus:
+UPDATE application_record SET status = ? WHERE id = ?;
+
+deleteApp:
+DELETE FROM application_record WHERE id = ?;
+
+getSeatedAppId:
+SELECT app_id FROM seated_app_preference WHERE key = 'seated_app';
+
+setSeatedAppId:
+INSERT OR REPLACE INTO seated_app_preference(key, app_id) VALUES ('seated_app', ?);
