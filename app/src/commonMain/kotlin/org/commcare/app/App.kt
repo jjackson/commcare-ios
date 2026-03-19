@@ -5,12 +5,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.AppRecordRepository
 import org.commcare.app.storage.CommCareDatabase
+import org.commcare.app.ui.AppManagerScreen
 import org.commcare.app.ui.EnterCodeScreen
 import org.commcare.app.ui.HomeScreen
 import org.commcare.app.ui.InstallErrorScreen
@@ -20,6 +23,7 @@ import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
+import org.commcare.app.viewmodel.AppManagerViewModel
 import org.commcare.app.viewmodel.DemoModeManager
 import org.commcare.app.viewmodel.InstallState
 import org.commcare.app.viewmodel.LoginViewModel
@@ -36,6 +40,7 @@ fun App(db: CommCareDatabase) {
 
     // Track whether any apps are installed; starts false on first launch
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
+    var showAppManager by remember { mutableStateOf(false) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -44,6 +49,16 @@ fun App(db: CommCareDatabase) {
             // Once an app is seated (NeedsLogin or Ready), flip hasApps so we leave setup flow
             if (appState is AppState.NeedsLogin || appState is AppState.Ready) {
                 hasApps.value = true
+            }
+
+            // If apps exist in DB but LoginViewModel is still LoggedOut, bridge the gap:
+            // load the seated app and transition to NeedsLogin so the app switcher gets data.
+            if (hasApps.value && appState is AppState.LoggedOut) {
+                val seatedApp = appRepository.getSeatedApp()
+                if (seatedApp != null) {
+                    val allApps = appRepository.getAllApps()
+                    loginViewModel.setReadyState(AppState.NeedsLogin(seatedApp, allApps))
+                }
             }
 
             if (!hasApps.value) {
@@ -58,7 +73,6 @@ fun App(db: CommCareDatabase) {
                 // Normal routing: login, install, home, etc.
                 when (appState) {
                     is AppState.NoAppsInstalled,
-                    is AppState.NeedsLogin,
                     is AppState.LoggedOut,
                     is AppState.LoginError -> LoginScreen(
                         viewModel = loginViewModel,
@@ -69,6 +83,48 @@ fun App(db: CommCareDatabase) {
                             }
                         }
                     )
+                    is AppState.NeedsLogin -> {
+                        // Auto-configure LoginViewModel from the seated app
+                        loginViewModel.configureApp(
+                            serverUrl = "https://www.commcarehq.org",
+                            appId = appState.seatedApp.id,
+                            app = appState.seatedApp
+                        )
+                        if (showAppManager) {
+                            val appManagerViewModel = remember { AppManagerViewModel(appRepository) }
+                            AppManagerScreen(
+                                viewModel = appManagerViewModel,
+                                onBack = { showAppManager = false },
+                                onInstallNew = {
+                                    showAppManager = false
+                                    hasApps.value = false
+                                }
+                            )
+                        } else {
+                            LoginScreen(
+                                viewModel = loginViewModel,
+                                onDemoMode = {
+                                    val demoState = demoModeManager.enterDemoMode()
+                                    if (demoState != null) {
+                                        loginViewModel.setReadyState(demoState)
+                                    }
+                                },
+                                seatedApp = appState.seatedApp,
+                                allApps = appState.allApps,
+                                onSwitchApp = { app ->
+                                    appRepository.seatApp(app.id)
+                                    loginViewModel.configureApp(
+                                        serverUrl = "https://www.commcarehq.org",
+                                        appId = app.id,
+                                        app = app
+                                    )
+                                    val allApps = appRepository.getAllApps()
+                                    loginViewModel.setReadyState(AppState.NeedsLogin(app, allApps))
+                                },
+                                onAppManager = { showAppManager = true }
+                            )
+                        }
+                    }
                     is AppState.LoggingIn -> LoginScreen(loginViewModel)
                     is AppState.Installing -> InstallScreen(appState)
                     is AppState.InstallError -> InstallErrorScreen(appState) {
