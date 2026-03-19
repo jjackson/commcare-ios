@@ -288,3 +288,43 @@ SELECT app_id FROM seated_app_preference WHERE key = 'seated_app';
 
 setSeatedAppId:
 INSERT OR REPLACE INTO seated_app_preference(key, app_id) VALUES ('seated_app', ?);
+
+-- Connect ID user metadata (Phase 5 Wave 5)
+CREATE TABLE IF NOT EXISTS connect_id_user (
+    user_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    photo_path TEXT,
+    has_connect_access INTEGER NOT NULL DEFAULT 0,
+    security_method TEXT NOT NULL DEFAULT 'pin'
+);
+
+CREATE TABLE IF NOT EXISTS connect_hq_link (
+    hq_username TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    connect_user_id TEXT NOT NULL,
+    PRIMARY KEY (hq_username, domain)
+);
+
+-- Connect ID queries
+getConnectIdUser:
+SELECT * FROM connect_id_user LIMIT 1;
+
+insertConnectIdUser:
+INSERT OR REPLACE INTO connect_id_user(user_id, name, phone, photo_path, has_connect_access, security_method)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteConnectIdUser:
+DELETE FROM connect_id_user;
+
+getHqLink:
+SELECT * FROM connect_hq_link WHERE hq_username = ? AND domain = ?;
+
+getAllHqLinks:
+SELECT * FROM connect_hq_link WHERE connect_user_id = ?;
+
+insertHqLink:
+INSERT OR REPLACE INTO connect_hq_link(hq_username, domain, connect_user_id) VALUES (?, ?, ?);
+
+deleteHqLink:
+DELETE FROM connect_hq_link WHERE hq_username = ? AND domain = ?;
