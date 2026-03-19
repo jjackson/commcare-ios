@@ -54,6 +54,58 @@ class LoginViewModel(private val db: CommCareDatabase) {
         this.currentApp = app
     }
 
+    /**
+     * Set the profile URL directly — used by the setup flow when the user scans/enters a URL
+     * before logging in.
+     */
+    fun setProfileUrl(url: String) {
+        this.profileUrl = url
+    }
+
+    /**
+     * Install an app directly from the configured profileUrl, without requiring server login.
+     * Used by the setup flow to install a CommCare app from a profile URL or barcode.
+     */
+    fun startInstall() {
+        scope.launch {
+            try {
+                val sandbox = SqlDelightUserSandbox(db)
+                val installer = AppInstaller(sandbox)
+
+                val resolvedProfileUrl = profileUrl
+                if (resolvedProfileUrl.isBlank()) {
+                    appState = AppState.InstallError("No profile URL configured")
+                    return@launch
+                }
+
+                appState = AppState.Installing(0.1f, "Starting installation...")
+                val platform = installer.install(resolvedProfileUrl) { progress, message ->
+                    appState = AppState.Installing(progress, message)
+                }
+
+                val profileDisplayName = try {
+                    platform.getCurrentProfile().getDisplayName() ?: "CommCare"
+                } catch (_: Exception) {
+                    "CommCare"
+                }
+
+                val app = ApplicationRecord(
+                    id = appId.ifBlank { "installed" },
+                    profileUrl = resolvedProfileUrl,
+                    displayName = profileDisplayName,
+                    domain = "",
+                    majorVersion = platform.majorVersion,
+                    minorVersion = platform.minorVersion,
+                    installDate = 0L
+                )
+                this@LoginViewModel.sandbox = sandbox
+                appState = AppState.NeedsLogin(app, listOf(app))
+            } catch (e: Exception) {
+                appState = AppState.InstallError("Installation failed: ${e.message}")
+            }
+        }
+    }
+
     fun login() {
         if (username.isBlank() || password.isBlank()) {
             appState = AppState.LoginError("Username and password are required")
