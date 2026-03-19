@@ -2,6 +2,7 @@ package org.commcare.app.ui
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,12 +13,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -29,18 +35,24 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import org.commcare.app.model.ApplicationRecord
 import org.commcare.app.state.AppState
 import org.commcare.app.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onDemoMode: (() -> Unit)? = null
+    onDemoMode: (() -> Unit)? = null,
+    seatedApp: ApplicationRecord? = null,
+    allApps: List<ApplicationRecord> = emptyList(),
+    onSwitchApp: ((ApplicationRecord) -> Unit)? = null,
+    onAppManager: (() -> Unit)? = null
 ) {
     val isLoggingIn = viewModel.appState is AppState.LoggingIn
     val focusManager = LocalFocusManager.current
     val usernameFocus = remember { FocusRequester() }
     val passwordFocus = remember { FocusRequester() }
+    var appDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -57,6 +69,49 @@ fun LoginScreen(
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.primary
         )
+
+        if (seatedApp != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (allApps.size > 1 && onSwitchApp != null) {
+                // Show app name as a tappable dropdown trigger
+                Box {
+                    TextButton(
+                        onClick = { appDropdownExpanded = true },
+                        modifier = Modifier.testTag("app_switcher_button")
+                    ) {
+                        Text(
+                            text = "${seatedApp.displayName} ▼",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = appDropdownExpanded,
+                        onDismissRequest = { appDropdownExpanded = false }
+                    ) {
+                        allApps.forEach { app ->
+                            DropdownMenuItem(
+                                text = { Text(app.displayName) },
+                                onClick = {
+                                    appDropdownExpanded = false
+                                    onSwitchApp(app)
+                                },
+                                modifier = Modifier.testTag("app_option_${app.id}")
+                            )
+                        }
+                    }
+                }
+            } else {
+                // Single app — just show as subtitle
+                Text(
+                    text = seatedApp.displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.testTag("app_name_subtitle")
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -127,6 +182,13 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Enter Demo Mode")
+                }
+            }
+
+            if (onAppManager != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(onClick = onAppManager) {
+                    Text("App Manager", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
