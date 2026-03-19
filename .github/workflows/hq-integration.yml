@@ -20,8 +20,6 @@ concurrency:
 jobs:
   integration:
     runs-on: macos-15
-    # Only run if secrets are configured
-    if: ${{ secrets.COMMCARE_USERNAME != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +33,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x app/gradlew
 
+      - name: Check credentials
+        id: check_creds
+        env:
+          COMMCARE_USERNAME: ${{ secrets.COMMCARE_USERNAME }}
+        run: |
+          if [ -z "$COMMCARE_USERNAME" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⚠️ HQ credentials not configured — skipping integration tests"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Run HQ integration tests
+        if: steps.check_creds.outputs.skip != 'true'
         working-directory: app
         env:
           COMMCARE_HQ_URL: ${{ inputs.hq_url || secrets.COMMCARE_HQ_URL || 'https://www.commcarehq.org' }}
