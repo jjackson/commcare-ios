@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -81,7 +82,7 @@ fun LoginScreen(
             value = viewModel.username,
             onValueChange = { viewModel.username = it },
             label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth().focusRequester(usernameFocus),
+            modifier = Modifier.fillMaxWidth().focusRequester(usernameFocus).testTag("username_field"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { domainFocus.requestFocus() }),
@@ -94,7 +95,7 @@ fun LoginScreen(
             value = viewModel.domain,
             onValueChange = { viewModel.domain = it },
             label = { Text("Domain") },
-            modifier = Modifier.fillMaxWidth().focusRequester(domainFocus),
+            modifier = Modifier.fillMaxWidth().focusRequester(domainFocus).testTag("domain_field"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { appIdFocus.requestFocus() }),
@@ -107,7 +108,7 @@ fun LoginScreen(
             value = viewModel.appId,
             onValueChange = { viewModel.appId = it },
             label = { Text("App ID") },
-            modifier = Modifier.fillMaxWidth().focusRequester(appIdFocus),
+            modifier = Modifier.fillMaxWidth().focusRequester(appIdFocus).testTag("appid_field"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() }),
@@ -120,7 +121,7 @@ fun LoginScreen(
             value = viewModel.password,
             onValueChange = { viewModel.password = it },
             label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth().focusRequester(passwordFocus),
+            modifier = Modifier.fillMaxWidth().focusRequester(passwordFocus).testTag("password_field"),
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
