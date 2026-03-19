@@ -13,8 +13,9 @@
 #   .maestro/run.sh .maestro/flows/<flow-name>.yaml
 #
 # Test status:
+#   login.yaml                — shared login subflow (Username + Password only)
+#   login-with-app.yaml       — login subflow for full app install
 #   login-and-home.yaml       — PASSING (login + verify all home sections)
-#   login-with-app.yaml       — PASSING (login with App ID + full app install)
 #   sync-and-verify.yaml      — PASSING (login + sync + case list + incremental sync)
 #   hq-round-trip.yaml        — WIP (login + install + sync + form entry)
 #   form-entry-navigation.yaml — WIP (depends on hq-round-trip base flow)
@@ -23,5 +24,7 @@
 #   - Compose Multiplatform on iOS doesn't dismiss keyboard on tap-outside by default.
 #     We added pointerInput-based dismissal to LoginScreen.
 #   - CMP 1.10+ requires CADisableMinimumFrameDurationOnPhone in Info.plist or app crashes.
+#   - Username field uses testTag ID ("username_field") and password uses "password_field"
+#     to avoid CMP OutlinedTextField label tap misalignment.
 
 appId: org.commcare.ios
