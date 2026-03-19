@@ -20,12 +20,14 @@ import org.javarosa.core.io.createByteArrayInputStream
  * On successful auth, parses the restore response to populate the sandbox.
  */
 class LoginViewModel(private val db: CommCareDatabase) {
-    var serverUrl by mutableStateOf("https://www.commcarehq.org")
     var username by mutableStateOf("")
     var password by mutableStateOf("")
-    var domain by mutableStateOf("")
-    var appId by mutableStateOf("")
-    var profileUrl by mutableStateOf("")
+
+    // Internal — not shown in UI. Will come from ApplicationRecord in Wave 2.
+    private var serverUrl = "https://www.commcarehq.org"
+    private var appId = ""
+    private var profileUrl = ""
+
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
         private set
 
@@ -39,6 +41,15 @@ class LoginViewModel(private val db: CommCareDatabase) {
 
     private val httpClient = createHttpClient()
     private val scope = CoroutineScope(Dispatchers.Default)
+
+    /**
+     * Configure server and app details from an installed application.
+     * Called by the setup/dispatch flow after an app is installed.
+     */
+    fun configureApp(serverUrl: String, appId: String) {
+        this.serverUrl = serverUrl
+        this.appId = appId
+    }
 
     fun login() {
         if (username.isBlank() || password.isBlank()) {
@@ -193,17 +204,13 @@ class LoginViewModel(private val db: CommCareDatabase) {
         appState = state
     }
 
-    fun resolveDomain(): String {
-        // Use explicit domain field if set, otherwise extract from username
-        if (domain.isNotBlank()) return domain
+    private fun resolveDomain(): String {
         return if (username.contains("@")) {
             username.substringAfter("@").removeSuffix(".commcarehq.org")
         } else {
             "demo"
         }
     }
-
-    fun getCredentials(): String? = authHeader
 
     private fun encodeBasicAuth(user: String, pass: String): String {
         val raw = "$user:$pass"
