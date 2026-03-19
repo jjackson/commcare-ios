@@ -40,8 +40,6 @@ fun LoginScreen(
     val isLoggingIn = viewModel.appState is AppState.LoggingIn
     val focusManager = LocalFocusManager.current
     val usernameFocus = remember { FocusRequester() }
-    val domainFocus = remember { FocusRequester() }
-    val appIdFocus = remember { FocusRequester() }
     val passwordFocus = remember { FocusRequester() }
 
     Column(
@@ -63,52 +61,10 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = viewModel.serverUrl,
-            onValueChange = { viewModel.serverUrl = it },
-            label = { Text("Server URL") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Uri,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { usernameFocus.requestFocus() }),
-            enabled = !isLoggingIn
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
             value = viewModel.username,
             onValueChange = { viewModel.username = it },
             label = { Text("Username") },
             modifier = Modifier.fillMaxWidth().focusRequester(usernameFocus).testTag("username_field"),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { domainFocus.requestFocus() }),
-            enabled = !isLoggingIn
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = viewModel.domain,
-            onValueChange = { viewModel.domain = it },
-            label = { Text("Domain") },
-            modifier = Modifier.fillMaxWidth().focusRequester(domainFocus).testTag("domain_field"),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { appIdFocus.requestFocus() }),
-            enabled = !isLoggingIn
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = viewModel.appId,
-            onValueChange = { viewModel.appId = it },
-            label = { Text("App ID") },
-            modifier = Modifier.fillMaxWidth().focusRequester(appIdFocus).testTag("appid_field"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() }),
