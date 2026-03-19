@@ -1,36 +1,46 @@
 package org.commcare.app.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.commcare.app.engine.FormEntrySession
 import org.commcare.app.engine.NavigationStep
 import org.commcare.app.engine.SessionNavigatorImpl
 import org.javarosa.core.model.FormDef
 import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.commcare.app.state.AppState
+import org.commcare.app.storage.AppRecordRepository
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.viewmodel.CaseItem
 import org.commcare.app.viewmodel.CaseListViewModel
 import org.commcare.app.viewmodel.CaseSearchViewModel
+import org.commcare.app.viewmodel.DrawerViewModel
 import org.commcare.app.viewmodel.FormEntryViewModel
 import org.commcare.app.viewmodel.FormQueueViewModel
 import org.commcare.app.viewmodel.FormRecordViewModel
@@ -90,6 +100,14 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
     }
     val recoveryViewModel = remember { RecoveryViewModel() }
 
+    // Drawer setup
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val appRepository = remember { AppRecordRepository(db) }
+    val drawerViewModel = remember { DrawerViewModel(appRepository) }
+
+    LaunchedEffect(Unit) { drawerViewModel.refresh() }
+
     // Current form entry state (set when navigating to a form)
     var formEntryViewModel by remember { mutableStateOf<FormEntryViewModel?>(null) }
     var caseListViewModel by remember { mutableStateOf<CaseListViewModel?>(null) }
@@ -126,6 +144,23 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
         }
     }
 
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                NavigationDrawerContent(
+                    viewModel = drawerViewModel,
+                    username = state.domain,
+                    onSwitchApp = { /* placeholder — multi-app switching not yet wired */ },
+                    onOpportunities = { /* placeholder */ },
+                    onMessaging = { /* placeholder */ },
+                    onAbout = { /* placeholder */ },
+                    onConnectIdAction = { /* placeholder */ },
+                    onClose = { scope.launch { drawerState.close() } }
+                )
+            }
+        }
+    ) {
     when (nav) {
         is HomeNav.Landing -> {
             HomeLanding(
@@ -144,7 +179,8 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                     nav = HomeNav.InDiagnostics
                 },
                 pendingFormCount = formQueueViewModel.pendingCount,
-                lastSyncTime = syncViewModel.lastSyncTime
+                lastSyncTime = syncViewModel.lastSyncTime,
+                onOpenDrawer = { scope.launch { drawerState.open() } }
             )
         }
 
@@ -322,6 +358,7 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
             )
         }
     }
+    } // end ModalNavigationDrawer content
 }
 
 @Composable
@@ -332,13 +369,32 @@ private fun HomeLanding(
     onSettings: () -> Unit,
     onDiagnostics: () -> Unit,
     pendingFormCount: Int,
-    lastSyncTime: String?
+    lastSyncTime: String?,
+    onOpenDrawer: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Top bar with hamburger menu button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "\u2630", // hamburger menu character
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier
+                    .clickable { onOpenDrawer() }
+                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                    .padding(end = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
         Text(
             text = "CommCare",
             style = MaterialTheme.typography.headlineLarge,
