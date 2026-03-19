@@ -2,6 +2,7 @@ package org.commcare.app.engine
 
 import org.commcare.app.storage.SqlDelightUserSandbox
 import org.commcare.core.process.CommCareInstanceInitializer
+import org.commcare.modern.session.SessionWrapper
 import org.commcare.util.CommCarePlatform
 import org.javarosa.core.model.Constants
 import org.javarosa.core.model.FormDef
@@ -24,16 +25,22 @@ import org.javarosa.form.api.FormEntryPrompt
 class FormEntrySession(
     val formDef: FormDef,
     private val sandbox: SqlDelightUserSandbox? = null,
-    private val platform: CommCarePlatform? = null
+    private val platform: CommCarePlatform? = null,
+    private val sessionWrapper: SessionWrapper? = null
 ) {
     val model: FormEntryModel = FormEntryModel(formDef, FormEntryModel.REPEAT_STRUCTURE_LINEAR)
     val controller: FormEntryController = FormEntryController(model)
 
     /**
      * Initialize the form with instance data (case references, fixtures, etc.)
+     * Uses SessionWrapper when available so forms can resolve session instance
+     * references (e.g., instance('commcaresession')/session/data/case_id).
      */
     fun initialize() {
-        if (sandbox != null && platform != null) {
+        if (sessionWrapper != null) {
+            val initializer = CommCareInstanceInitializer(sessionWrapper, sandbox, platform)
+            formDef.initialize(true, initializer)
+        } else if (sandbox != null && platform != null) {
             val initializer = CommCareInstanceInitializer(null, sandbox, platform)
             formDef.initialize(true, initializer)
         } else if (sandbox != null) {
