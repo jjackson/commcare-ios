@@ -424,7 +424,7 @@ private fun loadFormEntry(
         val storageManager = state.platform.getStorageManager() ?: return null
         val formStorage = storageManager.getStorage(FormDef.STORAGE_KEY) as IStorageUtilityIndexed<FormDef>
         val formDef = formStorage.getRecordForValue("XMLNS", xmlns)
-        val session = FormEntrySession(formDef, state.sandbox, state.platform)
+        val session = FormEntrySession(formDef, state.sandbox, state.platform, navigator.session)
         val viewModel = FormEntryViewModel(session)
         viewModel.loadForm()
         viewModel.loadLanguages(languageViewModel)
