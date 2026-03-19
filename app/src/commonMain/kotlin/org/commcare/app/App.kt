@@ -14,10 +14,13 @@ import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.ui.EnterCodeScreen
 import org.commcare.app.ui.HomeScreen
 import org.commcare.app.ui.InstallErrorScreen
+import org.commcare.app.ui.InstallProgressScreen
 import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
+import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.DemoModeManager
+import org.commcare.app.viewmodel.InstallState
 import org.commcare.app.viewmodel.LoginViewModel
 import org.commcare.app.viewmodel.SetupStep
 import org.commcare.app.viewmodel.SetupViewModel
@@ -28,6 +31,7 @@ fun App(db: CommCareDatabase) {
     val loginViewModel = remember { LoginViewModel(db) }
     val demoModeManager = remember { DemoModeManager(db) }
     val setupViewModel = remember { SetupViewModel() }
+    val appInstallViewModel = remember { AppInstallViewModel(db, appRepository) }
 
     // Track whether any apps are installed; starts false on first launch
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
@@ -45,7 +49,9 @@ fun App(db: CommCareDatabase) {
                 // No apps installed — show setup flow (including install progress within it)
                 SetupFlow(
                     setupViewModel = setupViewModel,
-                    loginViewModel = loginViewModel
+                    loginViewModel = loginViewModel,
+                    appInstallViewModel = appInstallViewModel,
+                    hasApps = hasApps
                 )
             } else {
                 // Normal routing: login, install, home, etc.
@@ -80,16 +86,47 @@ fun App(db: CommCareDatabase) {
 @Composable
 private fun SetupFlow(
     setupViewModel: SetupViewModel,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    appInstallViewModel: AppInstallViewModel,
+    hasApps: MutableState<Boolean>
 ) {
-    // If install is in progress or failed, show install screens even during setup
-    when (val installState = loginViewModel.appState) {
+    // React to AppInstallViewModel state transitions
+    when (val installState = appInstallViewModel.installState) {
+        is InstallState.Installing, is InstallState.Failed -> {
+            // Show the new step-by-step install progress screen
+            InstallProgressScreen(
+                viewModel = appInstallViewModel,
+                onCancel = {
+                    appInstallViewModel.reset()
+                    setupViewModel.backToMain()
+                },
+                onRetry = {
+                    appInstallViewModel.reset()
+                    // Re-run install with the same URL stored in setupViewModel
+                    if (setupViewModel.profileUrl.isNotBlank()) {
+                        appInstallViewModel.install(setupViewModel.profileUrl)
+                    }
+                }
+            )
+            return
+        }
+        is InstallState.Completed -> {
+            // Install succeeded — flip hasApps to leave setup flow
+            hasApps.value = true
+            return
+        }
+        is InstallState.Idle -> { /* fall through to setup navigation */ }
+    }
+
+    // If loginViewModel's older install path is still active (e.g. login→install flow),
+    // show the legacy install screens so they aren't broken.
+    when (val loginState = loginViewModel.appState) {
         is AppState.Installing -> {
-            InstallScreen(installState)
+            InstallScreen(loginState)
             return
         }
         is AppState.InstallError -> {
-            InstallErrorScreen(installState) {
+            InstallErrorScreen(loginState) {
                 loginViewModel.resetError()
                 setupViewModel.backToMain()
             }
@@ -102,8 +139,7 @@ private fun SetupFlow(
         SetupStep.MAIN -> SetupScreen(
             setupViewModel = setupViewModel,
             onInstall = { profileUrl ->
-                loginViewModel.setProfileUrl(profileUrl)
-                loginViewModel.startInstall()
+                appInstallViewModel.install(profileUrl)
             }
         )
         SetupStep.ENTER_CODE -> EnterCodeScreen(
@@ -115,8 +151,7 @@ private fun SetupFlow(
             SetupScreen(
                 setupViewModel = setupViewModel,
                 onInstall = { profileUrl ->
-                    loginViewModel.setProfileUrl(profileUrl)
-                    loginViewModel.startInstall()
+                    appInstallViewModel.install(profileUrl)
                 }
             )
         }
@@ -127,8 +162,7 @@ private fun SetupFlow(
             SetupScreen(
                 setupViewModel = setupViewModel,
                 onInstall = { profileUrl ->
-                    loginViewModel.setProfileUrl(profileUrl)
-                    loginViewModel.startInstall()
+                    appInstallViewModel.install(profileUrl)
                 }
             )
         }
