@@ -14,6 +14,7 @@ import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.ui.EnterCodeScreen
 import org.commcare.app.ui.HomeScreen
 import org.commcare.app.ui.InstallErrorScreen
+import org.commcare.app.ui.InstallFromListScreen
 import org.commcare.app.ui.InstallProgressScreen
 import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
@@ -147,12 +148,13 @@ private fun SetupFlow(
             onNavigateBack = { setupViewModel.backToMain() }
         )
         SetupStep.INSTALL_FROM_LIST -> {
-            // Placeholder for Task 5 — show main setup screen for now
-            SetupScreen(
-                setupViewModel = setupViewModel,
-                onInstall = { profileUrl ->
+            InstallFromListScreen(
+                onAppSelected = { profileUrl ->
+                    setupViewModel.onCodeEntered(profileUrl)
+                    setupViewModel.backToMain()
                     appInstallViewModel.install(profileUrl)
-                }
+                },
+                onNavigateBack = { setupViewModel.backToMain() }
             )
         }
         SetupStep.SCANNING -> {
