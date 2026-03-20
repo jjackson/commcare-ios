@@ -16,19 +16,19 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (656 .kt files — platform-agnostic)
+│   ├── src/commonMain/      # KMP shared code (657 .kt files — platform-agnostic)
 │   ├── src/jvmMain/         # JVM platform implementations (97 .kt files)
-│   ├── src/iosMain/         # iOS/Native platform implementations (47 .kt files)
+│   ├── src/iosMain/         # iOS/Native platform implementations (49 .kt files)
 │   ├── src/main/java/       # JVM-only: parser specs + resources (zero Java source files)
 │   ├── src/test/java/       # JUnit 4 tests — 129 .kt + 4 .java (JVM)
-│   ├── src/commonTest/      # Cross-platform tests — 23 .kt (run on both JVM and iOS)
+│   ├── src/commonTest/      # Cross-platform tests — 28 .kt (run on both JVM and iOS)
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
 │   └── gradlew              # Gradle wrapper
 ├── app/                     # Compose Multiplatform app (JVM + iOS)
-│   ├── src/commonMain/      # Shared app code (51 .kt — UI, ViewModels, engine wiring, storage)
-│   ├── src/jvmMain/         # JVM platform (5 .kt)
-│   ├── src/iosMain/         # iOS platform (6 .kt)
-│   ├── src/jvmTest/         # JVM tests (20 .kt — sandbox, oracle, e2e)
+│   ├── src/commonMain/      # Shared app code (102 .kt — UI, ViewModels, Connect, storage)
+│   ├── src/jvmMain/         # JVM platform (13 .kt)
+│   ├── src/iosMain/         # iOS platform (14 .kt)
+│   ├── src/jvmTest/         # JVM tests (30 .kt — sandbox, oracle, e2e)
 │   └── src/commonMain/sqldelight/  # SQLDelight schema
 ├── docs/
 │   ├── plans/               # Design docs, phase plans, completion reports
@@ -42,39 +42,37 @@ commcare-ios/
 
 ## Current Status & What's Next
 
-**Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests, 113 app-level tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
+**Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
 
-**Phase 4: Polish — PLANNED.** 19 tasks across 6 waves. See `docs/plans/2026-03-16-phase4-polish-plan.md`.
+**Phase 4: Polish — IN PROGRESS.** 4 of 6 waves done. See `docs/plans/2026-03-16-phase4-polish-plan.md`.
 
 | Wave | Title | Issues | Status |
 |------|-------|--------|--------|
-| 1 | Correctness Scorecard & Integration Testing | #253 | Open |
-| 2 | Media Capture (camera, audio, signature) | #254 | Open |
-| 3 | Location & Barcode Scanning | #255 | Open |
-| 4 | Accessibility (VoiceOver, Dynamic Type) | #256 | Open |
+| 1 | Correctness Scorecard & Integration Testing | #253 | Done |
+| 2 | Media Capture (camera, audio, signature) | #254 | Done |
+| 3 | Location & Barcode Scanning | #255 | Done |
+| 4 | Accessibility (VoiceOver, Dynamic Type) | #256 | Done |
 | 5 | App Store Preparation | #257 | Open |
 | 6 | Performance & Final Validation | #258 | Open |
 
-Waves 2 & 3 can run in parallel after Wave 1. Exit criteria: correctness scorecard at 99%+, App Store submission ready.
+**Phase 5: Android UX Parity — IN PROGRESS.** Bringing iOS UX to parity with Android CommCare. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`. Waves 1-7 implemented via PRs #275-#293 (no GitHub issues created — this should be corrected). Connect marketplace rework in progress — see `docs/plans/2026-03-20-connect-marketplace-rework-plan.md`.
 
-**If you are an agent starting a session:** Pick up the next open issue from the table above. Read the issue description for "Files to Read", "What to Do", and "Tests That Must Pass".
+**If you are an agent starting a session:** Check the Connect marketplace rework plan and Phase 4 remaining waves (#257, #258). Read the relevant plan doc for "What to Do" and acceptance criteria.
 
 ## Key Docs
 
 **Active:**
+- **Phase 5 design spec**: `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md` — Connect ID, marketplace, multi-app, navigation drawer
+- **Connect marketplace rework**: `docs/plans/2026-03-20-connect-marketplace-rework-plan.md` — data model + API fixes for Connect marketplace
+- **Phase 5 wave plans**: `docs/plans/2026-03-19-phase5-wave1-implementation-plan.md`, `docs/plans/2026-03-19-phase5-wave2-implementation-plan.md`
 - **Phase 4 plan**: `docs/plans/2026-03-16-phase4-polish-plan.md` — 19 tasks, 6 waves: scorecard, media, location, accessibility, App Store, validation
-- **Original design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy, **Phase 4 outline**
+- **Original design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
 - **Xcode project setup**: `docs/plans/2026-03-15-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
-- **iOS cinterop plan**: `docs/plans/2026-03-15-ios-cinterop-implementation-plan.md` — replacing 4 iOS stubs with real implementations (DONE)
 - **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster
 
-**Completion reports (historical):**
-- Phase 3 Tier 3: `docs/plans/2026-03-15-phase3-tier3-completion-report.md` — 32 tasks, advanced features
-- Phase 3 Tier 2: `docs/plans/2026-03-14-phase3-tier2-completion-report.md` — 30 tasks, daily field worker features
-- Phase 3 Tier 1: `docs/plans/2026-03-13-phase3-tier1-completion-report.md` — MVP engine integration
-- Foundation hardening: `docs/plans/2026-03-13-foundation-hardening-test-migration-plan.md`
-- Phase 8: `docs/plans/2026-03-12-phase8-completion-report.md` — iOS app shell
-- Phases 1-7: `docs/plans/2026-03-1{0,1,2}-phase{1..7}-completion-report.md`
+**Completion reports:** All in `docs/plans/*-completion-report.md`. Key final reports:
+- Phase 3 Tier 3 (feature-complete): `docs/plans/2026-03-15-phase3-tier3-completion-report.md`
+- Phase 8 (iOS app shell): `docs/plans/2026-03-12-phase8-completion-report.md`
 
 **Learnings (by category):**
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
@@ -82,9 +80,11 @@ Waves 2 & 3 can run in parallel after Wave 1. Exit criteria: correctness scoreca
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
 - **Foundation hardening**: `foundation-hardening-learnings` — test migration, serialization bugs, property conversion
 - **Cross-platform validation**: `xformparser-port-learnings` — XFormParser port, golden file testing, classpath collision traps
-- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `tier1-process-skip-learnings`
+- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `tier1-process-skip-learnings`, `autonomous-pipeline-stall`
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
-- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings` — cinterop patterns, NSURLSession, LAContext biometrics, UIPrintInteractionController, NSTimer, NSUserDefaults
+- **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings`, `ios-platform-test-gap-learnings`
+- **AI agent pitfalls**: `ai-agent-dependency-version-staleness`, `integration-testing-timing-learnings`
+- **Connect ID / marketplace**: `connect-id-recovery-flow-gap`, `connect-marketplace-depth-gap`
 
 All learning files are in `docs/learnings/`.
 
@@ -123,8 +123,8 @@ Terse closures like "Completed. PR: link" are not acceptable. Evidence is as imp
 ## Build Commands
 
 ```bash
-# JDK is bundled with Android Studio — set JAVA_HOME before Gradle commands:
-export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+# On macOS, find JDK automatically (or set JAVA_HOME manually):
+export JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null || echo "$JAVA_HOME")
 
 # Build from commcare-core/ (return to repo root for git commands):
 cd commcare-core
@@ -176,6 +176,11 @@ Do not skip straight to code. The plan is the first deliverable of every phase.
 - **Check the Phase Transition Checklist** when a phase completes — plan before code
 - **Always follow full workflow** regardless of speed — branch, PR, CI, merge per wave. Skipping steps (as happened in Tier 1) loses reviewability and traceability. See `docs/learnings/2026-03-13-tier1-process-skip-learnings.md`.
 - **First task of any session**: Check "Current Status & What's Next" above. If no plan exists for the current phase, writing the plan IS your task.
+- **Create GitHub issues for every phase** — Phase 5 was implemented entirely via PRs with no issues, losing traceability. Always create issues per the Phase Transition Checklist.
+- **Verify dependency versions at runtime** — don't trust training data for library versions. Check actual latest versions. See `docs/learnings/2026-03-17-ai-agent-dependency-version-staleness.md`.
+- **Introduce integration tests at MVP** — don't defer HQ integration testing to polish phases. See `docs/learnings/2026-03-17-integration-testing-timing-learnings.md`.
+- **Write iOS platform tests before E2E** — test iosMain/ implementations in iosTest/ before building on them. See `docs/learnings/2026-03-18-ios-platform-test-gap-learnings.md`.
+- **Read API response shapes, not just code structure** — scaffold implementations that guess at data models require rework. See `docs/learnings/2026-03-20-connect-marketplace-depth-gap.md`.
 - Read the relevant issue's full description before starting work — it contains "Files to Read", "What to Do", and "Tests That Must Pass"
 - Read `docs/learnings/` files before starting a conversion wave — they document real failures
 - Follow the Kotlin Conversion Checklist (in `docs/kotlin-conversion-checklist.md`) for any Java→Kotlin work
