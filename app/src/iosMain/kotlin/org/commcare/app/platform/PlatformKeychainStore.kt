@@ -22,7 +22,10 @@ actual class PlatformKeychainStore actual constructor() {
     }
 
     actual fun retrieve(key: String): String? {
-        return defaults.stringForKey(PREFIX + key)
+        // stringForKey returns NSString? which K/N may not auto-bridge to kotlin.String
+        // Use objectForKey and explicit toString() to avoid CPointer cast issues
+        val obj = defaults.objectForKey(PREFIX + key) ?: return null
+        return obj.toString()
     }
 
     actual fun delete(key: String) {
