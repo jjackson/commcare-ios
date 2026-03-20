@@ -34,12 +34,15 @@ import org.commcare.app.viewmodel.OpportunitiesViewModel
  * Shows a refreshable list of opportunity cards with name, organization,
  * description, claimed status, and pay info. Tapping a card calls
  * [viewModel.selectOpportunity] and triggers [onOpportunitySelected].
+ *
+ * @param onMessaging Optional callback to navigate to the messaging hub from the header.
  */
 @Composable
 fun OpportunitiesListScreen(
     viewModel: OpportunitiesViewModel,
     onOpportunitySelected: (Opportunity) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onMessaging: (() -> Unit)? = null
 ) {
     // Load opportunities on first composition
     LaunchedEffect(Unit) {
@@ -66,6 +69,17 @@ fun OpportunitiesListScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
+            // Messages button — shown only when messaging navigation is available
+            if (onMessaging != null) {
+                Text(
+                    text = "\uD83D\uDCAC",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .clickable { onMessaging() }
+                        .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                        .padding(end = 4.dp, top = 8.dp, bottom = 8.dp)
+                )
+            }
             // Refresh button
             Text(
                 text = "Refresh",

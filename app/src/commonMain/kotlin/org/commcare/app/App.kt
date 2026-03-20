@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import org.commcare.app.network.ConnectIdApi
+import org.commcare.app.network.ConnectMarketplaceApi
 import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.AppRecordRepository
@@ -25,10 +26,11 @@ import org.commcare.app.ui.InstallProgressScreen
 import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
-import org.commcare.app.ui.connect.OpportunitiesPlaceholderScreen
+import org.commcare.app.ui.connect.ConnectScreen
 import org.commcare.app.ui.connect.PersonalIdScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.AppManagerViewModel
+import org.commcare.app.viewmodel.ConnectIdTokenManager
 import org.commcare.app.viewmodel.ConnectIdViewModel
 import org.commcare.app.viewmodel.DemoModeManager
 import org.commcare.app.viewmodel.InstallState
@@ -47,12 +49,16 @@ fun App(db: CommCareDatabase) {
     val demoModeManager = remember { DemoModeManager(db) }
     val setupViewModel = remember { SetupViewModel() }
     val appInstallViewModel = remember { AppInstallViewModel(db, appRepository) }
+    val marketplaceApi = remember { ConnectMarketplaceApi() }
+    val connectIdTokenManager = remember { ConnectIdTokenManager(connectIdApi, connectIdRepository, keychainStore) }
 
     // Track whether any apps are installed; starts false on first launch
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
     var showAppManager by remember { mutableStateOf(false) }
     var showPersonalIdRegistration by remember { mutableStateOf(false) }
     var showOpportunities by remember { mutableStateOf(false) }
+    // When non-null, ConnectScreen opens at the given tab ("opportunities" or "messaging")
+    var connectInitialTab by remember { mutableStateOf("opportunities") }
     var connectIdRegistered by remember { mutableStateOf(connectIdRepository.isRegistered()) }
 
     MaterialTheme {
@@ -72,12 +78,13 @@ fun App(db: CommCareDatabase) {
                 return@Surface
             }
 
-            // Show Opportunities placeholder overlay when requested
+            // Show ConnectScreen overlay when requested
             if (showOpportunities) {
-                val user = connectIdRepository.getUser()
-                OpportunitiesPlaceholderScreen(
-                    userName = user?.name ?: user?.phone,
-                    onBack = { showOpportunities = false }
+                ConnectScreen(
+                    api = marketplaceApi,
+                    tokenManager = connectIdTokenManager,
+                    onBack = { showOpportunities = false },
+                    initialTab = connectInitialTab
                 )
                 return@Surface
             }
@@ -175,7 +182,18 @@ fun App(db: CommCareDatabase) {
                     is AppState.InstallError -> InstallErrorScreen(appState) {
                         loginViewModel.resetError()
                     }
-                    is AppState.Ready -> HomeScreen(appState, db)
+                    is AppState.Ready -> HomeScreen(
+                        state = appState,
+                        db = db,
+                        onConnectOpportunities = {
+                            connectInitialTab = "opportunities"
+                            showOpportunities = true
+                        },
+                        onConnectMessaging = {
+                            connectInitialTab = "messaging"
+                            showOpportunities = true
+                        }
+                    )
                     is AppState.AppCorrupted -> InstallErrorScreen(
                         AppState.InstallError("App corrupted: ${appState.message}")
                     ) { loginViewModel.resetError() }
