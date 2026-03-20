@@ -45,13 +45,18 @@ private enum class DeliveryFilter(val label: String) {
 /**
  * Shows delivery progress for a claimed opportunity:
  * a list of delivery records with status, summary stats, and filter buttons.
- * Includes a "Start Delivery" button that would launch the CommCare deliver app.
+ * Includes a "Start Delivery" / "Download Deliver App" button.
+ *
+ * When [onDownloadApp] is provided and the opportunity has a deliver app with an
+ * install URL, a "Download Deliver App" button is shown alongside (or in place of)
+ * the "Start Delivery" button so the user can install the app first.
  */
 @Composable
 fun DeliveryProgressScreen(
     viewModel: OpportunitiesViewModel,
     opportunity: Opportunity,
-    onStartDelivery: (() -> Unit)? = null
+    onStartDelivery: (() -> Unit)? = null,
+    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
 ) {
     val detail = viewModel.deliveryProgress
     var selectedFilter by remember { mutableStateOf(DeliveryFilter.ALL) }
@@ -131,18 +136,30 @@ fun DeliveryProgressScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Start Delivery button
-        val hasDeliverApp = opportunity.deliverApp != null
-        Button(
-            onClick = { onStartDelivery?.invoke() },
-            enabled = hasDeliverApp && onStartDelivery != null,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Start Delivery")
-        }
+        // Deliver app action buttons
+        val deliverApp = opportunity.deliverApp
+        val deliverInstallUrl = deliverApp?.installUrl
+        if (deliverApp != null) {
+            // Show "Download Deliver App" if an install URL is available
+            if (onDownloadApp != null && !deliverInstallUrl.isNullOrBlank()) {
+                Button(
+                    onClick = { onDownloadApp(deliverInstallUrl, deliverApp.name) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Download Deliver App")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
-        if (!hasDeliverApp) {
-            Spacer(modifier = Modifier.height(4.dp))
+            // "Start Delivery" is shown when a caller provides onStartDelivery
+            Button(
+                onClick = { onStartDelivery?.invoke() },
+                enabled = onStartDelivery != null,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Start Delivery")
+            }
+        } else {
             Text(
                 text = "No delivery app configured for this opportunity.",
                 style = MaterialTheme.typography.bodySmall,
