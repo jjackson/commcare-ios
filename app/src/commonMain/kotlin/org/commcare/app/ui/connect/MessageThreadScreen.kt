@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -48,6 +49,12 @@ fun MessageThreadScreen(
 ) {
     val thread = viewModel.selectedThread ?: return
     val messages = viewModel.currentThreadMessages
+
+    // Start polling for new messages every 30 seconds; stop when leaving this screen.
+    DisposableEffect(thread.id) {
+        viewModel.startPolling(thread.id)
+        onDispose { viewModel.stopPolling() }
+    }
 
     Column(
         modifier = Modifier
@@ -100,6 +107,30 @@ fun MessageThreadScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
+        }
+
+        // Unsent messages retry banner
+        if (viewModel.unsentCount > 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${viewModel.unsentCount} message(s) failed to send",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Button(
+                    onClick = { viewModel.retrySending() },
+                    modifier = Modifier.testTag("retry_send_button")
+                ) {
+                    Text("Retry")
+                }
+            }
         }
 
         // Messages list — fills available space, newest at bottom
