@@ -22,26 +22,44 @@ import org.commcare.app.viewmodel.ConnectIdViewModel
 
 @Composable
 fun BackupCodeStep(viewModel: ConnectIdViewModel) {
+    val isRecovery = viewModel.isRecoveryFlow
+
     Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
         Text(
-            text = "Set a backup code",
+            text = if (isRecovery) "Enter your backup code" else "Set a backup code",
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "This 6-digit code helps you recover your account",
+            text = if (isRecovery) {
+                "Enter the 6-digit code you saved during registration"
+            } else {
+                "This 6-digit code helps you recover your account"
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        // In recovery mode, show reminder of existing user photo if available
+        if (isRecovery && viewModel.existingUserPhoto != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Recovering your existing account",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = viewModel.backupCode,
             onValueChange = { if (it.length <= 6) viewModel.backupCode = it },
-            label = { Text("6-digit backup code") },
+            label = {
+                Text(if (isRecovery) "Enter backup code" else "6-digit backup code")
+            },
             modifier = Modifier.fillMaxWidth().testTag("backup_code_field"),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
@@ -63,7 +81,7 @@ fun BackupCodeStep(viewModel: ConnectIdViewModel) {
                 modifier = Modifier.fillMaxWidth().testTag("continue_button"),
                 enabled = viewModel.backupCode.length == 6
             ) {
-                Text("Continue")
+                Text(if (isRecovery) "Verify" else "Continue")
             }
         }
     }

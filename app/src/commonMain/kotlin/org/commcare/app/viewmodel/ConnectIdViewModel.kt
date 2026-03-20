@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.app.model.ConnectIdUser
 import org.commcare.app.model.RegistrationSession
+import org.commcare.app.network.CheckNameResponse
 import org.commcare.app.network.ConnectIdApi
 import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.storage.ConnectIdRepository
@@ -38,6 +39,12 @@ class ConnectIdViewModel(
     var photoBase64 by mutableStateOf<String?>(null)
     var securityMethod by mutableStateOf("pin")  // "pin" or "biometric"
     var devicePin by mutableStateOf("")
+
+    // Recovery flow state — set when check_name returns account_exists=true
+    var isRecoveryFlow by mutableStateOf(false)
+        private set
+    var existingUserPhoto by mutableStateOf<String?>(null)
+        private set
 
     // Server state
     private var session: RegistrationSession? = null
@@ -92,7 +99,7 @@ class ConnectIdViewModel(
         }
     }
 
-    // Step 3: Submit name
+    // Step 3: Submit name — check_name response determines new vs recovery flow
     fun submitName() {
         val token = session?.sessionToken ?: return
         if (fullName.isBlank()) { errorMessage = "Name required"; return }
@@ -101,24 +108,53 @@ class ConnectIdViewModel(
             val result = api.checkName(token, fullName)
             isLoading = false
             result.fold(
-                onSuccess = { currentStep = RegistrationStep.BACKUP_CODE },
+                onSuccess = { response: CheckNameResponse ->
+                    if (response.accountExists) {
+                        // Recovery flow: existing user on a new device
+                        isRecoveryFlow = true
+                        existingUserPhoto = response.existingPhoto?.takeIf { it.isNotEmpty() }
+                        // Skip PHOTO_CAPTURE — go straight to BACKUP_CODE (input mode)
+                    }
+                    currentStep = RegistrationStep.BACKUP_CODE
+                },
                 onFailure = { errorMessage = "Name check failed: ${it.message}" }
             )
         }
     }
 
-    // Step 4: Submit backup code
+    // Step 4: Submit backup code — branches on recovery vs new registration
     fun submitBackupCode() {
         val token = session?.sessionToken ?: return
         if (backupCode.length < 6) { errorMessage = "Enter a 6-digit backup code"; return }
         isLoading = true; errorMessage = null
         scope.launch {
-            val result = api.confirmBackupCode(token, backupCode)
-            isLoading = false
-            result.fold(
-                onSuccess = { currentStep = RegistrationStep.PHOTO_CAPTURE },
-                onFailure = { errorMessage = "Failed: ${it.message}" }
-            )
+            if (isRecoveryFlow) {
+                // Recovery: verify existing backup code and receive credentials
+                val result = api.confirmBackupCodeRecovery(token, backupCode)
+                isLoading = false
+                result.fold(
+                    onSuccess = { response ->
+                        createdUsername = response.username
+                        createdPassword = response.password
+                        dbKey = response.dbKey
+                        // Store recovered credentials securely
+                        keychainStore.store("connect_username", response.username)
+                        keychainStore.store("connect_password", response.password)
+                        keychainStore.store("connect_db_key", response.dbKey)
+                        // Skip PHOTO_CAPTURE + ACCOUNT_CREATION, go to biometric
+                        currentStep = RegistrationStep.BIOMETRIC_SETUP
+                    },
+                    onFailure = { errorMessage = "Invalid backup code: ${it.message}" }
+                )
+            } else {
+                // New registration: set backup code, then proceed to photo capture
+                val result = api.confirmBackupCode(token, backupCode)
+                isLoading = false
+                result.fold(
+                    onSuccess = { currentStep = RegistrationStep.PHOTO_CAPTURE },
+                    onFailure = { errorMessage = "Failed: ${it.message}" }
+                )
+            }
         }
     }
 
@@ -178,14 +214,17 @@ class ConnectIdViewModel(
         // Reset wizard state — caller handles navigation
     }
 
-    // Navigation
+    // Navigation — recovery flow skips PHOTO_CAPTURE and ACCOUNT_CREATION
     fun goBack() {
         currentStep = when (currentStep) {
             RegistrationStep.OTP_VERIFICATION -> RegistrationStep.PHONE_ENTRY
             RegistrationStep.NAME_ENTRY -> RegistrationStep.OTP_VERIFICATION
             RegistrationStep.BACKUP_CODE -> RegistrationStep.NAME_ENTRY
             RegistrationStep.PHOTO_CAPTURE -> RegistrationStep.BACKUP_CODE
-            RegistrationStep.BIOMETRIC_SETUP -> RegistrationStep.PHOTO_CAPTURE
+            RegistrationStep.BIOMETRIC_SETUP -> {
+                if (isRecoveryFlow) RegistrationStep.BACKUP_CODE
+                else RegistrationStep.PHOTO_CAPTURE
+            }
             else -> currentStep  // can't go back from PHONE_ENTRY, ACCOUNT_CREATION, SUCCESS
         }
         errorMessage = null
