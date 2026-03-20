@@ -24,7 +24,7 @@ class ConnectMarketplaceApi(
 ) {
     // Base URL — the CommCare-Connect server (separate from ConnectID identity server)
     // TODO: Configure actual marketplace server URL
-    var baseUrl: String = "https://connectid.dimagi.com"
+    var baseUrl: String = "https://connect.dimagi.com"
 
     /**
      * Fetch all available opportunities for this user.
