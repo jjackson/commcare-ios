@@ -1,34 +1,37 @@
 package org.commcare.app.platform
 
+import platform.Foundation.NSString
 import platform.Foundation.NSUserDefaults
-import platform.Foundation.setValue
+import platform.Foundation.create
 
 private const val PREFIX = "commcare_secure_"
 
 /**
  * iOS implementation of PlatformKeychainStore.
- * Uses NSUserDefaults for now — production should use iOS Keychain via Security framework,
- * but the CFStringRef cinterop casts (kSecClass, kSecAttrAccount, etc.) crash with
- * ClassCastException on K/N ("CPointer cannot be cast to kotlin.String").
+ * Uses NSUserDefaults with explicit NSString bridging to avoid K/N CPointer cast issues.
  *
- * TODO: Replace with proper Keychain implementation when K/N cinterop improves,
- * or use a Swift helper bridged via @ObjCName.
+ * TODO: Replace with proper Keychain via Swift helper for App Store builds.
  */
 actual class PlatformKeychainStore actual constructor() {
     private val defaults = NSUserDefaults.standardUserDefaults
 
     actual fun store(key: String, value: String) {
-        defaults.setObject(value, forKey = PREFIX + key)
+        // Explicitly create NSString to ensure proper bridging
+        val nsKey = NSString.create(string = PREFIX + key)
+        val nsValue = NSString.create(string = value)
+        defaults.setObject(nsValue, forKey = nsKey.toString())
+        defaults.synchronize()
     }
 
     actual fun retrieve(key: String): String? {
-        // stringForKey returns NSString? which K/N may not auto-bridge to kotlin.String
-        // Use objectForKey and explicit toString() to avoid CPointer cast issues
-        val obj = defaults.objectForKey(PREFIX + key) ?: return null
+        val nsKey = NSString.create(string = PREFIX + key)
+        val obj = defaults.objectForKey(nsKey.toString()) ?: return null
         return obj.toString()
     }
 
     actual fun delete(key: String) {
-        defaults.removeObjectForKey(PREFIX + key)
+        val nsKey = NSString.create(string = PREFIX + key)
+        defaults.removeObjectForKey(nsKey.toString())
+        defaults.synchronize()
     }
 }
