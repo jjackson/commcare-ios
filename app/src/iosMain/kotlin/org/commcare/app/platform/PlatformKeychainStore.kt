@@ -72,7 +72,10 @@ actual class PlatformKeychainStore actual constructor() {
             if (status == errSecSuccess) {
                 val cfData = result.value ?: return null
                 val nsData = CFBridgingRelease(cfData) as? NSData ?: return null
-                return NSString.create(data = nsData, encoding = NSUTF8StringEncoding) as? String
+                val nsString = NSString.create(data = nsData, encoding = NSUTF8StringEncoding)
+                    ?: return null
+                // Use toString() instead of direct cast — K/N bridge is unreliable with `as? String`
+                return nsString.toString()
             }
         }
         return null
