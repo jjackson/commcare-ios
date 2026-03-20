@@ -28,6 +28,7 @@ import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
 import org.commcare.app.ui.connect.ConnectScreen
 import org.commcare.app.ui.connect.PersonalIdScreen
+import org.commcare.app.ui.PinEntryScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.AppManagerViewModel
 import org.commcare.app.viewmodel.ConnectIdTokenManager
@@ -37,6 +38,7 @@ import org.commcare.app.viewmodel.InstallState
 import org.commcare.app.viewmodel.LoginViewModel
 import org.commcare.app.viewmodel.SetupStep
 import org.commcare.app.viewmodel.SetupViewModel
+import org.commcare.app.viewmodel.UserKeyRecordManager
 
 @Composable
 fun App(db: CommCareDatabase) {
@@ -45,7 +47,10 @@ fun App(db: CommCareDatabase) {
     val connectIdApi = remember { ConnectIdApi() }
     val keychainStore = remember { PlatformKeychainStore() }
     val connectIdViewModel = remember { ConnectIdViewModel(connectIdApi, connectIdRepository, keychainStore) }
-    val loginViewModel = remember { LoginViewModel(db) }
+    val keyRecordManager = remember { UserKeyRecordManager(db, keychainStore) }
+    val loginViewModel = remember {
+        LoginViewModel(db).also { it.setKeyRecordManager(keyRecordManager) }
+    }
     val demoModeManager = remember { DemoModeManager(db) }
     val setupViewModel = remember { SetupViewModel() }
     val appInstallViewModel = remember { AppInstallViewModel(db, appRepository) }
@@ -139,6 +144,9 @@ fun App(db: CommCareDatabase) {
                             appId = appState.seatedApp.id,
                             app = appState.seatedApp
                         )
+                        // Detect login mode (PIN/biometric/password)
+                        loginViewModel.detectLoginMode()
+
                         if (showAppManager) {
                             val appManagerViewModel = remember { AppManagerViewModel(appRepository) }
                             AppManagerScreen(
@@ -149,32 +157,55 @@ fun App(db: CommCareDatabase) {
                                     hasApps.value = false
                                 }
                             )
-                        } else {
-                            LoginScreen(
-                                viewModel = loginViewModel,
-                                onDemoMode = {
-                                    val demoState = demoModeManager.enterDemoMode()
-                                    if (demoState != null) {
-                                        loginViewModel.setReadyState(demoState)
+                        } else when (loginViewModel.loginMode) {
+                            UserKeyRecordManager.LoginMode.PIN -> {
+                                PinEntryScreen(
+                                    appName = appState.seatedApp.displayName,
+                                    onPinEntered = { pin -> loginViewModel.loginWithPin(pin) },
+                                    onForgotPin = { loginViewModel.forgotPin() },
+                                    errorMessage = loginViewModel.pinError,
+                                    isLoading = loginViewModel.appState is AppState.LoggingIn
+                                )
+                            }
+                            UserKeyRecordManager.LoginMode.BIOMETRIC -> {
+                                // Show PIN screen as fallback while biometric triggers
+                                PinEntryScreen(
+                                    appName = appState.seatedApp.displayName,
+                                    onPinEntered = { pin -> loginViewModel.loginWithPin(pin) },
+                                    onForgotPin = { loginViewModel.forgotPin() },
+                                    errorMessage = loginViewModel.pinError,
+                                    isLoading = loginViewModel.appState is AppState.LoggingIn
+                                )
+                                // Trigger biometric on first composition
+                                loginViewModel.loginWithBiometric()
+                            }
+                            UserKeyRecordManager.LoginMode.PASSWORD -> {
+                                LoginScreen(
+                                    viewModel = loginViewModel,
+                                    onDemoMode = {
+                                        val demoState = demoModeManager.enterDemoMode()
+                                        if (demoState != null) {
+                                            loginViewModel.setReadyState(demoState)
+                                        }
+                                    },
+                                    seatedApp = appState.seatedApp,
+                                    allApps = appState.allApps,
+                                    onSwitchApp = { app ->
+                                        appRepository.seatApp(app.id)
+                                        loginViewModel.configureApp(
+                                            serverUrl = "https://www.commcarehq.org",
+                                            appId = app.id,
+                                            app = app
+                                        )
+                                        val allApps = appRepository.getAllApps()
+                                        loginViewModel.setReadyState(AppState.NeedsLogin(app, allApps))
+                                    },
+                                    onAppManager = { showAppManager = true },
+                                    onConnectIdLogin = {
+                                        showPersonalIdRegistration = true
                                     }
-                                },
-                                seatedApp = appState.seatedApp,
-                                allApps = appState.allApps,
-                                onSwitchApp = { app ->
-                                    appRepository.seatApp(app.id)
-                                    loginViewModel.configureApp(
-                                        serverUrl = "https://www.commcarehq.org",
-                                        appId = app.id,
-                                        app = app
-                                    )
-                                    val allApps = appRepository.getAllApps()
-                                    loginViewModel.setReadyState(AppState.NeedsLogin(app, allApps))
-                                },
-                                onAppManager = { showAppManager = true },
-                                onConnectIdLogin = {
-                                    showPersonalIdRegistration = true
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                     is AppState.LoggingIn -> LoginScreen(loginViewModel)
@@ -192,7 +223,8 @@ fun App(db: CommCareDatabase) {
                         onConnectMessaging = {
                             connectInitialTab = "messaging"
                             showOpportunities = true
-                        }
+                        },
+                        keyRecordManager = keyRecordManager
                     )
                     is AppState.AppCorrupted -> InstallErrorScreen(
                         AppState.InstallError("App corrupted: ${appState.message}")

@@ -21,21 +21,37 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.SettingsViewModel
 import org.commcare.app.viewmodel.UpdateState
 import org.commcare.app.viewmodel.UpdateViewModel
+import org.commcare.app.viewmodel.UserKeyRecordManager
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     updateViewModel: UpdateViewModel?,
     onBack: () -> Unit,
-    onRecovery: (() -> Unit)? = null
+    onRecovery: (() -> Unit)? = null,
+    keyRecordManager: UserKeyRecordManager? = null,
+    username: String? = null,
+    domain: String? = null
 ) {
+    var showPinDialog by remember { mutableStateOf(false) }
+    var pinDialogMessage by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
             .verticalScroll(rememberScrollState())
@@ -133,6 +149,21 @@ fun SettingsScreen(
             UpdateSection(updateViewModel)
         }
 
+        // PIN / Quick Login section
+        if (keyRecordManager != null && username != null && domain != null) {
+            SectionDivider()
+            SectionHeader("Quick Login")
+            val hasPinSet = remember(username, domain) {
+                keyRecordManager.hasPinSet(username, domain)
+            }
+            OutlinedButton(
+                onClick = { showPinDialog = true },
+                modifier = Modifier.fillMaxWidth().testTag("set_pin_button")
+            ) {
+                Text(if (hasPinSet) "Change Login PIN" else "Set Login PIN")
+            }
+        }
+
         SectionDivider()
 
         // Locale section
@@ -218,6 +249,19 @@ fun SettingsScreen(
                 Text("Recovery Mode")
             }
         }
+    }
+
+    // PIN setup dialog
+    if (showPinDialog && keyRecordManager != null && username != null && domain != null) {
+        SetPinDialog(
+            onConfirm = { newPin ->
+                keyRecordManager.setPin(username, domain, newPin)
+                pinDialogMessage = "PIN set successfully"
+                showPinDialog = false
+            },
+            onDismiss = { showPinDialog = false },
+            message = pinDialogMessage
+        )
     }
 }
 
@@ -335,4 +379,89 @@ private fun CheckboxRow(
         Text(label, style = MaterialTheme.typography.bodyLarge)
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
     }
+}
+
+/**
+ * Dialog for setting a 6-digit login PIN.
+ */
+@Composable
+private fun SetPinDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    message: String? = null
+) {
+    var pin by remember { mutableStateOf("") }
+    var confirmPin by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Set Login PIN") },
+        text = {
+            Column {
+                if (message != null) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                Text(
+                    text = "Enter a 6-digit PIN for quick login.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = { if (it.length <= 6 && it.all { c -> c.isDigit() }) pin = it },
+                    label = { Text("PIN") },
+                    modifier = Modifier.fillMaxWidth().testTag("set_pin_field"),
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = confirmPin,
+                    onValueChange = { if (it.length <= 6 && it.all { c -> c.isDigit() }) confirmPin = it },
+                    label = { Text("Confirm PIN") },
+                    modifier = Modifier.fillMaxWidth().testTag("confirm_pin_field"),
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                )
+                if (error != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = error!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    when {
+                        pin.length != 6 -> error = "PIN must be exactly 6 digits"
+                        pin != confirmPin -> error = "PINs do not match"
+                        else -> {
+                            error = null
+                            onConfirm(pin)
+                        }
+                    }
+                },
+                modifier = Modifier.testTag("confirm_set_pin")
+            ) {
+                Text("Set PIN")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
