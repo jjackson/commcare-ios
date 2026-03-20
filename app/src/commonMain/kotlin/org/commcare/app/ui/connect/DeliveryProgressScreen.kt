@@ -1,14 +1,20 @@
 package org.commcare.app.ui.connect
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -16,17 +22,29 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.DeliveryRecord
 import org.commcare.app.model.Opportunity
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
+private enum class DeliveryFilter(val label: String) {
+    ALL("All"),
+    APPROVED("Approved"),
+    PENDING("Pending"),
+    REJECTED("Rejected")
+}
+
 /**
  * Shows delivery progress for a claimed opportunity:
- * a list of delivery records with status, and summary stats.
+ * a list of delivery records with status, summary stats, and filter buttons.
  * Includes a "Start Delivery" button that would launch the CommCare deliver app.
  */
 @Composable
@@ -36,6 +54,7 @@ fun DeliveryProgressScreen(
     onStartDelivery: (() -> Unit)? = null
 ) {
     val detail = viewModel.deliveryProgress
+    var selectedFilter by remember { mutableStateOf(DeliveryFilter.ALL) }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Text(
@@ -131,7 +150,7 @@ fun DeliveryProgressScreen(
             )
         }
 
-        // Delivery records list
+        // Delivery records list with filter
         if (detail != null && detail.deliveries.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -140,23 +159,68 @@ fun DeliveryProgressScreen(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            // Note: We're inside a Column, so we can't use LazyColumn directly.
-            // Show a limited number of records to avoid nesting scrollable containers.
-            for (record in detail.deliveries.take(50)) {
-                DeliveryRecordRow(record)
+
+            // Filter buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DeliveryFilter.entries.forEach { filter ->
+                    val isSelected = filter == selectedFilter
+                    Text(
+                        text = filter.label,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceVariant
+                            )
+                            .clickable { selectedFilter = filter }
+                            .defaultMinSize(minHeight = 36.dp)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
             }
-            if (detail.deliveries.size > 50) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Filtered records
+            val filteredRecords = when (selectedFilter) {
+                DeliveryFilter.ALL -> detail.deliveries
+                DeliveryFilter.APPROVED -> detail.deliveries.filter { it.status == "approved" }
+                DeliveryFilter.PENDING -> detail.deliveries.filter { it.status == "pending" }
+                DeliveryFilter.REJECTED -> detail.deliveries.filter { it.status == "rejected" }
+            }
+
+            if (filteredRecords.isEmpty()) {
                 Text(
-                    text = "... and ${detail.deliveries.size - 50} more",
+                    text = "No ${selectedFilter.label.lowercase()} records",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
+            } else {
+                for (record in filteredRecords.take(50)) {
+                    DeliveryRecordRow(record)
+                }
+                if (filteredRecords.size > 50) {
+                    Text(
+                        text = "... and ${filteredRecords.size - 50} more",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DeliveryRecordRow(record: DeliveryRecord) {
     Card(
@@ -178,17 +242,8 @@ private fun DeliveryRecordRow(record: DeliveryRecord) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
-                val statusColor = when (record.status) {
-                    "approved" -> MaterialTheme.colorScheme.primary
-                    "pending" -> MaterialTheme.colorScheme.tertiary
-                    "rejected" -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
-                Text(
-                    text = record.status.replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = statusColor
-                )
+                // Color-coded status badge
+                StatusBadge(record.status)
             }
             record.visitDate?.let {
                 Text(
@@ -211,8 +266,59 @@ private fun DeliveryRecordRow(record: DeliveryRecord) {
                     color = MaterialTheme.colorScheme.error
                 )
             }
+            // Display flags if present
+            if (record.flags.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    for ((flagKey, flagValue) in record.flags) {
+                        Text(
+                            text = "$flagKey: $flagValue",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
         }
     }
+}
+
+/**
+ * Color-coded status badge for delivery records.
+ */
+@Composable
+private fun StatusBadge(status: String) {
+    val color = when (status) {
+        "approved" -> MaterialTheme.colorScheme.primary
+        "pending" -> MaterialTheme.colorScheme.tertiary
+        "rejected" -> MaterialTheme.colorScheme.error
+        "over_limit" -> MaterialTheme.colorScheme.error
+        "incomplete" -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val bgColor = when (status) {
+        "approved" -> MaterialTheme.colorScheme.primaryContainer
+        "pending" -> MaterialTheme.colorScheme.tertiaryContainer
+        "rejected" -> MaterialTheme.colorScheme.errorContainer
+        "over_limit" -> MaterialTheme.colorScheme.errorContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    Text(
+        text = status.replaceFirstChar { it.uppercase() }.replace('_', ' '),
+        style = MaterialTheme.typography.labelSmall,
+        color = color,
+        modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(bgColor)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+    )
 }
 
 @Composable

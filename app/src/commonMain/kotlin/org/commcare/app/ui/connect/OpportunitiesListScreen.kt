@@ -29,7 +29,10 @@ import org.commcare.app.model.Opportunity
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
- * Browse the list of available Connect opportunities.
+ * Browse the list of available Connect opportunities, organized in sections:
+ * - In Progress: claimed + active opportunities
+ * - Available: unclaimed + active opportunities
+ * - Completed: inactive opportunities
  *
  * Shows a refreshable list of opportunity cards with name, organization,
  * description, claimed status, and pay info. Tapping a card calls
@@ -69,7 +72,7 @@ fun OpportunitiesListScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
-            // Messages button — shown only when messaging navigation is available
+            // Messages button -- shown only when messaging navigation is available
             if (onMessaging != null) {
                 Text(
                     text = "\uD83D\uDCAC",
@@ -133,20 +136,76 @@ fun OpportunitiesListScreen(
                     )
                 }
             } else {
+                // Split into sections
+                val inProgress = viewModel.opportunities.filter { it.isClaimed && it.isActive }
+                val available = viewModel.opportunities.filter { !it.isClaimed && it.isActive }
+                val completed = viewModel.opportunities.filter { !it.isActive }
+
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(viewModel.opportunities) { opp ->
-                        OpportunityCard(
-                            opportunity = opp,
-                            onClick = {
-                                viewModel.selectOpportunity(opp)
-                                onOpportunitySelected(opp)
-                            }
-                        )
+                    // In Progress section
+                    if (inProgress.isNotEmpty()) {
+                        item {
+                            SectionHeader("In Progress")
+                        }
+                        items(inProgress) { opp ->
+                            OpportunityCard(
+                                opportunity = opp,
+                                onClick = {
+                                    viewModel.selectOpportunity(opp)
+                                    onOpportunitySelected(opp)
+                                }
+                            )
+                        }
+                    }
+
+                    // Available section
+                    if (available.isNotEmpty()) {
+                        item {
+                            SectionHeader("Available")
+                        }
+                        items(available) { opp ->
+                            OpportunityCard(
+                                opportunity = opp,
+                                onClick = {
+                                    viewModel.selectOpportunity(opp)
+                                    onOpportunitySelected(opp)
+                                }
+                            )
+                        }
+                    }
+
+                    // Completed section
+                    if (completed.isNotEmpty()) {
+                        item {
+                            SectionHeader("Completed")
+                        }
+                        items(completed) { opp ->
+                            OpportunityCard(
+                                opportunity = opp,
+                                onClick = {
+                                    viewModel.selectOpportunity(opp)
+                                    onOpportunitySelected(opp)
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    )
 }
 
 @Composable
