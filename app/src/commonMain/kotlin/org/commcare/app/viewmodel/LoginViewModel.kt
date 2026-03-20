@@ -10,6 +10,7 @@ import org.commcare.app.engine.AppInstaller
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.app.storage.SqlDelightUserSandbox
+import org.commcare.app.viewmodel.UserKeyRecordManager.LoginMode
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.createHttpClient
 import org.commcare.core.parse.ParseUtils
@@ -29,6 +30,14 @@ class LoginViewModel(private val db: CommCareDatabase) {
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
         private set
 
+    /** Current login mode — PASSWORD, PIN, or BIOMETRIC */
+    var loginMode by mutableStateOf(LoginMode.PASSWORD)
+        private set
+
+    /** Error message for PIN entry */
+    var pinError by mutableStateOf<String?>(null)
+        private set
+
     /** The sandbox populated after successful login */
     var sandbox: SqlDelightUserSandbox? = null
         private set
@@ -37,8 +46,65 @@ class LoginViewModel(private val db: CommCareDatabase) {
     var authHeader: String? = null
         private set
 
+    private var keyRecordManager: UserKeyRecordManager? = null
     private val httpClient = createHttpClient()
     private val scope = CoroutineScope(Dispatchers.Default)
+
+    fun setKeyRecordManager(manager: UserKeyRecordManager) {
+        keyRecordManager = manager
+    }
+
+    /**
+     * Detect the appropriate login mode for the given user.
+     * Falls back to PASSWORD if no quick-login record exists.
+     */
+    fun detectLoginMode(username: String, domain: String) {
+        loginMode = keyRecordManager?.getLoginMode(username, domain)
+            ?: LoginMode.PASSWORD
+    }
+
+    /**
+     * Verify the entered PIN and, if valid, proceed with login
+     * using the stored encrypted password.
+     */
+    fun loginWithPin(pin: String) {
+        val manager = keyRecordManager ?: return
+        val resolvedDomain = resolveDomain()
+        val decryptedPassword = manager.verifyPinAndGetPassword(username, resolvedDomain, pin)
+        if (decryptedPassword == null) {
+            pinError = "Incorrect PIN"
+            return
+        }
+        pinError = null
+        password = decryptedPassword
+        login()
+    }
+
+    /**
+     * Authenticate via biometric and, if the stored password is available,
+     * proceed with login.
+     */
+    fun loginWithBiometric() {
+        val manager = keyRecordManager ?: return
+        val resolvedDomain = resolveDomain()
+        val decryptedPassword = manager.getPasswordForBiometric(username, resolvedDomain)
+        if (decryptedPassword == null) {
+            pinError = "Biometric login not available"
+            return
+        }
+        pinError = null
+        password = decryptedPassword
+        login()
+    }
+
+    /**
+     * Switch from PIN/biometric mode back to password mode
+     * (e.g. user tapped "Forgot PIN?").
+     */
+    fun forgotPin() {
+        loginMode = LoginMode.PASSWORD
+        pinError = null
+    }
 
     fun login() {
         if (username.isBlank() || password.isBlank()) {
@@ -149,16 +215,27 @@ class LoginViewModel(private val db: CommCareDatabase) {
                 val platform = installer.install(resolvedProfileUrl) { progress, message ->
                     appState = AppState.Installing(0.5f + progress * 0.5f, message)
                 }
+                primeQuickLogin(domain)
                 appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
             } else {
                 // Minimal platform for development (no app profile configured)
                 val platform = installer.createMinimalPlatform()
+                primeQuickLogin(domain)
                 appState = AppState.Ready(platform, sandbox, serverUrl, domain, authHeader!!)
             }
         } catch (e: Exception) {
             val cause = e.cause?.let { " Cause: ${it::class.simpleName}: ${it.message}" } ?: ""
             appState = AppState.InstallError("App installation failed: ${e::class.simpleName}: ${e.message}$cause")
         }
+    }
+
+    /**
+     * After a successful login, store the encrypted password for quick-login
+     * and update the last-login timestamp.
+     */
+    private fun primeQuickLogin(domain: String) {
+        keyRecordManager?.primeForQuickLogin(username, domain, password)
+        keyRecordManager?.updateLastLogin(username, domain)
     }
 
     private fun extractUserId(body: String): String? {
