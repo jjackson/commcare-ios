@@ -31,15 +31,15 @@ class ConnectIdApi(
      */
     fun startConfiguration(phone: String): Result<RegistrationSession> {
         return try {
-            val body = "phone_number=$phone&application_id=$APPLICATION_ID"
+            val body = """{"phone_number":"$phone","application_id":"$APPLICATION_ID"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/start_configuration",
                     method = "POST",
-                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    headers = mapOf("Content-Type" to "application/json"),
                     body = body.encodeToByteArray(),
-                    contentType = "application/x-www-form-urlencoded"
+                    contentType = "application/json"
                 )
             )
 
@@ -72,7 +72,7 @@ class ConnectIdApi(
         return executeAuthenticatedPost(
             "$BASE_URL/users/send_session_otp",
             sessionToken,
-            body = null
+            body = "{}"
         )
     }
 
@@ -86,7 +86,7 @@ class ConnectIdApi(
         return executeAuthenticatedPost(
             "$BASE_URL/users/confirm_session_otp",
             sessionToken,
-            body = "token=$otp"
+            body = """{"token":"$otp"}"""
         )
     }
 
@@ -100,18 +100,18 @@ class ConnectIdApi(
      */
     fun checkName(sessionToken: String, name: String): Result<CheckNameResponse> {
         return try {
-            val body = "name=$name"
+            val body = """{"name":"$name"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/check_name",
                     method = "POST",
                     headers = mapOf(
-                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Content-Type" to "application/json",
                         "Authorization" to "Bearer $sessionToken"
                     ),
                     body = body.encodeToByteArray(),
-                    contentType = "application/x-www-form-urlencoded"
+                    contentType = "application/json"
                 )
             )
 
@@ -146,7 +146,7 @@ class ConnectIdApi(
         return executeAuthenticatedPost(
             "$BASE_URL/users/recover/confirm_backup_code",
             sessionToken,
-            body = "recovery_pin=$code"
+            body = """{"recovery_pin":"$code"}"""
         )
     }
 
@@ -161,18 +161,18 @@ class ConnectIdApi(
      */
     fun confirmBackupCodeRecovery(sessionToken: String, code: String): Result<CompleteProfileResponse> {
         return try {
-            val body = "recovery_pin=$code"
+            val body = """{"recovery_pin":"$code"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/recover/confirm_backup_code",
                     method = "POST",
                     headers = mapOf(
-                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Content-Type" to "application/json",
                         "Authorization" to "Bearer $sessionToken"
                     ),
                     body = body.encodeToByteArray(),
-                    contentType = "application/x-www-form-urlencoded"
+                    contentType = "application/json"
                 )
             )
 
@@ -210,18 +210,18 @@ class ConnectIdApi(
         photoBase64: String
     ): Result<CompleteProfileResponse> {
         return try {
-            val body = "name=$name&recovery_pin=$recoveryPin&photo=$photoBase64"
+            val body = """{"name":"$name","recovery_pin":"$recoveryPin","photo":"$photoBase64"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/complete_profile",
                     method = "POST",
                     headers = mapOf(
-                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Content-Type" to "application/json",
                         "Authorization" to "Bearer $sessionToken"
                     ),
                     body = body.encodeToByteArray(),
-                    contentType = "application/x-www-form-urlencoded"
+                    contentType = "application/json"
                 )
             )
 
@@ -323,11 +323,9 @@ class ConnectIdApi(
     private fun executeAuthenticatedPost(url: String, sessionToken: String, body: String?): Result<Unit> {
         return try {
             val headers = mutableMapOf(
-                "Authorization" to "Bearer $sessionToken"
+                "Authorization" to "Bearer $sessionToken",
+                "Content-Type" to "application/json"
             )
-            if (body != null) {
-                headers["Content-Type"] = "application/x-www-form-urlencoded"
-            }
 
             val response = httpClient.execute(
                 HttpRequest(
@@ -335,7 +333,7 @@ class ConnectIdApi(
                     method = "POST",
                     headers = headers,
                     body = body?.encodeToByteArray(),
-                    contentType = if (body != null) "application/x-www-form-urlencoded" else null
+                    contentType = "application/json"
                 )
             )
 
