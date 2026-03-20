@@ -61,31 +61,8 @@ fun MessageThreadScreen(
             .fillMaxSize()
             .imePadding()
     ) {
-        // Header row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "<",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier
-                    .clickable { onBack() }
-                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
-                    .padding(end = 8.dp)
-                    .testTag("thread_back_button")
-            )
-            Text(
-                text = thread.participantName,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        HorizontalDivider()
+        // Android-style top bar
+        ConnectTopBar(onBack = onBack)
 
         // Loading indicator
         if (viewModel.isLoading) {

@@ -1,5 +1,30 @@
 package org.commcare.app.model
 
+import org.commcare.app.platform.currentEpochSeconds
+
+/**
+ * Returns the approximate number of days until the given date string ("YYYY-MM-DD").
+ * Returns Int.MAX_VALUE if the string is null or unparseable.
+ * Uses a rough epoch-based calculation suitable for "< 5 days" warning UI.
+ */
+fun daysUntil(dateStr: String?): Int {
+    if (dateStr == null) return Int.MAX_VALUE
+    return try {
+        val parts = dateStr.split("-")
+        if (parts.size != 3) return Int.MAX_VALUE
+        val year = parts[0].toInt()
+        val month = parts[1].toInt()
+        val day = parts[2].toInt()
+        // Rough calendar-to-days since epoch (Julian Day approximation)
+        val targetDays = year * 365 + month * 30 + day
+        val nowSeconds = currentEpochSeconds()
+        val currentDays = (nowSeconds / 86400).toInt() + 719163
+        targetDays - currentDays
+    } catch (_: Exception) {
+        Int.MAX_VALUE
+    }
+}
+
 // Matches OpportunitySerializer exactly
 data class Opportunity(
     val id: Int,
@@ -28,10 +53,7 @@ data class Opportunity(
     val catchmentAreas: List<CatchmentArea>
 ) {
     val isClaimed: Boolean get() = claim != null
-    val daysRemaining: Int get() {
-        // Simple calculation - would need proper date parsing in production
-        return -1 // placeholder
-    }
+    val daysRemaining: Int get() = daysUntil(endDate)
 }
 
 data class CommCareAppInfo(

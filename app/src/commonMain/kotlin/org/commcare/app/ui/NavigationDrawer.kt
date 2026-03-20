@@ -101,12 +101,13 @@ fun NavigationDrawerContent(
             }
         }
 
-        // Messaging row (Connect only)
+        // Messaging row (Connect only) — shows unread count badge when non-zero
         if (viewModel.hasConnectAccess) {
             Spacer(modifier = Modifier.height(4.dp))
+            val unread = viewModel.unreadMessageCount
             DrawerRow(
                 icon = "\uD83D\uDCAC", // speech bubble
-                label = "Messaging",
+                label = if (unread > 0) "Messaging ($unread)" else "Messaging",
                 onClick = onMessaging
             )
         }
