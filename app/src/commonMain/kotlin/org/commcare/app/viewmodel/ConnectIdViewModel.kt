@@ -14,8 +14,8 @@ import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.storage.ConnectIdRepository
 
 enum class RegistrationStep {
-    PHONE_ENTRY, OTP_VERIFICATION, NAME_ENTRY, BACKUP_CODE,
-    PHOTO_CAPTURE, ACCOUNT_CREATION, BIOMETRIC_SETUP, SUCCESS
+    PHONE_ENTRY, BIOMETRIC_SETUP, OTP_VERIFICATION, NAME_ENTRY, BACKUP_CODE,
+    PHOTO_CAPTURE, ACCOUNT_CREATION, SUCCESS
 }
 
 class ConnectIdViewModel(
@@ -64,7 +64,7 @@ class ConnectIdViewModel(
             val result = api.startConfiguration("${countryCode}${phoneNumber}")
             isLoading = false
             result.fold(
-                onSuccess = { session = it; currentStep = RegistrationStep.OTP_VERIFICATION },
+                onSuccess = { session = it; currentStep = RegistrationStep.BIOMETRIC_SETUP },
                 onFailure = { errorMessage = "Registration failed: ${it.message}" }
             )
         }
@@ -141,8 +141,18 @@ class ConnectIdViewModel(
                         keychainStore.store("connect_username", response.username)
                         keychainStore.store("connect_password", response.password)
                         keychainStore.store("connect_db_key", response.dbKey)
-                        // Skip PHOTO_CAPTURE + ACCOUNT_CREATION, go to biometric
-                        currentStep = RegistrationStep.BIOMETRIC_SETUP
+                        // Save recovered user record
+                        val user = ConnectIdUser(
+                            userId = response.username,
+                            name = fullName,
+                            phone = "${countryCode}${phoneNumber}",
+                            photoPath = null,
+                            hasConnectAccess = false,
+                            securityMethod = securityMethod
+                        )
+                        repository.saveUser(user)
+                        // Recovery skips photo AND biometric — go straight to success
+                        currentStep = RegistrationStep.SUCCESS
                     },
                     onFailure = { errorMessage = "Invalid backup code: ${it.message}" }
                 )
@@ -182,31 +192,32 @@ class ConnectIdViewModel(
                     keychainStore.store("connect_username", response.username)
                     keychainStore.store("connect_password", response.password)
                     keychainStore.store("connect_db_key", response.dbKey)
-                    currentStep = RegistrationStep.BIOMETRIC_SETUP
+                    // Save user record
+                    val user = ConnectIdUser(
+                        userId = response.username,
+                        name = fullName,
+                        phone = "${countryCode}${phoneNumber}",
+                        photoPath = null,
+                        hasConnectAccess = false,
+                        securityMethod = securityMethod
+                    )
+                    repository.saveUser(user)
+                    currentStep = RegistrationStep.SUCCESS
                 },
                 onFailure = { errorMessage = "Account creation failed: ${it.message}" }
             )
         }
     }
 
-    // Step 7: Biometric/PIN setup complete
+    // Step 2: Biometric/PIN setup — secures device, then proceeds to OTP
     fun completeBiometricSetup(method: String, pin: String? = null) {
         securityMethod = method
         if (pin != null) devicePin = pin
-        // Persist the user
-        val user = ConnectIdUser(
-            userId = createdUsername ?: "",
-            name = fullName,
-            phone = "${countryCode}${phoneNumber}",
-            photoPath = null,  // photo stored separately if needed
-            hasConnectAccess = false,  // will be updated after first opportunity check
-            securityMethod = method
-        )
-        repository.saveUser(user)
         if (pin != null) {
             keychainStore.store("connect_pin", pin)
         }
-        currentStep = RegistrationStep.SUCCESS
+        // After biometric setup, go to OTP verification
+        currentStep = RegistrationStep.OTP_VERIFICATION
     }
 
     // Step 8: Done
@@ -214,17 +225,14 @@ class ConnectIdViewModel(
         // Reset wizard state — caller handles navigation
     }
 
-    // Navigation — recovery flow skips PHOTO_CAPTURE and ACCOUNT_CREATION
+    // Navigation — matches Android order: PHONE → BIOMETRIC → OTP → NAME → BACKUP_CODE → PHOTO
     fun goBack() {
         currentStep = when (currentStep) {
-            RegistrationStep.OTP_VERIFICATION -> RegistrationStep.PHONE_ENTRY
+            RegistrationStep.BIOMETRIC_SETUP -> RegistrationStep.PHONE_ENTRY
+            RegistrationStep.OTP_VERIFICATION -> RegistrationStep.BIOMETRIC_SETUP
             RegistrationStep.NAME_ENTRY -> RegistrationStep.OTP_VERIFICATION
             RegistrationStep.BACKUP_CODE -> RegistrationStep.NAME_ENTRY
             RegistrationStep.PHOTO_CAPTURE -> RegistrationStep.BACKUP_CODE
-            RegistrationStep.BIOMETRIC_SETUP -> {
-                if (isRecoveryFlow) RegistrationStep.BACKUP_CODE
-                else RegistrationStep.PHOTO_CAPTURE
-            }
             else -> currentStep  // can't go back from PHONE_ENTRY, ACCOUNT_CREATION, SUCCESS
         }
         errorMessage = null

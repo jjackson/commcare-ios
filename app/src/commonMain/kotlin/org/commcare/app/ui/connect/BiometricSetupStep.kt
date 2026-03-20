@@ -34,14 +34,14 @@ fun BiometricSetupStep(viewModel: ConnectIdViewModel) {
 
     Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
         Text(
-            text = "Secure your account",
+            text = "Secure your device",
             style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Choose how to protect your Personal ID",
+            text = "Set up device security to protect your account",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
