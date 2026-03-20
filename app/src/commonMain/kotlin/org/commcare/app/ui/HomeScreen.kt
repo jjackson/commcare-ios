@@ -71,9 +71,17 @@ sealed class HomeNav {
 
 /**
  * Main home screen that coordinates navigation between menus, case lists, forms, and sync.
+ *
+ * @param onConnectOpportunities Called when the user taps Opportunities in the nav drawer.
+ * @param onConnectMessaging Called when the user taps Messaging in the nav drawer.
  */
 @Composable
-fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
+fun HomeScreen(
+    state: AppState.Ready,
+    db: CommCareDatabase,
+    onConnectOpportunities: (() -> Unit)? = null,
+    onConnectMessaging: (() -> Unit)? = null
+) {
     var nav by remember { mutableStateOf<HomeNav>(HomeNav.Landing) }
 
     val navigator = remember { SessionNavigatorImpl(state.platform, state.sandbox) }
@@ -152,8 +160,14 @@ fun HomeScreen(state: AppState.Ready, db: CommCareDatabase) {
                     viewModel = drawerViewModel,
                     username = state.domain,
                     onSwitchApp = { /* placeholder — multi-app switching not yet wired */ },
-                    onOpportunities = { /* placeholder */ },
-                    onMessaging = { /* placeholder */ },
+                    onOpportunities = {
+                        scope.launch { drawerState.close() }
+                        onConnectOpportunities?.invoke()
+                    },
+                    onMessaging = {
+                        scope.launch { drawerState.close() }
+                        onConnectMessaging?.invoke()
+                    },
                     onAbout = { /* placeholder */ },
                     onConnectIdAction = { /* placeholder */ },
                     onClose = { scope.launch { drawerState.close() } }
