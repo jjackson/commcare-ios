@@ -45,11 +45,10 @@ fun OpportunityDetailScreen(
     val opp = viewModel.selectedOpportunity ?: return
 
     // Load sub-detail data if already claimed
-    LaunchedEffect(opp.id, opp.claimed) {
-        if (opp.claimed) {
+    LaunchedEffect(opp.id, opp.isClaimed) {
+        if (opp.isClaimed) {
             viewModel.loadLearnProgress(opp.id)
             viewModel.loadDeliveryProgress(opp.id)
-            viewModel.loadPayments(opp.id)
         }
     }
 
@@ -89,7 +88,7 @@ fun OpportunityDetailScreen(
             )
         }
 
-        if (opp.claimed) {
+        if (opp.isClaimed) {
             // Tab bar
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                 DetailTab.entries.forEach { tab ->
@@ -168,14 +167,34 @@ private fun OpportunityInfoSection(opp: Opportunity) {
     Spacer(modifier = Modifier.height(12.dp))
 
     // Budget / pay info
-    opp.maxPayPerVisit?.let { LabeledField(label = "Max Pay / Visit", value = "$it ${opp.currency}") }
-    opp.totalBudget?.let { LabeledField(label = "Total Budget", value = "$it ${opp.currency}") }
+    val currency = opp.currency ?: ""
+    if (opp.budgetPerVisit > 0) {
+        LabeledField(label = "Max Pay / Visit", value = "${opp.budgetPerVisit} $currency")
+    }
+    opp.totalBudget?.let { LabeledField(label = "Total Budget", value = "$it $currency") }
     opp.endDate?.let { LabeledField(label = "End Date", value = it) }
+
+    // Learn/Deliver apps
+    opp.learnApp?.let { LabeledField(label = "Learn App", value = it.name) }
+    opp.deliverApp?.let { LabeledField(label = "Deliver App", value = it.name) }
+
+    // Payment units
+    if (opp.paymentUnits.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Payment Units",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        for (pu in opp.paymentUnits) {
+            LabeledField(label = pu.name, value = "${pu.amount} $currency")
+        }
+    }
 
     // Status
     Spacer(modifier = Modifier.height(12.dp))
     OutlinedButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
-        Text(if (opp.claimed) "Claimed" else if (opp.isActive) "Available" else "Inactive")
+        Text(if (opp.isClaimed) "Claimed" else if (opp.isActive) "Available" else "Inactive")
     }
 }
 

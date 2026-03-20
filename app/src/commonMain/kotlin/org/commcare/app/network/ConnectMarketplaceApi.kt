@@ -1,11 +1,22 @@
 package org.commcare.app.network
 
-import org.commcare.app.model.DeliveryStatus
-import org.commcare.app.model.LearnModule
+import org.commcare.app.model.Assessment
+import org.commcare.app.model.CatchmentArea
+import org.commcare.app.model.ClaimPaymentUnit
+import org.commcare.app.model.CommCareAppInfo
+import org.commcare.app.model.CompletedModule
+import org.commcare.app.model.DeliveryProgressDetail
+import org.commcare.app.model.DeliveryRecord
+import org.commcare.app.model.LearnModuleInfo
+import org.commcare.app.model.LearnProgressDetail
+import org.commcare.app.model.LearnProgressSummary
 import org.commcare.app.model.Message
 import org.commcare.app.model.MessageThread
 import org.commcare.app.model.Opportunity
-import org.commcare.app.model.PaymentInfo
+import org.commcare.app.model.OpportunityClaim
+import org.commcare.app.model.PaymentRecord
+import org.commcare.app.model.PaymentUnit
+import org.commcare.app.model.VerificationFlags
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
 import org.commcare.core.interfaces.createHttpClient
@@ -16,15 +27,22 @@ import org.commcare.core.interfaces.createHttpClient
  * Handles opportunities, payments, and messaging.
  *
  * Uses Bearer token authentication with the ConnectID access token.
- * JSON parsing uses simple string extraction (no kotlinx.serialization dependency),
- * matching the pattern in ConnectIdApi.
+ * JSON parsing uses a lightweight recursive-descent approach (no kotlinx.serialization
+ * dependency), supporting nested objects and arrays that the server responses contain.
  */
 class ConnectMarketplaceApi(
     private val httpClient: PlatformHttpClient = createHttpClient()
 ) {
     // Base URL — the Connect server (separate from ConnectID identity server)
-    // TODO: Configure actual marketplace server URL
     var baseUrl: String = "https://connect.dimagi.com"
+
+    private val apiHeaders: (String) -> Map<String, String> = { token ->
+        mapOf(
+            "Authorization" to "Bearer $token",
+            "Content-Type" to "application/json",
+            "Accept" to "application/json; version=1.0"
+        )
+    }
 
     /**
      * Fetch all available opportunities for this user.
@@ -37,10 +55,7 @@ class ConnectMarketplaceApi(
                 HttpRequest(
                     url = "$baseUrl/api/opportunity/",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -54,7 +69,7 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
-            val objects = parseJsonArray(json)
+            val objects = splitJsonArray(json)
             val opportunities = objects.map { parseOpportunity(it) }
             Result.success(opportunities)
         } catch (e: Exception) {
@@ -67,16 +82,13 @@ class ConnectMarketplaceApi(
      * GET /api/opportunity/{id}/
      * Authorization: Bearer <access_token>
      */
-    fun getOpportunityDetail(accessToken: String, id: String): Result<Opportunity> {
+    fun getOpportunityDetail(accessToken: String, id: Int): Result<Opportunity> {
         return try {
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$baseUrl/api/opportunity/${escapeJson(id)}/",
+                    url = "$baseUrl/api/opportunity/$id/",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -100,10 +112,11 @@ class ConnectMarketplaceApi(
      * Claim an opportunity for this user.
      * POST /api/opportunity/{id}/claim
      * Authorization: Bearer <access_token>
+     * Expects 201 Created on success.
      */
-    fun claimOpportunity(accessToken: String, id: String): Result<Unit> {
+    fun claimOpportunity(accessToken: String, id: Int): Result<Unit> {
         return executeAuthenticatedPost(
-            "$baseUrl/api/opportunity/${escapeJson(id)}/claim",
+            "$baseUrl/api/opportunity/$id/claim",
             accessToken,
             body = "{}"
         )
@@ -123,20 +136,17 @@ class ConnectMarketplaceApi(
     }
 
     /**
-     * Get learn progress (list of modules) for an opportunity.
+     * Get learn progress for an opportunity.
      * GET /api/opportunity/{id}/learn_progress
-     * Authorization: Bearer <access_token>
+     * Returns: {completed_modules: [...], assessments: [...]}
      */
-    fun getLearnProgress(accessToken: String, opportunityId: String): Result<List<LearnModule>> {
+    fun getLearnProgress(accessToken: String, opportunityId: Int): Result<LearnProgressDetail> {
         return try {
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$baseUrl/api/opportunity/${escapeJson(opportunityId)}/learn_progress",
+                    url = "$baseUrl/api/opportunity/$opportunityId/learn_progress",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -150,16 +160,28 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
-            val objects = parseJsonArray(json)
-            val modules = objects.map { obj ->
-                LearnModule(
-                    id = extractJsonString(obj, "id") ?: "",
-                    name = extractJsonString(obj, "name") ?: "",
-                    description = extractJsonString(obj, "description") ?: "",
-                    completionStatus = extractJsonString(obj, "completion_status") ?: "not_started"
+            val completedModulesJson = extractJsonArrayByKey(json, "completed_modules")
+            val completedModules = splitJsonArray(completedModulesJson).map { obj ->
+                CompletedModule(
+                    id = extractJsonInt(obj, "id") ?: 0,
+                    module = extractJsonInt(obj, "module") ?: 0,
+                    date = extractJsonString(obj, "date") ?: "",
+                    duration = extractJsonString(obj, "duration")
                 )
             }
-            Result.success(modules)
+
+            val assessmentsJson = extractJsonArrayByKey(json, "assessments")
+            val assessments = splitJsonArray(assessmentsJson).map { obj ->
+                Assessment(
+                    id = extractJsonInt(obj, "id") ?: 0,
+                    date = extractJsonString(obj, "date") ?: "",
+                    score = extractJsonInt(obj, "score") ?: 0,
+                    passingScore = extractJsonInt(obj, "passing_score") ?: 0,
+                    passed = extractJsonBoolean(obj, "passed") ?: false
+                )
+            }
+
+            Result.success(LearnProgressDetail(completedModules = completedModules, assessments = assessments))
         } catch (e: Exception) {
             Result.failure(ConnectMarketplaceException("Get learn progress request failed: ${e.message}", e))
         }
@@ -168,18 +190,15 @@ class ConnectMarketplaceApi(
     /**
      * Get delivery progress for an opportunity.
      * GET /api/opportunity/{id}/delivery_progress
-     * Authorization: Bearer <access_token>
+     * Returns: {deliveries: [...], payments: [...], max_payments: N, payment_accrued: N, end_date: "..."}
      */
-    fun getDeliveryProgress(accessToken: String, opportunityId: String): Result<DeliveryStatus> {
+    fun getDeliveryProgress(accessToken: String, opportunityId: Int): Result<DeliveryProgressDetail> {
         return try {
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$baseUrl/api/opportunity/${escapeJson(opportunityId)}/delivery_progress",
+                    url = "$baseUrl/api/opportunity/$opportunityId/delivery_progress",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -193,12 +212,35 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
+            val deliveriesJson = extractJsonArrayByKey(json, "deliveries")
+            val deliveries = splitJsonArray(deliveriesJson).map { obj ->
+                DeliveryRecord(
+                    id = extractJsonInt(obj, "id") ?: 0,
+                    status = extractJsonString(obj, "status") ?: "pending",
+                    visitDate = extractJsonString(obj, "visit_date"),
+                    deliverUnitName = extractJsonString(obj, "deliver_unit_name"),
+                    deliverUnitSlug = extractJsonString(obj, "deliver_unit_slug"),
+                    deliverUnitSlugId = extractJsonString(obj, "deliver_unit_slug_id"),
+                    entityId = extractJsonString(obj, "entity_id"),
+                    entityName = extractJsonString(obj, "entity_name"),
+                    reason = extractJsonString(obj, "reason"),
+                    flags = parseStringMap(extractJsonObjectByKey(obj, "flags")),
+                    lastModified = extractJsonString(obj, "last_modified")
+                )
+            }
+
+            val paymentsJson = extractJsonArrayByKey(json, "payments")
+            val payments = splitJsonArray(paymentsJson).map { obj ->
+                parsePaymentRecord(obj)
+            }
+
             Result.success(
-                DeliveryStatus(
-                    totalDeliveries = (extractJsonNumber(json, "total_deliveries") ?: 0L).toInt(),
-                    completedDeliveries = (extractJsonNumber(json, "completed_deliveries") ?: 0L).toInt(),
-                    pendingDeliveries = (extractJsonNumber(json, "pending_deliveries") ?: 0L).toInt(),
-                    approvedDeliveries = (extractJsonNumber(json, "approved_deliveries") ?: 0L).toInt()
+                DeliveryProgressDetail(
+                    deliveries = deliveries,
+                    payments = payments,
+                    maxPayments = extractJsonInt(json, "max_payments") ?: -1,
+                    paymentAccrued = extractJsonInt(json, "payment_accrued") ?: 0,
+                    endDate = extractJsonString(json, "end_date")
                 )
             )
         } catch (e: Exception) {
@@ -207,59 +249,16 @@ class ConnectMarketplaceApi(
     }
 
     /**
-     * Get payment history for an opportunity.
-     * GET /api/opportunity/{id}/payments (inferred from spec)
-     * Authorization: Bearer <access_token>
-     */
-    fun getPayments(accessToken: String, opportunityId: String): Result<List<PaymentInfo>> {
-        return try {
-            val response = httpClient.execute(
-                HttpRequest(
-                    url = "$baseUrl/api/opportunity/${escapeJson(opportunityId)}/payments",
-                    method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
-                )
-            )
-
-            if (response.code !in 200..299) {
-                val errorBody = response.errorBody?.decodeToString()
-                    ?: response.body?.decodeToString()
-                    ?: "HTTP ${response.code}"
-                return Result.failure(ConnectMarketplaceException("Get payments failed: $errorBody"))
-            }
-
-            val json = response.body?.decodeToString()
-                ?: return Result.failure(ConnectMarketplaceException("Empty response"))
-
-            val objects = parseJsonArray(json)
-            val payments = objects.map { obj ->
-                PaymentInfo(
-                    id = extractJsonString(obj, "id") ?: "",
-                    amount = extractJsonString(obj, "amount") ?: "",
-                    currency = extractJsonString(obj, "currency") ?: "",
-                    status = extractJsonString(obj, "status") ?: "pending",
-                    date = extractJsonString(obj, "date") ?: ""
-                )
-            }
-            Result.success(payments)
-        } catch (e: Exception) {
-            Result.failure(ConnectMarketplaceException("Get payments request failed: ${e.message}", e))
-        }
-    }
-
-    /**
-     * Confirm a payment.
+     * Confirm one or more payments.
      * POST /api/payment/confirm
-     * Authorization: Bearer <access_token>
+     * Body: {"payments": [{"id": N, "confirmed": "true"}]}
+     * Note: "confirmed" is sent as a string, not a boolean.
      */
-    fun confirmPayment(accessToken: String, paymentId: String): Result<Unit> {
+    fun confirmPayment(accessToken: String, paymentId: Int): Result<Unit> {
         return executeAuthenticatedPost(
             "$baseUrl/api/payment/confirm",
             accessToken,
-            body = """{"payment_id":"${escapeJson(paymentId)}"}"""
+            body = """{"payments":[{"id":$paymentId,"confirmed":"true"}]}"""
         )
     }
 
@@ -287,10 +286,7 @@ class ConnectMarketplaceApi(
                 HttpRequest(
                     url = "$baseUrl/messaging/retrieve_messages/",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -304,14 +300,14 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
-            val objects = parseJsonArray(json)
+            val objects = splitJsonArray(json)
             val threads = objects.map { obj ->
                 MessageThread(
                     id = extractJsonString(obj, "id") ?: "",
                     participantName = extractJsonString(obj, "participant_name") ?: "",
                     lastMessage = extractJsonString(obj, "last_message") ?: "",
                     lastMessageDate = extractJsonString(obj, "last_message_date") ?: "",
-                    unreadCount = (extractJsonNumber(obj, "unread_count") ?: 0L).toInt()
+                    unreadCount = extractJsonInt(obj, "unread_count") ?: 0
                 )
             }
             Result.success(threads)
@@ -322,7 +318,7 @@ class ConnectMarketplaceApi(
 
     /**
      * Get all messages in a specific thread.
-     * GET /messaging/retrieve_messages/ (with thread filter — endpoint TBD)
+     * GET /messaging/retrieve_messages/ (with thread filter)
      * Authorization: Bearer <access_token>
      */
     fun getThreadMessages(accessToken: String, threadId: String): Result<List<Message>> {
@@ -331,10 +327,7 @@ class ConnectMarketplaceApi(
                 HttpRequest(
                     url = "$baseUrl/messaging/retrieve_messages/?thread_id=${escapeJson(threadId)}",
                     method = "GET",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    )
+                    headers = apiHeaders(accessToken)
                 )
             )
 
@@ -348,7 +341,7 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
-            val objects = parseJsonArray(json)
+            val objects = splitJsonArray(json)
             val messages = objects.map { obj ->
                 Message(
                     id = extractJsonString(obj, "id") ?: "",
@@ -391,68 +384,156 @@ class ConnectMarketplaceApi(
         )
     }
 
-    // --- Internal helpers ---
+    // ========================================================================
+    // Opportunity parsing
+    // ========================================================================
 
-    /**
-     * Parse an Opportunity object from a JSON string.
-     */
     private fun parseOpportunity(json: String): Opportunity {
+        // Parse nested learn_app object
+        val learnAppJson = extractJsonObjectByKey(json, "learn_app")
+        val learnApp = if (learnAppJson.isNotEmpty()) parseCommCareAppInfo(learnAppJson) else null
+
+        // Parse nested deliver_app object
+        val deliverAppJson = extractJsonObjectByKey(json, "deliver_app")
+        val deliverApp = if (deliverAppJson.isNotEmpty()) parseCommCareAppInfo(deliverAppJson) else null
+
+        // Parse nested claim object
+        val claimJson = extractJsonObjectByKey(json, "claim")
+        val claim = if (claimJson.isNotEmpty()) parseClaim(claimJson) else null
+
+        // Parse nested learn_progress object (summary, inline on opportunity)
+        val learnProgressJson = extractJsonObjectByKey(json, "learn_progress")
+        val learnProgress = if (learnProgressJson.isNotEmpty()) {
+            LearnProgressSummary(
+                totalModules = extractJsonInt(learnProgressJson, "total_modules") ?: 0,
+                completedModules = extractJsonInt(learnProgressJson, "completed_modules") ?: 0
+            )
+        } else null
+
+        // Parse payment_units array
+        val paymentUnitsJson = extractJsonArrayByKey(json, "payment_units")
+        val paymentUnits = splitJsonArray(paymentUnitsJson).map { parsePaymentUnit(it) }
+
+        // Parse verification_flags object
+        val vfJson = extractJsonObjectByKey(json, "verification_flags")
+        val verificationFlags = if (vfJson.isNotEmpty()) {
+            VerificationFlags(
+                formSubmissionStart = extractJsonString(vfJson, "form_submission_start"),
+                formSubmissionEnd = extractJsonString(vfJson, "form_submission_end")
+            )
+        } else null
+
+        // Parse catchment_areas array
+        val catchmentJson = extractJsonArrayByKey(json, "catchment_areas")
+        val catchmentAreas = splitJsonArray(catchmentJson).map { obj ->
+            CatchmentArea(
+                id = extractJsonInt(obj, "id") ?: 0,
+                name = extractJsonString(obj, "name") ?: "",
+                latitude = extractJsonString(obj, "latitude") ?: "0",
+                longitude = extractJsonString(obj, "longitude") ?: "0",
+                radius = extractJsonInt(obj, "radius") ?: 0,
+                active = extractJsonBoolean(obj, "active") ?: true
+            )
+        }
+
         return Opportunity(
-            id = extractJsonString(json, "id") ?: "",
+            id = extractJsonInt(json, "id") ?: 0,
+            opportunityId = extractJsonString(json, "opportunity_id") ?: "",
             name = extractJsonString(json, "name") ?: "",
-            organization = extractJsonString(json, "organization") ?: "",
             description = extractJsonString(json, "description") ?: "",
-            shortDescription = extractJsonString(json, "short_description") ?: "",
-            isActive = extractJsonBoolean(json, "is_active") ?: false,
-            currency = extractJsonString(json, "currency") ?: "",
-            maxPayPerVisit = extractJsonString(json, "max_pay_per_visit"),
-            totalBudget = extractJsonString(json, "total_budget"),
+            shortDescription = extractJsonString(json, "short_description"),
+            organization = extractJsonString(json, "organization") ?: "",
+            learnApp = learnApp,
+            deliverApp = deliverApp,
+            startDate = extractJsonString(json, "start_date"),
             endDate = extractJsonString(json, "end_date"),
-            learnAppId = extractJsonString(json, "learn_app_id"),
-            deliverAppId = extractJsonString(json, "deliver_app_id"),
-            claimed = extractJsonBoolean(json, "claimed") ?: false,
-            learnProgress = (extractJsonNumber(json, "learn_progress") ?: 0L).toInt(),
-            deliveryProgress = (extractJsonNumber(json, "delivery_progress") ?: 0L).toInt()
+            maxVisitsPerUser = extractJsonInt(json, "max_visits_per_user") ?: -1,
+            dailyMaxVisitsPerUser = extractJsonInt(json, "daily_max_visits_per_user") ?: -1,
+            budgetPerVisit = extractJsonInt(json, "budget_per_visit") ?: -1,
+            totalBudget = extractJsonNumber(json, "total_budget"),
+            claim = claim,
+            learnProgress = learnProgress,
+            deliverProgress = extractJsonInt(json, "deliver_progress") ?: 0,
+            currency = extractJsonString(json, "currency"),
+            isActive = extractJsonBoolean(json, "is_active") ?: false,
+            budgetPerUser = extractJsonInt(json, "budget_per_user") ?: 0,
+            paymentUnits = paymentUnits,
+            isUserSuspended = extractJsonBoolean(json, "is_user_suspended") ?: false,
+            verificationFlags = verificationFlags,
+            catchmentAreas = catchmentAreas
         )
     }
 
-    /**
-     * Parse a JSON array string into a list of individual JSON object strings.
-     * Splits on },{  to extract individual objects.
-     * Handles the outermost [ ] wrapper.
-     */
-    private fun parseJsonArray(json: String): List<String> {
-        val trimmed = json.trim()
-        if (!trimmed.startsWith("[")) return emptyList()
-
-        // Strip outer brackets
-        val inner = trimmed.substring(1, trimmed.length - 1).trim()
-        if (inner.isEmpty()) return emptyList()
-
-        // Split into individual objects by tracking brace depth
-        val objects = mutableListOf<String>()
-        var depth = 0
-        var start = 0
-
-        for (i in inner.indices) {
-            when (inner[i]) {
-                '{' -> depth++
-                '}' -> {
-                    depth--
-                    if (depth == 0) {
-                        objects.add(inner.substring(start, i + 1).trim())
-                        // Skip past the comma separator
-                        start = i + 1
-                        while (start < inner.length && (inner[start] == ',' || inner[start].isWhitespace())) {
-                            start++
-                        }
-                    }
-                }
-            }
+    private fun parseCommCareAppInfo(json: String): CommCareAppInfo {
+        val modulesJson = extractJsonArrayByKey(json, "learn_modules")
+        val modules = splitJsonArray(modulesJson).map { obj ->
+            LearnModuleInfo(
+                id = extractJsonInt(obj, "id") ?: 0,
+                slug = extractJsonString(obj, "slug") ?: "",
+                name = extractJsonString(obj, "name") ?: "",
+                description = extractJsonString(obj, "description") ?: "",
+                timeEstimate = extractJsonInt(obj, "time_estimate") ?: 0
+            )
         }
 
-        return objects
+        return CommCareAppInfo(
+            id = extractJsonInt(json, "id") ?: 0,
+            ccDomain = extractJsonString(json, "cc_domain") ?: "",
+            ccAppId = extractJsonString(json, "cc_app_id") ?: "",
+            name = extractJsonString(json, "name") ?: "",
+            description = extractJsonString(json, "description") ?: "",
+            organization = extractJsonString(json, "organization") ?: "",
+            learnModules = modules,
+            passingScore = extractJsonInt(json, "passing_score") ?: -1,
+            installUrl = extractJsonString(json, "install_url")
+        )
     }
+
+    private fun parseClaim(json: String): OpportunityClaim {
+        val claimUnitsJson = extractJsonArrayByKey(json, "payment_units")
+        val claimUnits = splitJsonArray(claimUnitsJson).map { obj ->
+            ClaimPaymentUnit(
+                maxVisits = extractJsonInt(obj, "max_visits") ?: 0,
+                paymentUnit = extractJsonInt(obj, "payment_unit") ?: 0,
+                paymentUnitId = extractJsonString(obj, "payment_unit_id") ?: ""
+            )
+        }
+
+        return OpportunityClaim(
+            id = extractJsonInt(json, "id") ?: 0,
+            maxPayments = extractJsonInt(json, "max_payments") ?: -1,
+            endDate = extractJsonString(json, "end_date"),
+            dateClaimed = extractJsonString(json, "date_claimed"),
+            paymentUnits = claimUnits
+        )
+    }
+
+    private fun parsePaymentUnit(json: String): PaymentUnit {
+        return PaymentUnit(
+            id = extractJsonInt(json, "id") ?: 0,
+            paymentUnitId = extractJsonString(json, "payment_unit_id") ?: "",
+            name = extractJsonString(json, "name") ?: "",
+            maxTotal = extractJsonIntOrNull(json, "max_total"),
+            maxDaily = extractJsonIntOrNull(json, "max_daily"),
+            amount = extractJsonInt(json, "amount") ?: 0,
+            endDate = extractJsonString(json, "end_date")
+        )
+    }
+
+    private fun parsePaymentRecord(json: String): PaymentRecord {
+        return PaymentRecord(
+            id = extractJsonInt(json, "id") ?: 0,
+            paymentId = extractJsonString(json, "payment_id") ?: "",
+            amount = extractJsonString(json, "amount") ?: "0",
+            datePaid = extractJsonString(json, "date_paid"),
+            confirmed = extractJsonBoolean(json, "confirmed") ?: false,
+            confirmationDate = extractJsonString(json, "confirmation_date")
+        )
+    }
+
+    // ========================================================================
+    // HTTP helpers
+    // ========================================================================
 
     /**
      * Execute an authenticated POST using a Bearer token in the Authorization header.
@@ -464,10 +545,7 @@ class ConnectMarketplaceApi(
                 HttpRequest(
                     url = url,
                     method = "POST",
-                    headers = mapOf(
-                        "Authorization" to "Bearer $accessToken",
-                        "Content-Type" to "application/json"
-                    ),
+                    headers = apiHeaders(accessToken),
                     body = body?.encodeToByteArray(),
                     contentType = "application/json"
                 )
@@ -486,9 +564,12 @@ class ConnectMarketplaceApi(
         }
     }
 
+    // ========================================================================
+    // JSON parsing helpers — lightweight recursive-descent for nested structures
+    // ========================================================================
+
     /**
      * Escape a string for safe inclusion in a JSON value.
-     * Handles control characters, quotes, backslashes, and newlines.
      */
     private fun escapeJson(value: String): String {
         val sb = StringBuilder()
@@ -513,39 +594,285 @@ class ConnectMarketplaceApi(
     }
 
     /**
-     * Extract a string value from a JSON response using simple string operations.
-     * Matches pattern: "key": "value" or "key":"value"
+     * Extract a nested JSON object by key name. Returns the object substring
+     * including braces, or empty string if not found or if the value is null.
+     *
+     * Handles: "key": {...} by tracking brace depth, and skips over strings
+     * so that braces inside string values don't confuse the parser.
      */
-    private fun extractJsonString(json: String, key: String): String? {
+    private fun extractJsonObjectByKey(json: String, key: String): String {
         val searchKey = "\"$key\""
-        val keyIdx = json.indexOf(searchKey)
-        if (keyIdx == -1) return null
+        var searchFrom = 0
+        while (searchFrom < json.length) {
+            val keyIdx = json.indexOf(searchKey, searchFrom)
+            if (keyIdx == -1) return ""
 
-        val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
-        if (colonIdx == -1) return null
+            val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+            if (colonIdx == -1) return ""
 
-        // Skip whitespace; check for null literal
-        var start = colonIdx + 1
-        while (start < json.length && json[start].isWhitespace()) start++
-        if (start >= json.length) return null
-        if (json.startsWith("null", start)) return null
+            // Make sure nothing but whitespace between key end and colon
+            val between = json.substring(keyIdx + searchKey.length, colonIdx).trim()
+            if (between.isNotEmpty()) {
+                searchFrom = keyIdx + searchKey.length
+                continue
+            }
 
-        val openQuote = json.indexOf('"', colonIdx + 1)
-        if (openQuote == -1) return null
+            // Skip whitespace after colon
+            var start = colonIdx + 1
+            while (start < json.length && json[start].isWhitespace()) start++
+            if (start >= json.length) return ""
 
-        var closeQuote = openQuote + 1
-        while (closeQuote < json.length) {
-            if (json[closeQuote] == '"' && json[closeQuote - 1] != '\\') break
-            closeQuote++
+            // Check for null literal
+            if (json.startsWith("null", start)) return ""
+
+            if (json[start] != '{') {
+                searchFrom = start
+                continue
+            }
+
+            // Track braces and skip over strings
+            var depth = 0
+            var i = start
+            var inString = false
+            while (i < json.length) {
+                val c = json[i]
+                if (inString) {
+                    if (c == '\\') {
+                        i += 2; continue
+                    }
+                    if (c == '"') inString = false
+                } else {
+                    when (c) {
+                        '"' -> inString = true
+                        '{' -> depth++
+                        '}' -> {
+                            depth--
+                            if (depth == 0) return json.substring(start, i + 1)
+                        }
+                    }
+                }
+                i++
+            }
+            return ""
         }
-        if (closeQuote >= json.length) return null
-
-        return json.substring(openQuote + 1, closeQuote)
+        return ""
     }
 
     /**
-     * Extract a numeric value from a JSON response.
-     * Matches pattern: "key": 1234 or "key":1234
+     * Extract a JSON array by key name. Returns the array substring
+     * including brackets, or "[]" if not found.
+     */
+    private fun extractJsonArrayByKey(json: String, key: String): String {
+        val searchKey = "\"$key\""
+        var searchFrom = 0
+        while (searchFrom < json.length) {
+            val keyIdx = json.indexOf(searchKey, searchFrom)
+            if (keyIdx == -1) return "[]"
+
+            val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+            if (colonIdx == -1) return "[]"
+
+            val between = json.substring(keyIdx + searchKey.length, colonIdx).trim()
+            if (between.isNotEmpty()) {
+                searchFrom = keyIdx + searchKey.length
+                continue
+            }
+
+            var start = colonIdx + 1
+            while (start < json.length && json[start].isWhitespace()) start++
+            if (start >= json.length) return "[]"
+
+            if (json.startsWith("null", start)) return "[]"
+
+            if (json[start] != '[') {
+                searchFrom = start
+                continue
+            }
+
+            // Track brackets and skip over strings
+            var depth = 0
+            var i = start
+            var inString = false
+            while (i < json.length) {
+                val c = json[i]
+                if (inString) {
+                    if (c == '\\') {
+                        i += 2; continue
+                    }
+                    if (c == '"') inString = false
+                } else {
+                    when (c) {
+                        '"' -> inString = true
+                        '[' -> depth++
+                        ']' -> {
+                            depth--
+                            if (depth == 0) return json.substring(start, i + 1)
+                        }
+                    }
+                }
+                i++
+            }
+            return "[]"
+        }
+        return "[]"
+    }
+
+    /**
+     * Split a JSON array string into individual element strings.
+     * Handles nested objects/arrays and strings correctly by tracking depth.
+     */
+    private fun splitJsonArray(json: String): List<String> {
+        val trimmed = json.trim()
+        if (!trimmed.startsWith("[")) return emptyList()
+
+        val inner = trimmed.substring(1, trimmed.length - 1).trim()
+        if (inner.isEmpty()) return emptyList()
+
+        val objects = mutableListOf<String>()
+        var depth = 0
+        var start = 0
+        var inString = false
+
+        for (i in inner.indices) {
+            val c = inner[i]
+            if (inString) {
+                if (c == '\\' && i + 1 < inner.length) {
+                    // skip escaped character (handled by not changing state)
+                    continue
+                }
+                // But we need to handle the backslash check properly:
+                // Check if previous char was backslash
+                if (c == '"' && (i == 0 || inner[i - 1] != '\\')) {
+                    inString = false
+                }
+            } else {
+                when (c) {
+                    '"' -> inString = true
+                    '{', '[' -> depth++
+                    '}', ']' -> depth--
+                    ',' -> {
+                        if (depth == 0) {
+                            objects.add(inner.substring(start, i).trim())
+                            start = i + 1
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add the last element
+        val last = inner.substring(start).trim()
+        if (last.isNotEmpty()) {
+            objects.add(last)
+        }
+
+        return objects
+    }
+
+    /**
+     * Parse a flat JSON object into a string-to-string map.
+     * Used for the flags field on DeliveryRecord.
+     */
+    private fun parseStringMap(json: String): Map<String, String> {
+        if (json.isEmpty()) return emptyMap()
+        val trimmed = json.trim()
+        if (!trimmed.startsWith("{")) return emptyMap()
+
+        val inner = trimmed.substring(1, trimmed.length - 1).trim()
+        if (inner.isEmpty()) return emptyMap()
+
+        val result = mutableMapOf<String, String>()
+        // Split on commas at depth 0
+        val pairs = mutableListOf<String>()
+        var depth = 0
+        var start = 0
+        var inStr = false
+
+        for (i in inner.indices) {
+            val c = inner[i]
+            if (inStr) {
+                if (c == '"' && (i == 0 || inner[i - 1] != '\\')) inStr = false
+            } else {
+                when (c) {
+                    '"' -> inStr = true
+                    '{', '[' -> depth++
+                    '}', ']' -> depth--
+                    ',' -> if (depth == 0) {
+                        pairs.add(inner.substring(start, i).trim())
+                        start = i + 1
+                    }
+                }
+            }
+        }
+        val last = inner.substring(start).trim()
+        if (last.isNotEmpty()) pairs.add(last)
+
+        for (pair in pairs) {
+            // Each pair is "key": "value"
+            val colonIdx = pair.indexOf(':')
+            if (colonIdx == -1) continue
+            val k = pair.substring(0, colonIdx).trim().removeSurrounding("\"")
+            val v = pair.substring(colonIdx + 1).trim().removeSurrounding("\"")
+            result[k] = v
+        }
+
+        return result
+    }
+
+    /**
+     * Extract a string value from a JSON string.
+     * Matches pattern: "key": "value" or "key":null
+     */
+    private fun extractJsonString(json: String, key: String): String? {
+        val searchKey = "\"$key\""
+        var searchFrom = 0
+        while (searchFrom < json.length) {
+            val keyIdx = json.indexOf(searchKey, searchFrom)
+            if (keyIdx == -1) return null
+
+            val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+            if (colonIdx == -1) return null
+
+            // Verify nothing but whitespace between key-close-quote and colon
+            val between = json.substring(keyIdx + searchKey.length, colonIdx).trim()
+            if (between.isNotEmpty()) {
+                searchFrom = keyIdx + searchKey.length
+                continue
+            }
+
+            // Skip whitespace after colon
+            var start = colonIdx + 1
+            while (start < json.length && json[start].isWhitespace()) start++
+            if (start >= json.length) return null
+
+            // Check for null
+            if (json.startsWith("null", start)) return null
+
+            // Must be a string value
+            if (json[start] != '"') {
+                searchFrom = start
+                continue
+            }
+
+            val openQuote = start
+            var closeQuote = openQuote + 1
+            while (closeQuote < json.length) {
+                if (json[closeQuote] == '\\') {
+                    closeQuote += 2
+                    continue
+                }
+                if (json[closeQuote] == '"') break
+                closeQuote++
+            }
+            if (closeQuote >= json.length) return null
+
+            return json.substring(openQuote + 1, closeQuote)
+        }
+        return null
+    }
+
+    /**
+     * Extract a numeric value from a JSON string. Returns Long?.
      */
     private fun extractJsonNumber(json: String, key: String): Long? {
         val searchKey = "\"$key\""
@@ -558,6 +885,9 @@ class ConnectMarketplaceApi(
         var start = colonIdx + 1
         while (start < json.length && json[start].isWhitespace()) start++
         if (start >= json.length) return null
+
+        // Check for null
+        if (json.startsWith("null", start)) return null
 
         val sb = StringBuilder()
         if (json[start] == '-') {
@@ -573,8 +903,34 @@ class ConnectMarketplaceApi(
     }
 
     /**
-     * Extract a boolean value from a JSON response.
-     * Matches pattern: "key": true or "key": false
+     * Extract an integer value. Convenience wrapper.
+     */
+    private fun extractJsonInt(json: String, key: String): Int? {
+        return extractJsonNumber(json, key)?.toInt()
+    }
+
+    /**
+     * Extract an integer value, returning null if the JSON value is null.
+     */
+    private fun extractJsonIntOrNull(json: String, key: String): Int? {
+        val searchKey = "\"$key\""
+        val keyIdx = json.indexOf(searchKey)
+        if (keyIdx == -1) return null
+
+        val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+        if (colonIdx == -1) return null
+
+        var start = colonIdx + 1
+        while (start < json.length && json[start].isWhitespace()) start++
+        if (start >= json.length) return null
+
+        if (json.startsWith("null", start)) return null
+
+        return extractJsonNumber(json, key)?.toInt()
+    }
+
+    /**
+     * Extract a boolean value from a JSON string.
      */
     private fun extractJsonBoolean(json: String, key: String): Boolean? {
         val searchKey = "\"$key\""

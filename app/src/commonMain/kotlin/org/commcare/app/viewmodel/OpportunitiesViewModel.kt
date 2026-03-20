@@ -6,10 +6,9 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.commcare.app.model.DeliveryStatus
-import org.commcare.app.model.LearnModule
+import org.commcare.app.model.DeliveryProgressDetail
+import org.commcare.app.model.LearnProgressDetail
 import org.commcare.app.model.Opportunity
-import org.commcare.app.model.PaymentInfo
 import org.commcare.app.network.ConnectMarketplaceApi
 
 /**
@@ -32,9 +31,8 @@ class OpportunitiesViewModel(
     var selectedOpportunity by mutableStateOf<Opportunity?>(null)
 
     // Detail view state
-    var learnModules by mutableStateOf<List<LearnModule>>(emptyList())
-    var deliveryStatus by mutableStateOf<DeliveryStatus?>(null)
-    var payments by mutableStateOf<List<PaymentInfo>>(emptyList())
+    var learnProgress by mutableStateOf<LearnProgressDetail?>(null)
+    var deliveryProgress by mutableStateOf<DeliveryProgressDetail?>(null)
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -73,9 +71,8 @@ class OpportunitiesViewModel(
     fun selectOpportunity(opp: Opportunity) {
         selectedOpportunity = opp
         // Reset detail sub-state when switching opportunities
-        learnModules = emptyList()
-        deliveryStatus = null
-        payments = emptyList()
+        learnProgress = null
+        deliveryProgress = null
         errorMessage = null
     }
 
@@ -84,16 +81,15 @@ class OpportunitiesViewModel(
      */
     fun clearSelection() {
         selectedOpportunity = null
-        learnModules = emptyList()
-        deliveryStatus = null
-        payments = emptyList()
+        learnProgress = null
+        deliveryProgress = null
         errorMessage = null
     }
 
     /**
      * POST to claim the opportunity, then refresh the list so claimed status updates.
      */
-    fun claimOpportunity(id: String) {
+    fun claimOpportunity(id: Int) {
         isLoading = true
         errorMessage = null
         scope.launch {
@@ -130,15 +126,15 @@ class OpportunitiesViewModel(
     }
 
     /**
-     * Load learning module progress for a claimed opportunity.
+     * Load learning progress for a claimed opportunity.
      */
-    fun loadLearnProgress(opportunityId: String) {
+    fun loadLearnProgress(opportunityId: Int) {
         scope.launch {
             try {
                 val token = tokenManager.getConnectIdToken() ?: return@launch
                 val result = api.getLearnProgress(token, opportunityId)
                 result.fold(
-                    onSuccess = { modules -> learnModules = modules },
+                    onSuccess = { detail -> learnProgress = detail },
                     onFailure = { errorMessage = "Failed to load learn progress: ${it.message}" }
                 )
             } catch (e: Exception) {
@@ -150,13 +146,13 @@ class OpportunitiesViewModel(
     /**
      * Load delivery progress for a claimed opportunity.
      */
-    fun loadDeliveryProgress(opportunityId: String) {
+    fun loadDeliveryProgress(opportunityId: Int) {
         scope.launch {
             try {
                 val token = tokenManager.getConnectIdToken() ?: return@launch
                 val result = api.getDeliveryProgress(token, opportunityId)
                 result.fold(
-                    onSuccess = { status -> deliveryStatus = status },
+                    onSuccess = { detail -> deliveryProgress = detail },
                     onFailure = { errorMessage = "Failed to load delivery progress: ${it.message}" }
                 )
             } catch (e: Exception) {
@@ -166,38 +162,20 @@ class OpportunitiesViewModel(
     }
 
     /**
-     * Load payment history for a claimed opportunity.
+     * Confirm a pending payment, then refresh delivery progress which includes payments.
      */
-    fun loadPayments(opportunityId: String) {
-        scope.launch {
-            try {
-                val token = tokenManager.getConnectIdToken() ?: return@launch
-                val result = api.getPayments(token, opportunityId)
-                result.fold(
-                    onSuccess = { list -> payments = list },
-                    onFailure = { errorMessage = "Failed to load payments: ${it.message}" }
-                )
-            } catch (e: Exception) {
-                errorMessage = "Payments error: ${e::class.simpleName}: ${e.message}"
-            }
-        }
-    }
-
-    /**
-     * Confirm a pending payment, then refresh the payment list.
-     */
-    fun confirmPayment(paymentId: String) {
+    fun confirmPayment(paymentId: Int) {
         scope.launch {
             try {
                 val token = tokenManager.getConnectIdToken() ?: return@launch
                 val result = api.confirmPayment(token, paymentId)
                 result.fold(
                     onSuccess = {
-                        // Refresh payments so the confirmed status is reflected
+                        // Refresh delivery progress so the confirmed status is reflected
                         val oppId = selectedOpportunity?.id ?: return@fold
-                        val refreshResult = api.getPayments(token, oppId)
+                        val refreshResult = api.getDeliveryProgress(token, oppId)
                         refreshResult.fold(
-                            onSuccess = { list -> payments = list },
+                            onSuccess = { detail -> deliveryProgress = detail },
                             onFailure = { /* list stale but confirm succeeded */ }
                         )
                     },
