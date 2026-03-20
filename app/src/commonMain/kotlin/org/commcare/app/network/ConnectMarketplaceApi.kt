@@ -11,7 +11,7 @@ import org.commcare.core.interfaces.PlatformHttpClient
 import org.commcare.core.interfaces.createHttpClient
 
 /**
- * HTTP client for the CommCare-Connect marketplace server.
+ * HTTP client for the Connect marketplace server.
  * This is a SEPARATE server from the ConnectID identity server (connectid.dimagi.com).
  * Handles opportunities, payments, and messaging.
  *
@@ -22,7 +22,7 @@ import org.commcare.core.interfaces.createHttpClient
 class ConnectMarketplaceApi(
     private val httpClient: PlatformHttpClient = createHttpClient()
 ) {
-    // Base URL — the CommCare-Connect server (separate from ConnectID identity server)
+    // Base URL — the Connect server (separate from ConnectID identity server)
     // TODO: Configure actual marketplace server URL
     var baseUrl: String = "https://connect.dimagi.com"
 

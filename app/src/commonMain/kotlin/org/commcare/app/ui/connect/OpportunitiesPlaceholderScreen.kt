@@ -37,7 +37,7 @@ fun OpportunitiesPlaceholderScreen(
                     .padding(end = 8.dp)
             )
             Text(
-                text = "CommCare-Connect",
+                text = "Connect",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
