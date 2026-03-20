@@ -52,6 +52,7 @@ import org.commcare.app.viewmodel.RecoveryViewModel
 import org.commcare.app.viewmodel.SettingsViewModel
 import org.commcare.app.viewmodel.SyncViewModel
 import org.commcare.app.viewmodel.UpdateViewModel
+import org.commcare.app.viewmodel.UserKeyRecordManager
 import org.commcare.core.interfaces.createHttpClient
 
 /**
@@ -80,7 +81,8 @@ fun HomeScreen(
     state: AppState.Ready,
     db: CommCareDatabase,
     onConnectOpportunities: (() -> Unit)? = null,
-    onConnectMessaging: (() -> Unit)? = null
+    onConnectMessaging: (() -> Unit)? = null,
+    keyRecordManager: UserKeyRecordManager? = null
 ) {
     var nav by remember { mutableStateOf<HomeNav>(HomeNav.Landing) }
 
@@ -347,11 +349,18 @@ fun HomeScreen(
         }
 
         is HomeNav.InSettings -> {
+            val loggedInUsername = try {
+                state.sandbox.getLoggedInUser()?.getUsername()
+            } catch (_: Exception) { null }
+
             SettingsScreen(
                 viewModel = settingsViewModel,
                 updateViewModel = updateViewModel,
                 onBack = { nav = HomeNav.Landing },
-                onRecovery = { nav = HomeNav.InRecovery }
+                onRecovery = { nav = HomeNav.InRecovery },
+                keyRecordManager = keyRecordManager,
+                username = loggedInUsername,
+                domain = state.domain
             )
         }
 
