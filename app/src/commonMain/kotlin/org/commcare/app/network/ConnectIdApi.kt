@@ -100,7 +100,7 @@ class ConnectIdApi(
      */
     fun checkName(sessionToken: String, name: String): Result<CheckNameResponse> {
         return try {
-            val body = """{"name":"$name"}"""
+            val body = """{"name":"${escapeJson(name)}"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
@@ -210,7 +210,7 @@ class ConnectIdApi(
         photoBase64: String
     ): Result<CompleteProfileResponse> {
         return try {
-            val body = """{"name":"$name","recovery_pin":"$recoveryPin","photo":"$photoBase64"}"""
+            val body = """{"name":"${escapeJson(name)}","recovery_pin":"${escapeJson(recoveryPin)}","photo":"${escapeJson(photoBase64)}"}"""
 
             val response = httpClient.execute(
                 HttpRequest(
@@ -348,6 +348,32 @@ class ConnectIdApi(
         } catch (e: Exception) {
             Result.failure(ConnectIdException("Request failed: ${e.message}", e))
         }
+    }
+
+    /**
+     * Escape a string for safe inclusion in a JSON value.
+     * Handles control characters, quotes, backslashes, and newlines.
+     */
+    private fun escapeJson(value: String): String {
+        val sb = StringBuilder()
+        for (ch in value) {
+            when (ch) {
+                '"' -> sb.append("\\\"")
+                '\\' -> sb.append("\\\\")
+                '\n' -> sb.append("\\n")
+                '\r' -> sb.append("\\r")
+                '\t' -> sb.append("\\t")
+                '\b' -> sb.append("\\b")
+                else -> {
+                    if (ch.code < 0x20) {
+                        sb.append("\\u${ch.code.toString(16).padStart(4, '0')}")
+                    } else {
+                        sb.append(ch)
+                    }
+                }
+            }
+        }
+        return sb.toString()
     }
 
     /**
