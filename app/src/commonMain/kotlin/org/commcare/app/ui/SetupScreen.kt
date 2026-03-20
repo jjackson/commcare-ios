@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -28,7 +29,9 @@ import org.commcare.app.viewmodel.SetupViewModel
 fun SetupScreen(
     setupViewModel: SetupViewModel,
     onInstall: (String) -> Unit,
-    onSignUpPersonalId: (() -> Unit)? = null
+    onSignUpPersonalId: (() -> Unit)? = null,
+    isConnectIdRegistered: Boolean = false,
+    onConnectOpportunities: (() -> Unit)? = null
 ) {
     val scanner = remember { PlatformBarcodeScanner() }
 
@@ -85,6 +88,30 @@ fun SetupScreen(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // CommCare-Connect button — shown when Connect ID is registered
+        if (isConnectIdRegistered && onConnectOpportunities != null) {
+            Button(
+                onClick = { onConnectOpportunities.invoke() },
+                modifier = Modifier.fillMaxWidth().testTag("connect_button"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                Text("CommCare-Connect")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // "or" divider
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                HorizontalDivider(modifier = Modifier.weight(1f))
+                Text("  or  ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                HorizontalDivider(modifier = Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Scan Application Barcode (primary)
@@ -150,17 +177,26 @@ fun SetupScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Sign up for Personal ID link — only shown when callback is wired
+        // Personal ID link — shows sign-up or already-registered state
         if (onSignUpPersonalId != null) {
-            TextButton(
-                onClick = { onSignUpPersonalId.invoke() },
-                modifier = Modifier.testTag("signup_link")
-            ) {
+            if (isConnectIdRegistered) {
                 Text(
-                    text = "Sign up for Personal ID",
+                    text = "Signed in to Personal ID \u2713",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.testTag("signup_link")
                 )
+            } else {
+                TextButton(
+                    onClick = { onSignUpPersonalId.invoke() },
+                    modifier = Modifier.testTag("signup_link")
+                ) {
+                    Text(
+                        text = "Sign up for Personal ID",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }

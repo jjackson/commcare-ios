@@ -25,6 +25,7 @@ import org.commcare.app.ui.InstallProgressScreen
 import org.commcare.app.ui.InstallScreen
 import org.commcare.app.ui.LoginScreen
 import org.commcare.app.ui.SetupScreen
+import org.commcare.app.ui.connect.OpportunitiesPlaceholderScreen
 import org.commcare.app.ui.connect.PersonalIdScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.AppManagerViewModel
@@ -51,6 +52,8 @@ fun App(db: CommCareDatabase) {
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
     var showAppManager by remember { mutableStateOf(false) }
     var showPersonalIdRegistration by remember { mutableStateOf(false) }
+    var showOpportunities by remember { mutableStateOf(false) }
+    var connectIdRegistered by remember { mutableStateOf(connectIdRepository.isRegistered()) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -60,8 +63,21 @@ fun App(db: CommCareDatabase) {
             if (showPersonalIdRegistration) {
                 PersonalIdScreen(
                     viewModel = connectIdViewModel,
-                    onComplete = { showPersonalIdRegistration = false },
+                    onComplete = {
+                        showPersonalIdRegistration = false
+                        connectIdRegistered = connectIdRepository.isRegistered()
+                    },
                     onCancel = { showPersonalIdRegistration = false }
+                )
+                return@Surface
+            }
+
+            // Show Opportunities placeholder overlay when requested
+            if (showOpportunities) {
+                val user = connectIdRepository.getUser()
+                OpportunitiesPlaceholderScreen(
+                    userName = user?.name ?: user?.phone,
+                    onBack = { showOpportunities = false }
                 )
                 return@Surface
             }
@@ -88,7 +104,9 @@ fun App(db: CommCareDatabase) {
                     loginViewModel = loginViewModel,
                     appInstallViewModel = appInstallViewModel,
                     hasApps = hasApps,
-                    onSignUpPersonalId = { showPersonalIdRegistration = true }
+                    onSignUpPersonalId = { showPersonalIdRegistration = true },
+                    isConnectIdRegistered = connectIdRegistered,
+                    onConnectOpportunities = { showOpportunities = true }
                 )
             } else {
                 // Normal routing: login, install, home, etc.
@@ -173,7 +191,9 @@ private fun SetupFlow(
     loginViewModel: LoginViewModel,
     appInstallViewModel: AppInstallViewModel,
     hasApps: MutableState<Boolean>,
-    onSignUpPersonalId: (() -> Unit)? = null
+    onSignUpPersonalId: (() -> Unit)? = null,
+    isConnectIdRegistered: Boolean = false,
+    onConnectOpportunities: (() -> Unit)? = null
 ) {
     // React to AppInstallViewModel state transitions
     when (val installState = appInstallViewModel.installState) {
@@ -226,7 +246,9 @@ private fun SetupFlow(
             onInstall = { profileUrl ->
                 appInstallViewModel.install(profileUrl)
             },
-            onSignUpPersonalId = onSignUpPersonalId
+            onSignUpPersonalId = onSignUpPersonalId,
+            isConnectIdRegistered = isConnectIdRegistered,
+            onConnectOpportunities = onConnectOpportunities
         )
         SetupStep.ENTER_CODE -> EnterCodeScreen(
             setupViewModel = setupViewModel,
@@ -251,7 +273,9 @@ private fun SetupFlow(
                 onInstall = { profileUrl ->
                     appInstallViewModel.install(profileUrl)
                 },
-                onSignUpPersonalId = onSignUpPersonalId
+                onSignUpPersonalId = onSignUpPersonalId,
+                isConnectIdRegistered = isConnectIdRegistered,
+                onConnectOpportunities = onConnectOpportunities
             )
         }
     }
