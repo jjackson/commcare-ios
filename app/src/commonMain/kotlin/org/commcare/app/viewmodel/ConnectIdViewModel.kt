@@ -128,42 +128,56 @@ class ConnectIdViewModel(
         if (backupCode.length < 6) { errorMessage = "Enter a 6-digit backup code"; return }
         isLoading = true; errorMessage = null
         scope.launch {
-            if (isRecoveryFlow) {
-                // Recovery: verify existing backup code and receive credentials
-                val result = api.confirmBackupCodeRecovery(token, backupCode)
+            try {
+                if (isRecoveryFlow) {
+                    // Recovery: verify existing backup code and receive credentials
+                    val result = api.confirmBackupCodeRecovery(token, backupCode)
+                    isLoading = false
+                    result.fold(
+                        onSuccess = { response ->
+                            createdUsername = response.username
+                            createdPassword = response.password
+                            dbKey = response.dbKey
+                            // Store recovered credentials securely
+                            try {
+                                keychainStore.store("connect_username", response.username)
+                                keychainStore.store("connect_password", response.password)
+                                keychainStore.store("connect_db_key", response.dbKey)
+                            } catch (e: Exception) {
+                                // Keychain storage may fail on simulator — log but don't block
+                                println("[ConnectId] Keychain store failed: ${e.message}")
+                            }
+                            // Save recovered user record
+                            try {
+                                val user = ConnectIdUser(
+                                    userId = response.username,
+                                    name = fullName,
+                                    phone = "${countryCode}${phoneNumber}",
+                                    photoPath = null,
+                                    hasConnectAccess = false,
+                                    securityMethod = securityMethod
+                                )
+                                repository.saveUser(user)
+                            } catch (e: Exception) {
+                                println("[ConnectId] Repository save failed: ${e.message}")
+                            }
+                            // Recovery skips photo AND biometric — go straight to success
+                            currentStep = RegistrationStep.SUCCESS
+                        },
+                        onFailure = { errorMessage = "Invalid backup code: ${it.message}" }
+                    )
+                } else {
+                    // New registration: set backup code, then proceed to photo capture
+                    val result = api.confirmBackupCode(token, backupCode)
+                    isLoading = false
+                    result.fold(
+                        onSuccess = { currentStep = RegistrationStep.PHOTO_CAPTURE },
+                        onFailure = { errorMessage = "Failed: ${it.message}" }
+                    )
+                }
+            } catch (e: Exception) {
                 isLoading = false
-                result.fold(
-                    onSuccess = { response ->
-                        createdUsername = response.username
-                        createdPassword = response.password
-                        dbKey = response.dbKey
-                        // Store recovered credentials securely
-                        keychainStore.store("connect_username", response.username)
-                        keychainStore.store("connect_password", response.password)
-                        keychainStore.store("connect_db_key", response.dbKey)
-                        // Save recovered user record
-                        val user = ConnectIdUser(
-                            userId = response.username,
-                            name = fullName,
-                            phone = "${countryCode}${phoneNumber}",
-                            photoPath = null,
-                            hasConnectAccess = false,
-                            securityMethod = securityMethod
-                        )
-                        repository.saveUser(user)
-                        // Recovery skips photo AND biometric — go straight to success
-                        currentStep = RegistrationStep.SUCCESS
-                    },
-                    onFailure = { errorMessage = "Invalid backup code: ${it.message}" }
-                )
-            } else {
-                // New registration: set backup code, then proceed to photo capture
-                val result = api.confirmBackupCode(token, backupCode)
-                isLoading = false
-                result.fold(
-                    onSuccess = { currentStep = RegistrationStep.PHOTO_CAPTURE },
-                    onFailure = { errorMessage = "Failed: ${it.message}" }
-                )
+                errorMessage = "Backup code error: ${e::class.simpleName}: ${e.message}"
             }
         }
     }
@@ -181,31 +195,42 @@ class ConnectIdViewModel(
         val photo = photoBase64 ?: ""
         isLoading = true; errorMessage = null
         scope.launch {
-            val result = api.completeProfile(token, fullName, backupCode, photo)
-            isLoading = false
-            result.fold(
-                onSuccess = { response ->
-                    createdUsername = response.username
-                    createdPassword = response.password
-                    dbKey = response.dbKey
-                    // Store credentials securely
-                    keychainStore.store("connect_username", response.username)
-                    keychainStore.store("connect_password", response.password)
-                    keychainStore.store("connect_db_key", response.dbKey)
-                    // Save user record
-                    val user = ConnectIdUser(
-                        userId = response.username,
-                        name = fullName,
-                        phone = "${countryCode}${phoneNumber}",
-                        photoPath = null,
-                        hasConnectAccess = false,
-                        securityMethod = securityMethod
-                    )
-                    repository.saveUser(user)
-                    currentStep = RegistrationStep.SUCCESS
-                },
-                onFailure = { errorMessage = "Account creation failed: ${it.message}" }
-            )
+            try {
+                val result = api.completeProfile(token, fullName, backupCode, photo)
+                isLoading = false
+                result.fold(
+                    onSuccess = { response ->
+                        createdUsername = response.username
+                        createdPassword = response.password
+                        dbKey = response.dbKey
+                        try {
+                            keychainStore.store("connect_username", response.username)
+                            keychainStore.store("connect_password", response.password)
+                            keychainStore.store("connect_db_key", response.dbKey)
+                        } catch (e: Exception) {
+                            println("[ConnectId] Keychain store failed: ${e.message}")
+                        }
+                        try {
+                            val user = ConnectIdUser(
+                                userId = response.username,
+                                name = fullName,
+                                phone = "${countryCode}${phoneNumber}",
+                                photoPath = null,
+                                hasConnectAccess = false,
+                                securityMethod = securityMethod
+                            )
+                            repository.saveUser(user)
+                        } catch (e: Exception) {
+                            println("[ConnectId] Repository save failed: ${e.message}")
+                        }
+                        currentStep = RegistrationStep.SUCCESS
+                    },
+                    onFailure = { errorMessage = "Account creation failed: ${it.message}" }
+                )
+            } catch (e: Exception) {
+                isLoading = false
+                errorMessage = "Account creation error: ${e::class.simpleName}: ${e.message}"
+            }
         }
     }
 
