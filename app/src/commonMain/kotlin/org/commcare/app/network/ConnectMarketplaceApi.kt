@@ -35,6 +35,16 @@ class ConnectMarketplaceApi(
 ) {
     // Base URL — the Connect server (separate from ConnectID identity server)
     var baseUrl: String = "https://connect.dimagi.com"
+    // Messaging endpoints live on the ConnectID server, not the marketplace server
+    var messagingBaseUrl: String = "https://connectid.dimagi.com"
+
+    private val apiHeaders: (String) -> Map<String, String> = { token ->
+        mapOf(
+            "Authorization" to "Bearer $token",
+            "Content-Type" to "application/json",
+            "Accept" to "application/json; version=1.0"
+        )
+    }
 
     private val apiHeaders: (String) -> Map<String, String> = { token ->
         mapOf(
@@ -269,7 +279,7 @@ class ConnectMarketplaceApi(
      */
     fun updateConsent(accessToken: String): Result<Unit> {
         return executeAuthenticatedPost(
-            "$baseUrl/messaging/update_consent/",
+            "$messagingBaseUrl/messaging/update_consent/",
             accessToken,
             body = "{}"
         )
@@ -284,7 +294,7 @@ class ConnectMarketplaceApi(
         return try {
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$baseUrl/messaging/retrieve_messages/",
+                    url = "$messagingBaseUrl/messaging/retrieve_messages/",
                     method = "GET",
                     headers = apiHeaders(accessToken)
                 )
@@ -325,7 +335,7 @@ class ConnectMarketplaceApi(
         return try {
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$baseUrl/messaging/retrieve_messages/?thread_id=${escapeJson(threadId)}",
+                    url = "$messagingBaseUrl/messaging/retrieve_messages/?thread_id=${escapeJson(threadId)}",
                     method = "GET",
                     headers = apiHeaders(accessToken)
                 )
@@ -365,7 +375,7 @@ class ConnectMarketplaceApi(
      */
     fun sendMessage(accessToken: String, threadId: String, content: String): Result<Unit> {
         return executeAuthenticatedPost(
-            "$baseUrl/messaging/send_message/",
+            "$messagingBaseUrl/messaging/send_message/",
             accessToken,
             body = """{"thread_id":"${escapeJson(threadId)}","content":"${escapeJson(content)}"}"""
         )
@@ -378,7 +388,7 @@ class ConnectMarketplaceApi(
      */
     fun markAsRead(accessToken: String, messageId: String): Result<Unit> {
         return executeAuthenticatedPost(
-            "$baseUrl/messaging/update_received/",
+            "$messagingBaseUrl/messaging/update_received/",
             accessToken,
             body = """{"message_id":"${escapeJson(messageId)}"}"""
         )
