@@ -162,6 +162,46 @@ class OpportunitiesViewModel(
     }
 
     /**
+     * Start the learn app for an unclaimed opportunity.
+     * POSTs to /users/start_learn_app with the opportunity UUID, then refreshes.
+     */
+    fun startLearning(opportunityId: String) {
+        isLoading = true
+        errorMessage = null
+        scope.launch {
+            try {
+                val token = tokenManager.getConnectIdToken()
+                if (token == null) {
+                    errorMessage = "Not signed in to ConnectID"
+                    isLoading = false
+                    return@launch
+                }
+                val result = api.startLearnApp(token, opportunityId)
+                result.fold(
+                    onSuccess = {
+                        // Refresh list so claimed/learn status updates
+                        val refreshResult = api.getOpportunities(token)
+                        refreshResult.fold(
+                            onSuccess = { list ->
+                                opportunities = list
+                                // Update selectedOpportunity with fresh data
+                                selectedOpportunity = list.find { it.opportunityId == opportunityId }
+                                    ?: selectedOpportunity
+                            },
+                            onFailure = { /* list stale but start succeeded */ }
+                        )
+                    },
+                    onFailure = { errorMessage = "Failed to start learning: ${it.message}" }
+                )
+            } catch (e: Exception) {
+                errorMessage = "Start learning error: ${e::class.simpleName}: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    /**
      * Confirm a pending payment, then refresh delivery progress which includes payments.
      */
     fun confirmPayment(paymentId: Int) {
