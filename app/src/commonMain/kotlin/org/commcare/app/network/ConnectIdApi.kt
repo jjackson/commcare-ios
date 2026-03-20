@@ -86,18 +86,49 @@ class ConnectIdApi(
     }
 
     /**
-     * Check if a display name is available.
+     * Check if a display name is available, and whether the account already exists.
      * POST /users/check_name
+     *
+     * Returns [CheckNameResponse] with `accountExists` (true for recovery flow)
+     * and optionally the existing user's photo (base64).
      */
-    fun checkName(sessionToken: String, name: String): Result<Unit> {
-        return executeSimplePost(
-            "$BASE_URL/users/check_name",
-            "session_token=$sessionToken&name=$name"
-        )
+    fun checkName(sessionToken: String, name: String): Result<CheckNameResponse> {
+        return try {
+            val body = "session_token=$sessionToken&name=$name"
+
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = "$BASE_URL/users/check_name",
+                    method = "POST",
+                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    body = body.encodeToByteArray(),
+                    contentType = "application/x-www-form-urlencoded"
+                )
+            )
+
+            if (response.code !in 200..299) {
+                val errorMsg = response.errorBody?.decodeToString()
+                    ?: response.body?.decodeToString()
+                    ?: "HTTP ${response.code}"
+                return Result.failure(ConnectIdException(errorMsg))
+            }
+
+            val json = response.body?.decodeToString()
+                ?: return Result.failure(ConnectIdException("Empty response"))
+
+            Result.success(
+                CheckNameResponse(
+                    accountExists = extractJsonBoolean(json, "account_exists") ?: false,
+                    existingPhoto = extractJsonString(json, "photo")
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(ConnectIdException("Name check request failed: ${e.message}", e))
+        }
     }
 
     /**
-     * Confirm a backup/recovery code.
+     * Confirm a backup/recovery code (new registration flow).
      * POST /users/confirm_backup_code
      */
     fun confirmBackupCode(sessionToken: String, code: String): Result<Unit> {
@@ -105,6 +136,49 @@ class ConnectIdApi(
             "$BASE_URL/users/confirm_backup_code",
             "session_token=$sessionToken&backup_code=$code"
         )
+    }
+
+    /**
+     * Confirm a backup code for account recovery (existing user, new device).
+     * POST /users/recover/confirm_backup_code
+     *
+     * In recovery mode the server returns the user's credentials (username, password, db_key)
+     * so the device can re-establish access without creating a new account.
+     */
+    fun confirmBackupCodeRecovery(sessionToken: String, code: String): Result<CompleteProfileResponse> {
+        return try {
+            val body = "session_token=$sessionToken&backup_code=$code"
+
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = "$BASE_URL/users/recover/confirm_backup_code",
+                    method = "POST",
+                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    body = body.encodeToByteArray(),
+                    contentType = "application/x-www-form-urlencoded"
+                )
+            )
+
+            if (response.code !in 200..299) {
+                val errorMsg = response.errorBody?.decodeToString()
+                    ?: response.body?.decodeToString()
+                    ?: "HTTP ${response.code}"
+                return Result.failure(ConnectIdException("Recovery backup code failed: $errorMsg"))
+            }
+
+            val json = response.body?.decodeToString()
+                ?: return Result.failure(ConnectIdException("Empty response"))
+
+            Result.success(
+                CompleteProfileResponse(
+                    username = extractJsonString(json, "username") ?: "",
+                    password = extractJsonString(json, "password") ?: "",
+                    dbKey = extractJsonString(json, "db_key") ?: ""
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(ConnectIdException("Recovery backup code request failed: ${e.message}", e))
+        }
     }
 
     /**
@@ -304,7 +378,36 @@ class ConnectIdApi(
 
         return sb.toString().toLongOrNull()
     }
+
+    /**
+     * Extract a boolean value from a JSON response.
+     * Matches pattern: "key": true or "key": false
+     */
+    private fun extractJsonBoolean(json: String, key: String): Boolean? {
+        val searchKey = "\"$key\""
+        val keyIdx = json.indexOf(searchKey)
+        if (keyIdx == -1) return null
+
+        val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+        if (colonIdx == -1) return null
+
+        // Skip whitespace after colon
+        var start = colonIdx + 1
+        while (start < json.length && json[start].isWhitespace()) start++
+        if (start >= json.length) return null
+
+        return when {
+            json.startsWith("true", start) -> true
+            json.startsWith("false", start) -> false
+            else -> null
+        }
+    }
 }
+
+data class CheckNameResponse(
+    val accountExists: Boolean,
+    val existingPhoto: String?  // base64 photo of existing user (for recovery confirmation)
+)
 
 data class CompleteProfileResponse(
     val username: String,
