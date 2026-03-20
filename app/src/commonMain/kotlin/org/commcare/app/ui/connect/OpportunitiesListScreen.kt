@@ -29,7 +29,7 @@ import org.commcare.app.model.Opportunity
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
- * Browse the list of available CommCare-Connect opportunities.
+ * Browse the list of available Connect opportunities.
  *
  * Shows a refreshable list of opportunity cards with name, organization,
  * description, claimed status, and pay info. Tapping a card calls
@@ -64,7 +64,7 @@ fun OpportunitiesListScreen(
                     .padding(end = 8.dp)
             )
             Text(
-                text = "CommCare-Connect",
+                text = "Connect",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)

@@ -13,7 +13,7 @@ import org.commcare.app.model.PaymentInfo
 import org.commcare.app.network.ConnectMarketplaceApi
 
 /**
- * ViewModel for the CommCare-Connect opportunities hub.
+ * ViewModel for the Connect opportunities hub.
  *
  * Manages loading and selection state for opportunity browsing, plus the
  * detail-level state for learn progress, delivery progress, and payments.

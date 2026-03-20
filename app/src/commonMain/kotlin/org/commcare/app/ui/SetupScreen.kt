@@ -90,7 +90,7 @@ fun SetupScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // CommCare-Connect button — shown when Connect ID is registered
+        // Connect button — shown when Connect ID is registered
         if (isConnectIdRegistered && onConnectOpportunities != null) {
             Button(
                 onClick = { onConnectOpportunities.invoke() },
@@ -99,7 +99,7 @@ fun SetupScreen(
                     containerColor = MaterialTheme.colorScheme.tertiary
                 )
             ) {
-                Text("CommCare-Connect")
+                Text("Connect")
             }
 
             Spacer(modifier = Modifier.height(12.dp))

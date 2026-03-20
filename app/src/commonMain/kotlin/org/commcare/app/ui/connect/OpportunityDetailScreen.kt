@@ -32,7 +32,7 @@ import org.commcare.app.viewmodel.OpportunitiesViewModel
 private enum class DetailTab { LEARN, DELIVER, PAYMENTS }
 
 /**
- * Detail screen for a single CommCare-Connect opportunity.
+ * Detail screen for a single Connect opportunity.
  *
  * Unclaimed: shows full info + "Claim" button.
  * Claimed: shows tabbed sections for Learn, Deliver, and Payments.
