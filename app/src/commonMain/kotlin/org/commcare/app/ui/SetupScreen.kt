@@ -177,6 +177,13 @@ fun SetupScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Build identifier — visible during development to confirm which build is running
+        Text(
+            text = "Build: 2026-03-20-v3",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        )
+
         // Personal ID link — shows sign-up or already-registered state
         if (onSignUpPersonalId != null) {
             if (isConnectIdRegistered) {

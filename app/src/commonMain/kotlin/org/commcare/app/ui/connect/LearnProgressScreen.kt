@@ -18,60 +18,97 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.commcare.app.model.LearnModule
+import org.commcare.app.model.Assessment
+import org.commcare.app.model.CompletedModule
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
- * Shows the learning modules for a claimed opportunity with completion status
- * and an overall progress indicator.
+ * Shows the learning progress for a claimed opportunity with completed modules,
+ * assessments, and an overall progress indicator.
  */
 @Composable
 fun LearnProgressScreen(viewModel: OpportunitiesViewModel) {
-    val modules = viewModel.learnModules
+    val detail = viewModel.learnProgress
+    val opp = viewModel.selectedOpportunity
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Overall progress header
-        if (modules.isNotEmpty()) {
-            val completedCount = modules.count { it.completionStatus == "completed" }
-            val progress = completedCount.toFloat() / modules.size.toFloat()
-
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Progress",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "$completedCount / ${modules.size} completed",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            }
-        }
-
-        if (modules.isEmpty()) {
+        if (detail == null) {
             Text(
-                text = "No learning modules available",
+                text = "No learning data available",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
+            // Overall progress header from opportunity's inline learn_progress summary
+            val summary = opp?.learnProgress
+            if (summary != null && summary.totalModules > 0) {
+                val progress = summary.completedModules.toFloat() / summary.totalModules.toFloat()
+
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Progress",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "${summary.completedModules} / ${summary.totalModules} completed",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                }
+            }
+
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(modules) { module ->
-                    LearnModuleRow(module)
+                // Completed modules section
+                if (detail.completedModules.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Completed Modules",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(detail.completedModules) { module ->
+                        CompletedModuleRow(module)
+                    }
+                }
+
+                // Assessments section
+                if (detail.assessments.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Assessments",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(detail.assessments) { assessment ->
+                        AssessmentRow(assessment)
+                    }
+                }
+
+                if (detail.completedModules.isEmpty() && detail.assessments.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No learning activity yet",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
@@ -79,7 +116,7 @@ fun LearnProgressScreen(viewModel: OpportunitiesViewModel) {
 }
 
 @Composable
-private fun LearnModuleRow(module: LearnModule) {
+private fun CompletedModuleRow(module: CompletedModule) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,35 +129,74 @@ private fun LearnModuleRow(module: LearnModule) {
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Status icon (text-based, no material-icons dependency)
-            val statusSymbol = when (module.completionStatus) {
-                "completed" -> "[x]"
-                "in_progress" -> "[~]"
-                else -> "[ ]"
-            }
             Text(
-                text = statusSymbol,
+                text = "[x]",
                 style = MaterialTheme.typography.bodyMedium,
-                color = when (module.completionStatus) {
-                    "completed" -> MaterialTheme.colorScheme.primary
-                    "in_progress" -> MaterialTheme.colorScheme.tertiary
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                },
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(end = 12.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = module.name,
+                    text = "Module #${module.module}",
                     style = MaterialTheme.typography.bodyLarge
                 )
-                if (module.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Completed: ${module.date}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                module.duration?.let {
                     Text(
-                        text = module.description,
+                        text = "Duration: $it",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AssessmentRow(assessment: Assessment) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val statusSymbol = if (assessment.passed) "[x]" else "[ ]"
+            Text(
+                text = statusSymbol,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (assessment.passed) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Assessment - ${assessment.date}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Score: ${assessment.score} / ${assessment.passingScore}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = if (assessment.passed) "Passed" else "Not passed",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (assessment.passed) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error
+                )
             }
         }
     }

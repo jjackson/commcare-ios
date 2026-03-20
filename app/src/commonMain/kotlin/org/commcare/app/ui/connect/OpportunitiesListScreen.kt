@@ -184,10 +184,11 @@ private fun OpportunityCard(opportunity: Opportunity, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            if (opportunity.shortDescription.isNotBlank()) {
+            val shortDesc = opportunity.shortDescription
+            if (!shortDesc.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = opportunity.shortDescription,
+                    text = shortDesc,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -211,7 +212,7 @@ private fun OpportunityCard(opportunity: Opportunity, onClick: () -> Unit) {
 private fun OpportunityStatusBadge(opportunity: Opportunity) {
     val (label, color) = when {
         !opportunity.isActive -> "Inactive" to MaterialTheme.colorScheme.error
-        opportunity.claimed -> "Claimed" to MaterialTheme.colorScheme.tertiary
+        opportunity.isClaimed -> "Claimed" to MaterialTheme.colorScheme.tertiary
         else -> "Available" to MaterialTheme.colorScheme.secondary
     }
     Text(
@@ -223,7 +224,10 @@ private fun OpportunityStatusBadge(opportunity: Opportunity) {
 
 private fun buildPayInfo(opportunity: Opportunity): String? {
     val parts = mutableListOf<String>()
-    opportunity.maxPayPerVisit?.let { parts.add("Up to $it ${opportunity.currency}/visit") }
-    opportunity.totalBudget?.let { parts.add("Budget: $it ${opportunity.currency}") }
+    val currency = opportunity.currency ?: ""
+    if (opportunity.budgetPerVisit > 0) {
+        parts.add("Up to ${opportunity.budgetPerVisit} $currency/visit")
+    }
+    opportunity.totalBudget?.let { parts.add("Budget: $it $currency") }
     return if (parts.isEmpty()) null else parts.joinToString(" · ")
 }
