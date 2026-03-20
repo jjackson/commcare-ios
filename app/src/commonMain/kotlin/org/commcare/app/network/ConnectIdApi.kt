@@ -80,13 +80,13 @@ class ConnectIdApi(
      * Confirm an OTP code.
      * POST /users/confirm_session_otp
      * Authorization: Bearer <session_token>
-     * Body: token=<otp_code>
+     * Body: {"otp":"<code>"}
      */
     fun confirmOtp(sessionToken: String, otp: String): Result<Unit> {
         return executeAuthenticatedPost(
             "$BASE_URL/users/confirm_session_otp",
             sessionToken,
-            body = """{"token":"$otp"}"""
+            body = """{"otp":"$otp"}"""
         )
     }
 
