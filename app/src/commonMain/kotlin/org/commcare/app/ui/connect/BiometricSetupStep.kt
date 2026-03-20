@@ -33,14 +33,9 @@ fun BiometricSetupStep(viewModel: ConnectIdViewModel) {
     var pinValue by remember { mutableStateOf("") }
     var biometricError by remember { mutableStateOf<String?>(null) }
 
-    // If no biometric available, auto-skip with PIN "000000" for development.
-    // On a real device, biometric or device passcode will be available.
-    // This prevents the biometric gate from blocking registration on simulators.
-    LaunchedEffect(biometricAvailable) {
-        if (!biometricAvailable) {
-            viewModel.completeBiometricSetup("pin", "000000")
-        }
-    }
+    // Note: On iOS Simulator, enable Face ID via:
+    // Simulator menu → Features → Face ID → Enrolled
+    // Then use Features → Face ID → Matching Face when prompted
 
     Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
         Text(
@@ -51,7 +46,10 @@ fun BiometricSetupStep(viewModel: ConnectIdViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Set up device security to protect your account",
+            text = if (biometricAvailable)
+                "Use Face ID or Touch ID to secure your account"
+            else
+                "Set a PIN to secure your account. On a real device, you can use Face ID or Touch ID.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
