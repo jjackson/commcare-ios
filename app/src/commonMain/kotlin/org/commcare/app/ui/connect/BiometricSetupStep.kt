@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.commcare.app.platform.BiometricResult
 import org.commcare.app.platform.PlatformBiometricAuth
+import androidx.compose.runtime.LaunchedEffect
 import org.commcare.app.viewmodel.ConnectIdViewModel
 
 @Composable
@@ -31,6 +32,15 @@ fun BiometricSetupStep(viewModel: ConnectIdViewModel) {
     var showPinEntry by remember { mutableStateOf(!biometricAvailable) }
     var pinValue by remember { mutableStateOf("") }
     var biometricError by remember { mutableStateOf<String?>(null) }
+
+    // If no biometric available, auto-skip with PIN "000000" for development.
+    // On a real device, biometric or device passcode will be available.
+    // This prevents the biometric gate from blocking registration on simulators.
+    LaunchedEffect(biometricAvailable) {
+        if (!biometricAvailable) {
+            viewModel.completeBiometricSetup("pin", "000000")
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
         Text(
