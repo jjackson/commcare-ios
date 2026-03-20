@@ -20,23 +20,22 @@ class ConnectIdApi(
     companion object {
         const val BASE_URL = "https://connectid.dimagi.com"
         const val OAUTH_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa"
+        const val APPLICATION_ID = "org.commcare.ios"
     }
 
     /**
      * Start or resume a registration/configuration flow.
-     * POST /users/configure
+     * POST /users/start_configuration
+     *
+     * The response includes a `token` field used as a Bearer token for subsequent calls.
      */
-    fun startConfiguration(phone: String, sessionToken: String? = null): Result<RegistrationSession> {
+    fun startConfiguration(phone: String): Result<RegistrationSession> {
         return try {
-            val bodyParts = mutableListOf("phone_number=$phone")
-            if (sessionToken != null) {
-                bodyParts.add("session_token=$sessionToken")
-            }
-            val body = bodyParts.joinToString("&")
+            val body = "phone_number=$phone&application_id=$APPLICATION_ID"
 
             val response = httpClient.execute(
                 HttpRequest(
-                    url = "$BASE_URL/users/configure",
+                    url = "$BASE_URL/users/start_configuration",
                     method = "POST",
                     headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
                     body = body.encodeToByteArray(),
@@ -45,7 +44,8 @@ class ConnectIdApi(
             )
 
             if (response.code !in 200..299) {
-                return Result.failure(ConnectIdException("Configuration failed (${response.code})"))
+                val errorBody = response.body?.decodeToString() ?: ""
+                return Result.failure(ConnectIdException("Configuration failed (${response.code}): $errorBody"))
             }
 
             val json = response.body?.decodeToString()
@@ -53,7 +53,7 @@ class ConnectIdApi(
 
             Result.success(
                 RegistrationSession(
-                    sessionToken = extractJsonString(json, "session_token") ?: "",
+                    sessionToken = extractJsonString(json, "token") ?: "",
                     smsMethod = extractJsonString(json, "sms_method") ?: "firebase",
                     requiredLock = extractJsonString(json, "required_lock") ?: "pin"
                 )
@@ -65,52 +65,61 @@ class ConnectIdApi(
 
     /**
      * Request an OTP be sent via SMS.
-     * POST /users/send_otp
+     * POST /users/send_session_otp
+     * Authorization: Bearer <session_token>
      */
     fun sendOtp(sessionToken: String): Result<Unit> {
-        return executeSimplePost(
-            "$BASE_URL/users/send_otp",
-            "session_token=$sessionToken"
+        return executeAuthenticatedPost(
+            "$BASE_URL/users/send_session_otp",
+            sessionToken,
+            body = null
         )
     }
 
     /**
      * Confirm an OTP code.
-     * POST /users/confirm_otp
+     * POST /users/confirm_session_otp
+     * Authorization: Bearer <session_token>
+     * Body: token=<otp_code>
      */
     fun confirmOtp(sessionToken: String, otp: String): Result<Unit> {
-        return executeSimplePost(
-            "$BASE_URL/users/confirm_otp",
-            "session_token=$sessionToken&otp=$otp"
+        return executeAuthenticatedPost(
+            "$BASE_URL/users/confirm_session_otp",
+            sessionToken,
+            body = "token=$otp"
         )
     }
 
     /**
      * Check if a display name is available, and whether the account already exists.
      * POST /users/check_name
+     * Authorization: Bearer <session_token>
      *
      * Returns [CheckNameResponse] with `accountExists` (true for recovery flow)
      * and optionally the existing user's photo (base64).
      */
     fun checkName(sessionToken: String, name: String): Result<CheckNameResponse> {
         return try {
-            val body = "session_token=$sessionToken&name=$name"
+            val body = "name=$name"
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/check_name",
                     method = "POST",
-                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    headers = mapOf(
+                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Authorization" to "Bearer $sessionToken"
+                    ),
                     body = body.encodeToByteArray(),
                     contentType = "application/x-www-form-urlencoded"
                 )
             )
 
             if (response.code !in 200..299) {
-                val errorMsg = response.errorBody?.decodeToString()
+                val errorBody = response.errorBody?.decodeToString()
                     ?: response.body?.decodeToString()
                     ?: "HTTP ${response.code}"
-                return Result.failure(ConnectIdException(errorMsg))
+                return Result.failure(ConnectIdException(errorBody))
             }
 
             val json = response.body?.decodeToString()
@@ -128,42 +137,50 @@ class ConnectIdApi(
     }
 
     /**
-     * Confirm a backup/recovery code (new registration flow).
-     * POST /users/confirm_backup_code
+     * Confirm a backup/recovery code (used for both new registration and recovery flows).
+     * POST /users/recover/confirm_backup_code
+     * Authorization: Bearer <session_token>
+     * Body: recovery_pin=<code>
      */
     fun confirmBackupCode(sessionToken: String, code: String): Result<Unit> {
-        return executeSimplePost(
-            "$BASE_URL/users/confirm_backup_code",
-            "session_token=$sessionToken&backup_code=$code"
+        return executeAuthenticatedPost(
+            "$BASE_URL/users/recover/confirm_backup_code",
+            sessionToken,
+            body = "recovery_pin=$code"
         )
     }
 
     /**
      * Confirm a backup code for account recovery (existing user, new device).
      * POST /users/recover/confirm_backup_code
+     * Authorization: Bearer <session_token>
+     * Body: recovery_pin=<code>
      *
      * In recovery mode the server returns the user's credentials (username, password, db_key)
      * so the device can re-establish access without creating a new account.
      */
     fun confirmBackupCodeRecovery(sessionToken: String, code: String): Result<CompleteProfileResponse> {
         return try {
-            val body = "session_token=$sessionToken&backup_code=$code"
+            val body = "recovery_pin=$code"
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/recover/confirm_backup_code",
                     method = "POST",
-                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    headers = mapOf(
+                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Authorization" to "Bearer $sessionToken"
+                    ),
                     body = body.encodeToByteArray(),
                     contentType = "application/x-www-form-urlencoded"
                 )
             )
 
             if (response.code !in 200..299) {
-                val errorMsg = response.errorBody?.decodeToString()
+                val errorBody = response.errorBody?.decodeToString()
                     ?: response.body?.decodeToString()
                     ?: "HTTP ${response.code}"
-                return Result.failure(ConnectIdException("Recovery backup code failed: $errorMsg"))
+                return Result.failure(ConnectIdException("Recovery backup code failed: $errorBody"))
             }
 
             val json = response.body?.decodeToString()
@@ -184,6 +201,7 @@ class ConnectIdApi(
     /**
      * Complete the user profile (final registration step).
      * POST /users/complete_profile
+     * Authorization: Bearer <session_token>
      */
     fun completeProfile(
         sessionToken: String,
@@ -192,20 +210,24 @@ class ConnectIdApi(
         photoBase64: String
     ): Result<CompleteProfileResponse> {
         return try {
-            val body = "session_token=$sessionToken&name=$name&recovery_pin=$recoveryPin&photo=$photoBase64"
+            val body = "name=$name&recovery_pin=$recoveryPin&photo=$photoBase64"
 
             val response = httpClient.execute(
                 HttpRequest(
                     url = "$BASE_URL/users/complete_profile",
                     method = "POST",
-                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                    headers = mapOf(
+                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Authorization" to "Bearer $sessionToken"
+                    ),
                     body = body.encodeToByteArray(),
                     contentType = "application/x-www-form-urlencoded"
                 )
             )
 
             if (response.code !in 200..299) {
-                return Result.failure(ConnectIdException("Profile completion failed (${response.code})"))
+                val errorBody = response.body?.decodeToString() ?: ""
+                return Result.failure(ConnectIdException("Profile completion failed (${response.code}): $errorBody"))
             }
 
             val json = response.body?.decodeToString()
@@ -243,7 +265,8 @@ class ConnectIdApi(
             )
 
             if (response.code !in 200..299) {
-                return Result.failure(ConnectIdException("OAuth token exchange failed (${response.code})"))
+                val errorBody = response.body?.decodeToString() ?: ""
+                return Result.failure(ConnectIdException("OAuth token exchange failed (${response.code}): $errorBody"))
             }
 
             val json = response.body?.decodeToString()
@@ -275,7 +298,8 @@ class ConnectIdApi(
             )
 
             if (response.code !in 200..299) {
-                return Result.failure(ConnectIdException("Fetch DB key failed (${response.code})"))
+                val errorBody = response.body?.decodeToString() ?: ""
+                return Result.failure(ConnectIdException("Fetch DB key failed (${response.code}): $errorBody"))
             }
 
             val json = response.body?.decodeToString()
@@ -293,25 +317,33 @@ class ConnectIdApi(
     // --- Internal helpers ---
 
     /**
-     * Execute a simple POST that expects a 2xx with no meaningful body.
+     * Execute an authenticated POST using a Bearer token in the Authorization header.
+     * Expects a 2xx response with no meaningful body.
      */
-    private fun executeSimplePost(url: String, body: String): Result<Unit> {
+    private fun executeAuthenticatedPost(url: String, sessionToken: String, body: String?): Result<Unit> {
         return try {
+            val headers = mutableMapOf(
+                "Authorization" to "Bearer $sessionToken"
+            )
+            if (body != null) {
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+            }
+
             val response = httpClient.execute(
                 HttpRequest(
                     url = url,
                     method = "POST",
-                    headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
-                    body = body.encodeToByteArray(),
-                    contentType = "application/x-www-form-urlencoded"
+                    headers = headers,
+                    body = body?.encodeToByteArray(),
+                    contentType = if (body != null) "application/x-www-form-urlencoded" else null
                 )
             )
 
             if (response.code !in 200..299) {
-                val errorMsg = response.errorBody?.decodeToString()
+                val errorBody = response.errorBody?.decodeToString()
                     ?: response.body?.decodeToString()
                     ?: "HTTP ${response.code}"
-                return Result.failure(ConnectIdException(errorMsg))
+                return Result.failure(ConnectIdException(errorBody))
             }
 
             Result.success(Unit)
