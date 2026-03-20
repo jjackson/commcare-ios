@@ -65,6 +65,8 @@ fun App(db: CommCareDatabase) {
     // When non-null, ConnectScreen opens at the given tab ("opportunities" or "messaging")
     var connectInitialTab by remember { mutableStateOf("opportunities") }
     var connectIdRegistered by remember { mutableStateOf(connectIdRepository.isRegistered()) }
+    // When non-null, an in-progress Connect app download is pending install
+    var pendingConnectInstall by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -83,13 +85,51 @@ fun App(db: CommCareDatabase) {
                 return@Surface
             }
 
+            // Handle a Connect-initiated app install: run the standard install-progress
+            // screen, then return to Connect opportunities when done.
+            if (pendingConnectInstall != null) {
+                val (installUrl, _) = pendingConnectInstall!!
+                // Kick off the install if not already running
+                if (appInstallViewModel.installState is InstallState.Idle) {
+                    appInstallViewModel.install(installUrl)
+                }
+                when (val installState = appInstallViewModel.installState) {
+                    is InstallState.Installing, is InstallState.Failed -> {
+                        InstallProgressScreen(
+                            viewModel = appInstallViewModel,
+                            onCancel = {
+                                appInstallViewModel.reset()
+                                pendingConnectInstall = null
+                                showOpportunities = true
+                            },
+                            onRetry = {
+                                appInstallViewModel.reset()
+                                appInstallViewModel.install(installUrl)
+                            }
+                        )
+                    }
+                    is InstallState.Completed -> {
+                        // Install succeeded — return to Connect screen
+                        appInstallViewModel.reset()
+                        pendingConnectInstall = null
+                        showOpportunities = true
+                    }
+                    is InstallState.Idle -> { /* waiting for install to start */ }
+                }
+                return@Surface
+            }
+
             // Show ConnectScreen overlay when requested
             if (showOpportunities) {
                 ConnectScreen(
                     api = marketplaceApi,
                     tokenManager = connectIdTokenManager,
                     onBack = { showOpportunities = false },
-                    initialTab = connectInitialTab
+                    initialTab = connectInitialTab,
+                    onDownloadApp = { installUrl, appName ->
+                        showOpportunities = false
+                        pendingConnectInstall = Pair(installUrl, appName)
+                    }
                 )
                 return@Surface
             }

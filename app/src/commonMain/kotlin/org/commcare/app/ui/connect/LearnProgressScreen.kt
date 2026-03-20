@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -25,13 +26,34 @@ import org.commcare.app.viewmodel.OpportunitiesViewModel
 /**
  * Shows the learning progress for a claimed opportunity with completed modules,
  * assessments, and an overall progress indicator.
+ *
+ * When [onDownloadApp] is provided and the opportunity has a learn app with an
+ * install URL, a "Download Learn App" button is shown so the user can install
+ * the app via the standard install-progress screen.
  */
 @Composable
-fun LearnProgressScreen(viewModel: OpportunitiesViewModel) {
+fun LearnProgressScreen(
+    viewModel: OpportunitiesViewModel,
+    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
+) {
     val detail = viewModel.learnProgress
     val opp = viewModel.selectedOpportunity
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Download Learn App button — shown when a learn app install URL is available
+        val learnApp = opp?.learnApp
+        val learnInstallUrl = learnApp?.installUrl
+        if (onDownloadApp != null && !learnInstallUrl.isNullOrBlank()) {
+            Button(
+                onClick = { onDownloadApp(learnInstallUrl, learnApp.name) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("Download Learn App")
+            }
+        }
+
         if (detail == null) {
             Text(
                 text = "No learning data available",

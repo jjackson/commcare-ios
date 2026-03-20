@@ -73,11 +73,15 @@ private fun determineJobStep(opp: Opportunity): Int {
  * and "Start Learning" button.
  * Claimed: shows 4-step progress indicator and tabbed sections for
  * Learn, Deliver, and Payments.
+ *
+ * [onDownloadApp] is forwarded to the Learn / Deliver sub-screens so they can
+ * show download buttons.  When null, download buttons are hidden.
  */
 @Composable
 fun OpportunityDetailScreen(
     viewModel: OpportunitiesViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
 ) {
     val opp = viewModel.selectedOpportunity ?: return
 
@@ -167,8 +171,15 @@ fun OpportunityDetailScreen(
 
             // Tab content
             when (selectedTab) {
-                DetailTab.LEARN -> LearnProgressScreen(viewModel = viewModel)
-                DetailTab.DELIVER -> DeliveryProgressScreen(viewModel = viewModel, opportunity = opp)
+                DetailTab.LEARN -> LearnProgressScreen(
+                    viewModel = viewModel,
+                    onDownloadApp = onDownloadApp
+                )
+                DetailTab.DELIVER -> DeliveryProgressScreen(
+                    viewModel = viewModel,
+                    opportunity = opp,
+                    onDownloadApp = onDownloadApp
+                )
                 DetailTab.PAYMENTS -> PaymentScreen(viewModel = viewModel)
             }
         } else {
