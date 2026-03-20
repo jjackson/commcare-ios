@@ -22,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import org.commcare.app.platform.PlatformBarcodeScanner
+import org.commcare.app.ui.connect.ConnectIndigo
 import org.commcare.app.viewmodel.SetupViewModel
 
 @Composable
@@ -90,16 +92,16 @@ fun SetupScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // Connect button — shown when Connect ID is registered
+        // Connect button — matching Android's "GO TO CONNECT MENU" style
         if (isConnectIdRegistered && onConnectOpportunities != null) {
             Button(
                 onClick = { onConnectOpportunities.invoke() },
                 modifier = Modifier.fillMaxWidth().testTag("connect_button"),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
+                    containerColor = ConnectIndigo
                 )
             ) {
-                Text("Connect")
+                Text("GO TO CONNECT MENU", color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -177,25 +179,24 @@ fun SetupScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Personal ID link — shows sign-up or already-registered state
+        // Personal ID — matching Android's "LOGIN WITH PERSONALID" style
         if (onSignUpPersonalId != null) {
             if (isConnectIdRegistered) {
                 Text(
                     text = "Signed in to Personal ID \u2713",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = ConnectIndigo,
                     modifier = Modifier.testTag("signup_link")
                 )
             } else {
-                TextButton(
+                Button(
                     onClick = { onSignUpPersonalId.invoke() },
-                    modifier = Modifier.testTag("signup_link")
-                ) {
-                    Text(
-                        text = "Sign up for Personal ID",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                    modifier = Modifier.fillMaxWidth().testTag("signup_link"),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ConnectIndigo
                     )
+                ) {
+                    Text("LOGIN WITH PERSONALID", color = Color.White)
                 }
             }
         }
