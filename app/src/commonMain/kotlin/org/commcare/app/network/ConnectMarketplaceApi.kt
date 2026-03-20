@@ -46,22 +46,6 @@ class ConnectMarketplaceApi(
         )
     }
 
-    private val apiHeaders: (String) -> Map<String, String> = { token ->
-        mapOf(
-            "Authorization" to "Bearer $token",
-            "Content-Type" to "application/json",
-            "Accept" to "application/json; version=1.0"
-        )
-    }
-
-    private val apiHeaders: (String) -> Map<String, String> = { token ->
-        mapOf(
-            "Authorization" to "Bearer $token",
-            "Content-Type" to "application/json",
-            "Accept" to "application/json; version=1.0"
-        )
-    }
-
     /**
      * Fetch all available opportunities for this user.
      * GET /api/opportunity/

@@ -133,11 +133,17 @@ fun MessagingScreen(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.updateConsent() },
-                            modifier = Modifier.testTag("enable_messaging_button")
-                        ) {
-                            Text("Enable")
+                        if (viewModel.isConsentLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.testTag("consent_loading_indicator")
+                            )
+                        } else {
+                            Button(
+                                onClick = { viewModel.updateConsent() },
+                                modifier = Modifier.testTag("enable_messaging_button")
+                            ) {
+                                Text("Enable")
+                            }
                         }
                     }
                 }
