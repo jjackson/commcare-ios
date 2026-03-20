@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Opportunity
+import org.commcare.app.model.daysUntil
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 private enum class DetailTab { LEARN, DELIVER, PAYMENTS }
@@ -132,12 +133,27 @@ fun OpportunityDetailScreen(
         if (opp.isClaimed) {
             // --- Claimed: Job Detail ---
 
+            // Suspended warning banner
+            if (opp.isUserSuspended) {
+                Text(
+                    text = "\u26A0\uFE0F You are suspended from this opportunity",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
             // End date with urgency coloring
             opp.endDate?.let { endDate ->
+                val daysLeft = daysUntil(endDate)
+                val isExpiringSoon = daysLeft in 0..4
                 Text(
                     text = "Ends: $endDate",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (isExpiringSoon) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
             }
@@ -184,6 +200,19 @@ fun OpportunityDetailScreen(
             }
         } else {
             // --- Unclaimed: Job Intro ---
+
+            // Suspended warning banner (shown even for unclaimed)
+            if (opp.isUserSuspended) {
+                Text(
+                    text = "\u26A0\uFE0F You are suspended from this opportunity",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+
             JobIntroContent(
                 opp = opp,
                 onStartLearning = { viewModel.startLearning(opp.opportunityId) },

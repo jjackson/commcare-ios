@@ -10,12 +10,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -26,11 +32,12 @@ import org.commcare.app.viewmodel.OpportunitiesViewModel
 /**
  * Shows a list of payments for a claimed opportunity.
  * Displays amount, confirmation status, and date for each payment.
- * Unconfirmed payments show a "Confirm" button.
+ * Unconfirmed payments show a "Confirm" button that presents a confirmation dialog.
  */
 @Composable
 fun PaymentScreen(viewModel: OpportunitiesViewModel) {
     val payments = viewModel.deliveryProgress?.payments ?: emptyList()
+    val currency = viewModel.selectedOpportunity?.currency ?: ""
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (payments.isEmpty()) {
@@ -45,6 +52,7 @@ fun PaymentScreen(viewModel: OpportunitiesViewModel) {
                 items(payments) { payment ->
                     PaymentRow(
                         payment = payment,
+                        currency = currency,
                         onConfirm = { viewModel.confirmPayment(payment.id) }
                     )
                 }
@@ -54,7 +62,35 @@ fun PaymentScreen(viewModel: OpportunitiesViewModel) {
 }
 
 @Composable
-private fun PaymentRow(payment: PaymentRecord, onConfirm: () -> Unit) {
+private fun PaymentRow(payment: PaymentRecord, currency: String, onConfirm: () -> Unit) {
+    // State for the confirmation dialog
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Confirm Payment") },
+            text = {
+                val amountDisplay = if (currency.isNotBlank()) "${payment.amount} $currency"
+                                    else payment.amount
+                Text("Confirm receipt of $amountDisplay?")
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showConfirmDialog = false
+                    onConfirm()
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,13 +144,13 @@ private fun PaymentRow(payment: PaymentRecord, onConfirm: () -> Unit) {
                 )
             }
 
-            // Confirm button for unconfirmed payments
+            // Confirm button for unconfirmed payments — opens dialog
             if (!payment.confirmed) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
-                        onClick = onConfirm,
+                        onClick = { showConfirmDialog = true },
                         modifier = Modifier.width(120.dp)
                     ) {
                         Text("Confirm")

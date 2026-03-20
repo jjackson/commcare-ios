@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Opportunity
+import org.commcare.app.model.daysUntil
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
@@ -220,6 +221,16 @@ private fun OpportunityCard(opportunity: Opportunity, onClick: () -> Unit) {
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Suspended warning banner
+            if (opportunity.isUserSuspended) {
+                Text(
+                    text = "\u26A0\uFE0F Suspended",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+
             // Name (bold) + status badge on same row
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -262,6 +273,33 @@ private fun OpportunityCard(opportunity: Opportunity, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
+            }
+
+            // Dates row: end date (with expiry warning) + claimed date
+            val endDate = opportunity.endDate
+            val claimedDate = opportunity.claim?.dateClaimed
+            if (endDate != null || claimedDate != null) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (endDate != null) {
+                        val daysLeft = daysUntil(endDate)
+                        val isExpiringSoon = daysLeft in 0..4
+                        Text(
+                            text = "Ends: $endDate",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (isExpiringSoon) MaterialTheme.colorScheme.error
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (claimedDate != null) {
+                        Text(
+                            text = "Claimed: $claimedDate",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
     }

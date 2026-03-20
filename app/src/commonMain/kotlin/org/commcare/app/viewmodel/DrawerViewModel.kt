@@ -22,6 +22,8 @@ class DrawerViewModel(
         private set
     var hasConnectAccess by mutableStateOf(false)
         private set
+    /** Unread message count — set by the caller (e.g. MessagingViewModel) after load. */
+    var unreadMessageCount by mutableStateOf(0)
 
     fun refresh() {
         apps = appRepository.getAllApps()
