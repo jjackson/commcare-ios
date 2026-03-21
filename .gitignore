@@ -1,4 +1,5 @@
 # Test credentials (never commit)
+.env
 HQTestCredentials.plist
 .maestro/.env
 .maestro/tests/

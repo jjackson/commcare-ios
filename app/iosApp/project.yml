@@ -24,18 +24,29 @@ targets:
       base:
         INFOPLIST_FILE: iosApp/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: org.marshellis.commcare.ios
-        FRAMEWORK_SEARCH_PATHS:
-          - "$(inherited)"
-          - "$(SRCROOT)/../build/bin/iosSimulatorArm64/debugFramework"
-          - "$(SRCROOT)/../build/bin/iosArm64/debugFramework"
         OTHER_LINKER_FLAGS:
           - "$(inherited)"
           - "-framework"
           - "CommCareApp"
-        CODE_SIGN_IDENTITY: "-"
-        CODE_SIGNING_REQUIRED: "NO"
-        CODE_SIGNING_ALLOWED: "NO"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_TEAM: 6GY92LKY29
+      configs:
+        Debug:
+          FRAMEWORK_SEARCH_PATHS:
+            - "$(inherited)"
+            - "$(SRCROOT)/../build/bin/iosSimulatorArm64/debugFramework"
+            - "$(SRCROOT)/../build/bin/iosArm64/debugFramework"
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGNING_REQUIRED: "NO"
+          CODE_SIGNING_ALLOWED: "NO"
+        Release:
+          FRAMEWORK_SEARCH_PATHS:
+            - "$(inherited)"
+            - "$(SRCROOT)/../build/bin/iosArm64/releaseFramework"
+          CODE_SIGN_IDENTITY: "Apple Development"
+          CODE_SIGNING_REQUIRED: "YES"
+          CODE_SIGNING_ALLOWED: "YES"
+          CODE_SIGN_STYLE: "Automatic"
     postBuildScripts:
       - name: Set Build Number from Git
         script: |
