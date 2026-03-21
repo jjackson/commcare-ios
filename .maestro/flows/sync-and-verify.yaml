@@ -2,7 +2,7 @@
 #
 # Run:
 #   .maestro/run.sh .maestro/flows/sync-and-verify.yaml
-appId: org.commcare.ios
+appId: org.marshellis.commcare.ios
 
 env:
   COMMCARE_USERNAME: ${COMMCARE_USERNAME}

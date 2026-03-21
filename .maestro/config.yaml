@@ -27,4 +27,4 @@
 #   - Username field uses testTag ID ("username_field") and password uses "password_field"
 #     to avoid CMP OutlinedTextField label tap misalignment.
 
-appId: org.commcare.ios
+appId: org.marshellis.commcare.ios

@@ -1,11 +1,11 @@
 # Shared login flow — included by other tests via runFlow.
 # Expects env: COMMCARE_USERNAME, COMMCARE_PASSWORD
-appId: org.commcare.ios
+appId: org.marshellis.commcare.ios
 
 ---
 
 - launchApp:
-    appId: "org.commcare.ios"
+    appId: "org.marshellis.commcare.ios"
     clearState: true
 
 # Wait for login screen to appear

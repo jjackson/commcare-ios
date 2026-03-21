@@ -26,7 +26,12 @@
 		<false/>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIImageName</key>
+		<string>LaunchLogo</string>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
 	<key>NSFaceIDUsageDescription</key>
 	<string>CommCare uses Face ID to secure app access</string>
 	<key>NSCameraUsageDescription</key>

@@ -3,7 +3,7 @@
 #
 # Run:
 #   .maestro/run.sh .maestro/flows/hq-round-trip.yaml
-appId: org.commcare.ios
+appId: org.marshellis.commcare.ios
 
 env:
   COMMCARE_USERNAME: ${COMMCARE_USERNAME}
