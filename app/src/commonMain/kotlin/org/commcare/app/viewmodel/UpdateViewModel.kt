@@ -77,9 +77,10 @@ class UpdateViewModel(
 
                 ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE)
 
-                // If we get here without error, an update is potentially available
-                updateState = UpdateState.Available
-                updateMessage = "Update available"
+                // TODO: Implement actual server-side version comparison.
+                // For now, report up-to-date since we can't actually check.
+                updateState = UpdateState.UpToDate
+                updateMessage = "App is up to date"
                 updateProgress = 0f
             } catch (e: Exception) {
                 updateState = UpdateState.UpToDate

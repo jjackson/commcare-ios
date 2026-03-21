@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -179,13 +180,14 @@ fun App(db: CommCareDatabase) {
                     )
                     is AppState.NeedsLogin -> {
                         // Auto-configure LoginViewModel from the seated app
-                        loginViewModel.configureApp(
-                            serverUrl = "https://www.commcarehq.org",
-                            appId = appState.seatedApp.id,
-                            app = appState.seatedApp
-                        )
-                        // Detect login mode (PIN/biometric/password)
-                        loginViewModel.detectLoginMode()
+                        LaunchedEffect(appState.seatedApp.id) {
+                            loginViewModel.configureApp(
+                                serverUrl = "https://www.commcarehq.org",
+                                appId = appState.seatedApp.id,
+                                app = appState.seatedApp
+                            )
+                            loginViewModel.detectLoginMode()
+                        }
 
                         if (showAppManager) {
                             val appManagerViewModel = remember { AppManagerViewModel(appRepository) }
@@ -216,8 +218,10 @@ fun App(db: CommCareDatabase) {
                                     errorMessage = loginViewModel.pinError,
                                     isLoading = loginViewModel.appState is AppState.LoggingIn
                                 )
-                                // Trigger biometric on first composition
-                                loginViewModel.loginWithBiometric()
+                                // Trigger biometric on first composition only
+                                LaunchedEffect(Unit) {
+                                    loginViewModel.loginWithBiometric()
+                                }
                             }
                             UserKeyRecordManager.LoginMode.PASSWORD -> {
                                 LoginScreen(

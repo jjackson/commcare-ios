@@ -128,6 +128,7 @@ class IosInMemoryStorage<T : Persistable>(
 
     override fun removeAll() {
         data.clear()
+        syncMeta()
     }
 
     override fun removeAll(ef: EntityFilter<*>): ArrayList<Int> {
@@ -156,7 +157,7 @@ class IosInMemoryStorage<T : Persistable>(
 
     override fun getNumRecords(): Int = data.size
 
-    override fun isEmpty(): Boolean = data.size > 0
+    override fun isEmpty(): Boolean = data.isEmpty()
 
     override fun exists(id: Int): Boolean = data.containsKey(DataUtil.integer(id))
 
@@ -298,6 +299,7 @@ class IosInMemoryStorage<T : Persistable>(
     }
 
     private fun syncMeta() {
+        if (meta == null) return
         for (metaEntry in meta!!.values) {
             metaEntry.clear()
         }

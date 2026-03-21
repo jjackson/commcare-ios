@@ -80,6 +80,7 @@ actual class PlatformDataOutputStream actual constructor() {
         // - 0x0001-0x007F → single byte
         // - 0x0080-0x07FF → two bytes: 110xxxxx 10xxxxxx
         // - 0x0800-0xFFFF → three bytes: 1110xxxx 10xxxxxx 10xxxxxx
+        // - Supplementary (>0xFFFF) → encoded as surrogate pair, each half as 3 bytes
         val result = mutableListOf<Byte>()
         for (ch in s) {
             val c = ch.code
@@ -95,10 +96,24 @@ actual class PlatformDataOutputStream actual constructor() {
                     result.add((0xC0 or (c shr 6)).toByte())
                     result.add((0x80 or (c and 0x3F)).toByte())
                 }
-                else -> {
+                c in 0x800..0xFFFF -> {
                     result.add((0xE0 or (c shr 12)).toByte())
                     result.add((0x80 or ((c shr 6) and 0x3F)).toByte())
                     result.add((0x80 or (c and 0x3F)).toByte())
+                }
+                else -> {
+                    // Supplementary character: encode as UTF-16 surrogate pair
+                    // matching Java's DataOutputStream.writeUTF() behavior
+                    val highSurrogate = 0xD800 + ((c - 0x10000) shr 10)
+                    val lowSurrogate = 0xDC00 + ((c - 0x10000) and 0x3FF)
+                    // Encode high surrogate as 3 bytes
+                    result.add((0xE0 or (highSurrogate shr 12)).toByte())
+                    result.add((0x80 or ((highSurrogate shr 6) and 0x3F)).toByte())
+                    result.add((0x80 or (highSurrogate and 0x3F)).toByte())
+                    // Encode low surrogate as 3 bytes
+                    result.add((0xE0 or (lowSurrogate shr 12)).toByte())
+                    result.add((0x80 or ((lowSurrogate shr 6) and 0x3F)).toByte())
+                    result.add((0x80 or (lowSurrogate and 0x3F)).toByte())
                 }
             }
         }
