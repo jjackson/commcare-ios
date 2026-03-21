@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.core.interfaces.HttpRequest
@@ -31,7 +33,9 @@ class FormQueueViewModel(
 
     private val formQueue = mutableListOf<QueuedForm>()
     private val queueLock = Any()
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     /**
      * Load pending forms from SQLDelight on startup.

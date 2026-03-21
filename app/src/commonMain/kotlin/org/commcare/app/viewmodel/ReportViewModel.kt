@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
@@ -29,8 +31,10 @@ class ReportViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var cachedReports = mutableMapOf<String, ReportData>()
+
+    fun cancel() { scope.cancel() }
 
     /**
      * Fetch a UCR report from CommCare HQ.

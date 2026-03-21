@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.SessionNavigatorImpl
 import org.commcare.app.storage.SqlDelightUserSandbox
@@ -39,8 +41,10 @@ class CaseSearchViewModel(
     var title by mutableStateOf("Case Search")
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var queryDatum: RemoteQueryDatum? = null
+
+    fun cancel() { scope.cancel() }
     private var searchUrl: String? = null
 
     /**

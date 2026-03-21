@@ -8,7 +8,9 @@ package org.javarosa.xml
  * - Call setPrefix() before startTag() to declare xmlns attributes
  * - startTag/endTag/attribute use namespace URIs to resolve prefixed names
  */
-class IosXmlSerializer : PlatformXmlSerializer {
+class IosXmlSerializer(
+    private val outputStream: org.javarosa.core.io.PlatformOutputStream? = null
+) : PlatformXmlSerializer {
     private val sb = StringBuilder()
     private var inTag = false
     private var hasContent = false
@@ -30,7 +32,7 @@ class IosXmlSerializer : PlatformXmlSerializer {
     }
 
     override fun endDocument() {
-        // Nothing needed
+        flush()
     }
 
     override fun setPrefix(prefix: String, namespace: String) {
@@ -82,6 +84,12 @@ class IosXmlSerializer : PlatformXmlSerializer {
 
     override fun flush() {
         closeOpenTag()
+        if (outputStream != null && sb.isNotEmpty()) {
+            val bytes = sb.toString().encodeToByteArray()
+            outputStream.write(bytes)
+            outputStream.flush()
+            sb.clear()
+        }
     }
 
     override fun toByteArray(): ByteArray {
@@ -136,7 +144,5 @@ class IosXmlSerializer : PlatformXmlSerializer {
 actual fun createXmlSerializer(): PlatformXmlSerializer = IosXmlSerializer()
 
 actual fun createXmlSerializer(output: org.javarosa.core.io.PlatformOutputStream, encoding: String): PlatformXmlSerializer {
-    // iOS implementation writes to in-memory buffer; output stream parameter is ignored
-    // (caller should use toByteArray() and write to stream manually)
-    return IosXmlSerializer()
+    return IosXmlSerializer(outputStream = output)
 }

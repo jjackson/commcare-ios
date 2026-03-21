@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.model.ConnectIdUser
 import org.commcare.app.model.RegistrationSession
@@ -52,7 +54,9 @@ class ConnectIdViewModel(
     private var createdPassword: String? = null
     private var dbKey: String? = null
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     fun clearError() { errorMessage = null }
 
@@ -138,14 +142,14 @@ class ConnectIdViewModel(
                             createdUsername = response.username
                             createdPassword = response.password
                             dbKey = response.dbKey
-                            // Store recovered credentials securely
+                            // Store recovered credentials securely — failure blocks registration
                             try {
                                 keychainStore.store("connect_username", response.username)
                                 keychainStore.store("connect_password", response.password)
                                 keychainStore.store("connect_db_key", response.dbKey)
                             } catch (e: Exception) {
-                                // Keychain storage may fail on simulator — log but don't block
-                                println("[ConnectId] Keychain store failed: ${e.message}")
+                                errorMessage = "Failed to store credentials securely: ${e.message}"
+                                return@launch
                             }
                             // Save recovered user record
                             try {
@@ -208,7 +212,8 @@ class ConnectIdViewModel(
                             keychainStore.store("connect_password", response.password)
                             keychainStore.store("connect_db_key", response.dbKey)
                         } catch (e: Exception) {
-                            println("[ConnectId] Keychain store failed: ${e.message}")
+                            errorMessage = "Failed to store credentials securely: ${e.message}"
+                            return@launch
                         }
                         try {
                             val user = ConnectIdUser(

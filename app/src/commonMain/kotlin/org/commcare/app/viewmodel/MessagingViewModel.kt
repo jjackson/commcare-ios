@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.commcare.app.model.Message
@@ -48,7 +50,9 @@ class MessagingViewModel(
     var unsentCount by mutableStateOf(0)
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     // Polling
     private var pollingJob: Job? = null

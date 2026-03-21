@@ -18,34 +18,45 @@ class SessionNavigatorImpl(
 ) {
     val session = SessionWrapper(platform, sandbox)
 
+    companion object {
+        /** Maximum number of computed datums to auto-resolve before giving up. */
+        private const val MAX_COMPUTED_DATUM_ITERATIONS = 100
+    }
+
     /**
      * Determine what the session needs next to proceed.
+     * Computed datums are resolved in a loop (bounded) rather than via recursion.
      */
     fun getNextStep(): NavigationStep {
         return try {
-            val evalContext = session.getEvaluationContext()
-            when (session.getNeededData(evalContext)) {
-                SessionFrame.STATE_COMMAND_ID -> NavigationStep.ShowMenu
-                SessionFrame.STATE_DATUM_VAL -> {
-                    val datum = session.getNeededDatum()
-                    NavigationStep.ShowCaseList(datum)
+            var iterations = 0
+            while (iterations < MAX_COMPUTED_DATUM_ITERATIONS) {
+                val evalContext = session.getEvaluationContext()
+                when (session.getNeededData(evalContext)) {
+                    SessionFrame.STATE_COMMAND_ID -> return NavigationStep.ShowMenu
+                    SessionFrame.STATE_DATUM_VAL -> {
+                        val datum = session.getNeededDatum()
+                        return NavigationStep.ShowCaseList(datum)
+                    }
+                    SessionFrame.STATE_DATUM_COMPUTED -> {
+                        val evalCtx = session.getEvaluationContext()
+                        session.setComputedDatum(evalCtx)
+                        iterations++
+                        // loop to resolve the next datum
+                    }
+                    SessionFrame.STATE_SYNC_REQUEST -> return NavigationStep.SyncRequired
+                    SessionFrame.STATE_QUERY_REQUEST -> {
+                        val datum = session.getNeededDatum()
+                        return NavigationStep.ShowCaseSearch(datum)
+                    }
+                    null -> {
+                        val formXmlns = session.getForm()
+                        return NavigationStep.StartForm(formXmlns)
+                    }
+                    else -> return NavigationStep.Error("Unknown session state")
                 }
-                SessionFrame.STATE_DATUM_COMPUTED -> {
-                    val evalCtx = session.getEvaluationContext()
-                    session.setComputedDatum(evalCtx)
-                    getNextStep() // recurse past computed datums
-                }
-                SessionFrame.STATE_SYNC_REQUEST -> NavigationStep.SyncRequired
-                SessionFrame.STATE_QUERY_REQUEST -> {
-                    val datum = session.getNeededDatum()
-                    NavigationStep.ShowCaseSearch(datum)
-                }
-                null -> {
-                    val formXmlns = session.getForm()
-                    NavigationStep.StartForm(formXmlns)
-                }
-                else -> NavigationStep.Error("Unknown session state")
             }
+            NavigationStep.Error("Too many computed datums (exceeded $MAX_COMPUTED_DATUM_ITERATIONS)")
         } catch (e: Exception) {
             NavigationStep.Error("Navigation error: ${e.message}")
         }

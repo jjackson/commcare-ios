@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
@@ -23,7 +25,9 @@ class DiagnosticsViewModel(
     var results by mutableStateOf<List<DiagnosticResult>>(emptyList())
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     /**
      * Run all diagnostic checks.

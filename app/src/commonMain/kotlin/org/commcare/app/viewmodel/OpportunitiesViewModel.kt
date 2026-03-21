@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.model.DeliveryProgressDetail
 import org.commcare.app.model.LearnProgressDetail
@@ -40,7 +42,9 @@ class OpportunitiesViewModel(
     var deliveryProgress by mutableStateOf<DeliveryProgressDetail?>(null)
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     fun clearError() { errorMessage = null }
 
