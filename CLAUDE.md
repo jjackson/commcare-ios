@@ -16,7 +16,7 @@ iOS implementation of CommCare Mobile using Kotlin Multiplatform (KMP) + Compose
 ```
 commcare-ios/
 ├── commcare-core/           # CommCare engine (git subtree from jjackson/commcare-core)
-│   ├── src/commonMain/      # KMP shared code (657 .kt files — platform-agnostic)
+│   ├── src/commonMain/      # KMP shared code (657 .kt files)
 │   ├── src/jvmMain/         # JVM platform implementations (97 .kt files)
 │   ├── src/iosMain/         # iOS/Native platform implementations (49 .kt files)
 │   ├── src/main/java/       # JVM-only: parser specs + resources (zero Java source files)
@@ -25,10 +25,10 @@ commcare-ios/
 │   ├── build.gradle         # KMP Gradle build (jvm + iosSimulatorArm64 targets)
 │   └── gradlew              # Gradle wrapper
 ├── app/                     # Compose Multiplatform app (JVM + iOS)
-│   ├── src/commonMain/      # Shared app code (102 .kt — UI, ViewModels, Connect, storage)
+│   ├── src/commonMain/      # Shared app code (104 .kt — UI, ViewModels, Connect, storage)
 │   ├── src/jvmMain/         # JVM platform (13 .kt)
 │   ├── src/iosMain/         # iOS platform (14 .kt)
-│   ├── src/jvmTest/         # JVM tests (30 .kt — sandbox, oracle, e2e)
+│   ├── src/jvmTest/         # JVM tests (34 .kt — sandbox, oracle, e2e, Connect)
 │   └── src/commonMain/sqldelight/  # SQLDelight schema
 ├── docs/
 │   ├── plans/               # Design docs, phase plans, completion reports
@@ -42,38 +42,25 @@ commcare-ios/
 
 ## Current Status & What's Next
 
-**Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
+**Phases 1-4 complete. App is on TestFlight.** All Kotlin conversion, KMP migration, feature implementation, and polish done. 1,162+ tests passing. Comprehensive code review completed (21 issues found and fixed in PRs #329-#330). See `docs/plans/2026-03-21-phase4-completion-report.md`.
 
-**Phase 4: Polish — COMPLETE.** All 6 waves done. 1,162+ tests passing. App is TestFlight-ready. See `docs/plans/2026-03-21-phase4-completion-report.md`.
+**Phase 5: Android UX Parity — COMPLETE.** iOS UX at parity with Android CommCare. Connect ID registration, marketplace (opportunities, deliveries, payments, messaging), multi-app management, navigation drawer, PIN/biometric login all implemented. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`.
 
-| Wave | Title | Issues | Status |
-|------|-------|--------|--------|
-| 1 | Correctness Scorecard & Integration Testing | #253 | Done |
-| 2 | Media Capture (camera, audio, signature) | #254 | Done |
-| 3 | Location & Barcode Scanning | #255 | Done |
-| 4 | Accessibility (VoiceOver, Dynamic Type) | #256 | Done |
-| 5 | App Store Preparation | #257 | Done |
-| 6 | Performance & Final Validation | #258 | Done |
+**What's next:** The app is end-to-end functional on TestFlight. Next priorities are field testing feedback, remaining App Store submission steps, and upstream extraction of commcare-core changes.
 
-**Phase 5: Android UX Parity — IN PROGRESS.** Bringing iOS UX to parity with Android CommCare. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`. Waves 1-7 implemented via PRs #275-#293. Connect marketplace rework complete (Waves A-E). Connect screens restyled to match Android production design.
-
-**If you are an agent starting a session:** Phase 4 is complete. Check code review issues (#308-#328) and Phase 5 status. Read the relevant plan doc for context.
+**If you are an agent starting a session:** Read the current status above and the Phase 5 design spec. If there are open issues, pick up the next one. Otherwise, check with the user for direction.
 
 ## Key Docs
 
 **Active:**
 - **Phase 5 design spec**: `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md` — Connect ID, marketplace, multi-app, navigation drawer
 - **Connect marketplace rework**: `docs/plans/2026-03-20-connect-marketplace-rework-plan.md` — data model + API fixes for Connect marketplace
-- **Phase 5 wave plans**: `docs/plans/2026-03-19-phase5-wave1-implementation-plan.md`, `docs/plans/2026-03-19-phase5-wave2-implementation-plan.md`
-- **Phase 4 plan**: `docs/plans/2026-03-16-phase4-polish-plan.md` — 19 tasks, 6 waves: scorecard, media, location, accessibility, App Store, validation
+- **TestFlight setup**: `docs/plans/testflight-setup.md` — Xcode archive, signing, and TestFlight upload process
 - **Original design**: `docs/plans/2026-03-07-commcare-ios-design.md` — full architecture, phasing, verification strategy
 - **Xcode project setup**: `docs/plans/2026-03-15-xcode-project-setup.md` — steps to create Xcode project embedding KMP framework
-- **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster
 
-**Completion reports:** All in `docs/plans/*-completion-report.md`. Key final reports:
-- Phase 4 (TestFlight-ready): `docs/plans/2026-03-21-phase4-completion-report.md`
-- Phase 3 Tier 3 (feature-complete): `docs/plans/2026-03-15-phase3-tier3-completion-report.md`
-- Phase 8 (iOS app shell): `docs/plans/2026-03-12-phase8-completion-report.md`
+**Completion reports:** All in `docs/plans/*-completion-report.md`. Key report:
+- Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
 
 **Learnings (by category):**
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
@@ -86,6 +73,7 @@ commcare-ios/
 - **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings`, `ios-platform-test-gap-learnings`
 - **AI agent pitfalls**: `ai-agent-dependency-version-staleness`, `integration-testing-timing-learnings`
 - **Connect ID / marketplace**: `connect-id-recovery-flow-gap`, `connect-marketplace-depth-gap`
+- **Code review**: `comprehensive-code-review-findings` — 21 issues found pre-TestFlight; iOS stubs, thread safety, CI gaps
 
 All learning files are in `docs/learnings/`.
 
@@ -136,7 +124,7 @@ cd commcare-core
 cd ..                                                   # Back to repo root for git
 
 # CI workflows:
-# - kotlin-tests.yml: runs on PRs touching commcare-core/, gradle files
+# - kotlin-tests.yml: runs commcare-core build + app JVM tests on PRs touching commcare-core/ or app/
 # - ios-build.yml: builds Kotlin framework + Swift app via xcodegen, launches on iOS simulator (macos-15 runner)
 ```
 
