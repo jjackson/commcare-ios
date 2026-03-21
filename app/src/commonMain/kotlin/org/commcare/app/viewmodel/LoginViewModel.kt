@@ -30,7 +30,6 @@ class LoginViewModel(private val db: CommCareDatabase) {
     // Internal — not shown in UI. Will come from ApplicationRecord in Wave 2.
     private var serverUrl = "https://www.commcarehq.org"
     private var appId = ""
-    private var profileUrl = ""
     private var currentApp: ApplicationRecord? = null
 
     var appState by mutableStateOf<AppState>(AppState.LoggedOut)
@@ -72,58 +71,6 @@ class LoginViewModel(private val db: CommCareDatabase) {
         this.serverUrl = serverUrl
         this.appId = appId
         this.currentApp = app
-    }
-
-    /**
-     * Set the profile URL directly — used by the setup flow when the user scans/enters a URL
-     * before logging in.
-     */
-    fun setProfileUrl(url: String) {
-        this.profileUrl = url
-    }
-
-    /**
-     * Install an app directly from the configured profileUrl, without requiring server login.
-     * Used by the setup flow to install a CommCare app from a profile URL or barcode.
-     */
-    fun startInstall() {
-        scope.launch {
-            try {
-                val sandbox = SqlDelightUserSandbox(db)
-                val installer = AppInstaller(sandbox)
-
-                val resolvedProfileUrl = profileUrl
-                if (resolvedProfileUrl.isBlank()) {
-                    appState = AppState.InstallError("No profile URL configured")
-                    return@launch
-                }
-
-                appState = AppState.Installing(0.1f, "Starting installation...")
-                val platform = installer.install(resolvedProfileUrl) { progress, message ->
-                    appState = AppState.Installing(progress, message)
-                }
-
-                val profileDisplayName = try {
-                    platform.getCurrentProfile().getDisplayName() ?: "CommCare"
-                } catch (_: Exception) {
-                    "CommCare"
-                }
-
-                val app = ApplicationRecord(
-                    id = appId.ifBlank { "installed" },
-                    profileUrl = resolvedProfileUrl,
-                    displayName = profileDisplayName,
-                    domain = "",
-                    majorVersion = platform.majorVersion,
-                    minorVersion = platform.minorVersion,
-                    installDate = 0L
-                )
-                this@LoginViewModel.sandbox = sandbox
-                appState = AppState.NeedsLogin(app, listOf(app))
-            } catch (e: Exception) {
-                appState = AppState.InstallError("Installation failed: ${e.message}")
-            }
-        }
     }
 
     fun login() {
@@ -219,15 +166,23 @@ class LoginViewModel(private val db: CommCareDatabase) {
         }
     }
 
+    /**
+     * Post-login app installation. Called after successful server auth + restore parsing.
+     * Builds the profile URL from [appId] and installs the app, or falls back to a
+     * minimal platform when no appId is configured (development mode).
+     *
+     * This is intentionally separate from [AppInstallViewModel.install], which handles
+     * the pre-login fresh-install flow (setup screen, Connect downloads). This method
+     * runs after the user is already authenticated and their sandbox is populated.
+     */
     private fun installApp(sandbox: SqlDelightUserSandbox, domain: String) {
         try {
             val installer = AppInstaller(sandbox)
 
-            // Build profile URL from appId if no explicit profileUrl set
-            val resolvedProfileUrl = when {
-                profileUrl.isNotBlank() -> profileUrl
-                appId.isNotBlank() -> "${serverUrl.trimEnd('/')}/a/$domain/apps/download/$appId/profile.ccpr"
-                else -> ""
+            val resolvedProfileUrl = if (appId.isNotBlank()) {
+                "${serverUrl.trimEnd('/')}/a/$domain/apps/download/$appId/profile.ccpr"
+            } else {
+                ""
             }
 
             if (resolvedProfileUrl.isNotBlank()) {

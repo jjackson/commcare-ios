@@ -11,13 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import org.commcare.app.network.ConnectIdApi
-import org.commcare.app.network.ConnectMarketplaceApi
-import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.state.AppState
-import org.commcare.app.storage.AppRecordRepository
 import org.commcare.app.storage.CommCareDatabase
-import org.commcare.app.storage.ConnectIdRepository
 import org.commcare.app.ui.AppManagerScreen
 import org.commcare.app.ui.EnterCodeScreen
 import org.commcare.app.ui.HomeScreen
@@ -32,31 +27,17 @@ import org.commcare.app.ui.connect.PersonalIdScreen
 import org.commcare.app.ui.PinEntryScreen
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.AppManagerViewModel
-import org.commcare.app.viewmodel.ConnectIdTokenManager
-import org.commcare.app.viewmodel.ConnectIdViewModel
-import org.commcare.app.viewmodel.DemoModeManager
 import org.commcare.app.viewmodel.InstallState
-import org.commcare.app.viewmodel.LoginViewModel
 import org.commcare.app.viewmodel.SetupStep
 import org.commcare.app.viewmodel.SetupViewModel
 import org.commcare.app.viewmodel.UserKeyRecordManager
 
 @Composable
 fun App(db: CommCareDatabase) {
-    val appRepository = remember { AppRecordRepository(db) }
-    val connectIdRepository = remember { ConnectIdRepository(db) }
-    val connectIdApi = remember { ConnectIdApi() }
-    val keychainStore = remember { PlatformKeychainStore() }
-    val connectIdViewModel = remember { ConnectIdViewModel(connectIdApi, connectIdRepository, keychainStore) }
-    val keyRecordManager = remember { UserKeyRecordManager(db, keychainStore) }
-    val loginViewModel = remember {
-        LoginViewModel(db).also { it.setKeyRecordManager(keyRecordManager) }
-    }
-    val demoModeManager = remember { DemoModeManager(db) }
-    val setupViewModel = remember { SetupViewModel() }
-    val appInstallViewModel = remember { AppInstallViewModel(db, appRepository) }
-    val marketplaceApi = remember { ConnectMarketplaceApi() }
-    val connectIdTokenManager = remember { ConnectIdTokenManager(connectIdApi, connectIdRepository, keychainStore) }
+    val deps = remember { AppDependencies(db) }
+    val appRepository = deps.appRepository
+    val loginViewModel = deps.loginViewModel
+    val appInstallViewModel = deps.appInstallViewModel
 
     // Track whether any apps are installed; starts false on first launch
     val hasApps = remember { mutableStateOf(appRepository.getAppCount() > 0) }
@@ -65,7 +46,7 @@ fun App(db: CommCareDatabase) {
     var showOpportunities by remember { mutableStateOf(false) }
     // When non-null, ConnectScreen opens at the given tab ("opportunities" or "messaging")
     var connectInitialTab by remember { mutableStateOf("opportunities") }
-    var connectIdRegistered by remember { mutableStateOf(connectIdRepository.isRegistered()) }
+    var connectIdRegistered by remember { mutableStateOf(deps.connectIdRepository.isRegistered()) }
     // When non-null, an in-progress Connect app download is pending install
     var pendingConnectInstall by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -76,10 +57,10 @@ fun App(db: CommCareDatabase) {
             // Show PersonalIdScreen overlay when registration is requested
             if (showPersonalIdRegistration) {
                 PersonalIdScreen(
-                    viewModel = connectIdViewModel,
+                    viewModel = deps.connectIdViewModel,
                     onComplete = {
                         showPersonalIdRegistration = false
-                        connectIdRegistered = connectIdRepository.isRegistered()
+                        connectIdRegistered = deps.connectIdRepository.isRegistered()
                     },
                     onCancel = { showPersonalIdRegistration = false }
                 )
@@ -123,8 +104,8 @@ fun App(db: CommCareDatabase) {
             // Show ConnectScreen overlay when requested
             if (showOpportunities) {
                 ConnectScreen(
-                    api = marketplaceApi,
-                    tokenManager = connectIdTokenManager,
+                    api = deps.marketplaceApi,
+                    tokenManager = deps.connectIdTokenManager,
                     onBack = { showOpportunities = false },
                     initialTab = connectInitialTab,
                     onDownloadApp = { installUrl, appName ->
@@ -153,8 +134,7 @@ fun App(db: CommCareDatabase) {
             if (!hasApps.value) {
                 // No apps installed — show setup flow (including install progress within it)
                 SetupFlow(
-                    setupViewModel = setupViewModel,
-                    loginViewModel = loginViewModel,
+                    setupViewModel = deps.setupViewModel,
                     appInstallViewModel = appInstallViewModel,
                     hasApps = hasApps,
                     onSignUpPersonalId = { showPersonalIdRegistration = true },
@@ -169,7 +149,7 @@ fun App(db: CommCareDatabase) {
                     is AppState.LoginError -> LoginScreen(
                         viewModel = loginViewModel,
                         onDemoMode = {
-                            val demoState = demoModeManager.enterDemoMode()
+                            val demoState = deps.demoModeManager.enterDemoMode()
                             if (demoState != null) {
                                 loginViewModel.setReadyState(demoState)
                             }
@@ -227,7 +207,7 @@ fun App(db: CommCareDatabase) {
                                 LoginScreen(
                                     viewModel = loginViewModel,
                                     onDemoMode = {
-                                        val demoState = demoModeManager.enterDemoMode()
+                                        val demoState = deps.demoModeManager.enterDemoMode()
                                         if (demoState != null) {
                                             loginViewModel.setReadyState(demoState)
                                         }
@@ -268,7 +248,7 @@ fun App(db: CommCareDatabase) {
                             connectInitialTab = "messaging"
                             showOpportunities = true
                         },
-                        keyRecordManager = keyRecordManager
+                        keyRecordManager = deps.keyRecordManager
                     )
                     is AppState.AppCorrupted -> InstallErrorScreen(
                         AppState.InstallError("App corrupted: ${appState.message}")
@@ -282,7 +262,6 @@ fun App(db: CommCareDatabase) {
 @Composable
 private fun SetupFlow(
     setupViewModel: SetupViewModel,
-    loginViewModel: LoginViewModel,
     appInstallViewModel: AppInstallViewModel,
     hasApps: MutableState<Boolean>,
     onSignUpPersonalId: (() -> Unit)? = null,
@@ -315,23 +294,6 @@ private fun SetupFlow(
             return
         }
         is InstallState.Idle -> { /* fall through to setup navigation */ }
-    }
-
-    // If loginViewModel's older install path is still active (e.g. login→install flow),
-    // show the legacy install screens so they aren't broken.
-    when (val loginState = loginViewModel.appState) {
-        is AppState.Installing -> {
-            InstallScreen(loginState)
-            return
-        }
-        is AppState.InstallError -> {
-            InstallErrorScreen(loginState) {
-                loginViewModel.resetError()
-                setupViewModel.backToMain()
-            }
-            return
-        }
-        else -> { /* fall through to setup navigation */ }
     }
 
     when (setupViewModel.currentStep) {
