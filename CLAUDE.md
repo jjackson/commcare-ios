@@ -44,7 +44,7 @@ commcare-ios/
 
 **Phases 1-3 complete.** All Kotlin conversion, KMP migration, and feature implementation done. 800+ JVM tests, 100+ cross-platform tests. Feature-complete CommCare iOS app. See `docs/plans/2026-03-15-phase3-tier3-completion-report.md` for details.
 
-**Phase 4: Polish — IN PROGRESS.** 4 of 6 waves done. See `docs/plans/2026-03-16-phase4-polish-plan.md`.
+**Phase 4: Polish — COMPLETE.** All 6 waves done. 1,162+ tests passing. App is TestFlight-ready. See `docs/plans/2026-03-21-phase4-completion-report.md`.
 
 | Wave | Title | Issues | Status |
 |------|-------|--------|--------|
@@ -52,12 +52,12 @@ commcare-ios/
 | 2 | Media Capture (camera, audio, signature) | #254 | Done |
 | 3 | Location & Barcode Scanning | #255 | Done |
 | 4 | Accessibility (VoiceOver, Dynamic Type) | #256 | Done |
-| 5 | App Store Preparation | #257 | Open |
-| 6 | Performance & Final Validation | #258 | Open |
+| 5 | App Store Preparation | #257 | Done |
+| 6 | Performance & Final Validation | #258 | Done |
 
-**Phase 5: Android UX Parity — IN PROGRESS.** Bringing iOS UX to parity with Android CommCare. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`. Waves 1-7 implemented via PRs #275-#293 (no GitHub issues created — this should be corrected). Connect marketplace rework in progress — see `docs/plans/2026-03-20-connect-marketplace-rework-plan.md`.
+**Phase 5: Android UX Parity — IN PROGRESS.** Bringing iOS UX to parity with Android CommCare. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`. Waves 1-7 implemented via PRs #275-#293. Connect marketplace rework complete (Waves A-E). Connect screens restyled to match Android production design.
 
-**If you are an agent starting a session:** Check the Connect marketplace rework plan and Phase 4 remaining waves (#257, #258). Read the relevant plan doc for "What to Do" and acceptance criteria.
+**If you are an agent starting a session:** Phase 4 is complete. Check code review issues (#308-#328) and Phase 5 status. Read the relevant plan doc for context.
 
 ## Key Docs
 
@@ -71,6 +71,7 @@ commcare-ios/
 - **Java vs Kotlin benchmarks**: `docs/plans/2026-03-15-java-vs-kotlin-benchmark-comparison.md` — 14 benchmarks, Kotlin equal or faster
 
 **Completion reports:** All in `docs/plans/*-completion-report.md`. Key final reports:
+- Phase 4 (TestFlight-ready): `docs/plans/2026-03-21-phase4-completion-report.md`
 - Phase 3 Tier 3 (feature-complete): `docs/plans/2026-03-15-phase3-tier3-completion-report.md`
 - Phase 8 (iOS app shell): `docs/plans/2026-03-12-phase8-completion-report.md`
 
