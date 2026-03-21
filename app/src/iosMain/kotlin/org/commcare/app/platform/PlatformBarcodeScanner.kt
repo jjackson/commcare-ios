@@ -23,6 +23,10 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIButton
 import platform.UIKit.UIButtonTypeSystem
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import platform.UIKit.UIScene
+import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.UIKit.UIColor
 import platform.CoreGraphics.CGRectMake
 import platform.darwin.NSObject
@@ -30,7 +34,11 @@ import platform.darwin.dispatch_get_main_queue
 
 actual class PlatformBarcodeScanner actual constructor() {
     actual fun scanBarcode(onResult: (String?) -> Unit) {
-        val rootVc = UIApplication.sharedApplication.keyWindow?.rootViewController
+        val window = UIApplication.sharedApplication.connectedScenes
+            .filterIsInstance<UIWindowScene>()
+            .firstOrNull { it.activationState == UISceneActivationStateForegroundActive }
+            ?.windows?.firstOrNull { (it as? UIWindow)?.isKeyWindow() == true } as? UIWindow
+        val rootVc = window?.rootViewController
         if (rootVc == null) {
             onResult(null)
             return

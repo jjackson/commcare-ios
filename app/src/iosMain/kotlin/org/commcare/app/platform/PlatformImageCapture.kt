@@ -10,6 +10,10 @@ import platform.UIKit.UIImagePickerControllerOriginalImage
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageJPEGRepresentation
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import platform.UIKit.UIScene
+import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUUID
 import platform.Foundation.NSData
@@ -44,7 +48,11 @@ actual class PlatformImageCapture actual constructor() {
         retainedDelegate = delegate
         picker.delegate = delegate
 
-        val rootVc = UIApplication.sharedApplication.keyWindow?.rootViewController
+        val window = UIApplication.sharedApplication.connectedScenes
+            .filterIsInstance<UIWindowScene>()
+            .firstOrNull { it.activationState == UISceneActivationStateForegroundActive }
+            ?.windows?.firstOrNull { (it as? UIWindow)?.isKeyWindow() == true } as? UIWindow
+        val rootVc = window?.rootViewController
         rootVc?.presentViewController(picker, animated = true, completion = null)
     }
 }
