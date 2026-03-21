@@ -3,6 +3,7 @@ package org.javarosa.core.reference
 import org.javarosa.core.io.PlatformInputStream
 import org.javarosa.core.io.PlatformOutputStream
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -14,6 +15,13 @@ import kotlin.test.assertTrue
  * These run on both JVM and iOS to verify the reference resolution pipeline.
  */
 class ReferenceManagerTest {
+
+    @BeforeTest
+    fun setup() {
+        // Clear any state leaked from other test suites (e.g., jvmTest MockApp
+        // registers JavaHttpRoot on the shared ReferenceHandler singleton).
+        ReferenceHandler.clearInstance()
+    }
 
     @AfterTest
     fun cleanup() {
