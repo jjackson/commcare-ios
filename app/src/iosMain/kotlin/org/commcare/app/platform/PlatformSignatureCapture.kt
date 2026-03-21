@@ -10,6 +10,10 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIButton
 import platform.UIKit.UIButtonTypeSystem
 import platform.UIKit.UIApplication
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import platform.UIKit.UIScene
+import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
 import platform.UIKit.UIGraphicsEndImageContext
@@ -22,7 +26,11 @@ import platform.Foundation.writeToFile
 
 actual class PlatformSignatureCapture actual constructor() {
     actual fun captureSignature(onResult: (String?) -> Unit) {
-        val rootVc = UIApplication.sharedApplication.keyWindow?.rootViewController
+        val window = UIApplication.sharedApplication.connectedScenes
+            .filterIsInstance<UIWindowScene>()
+            .firstOrNull { it.activationState == UISceneActivationStateForegroundActive }
+            ?.windows?.firstOrNull { (it as? UIWindow)?.isKeyWindow() == true } as? UIWindow
+        val rootVc = window?.rootViewController
         if (rootVc == null) {
             onResult(null)
             return

@@ -299,21 +299,30 @@ actual object SerializationHelpers {
         `in`: PlatformDataInputStream,
         pf: PrototypeFactory
     ): org.javarosa.core.util.ListMultimap<String, Any> {
-        val size = readNumeric(`in`).toInt()
+        val numKeys = readNumeric(`in`).toInt()
         val map = org.javarosa.core.util.ListMultimap<String, Any>()
-        for (i in 0 until size) {
+        for (i in 0 until numKeys) {
             val key = readString(`in`)
-            val value = readTagged(`in`, pf)
-            map.put(key, value)
+            val numberOfValues = readNumeric(`in`).toInt()
+            for (j in 0 until numberOfValues) {
+                map.put(key, readTagged(`in`, pf))
+            }
         }
         return map
     }
 
     actual fun writeMultiMap(out: PlatformDataOutputStream, map: org.javarosa.core.util.ListMultimap<*, *>) {
-        writeNumeric(out, map.size().toLong())
-        map.forEach { key, value ->
-            write(out, key!!)
-            writeTagged(out, value!!)
+        @Suppress("UNCHECKED_CAST")
+        val typedMap = map as org.javarosa.core.util.ListMultimap<Any, Any>
+        val keySet = typedMap.keySet()
+        writeNumeric(out, keySet.size.toLong())
+        for (key in keySet) {
+            write(out, key)
+            val values = typedMap[key]
+            writeNumeric(out, values.size.toLong())
+            for (value in values) {
+                writeTagged(out, value)
+            }
         }
     }
 
@@ -353,11 +362,11 @@ actual object SerializationHelpers {
     actual fun readBytes(`in`: PlatformDataInputStream): ByteArray {
         val size = readNumeric(`in`).toInt()
         val bytes = ByteArray(size)
-        var read = 0
-        var toread = size
-        while (read != size) {
-            read = `in`.read(bytes, 0, toread)
-            toread -= read
+        var totalRead = 0
+        while (totalRead < size) {
+            val read = `in`.read(bytes, totalRead, size - totalRead)
+            if (read == -1) throw PlatformIOException("Unexpected EOF: expected $size bytes, got $totalRead")
+            totalRead += read
         }
         return bytes
     }

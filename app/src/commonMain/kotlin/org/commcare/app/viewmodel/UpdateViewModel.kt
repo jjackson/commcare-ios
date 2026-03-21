@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
 import org.commcare.app.storage.InMemoryStorage
@@ -36,7 +38,9 @@ class UpdateViewModel(
     var updateMessage by mutableStateOf<String?>(null)
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     init {
         loadCurrentVersion()
@@ -77,9 +81,10 @@ class UpdateViewModel(
 
                 ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE)
 
-                // If we get here without error, an update is potentially available
-                updateState = UpdateState.Available
-                updateMessage = "Update available"
+                // TODO: Implement actual server-side version comparison.
+                // For now, report up-to-date since we can't actually check.
+                updateState = UpdateState.UpToDate
+                updateMessage = "App is up to date"
                 updateProgress = 0f
             } catch (e: Exception) {
                 updateState = UpdateState.UpToDate

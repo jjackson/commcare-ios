@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.commcare.app.model.Message
@@ -29,17 +31,28 @@ class MessagingViewModel(
     private val tokenManager: ConnectIdTokenManager
 ) {
     var threads by mutableStateOf<List<MessageThread>>(emptyList())
+        private set
     var currentThreadMessages by mutableStateOf<List<Message>>(emptyList())
+        private set
     var selectedThread by mutableStateOf<MessageThread?>(null)
+        private set
     var isLoading by mutableStateOf(false)
+        private set
     var isConsentLoading by mutableStateOf(false)
+        private set
     var errorMessage by mutableStateOf<String?>(null)
+        private set
     var hasConsented by mutableStateOf(false)
+        private set
     var messageText by mutableStateOf("")
     var unreadCount by mutableStateOf(0)
+        private set
     var unsentCount by mutableStateOf(0)
+        private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     // Polling
     private var pollingJob: Job? = null

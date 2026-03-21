@@ -21,6 +21,9 @@ class CalendarTests {
 
     @Before
     fun configureLocaleForCalendar() {
+        // Reset global state that may have been polluted by earlier test suites
+        // (e.g., MockApp registers ReferenceDataSource-backed locale resources)
+        org.javarosa.core.services.locale.LocalizerManager.init(true)
         Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default")
         Localization.setLocale("default")
         val localeData = TableLocaleSource()

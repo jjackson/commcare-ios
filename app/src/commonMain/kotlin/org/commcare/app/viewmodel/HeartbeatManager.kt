@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
@@ -26,7 +28,9 @@ class HeartbeatManager(
     var lastHeartbeatTime by mutableStateOf<String?>(null)
         private set
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     /**
      * Send a heartbeat to CommCare HQ with device info.
@@ -69,14 +73,15 @@ class HeartbeatManager(
     }
 
     private fun parseHeartbeatResponse(body: String) {
-        // Parse JSON-like response for update status
-        when {
-            body.contains("\"force_update\"") || body.contains("force_update") ->
-                appUpdateStatus = AppUpdateStatus.ForceUpdate
-            body.contains("\"update_available\"") || body.contains("update_available") ->
-                appUpdateStatus = AppUpdateStatus.UpdateAvailable
-            else ->
-                appUpdateStatus = AppUpdateStatus.UpToDate
+        // Parse JSON response for update status using exact key matching.
+        // Order matters: check force_update first since it's the most critical.
+        // Use regex with word boundaries to avoid "no_update_available" matching "update_available".
+        val forceUpdatePattern = Regex(""""force_update"\s*:\s*true""")
+        val updateAvailablePattern = Regex(""""update_available"\s*:\s*true""")
+        appUpdateStatus = when {
+            forceUpdatePattern.containsMatchIn(body) -> AppUpdateStatus.ForceUpdate
+            updateAvailablePattern.containsMatchIn(body) -> AppUpdateStatus.UpdateAvailable
+            else -> AppUpdateStatus.UpToDate
         }
     }
 

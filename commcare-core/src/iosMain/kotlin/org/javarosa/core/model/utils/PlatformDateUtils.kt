@@ -23,7 +23,7 @@ actual object PlatformDateUtils {
             FORMAT_ISO8601 -> formatter.dateFormat = "yyyy-MM-dd"
             else -> formatter.dateFormat = "yyyy-MM-dd"
         }
-        val nsDate = NSDate(timeIntervalSinceReferenceDate = (d.getTime() / 1000.0) - 978307200.0)
+        val nsDate = NSDate.dateWithTimeIntervalSince1970(d.getTime() / 1000.0)
         return formatter.stringFromDate(nsDate)
     }
 

@@ -228,11 +228,11 @@ class ExtUtil {
         fun readBytes(`in`: PlatformDataInputStream): ByteArray {
             val size = readNumeric(`in`).toInt()
             val bytes = ByteArray(size)
-            var read = 0
-            var toread = size
-            while (read != size) {
-                read = `in`.read(bytes, 0, toread)
-                toread -= read
+            var totalRead = 0
+            while (totalRead < size) {
+                val read = `in`.read(bytes, totalRead, size - totalRead)
+                if (read == -1) throw PlatformIOException("Unexpected EOF: expected $size bytes, got $totalRead")
+                totalRead += read
             }
             return bytes
         }

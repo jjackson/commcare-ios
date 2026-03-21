@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
 import org.commcare.app.model.ApplicationRecord
@@ -58,7 +60,9 @@ class LoginViewModel(private val db: CommCareDatabase) {
         private set
 
     private val httpClient = createHttpClient()
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    fun cancel() { scope.cancel() }
 
     /**
      * Configure server and app details from an installed application.

@@ -1,6 +1,7 @@
 package org.commcare.app.network
 
 import org.commcare.app.model.ConnectIdTokens
+import org.commcare.app.network.formUrlEncode
 import org.commcare.app.model.RegistrationSession
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.HttpResponse
@@ -251,8 +252,8 @@ class ConnectIdApi(
      */
     fun getOAuthToken(username: String, password: String): Result<ConnectIdTokens> {
         return try {
-            val body = "grant_type=password&client_id=$OAUTH_CLIENT_ID" +
-                "&username=$username&password=$password"
+            val body = "grant_type=password&client_id=${formUrlEncode(OAUTH_CLIENT_ID)}" +
+                "&username=${formUrlEncode(username)}&password=${formUrlEncode(password)}"
 
             val response = httpClient.execute(
                 HttpRequest(

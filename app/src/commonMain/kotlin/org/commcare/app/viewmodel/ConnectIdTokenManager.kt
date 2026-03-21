@@ -4,6 +4,7 @@ import org.commcare.app.network.ConnectIdApi
 import org.commcare.app.platform.PlatformKeychainStore
 import org.commcare.app.platform.currentEpochSeconds
 import org.commcare.app.storage.ConnectIdRepository
+import org.commcare.app.network.formUrlEncode
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.createHttpClient
 
@@ -94,11 +95,11 @@ class ConnectIdTokenManager(
         val httpClient = createHttpClient()
 
         val tokenUrl = "${hqUrl.trimEnd('/')}/oauth/token/"
-        val body = "client_id=$HQ_OAUTH_CLIENT_ID" +
+        val body = "client_id=${formUrlEncode(HQ_OAUTH_CLIENT_ID)}" +
             "&grant_type=password" +
             "&scope=mobile_access+sync" +
-            "&username=${hqUsername}@${domain}" +
-            "&password=$connectToken"
+            "&username=${formUrlEncode("${hqUsername}@${domain}")}" +
+            "&password=${formUrlEncode(connectToken)}"
 
         val request = HttpRequest(
             url = tokenUrl,
