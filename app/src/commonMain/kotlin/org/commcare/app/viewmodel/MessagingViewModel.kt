@@ -29,15 +29,24 @@ class MessagingViewModel(
     private val tokenManager: ConnectIdTokenManager
 ) {
     var threads by mutableStateOf<List<MessageThread>>(emptyList())
+        private set
     var currentThreadMessages by mutableStateOf<List<Message>>(emptyList())
+        private set
     var selectedThread by mutableStateOf<MessageThread?>(null)
+        private set
     var isLoading by mutableStateOf(false)
+        private set
     var isConsentLoading by mutableStateOf(false)
+        private set
     var errorMessage by mutableStateOf<String?>(null)
+        private set
     var hasConsented by mutableStateOf(false)
+        private set
     var messageText by mutableStateOf("")
     var unreadCount by mutableStateOf(0)
+        private set
     var unsentCount by mutableStateOf(0)
+        private set
 
     private val scope = CoroutineScope(Dispatchers.Default)
 

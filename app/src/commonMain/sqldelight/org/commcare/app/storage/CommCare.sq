@@ -1,5 +1,5 @@
 -- Case storage
-CREATE TABLE cases (
+CREATE TABLE IF NOT EXISTS cases (
     case_id TEXT PRIMARY KEY NOT NULL,
     case_type TEXT NOT NULL,
     case_name TEXT NOT NULL,
@@ -10,7 +10,10 @@ CREATE TABLE cases (
     external_id TEXT
 );
 
-CREATE TABLE case_properties (
+CREATE INDEX IF NOT EXISTS idx_cases_case_type ON cases(case_type);
+CREATE INDEX IF NOT EXISTS idx_cases_owner_id ON cases(owner_id);
+
+CREATE TABLE IF NOT EXISTS case_properties (
     case_id TEXT NOT NULL,
     property_key TEXT NOT NULL,
     property_value TEXT NOT NULL,
@@ -18,7 +21,7 @@ CREATE TABLE case_properties (
     FOREIGN KEY (case_id) REFERENCES cases(case_id) ON DELETE CASCADE
 );
 
-CREATE TABLE case_indices (
+CREATE TABLE IF NOT EXISTS case_indices (
     case_id TEXT NOT NULL,
     index_name TEXT NOT NULL,
     target_case_id TEXT NOT NULL,
@@ -28,8 +31,10 @@ CREATE TABLE case_indices (
     FOREIGN KEY (case_id) REFERENCES cases(case_id) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_case_indices_target ON case_indices(target_case_id);
+
 -- User storage
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id TEXT PRIMARY KEY NOT NULL,
     username TEXT NOT NULL,
     domain TEXT NOT NULL,
@@ -38,15 +43,17 @@ CREATE TABLE users (
 );
 
 -- Fixture storage
-CREATE TABLE fixtures (
+CREATE TABLE IF NOT EXISTS fixtures (
     fixture_id TEXT PRIMARY KEY NOT NULL,
     fixture_type TEXT NOT NULL,
     user_id TEXT,
     xml_content TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS idx_fixtures_type ON fixtures(fixture_type);
+
 -- Form queue
-CREATE TABLE form_queue (
+CREATE TABLE IF NOT EXISTS form_queue (
     form_id TEXT PRIMARY KEY NOT NULL,
     xmlns TEXT NOT NULL,
     xml_content TEXT NOT NULL,
@@ -55,8 +62,10 @@ CREATE TABLE form_queue (
     submitted_at TEXT
 );
 
+CREATE INDEX IF NOT EXISTS idx_form_queue_status ON form_queue(status);
+
 -- Resource table
-CREATE TABLE resources (
+CREATE TABLE IF NOT EXISTS resources (
     resource_id TEXT PRIMARY KEY NOT NULL,
     version INTEGER NOT NULL,
     resource_type TEXT NOT NULL,
@@ -65,8 +74,10 @@ CREATE TABLE resources (
     content BLOB
 );
 
+CREATE INDEX IF NOT EXISTS idx_resources_type ON resources(resource_type);
+
 -- Ledger storage
-CREATE TABLE ledgers (
+CREATE TABLE IF NOT EXISTS ledgers (
     entity_id TEXT NOT NULL,
     section_id TEXT NOT NULL,
     entry_id TEXT NOT NULL,
@@ -180,7 +191,7 @@ countPendingForms:
 SELECT COUNT(*) FROM form_queue WHERE status = 'pending';
 
 -- Form records (drafts, completed, submitted)
-CREATE TABLE form_records (
+CREATE TABLE IF NOT EXISTS form_records (
     form_id TEXT PRIMARY KEY NOT NULL,
     xmlns TEXT NOT NULL,
     form_name TEXT NOT NULL DEFAULT '',

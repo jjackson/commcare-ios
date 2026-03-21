@@ -26,13 +26,19 @@ class OpportunitiesViewModel(
     private val tokenManager: ConnectIdTokenManager
 ) {
     var opportunities by mutableStateOf<List<Opportunity>>(emptyList())
+        private set
     var isLoading by mutableStateOf(false)
+        private set
     var errorMessage by mutableStateOf<String?>(null)
+        private set
     var selectedOpportunity by mutableStateOf<Opportunity?>(null)
+        private set
 
     // Detail view state
     var learnProgress by mutableStateOf<LearnProgressDetail?>(null)
+        private set
     var deliveryProgress by mutableStateOf<DeliveryProgressDetail?>(null)
+        private set
 
     private val scope = CoroutineScope(Dispatchers.Default)
 

@@ -46,6 +46,7 @@ private class BarcodeScannerViewController(
 ) : UIViewController(nibName = null, bundle = null) {
 
     private var captureSession: AVCaptureSession? = null
+    private var retainedDelegate: MetadataDelegate? = null
 
     override fun viewDidLoad() {
         super.viewDidLoad()
@@ -72,8 +73,8 @@ private class BarcodeScannerViewController(
         }
         session.addOutput(output)
 
-        val delegate = MetadataDelegate(this)
-        output.setMetadataObjectsDelegate(delegate, queue = dispatch_get_main_queue())
+        retainedDelegate = MetadataDelegate(this)
+        output.setMetadataObjectsDelegate(retainedDelegate, queue = dispatch_get_main_queue())
         output.metadataObjectTypes = listOf(
             AVMetadataObjectTypeQRCode,
             AVMetadataObjectTypeEAN13Code,

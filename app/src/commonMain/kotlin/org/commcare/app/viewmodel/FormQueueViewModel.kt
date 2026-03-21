@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
+import org.javarosa.core.util.platformSynchronized
 
 /**
  * Manages the offline form submission queue.
@@ -29,6 +30,7 @@ class FormQueueViewModel(
         private set
 
     private val formQueue = mutableListOf<QueuedForm>()
+    private val queueLock = Any()
     private val scope = CoroutineScope(Dispatchers.Default)
 
     /**
@@ -62,8 +64,10 @@ class FormQueueViewModel(
             status = FormStatus.PENDING,
             retryCount = 0
         )
-        formQueue.add(form)
-        queuedForms = formQueue.toList()
+        platformSynchronized(queueLock) {
+            formQueue.add(form)
+            queuedForms = formQueue.toList()
+        }
 
         // Persist to SQLDelight
         db?.commCareQueries?.insertFormQueue(
@@ -98,8 +102,10 @@ class FormQueueViewModel(
         try {
             val submitUrl = "${serverUrl.trimEnd('/')}/a/$domain/receiver/"
             val maxRetries = 3
-            val pending = formQueue.filter {
-                (it.status == FormStatus.PENDING || it.status == FormStatus.FAILED) && it.retryCount < maxRetries
+            val pending = platformSynchronized(queueLock) {
+                formQueue.filter {
+                    (it.status == FormStatus.PENDING || it.status == FormStatus.FAILED) && it.retryCount < maxRetries
+                }
             }
 
             for (form in pending) {
@@ -138,29 +144,37 @@ class FormQueueViewModel(
         } finally {
             isSubmitting = false
             // Clean up submitted forms
-            formQueue.removeAll { it.status == FormStatus.SUBMITTED }
-            queuedForms = formQueue.toList()
+            platformSynchronized(queueLock) {
+                formQueue.removeAll { it.status == FormStatus.SUBMITTED }
+                queuedForms = formQueue.toList()
+            }
         }
         return submitted
     }
 
     fun clearSubmitted() {
-        formQueue.removeAll { it.status == FormStatus.SUBMITTED }
-        queuedForms = formQueue.toList()
+        platformSynchronized(queueLock) {
+            formQueue.removeAll { it.status == FormStatus.SUBMITTED }
+            queuedForms = formQueue.toList()
+        }
         db?.commCareQueries?.deleteSubmittedForms()
     }
 
     val pendingCount: Int
-        get() = formQueue.count { it.status == FormStatus.PENDING || it.status == FormStatus.FAILED }
+        get() = platformSynchronized(queueLock) {
+            formQueue.count { it.status == FormStatus.PENDING || it.status == FormStatus.FAILED }
+        }
 
     private fun updateFormStatus(formId: String, status: FormStatus, retryCount: Int? = null) {
-        val index = formQueue.indexOfFirst { it.formId == formId }
-        if (index >= 0) {
-            formQueue[index] = formQueue[index].copy(
-                status = status,
-                retryCount = retryCount ?: formQueue[index].retryCount
-            )
-            queuedForms = formQueue.toList()
+        platformSynchronized(queueLock) {
+            val index = formQueue.indexOfFirst { it.formId == formId }
+            if (index >= 0) {
+                formQueue[index] = formQueue[index].copy(
+                    status = status,
+                    retryCount = retryCount ?: formQueue[index].retryCount
+                )
+                queuedForms = formQueue.toList()
+            }
         }
     }
 

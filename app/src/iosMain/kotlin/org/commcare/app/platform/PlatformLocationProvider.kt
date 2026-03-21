@@ -13,9 +13,22 @@ import platform.CoreLocation.kCLAuthorizationStatusNotDetermined
 import platform.darwin.NSObject
 
 actual class PlatformLocationProvider actual constructor() {
+    // Retain manager and delegate for the duration of the async request.
+    // iOS delegate properties are weak references — local variables would be
+    // ARC-released before the callback fires.
+    private var retainedManager: CLLocationManager? = null
+    private var retainedDelegate: LocationDelegate? = null
+
     actual fun requestLocation(onResult: (LocationResult?) -> Unit) {
         val manager = CLLocationManager()
-        val delegate = LocationDelegate(manager, onResult)
+        val delegate = LocationDelegate(manager) { result ->
+            onResult(result)
+            // Release retained references after callback
+            retainedManager = null
+            retainedDelegate = null
+        }
+        retainedManager = manager
+        retainedDelegate = delegate
         manager.delegate = delegate
         manager.desiredAccuracy = kCLLocationAccuracyBest
 
@@ -24,8 +37,13 @@ actual class PlatformLocationProvider actual constructor() {
             status == kCLAuthorizationStatusAuthorizedAlways
         ) {
             manager.requestLocation()
-        } else {
+        } else if (status == kCLAuthorizationStatusNotDetermined) {
             manager.requestWhenInUseAuthorization()
+        } else {
+            // Permission denied or restricted — report immediately
+            onResult(null)
+            retainedManager = null
+            retainedDelegate = null
         }
     }
 }

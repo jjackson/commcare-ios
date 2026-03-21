@@ -17,6 +17,9 @@ import platform.Foundation.writeToFile
 import platform.darwin.NSObject
 
 actual class PlatformImageCapture actual constructor() {
+    // Retain delegate for the duration of the picker — iOS delegate is a weak reference
+    private var retainedDelegate: ImagePickerDelegate? = null
+
     actual fun captureFromCamera(onResult: (String?) -> Unit) {
         launchPicker(UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera, onResult)
     }
@@ -34,7 +37,11 @@ actual class PlatformImageCapture actual constructor() {
         val picker = UIImagePickerController()
         picker.sourceType = sourceType
 
-        val delegate = ImagePickerDelegate(onResult)
+        val delegate = ImagePickerDelegate { result ->
+            onResult(result)
+            retainedDelegate = null
+        }
+        retainedDelegate = delegate
         picker.delegate = delegate
 
         val rootVc = UIApplication.sharedApplication.keyWindow?.rootViewController
@@ -43,7 +50,7 @@ actual class PlatformImageCapture actual constructor() {
 }
 
 private class ImagePickerDelegate(
-    private val onResult: (String?) -> Unit
+    private val onComplete: (String?) -> Unit
 ) : NSObject(), UIImagePickerControllerDelegateProtocol, UINavigationControllerDelegateProtocol {
 
     override fun imagePickerController(
@@ -57,15 +64,15 @@ private class ImagePickerDelegate(
             if (data != null) {
                 val path = NSTemporaryDirectory() + NSUUID().UUIDString + ".jpg"
                 (data as NSData).writeToFile(path, atomically = true)
-                onResult(path)
+                onComplete(path)
                 return
             }
         }
-        onResult(null)
+        onComplete(null)
     }
 
     override fun imagePickerControllerDidCancel(picker: UIImagePickerController) {
         picker.dismissViewControllerAnimated(true, completion = null)
-        onResult(null)
+        onComplete(null)
     }
 }
