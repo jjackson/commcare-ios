@@ -38,8 +38,13 @@ jobs:
         working-directory: commcare-core
         run: ./gradlew build --no-daemon --stacktrace
 
+      - name: Make app gradlew executable
+        working-directory: app
+        run: chmod +x ./gradlew
+
       - name: Run app JVM tests
-        run: ./gradlew :app:jvmTest --no-daemon --stacktrace
+        working-directory: app
+        run: ./gradlew jvmTest --no-daemon --stacktrace
 
       - name: Upload test reports
         if: failure()
