@@ -1,11 +1,11 @@
 # Login flow WITH full app install — fills App ID for real form access.
 # Expects env: COMMCARE_USERNAME, COMMCARE_PASSWORD
-appId: org.commcare.ios
+appId: org.marshellis.commcare.ios
 
 ---
 
 - launchApp:
-    appId: "org.commcare.ios"
+    appId: "org.marshellis.commcare.ios"
     clearState: true
 
 # Wait for login screen to appear

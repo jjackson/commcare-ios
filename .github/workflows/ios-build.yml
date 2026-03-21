@@ -107,17 +107,17 @@ jobs:
 
           # Install and launch
           xcrun simctl install "$DEVICE_ID" "$APP_PATH"
-          xcrun simctl launch "$DEVICE_ID" org.commcare.ios
+          xcrun simctl launch "$DEVICE_ID" org.marshellis.commcare.ios
 
           # Give the app time to start, then check it hasn't crashed
           # CMP 1.10+ may take longer to initialize on first launch
           echo "Waiting for app to start..."
           sleep 15
-          APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep commcare || true)
+          APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep marshellis || true)
           if [ -z "$APP_PID" ]; then
             echo "First check failed, retrying after 15 more seconds..."
             sleep 15
-            APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep commcare || true)
+            APP_PID=$(xcrun simctl spawn "$DEVICE_ID" launchctl list | grep marshellis || true)
           fi
           if [ -z "$APP_PID" ]; then
             echo "WARNING: App may have crashed on launch. Checking crash logs..."
