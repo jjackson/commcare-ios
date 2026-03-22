@@ -4,7 +4,9 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
 actual object PlatformCrypto {
@@ -45,5 +47,11 @@ actual object PlatformCrypto {
         val keyGen = KeyGenerator.getInstance("AES")
         keyGen.init(bits)
         return keyGen.generateKey().encoded
+    }
+
+    actual fun pbkdf2(password: String, salt: ByteArray, iterations: Int, keyLengthBytes: Int): ByteArray {
+        val spec = PBEKeySpec(password.toCharArray(), salt, iterations, keyLengthBytes * 8)
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        return factory.generateSecret(spec).encoded
     }
 }
