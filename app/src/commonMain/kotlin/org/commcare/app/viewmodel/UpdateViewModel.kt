@@ -9,13 +9,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
-import org.commcare.app.storage.InMemoryStorage
 import org.commcare.app.storage.SqlDelightUserSandbox
-import org.commcare.resources.ResourceInstallContext
-import org.commcare.resources.model.InstallerFactory
-import org.commcare.resources.model.InstallRequestSource
-import org.commcare.resources.model.Resource
-import org.commcare.resources.model.ResourceTable
+import org.commcare.core.interfaces.HttpRequest
+import org.commcare.core.interfaces.createHttpClient
 import org.commcare.util.CommCarePlatform
 
 /**
@@ -67,30 +63,48 @@ class UpdateViewModel(
         updateState = UpdateState.Checking
         scope.launch {
             try {
-                // Create staging resource table
-                val stagingStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
-                val installerFactory = InstallerFactory()
-                val stagingTable = ResourceTable.RetrieveTable(stagingStorage, installerFactory)
-
-                // Try to install resources to staging table
-                val tempStorage = InMemoryStorage<Resource>(Resource::class, { Resource() })
-                val tempTable = ResourceTable.RetrieveTable(tempStorage, installerFactory)
-
                 updateMessage = "Checking server for updates..."
                 updateProgress = 0.2f
 
-                ResourceInstallContext(InstallRequestSource.FOREGROUND_UPDATE)
+                // Fetch the profile XML from the server
+                val httpClient = createHttpClient()
+                val response = httpClient.execute(
+                    HttpRequest(url = profileUrl, method = "GET")
+                )
 
-                // TODO: Implement actual server-side version comparison.
-                // For now, report up-to-date since we can't actually check.
-                updateState = UpdateState.UpToDate
-                updateMessage = "App is up to date"
+                if (response.code !in 200..299) {
+                    updateState = UpdateState.Error("Server returned ${response.code}")
+                    updateMessage = null
+                    return@launch
+                }
+
+                val body = response.body?.decodeToString() ?: ""
+                updateProgress = 0.6f
+
+                // Extract version from profile XML: <profile ... version="N" ...>
+                val serverVersion = extractVersionFromProfile(body)
+                val installedVersion = currentVersion?.toIntOrNull()
+
+                if (serverVersion != null && installedVersion != null && serverVersion > installedVersion) {
+                    availableVersion = serverVersion.toString()
+                    updateState = UpdateState.Available
+                    updateMessage = "Version $serverVersion available (installed: $installedVersion)"
+                } else {
+                    updateState = UpdateState.UpToDate
+                    updateMessage = "App is up to date"
+                }
                 updateProgress = 0f
             } catch (e: Exception) {
-                updateState = UpdateState.UpToDate
-                updateMessage = "App is up to date"
+                updateState = UpdateState.Error("Check failed: ${e.message}")
+                updateMessage = null
             }
         }
+    }
+
+    private fun extractVersionFromProfile(xml: String): Int? {
+        // Match version="N" in the <profile> tag
+        val regex = Regex("""<profile[^>]*\bversion\s*=\s*"(\d+)"[^>]*>""")
+        return regex.find(xml)?.groupValues?.get(1)?.toIntOrNull()
     }
 
     /**
