@@ -46,13 +46,25 @@ commcare-ios/
 
 **Phase 5: Android UX Parity — COMPLETE.** iOS UX at parity with Android CommCare. Connect ID registration, marketplace (opportunities, deliveries, payments, messaging), multi-app management, navigation drawer, PIN/biometric login all implemented. See `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md`.
 
-**What's next:** The app is end-to-end functional on TestFlight. Next priorities are field testing feedback, remaining App Store submission steps, and upstream extraction of commcare-core changes.
+**Phase 6: Field Readiness — PLANNED.** 16 tasks across 6 waves. Fixes production blockers (signature capture, update checking), adds Connect ID recovery, reworks marketplace data models, adds iOS platform tests. See `docs/plans/2026-03-21-phase6-field-readiness-plan.md`.
 
-**If you are an agent starting a session:** Read the current status above and the Phase 5 design spec. If there are open issues, pick up the next one. Otherwise, check with the user for direction.
+| Wave | Title | Issues | Status |
+|------|-------|--------|--------|
+| 1 | Functional Blockers (signature + updates) | #336 | Open |
+| 2 | Connect ID Recovery Flow | #337 | Open |
+| 3 | Connect Marketplace Data Model Rework | #338 | Open |
+| 4 | iOS Platform Unit Tests | #339 | Open |
+| 5 | Connect App Download + Learning Flow | #340 | Open |
+| 6 | Quality Polish (encryption, offline, timestamps) | #341 | Open |
+
+Waves 2, 3, 4 can run in parallel after Wave 1. Wave 5 depends on Wave 3. Wave 6 can run anytime.
+
+**If you are an agent starting a session:** Pick up the next open issue from the table above. Read the issue description and the Phase 6 plan for context.
 
 ## Key Docs
 
 **Active:**
+- **Phase 6 plan**: `docs/plans/2026-03-21-phase6-field-readiness-plan.md` — 16 tasks, 6 waves: blockers, Connect recovery, marketplace models, platform tests, app download, polish
 - **Phase 5 design spec**: `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md` — Connect ID, marketplace, multi-app, navigation drawer
 - **Connect marketplace rework**: `docs/plans/2026-03-20-connect-marketplace-rework-plan.md` — data model + API fixes for Connect marketplace
 - **TestFlight setup**: `docs/plans/testflight-setup.md` — Xcode archive, signing, and TestFlight upload process
