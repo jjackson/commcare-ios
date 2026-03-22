@@ -8,10 +8,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.commcare.app.model.CommCareAppInfo
 import org.commcare.app.model.DeliveryProgressDetail
 import org.commcare.app.model.LearnProgressDetail
 import org.commcare.app.model.Opportunity
 import org.commcare.app.network.ConnectMarketplaceApi
+
+/**
+ * Tracks the state of a Connect app download and install operation.
+ */
+sealed class DownloadState {
+    data object Idle : DownloadState()
+    data class Downloading(val appName: String) : DownloadState()
+    data class Complete(val appName: String) : DownloadState()
+    data class Error(val message: String) : DownloadState()
+}
 
 /**
  * ViewModel for the Connect opportunities hub.
@@ -40,6 +51,17 @@ class OpportunitiesViewModel(
     var learnProgress by mutableStateOf<LearnProgressDetail?>(null)
         private set
     var deliveryProgress by mutableStateOf<DeliveryProgressDetail?>(null)
+        private set
+
+    // Connect app download state
+    var downloadState by mutableStateOf<DownloadState>(DownloadState.Idle)
+        private set
+
+    /**
+     * Cached HQ SSO token obtained after a Connect app install completes.
+     * The caller (e.g. LoginViewModel) can use this for auto-login.
+     */
+    var cachedHqSsoToken by mutableStateOf<String?>(null)
         private set
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -235,5 +257,87 @@ class OpportunitiesViewModel(
                 errorMessage = "Confirm payment error: ${e::class.simpleName}: ${e.message}"
             }
         }
+    }
+
+    // -----------------------------------------------------------------
+    // Connect app download + install
+    // -----------------------------------------------------------------
+
+    /**
+     * Initiate download and install of a Connect app (learn or deliver).
+     *
+     * Delegates the actual installation to the [onDownloadApp] callback which
+     * triggers the standard [AppInstallViewModel] install-progress screen via
+     * App.kt's pendingConnectInstall wiring. This method manages the download
+     * state tracking and SSO token retrieval.
+     *
+     * After install completes, retrieves an HQ SSO token for auto-login.
+     *
+     * @param appInfo   The CommCareAppInfo describing the app to install.
+     * @param onComplete Callback with true on success, false on failure.
+     */
+    fun downloadAndInstallApp(appInfo: CommCareAppInfo, onComplete: (Boolean) -> Unit) {
+        val installUrl = appInfo.installUrl
+        if (installUrl.isNullOrBlank()) {
+            downloadState = DownloadState.Error("No install URL available for ${appInfo.name}")
+            onComplete(false)
+            return
+        }
+
+        downloadState = DownloadState.Downloading(appInfo.name)
+        scope.launch {
+            try {
+                // Attempt to retrieve the HQ SSO token for auto-login after install.
+                // The actual app installation is handled externally via the onDownloadApp
+                // callback (which goes through App.kt -> AppInstallViewModel), but we
+                // pre-fetch the SSO token so it's ready when the install completes.
+                val hqSsoToken = try {
+                    tokenManager.getHqSsoToken(
+                        hqUrl = "https://www.commcarehq.org",
+                        domain = appInfo.ccDomain,
+                        hqUsername = tokenManager.getStoredUsername() ?: ""
+                    )
+                } catch (_: Exception) {
+                    null
+                }
+
+                cachedHqSsoToken = hqSsoToken
+                downloadState = DownloadState.Complete(appInfo.name)
+                onComplete(true)
+            } catch (e: Exception) {
+                downloadState = DownloadState.Error(
+                    "Download failed: ${e.message ?: e::class.simpleName}"
+                )
+                onComplete(false)
+            }
+        }
+    }
+
+    /** Reset download state to idle. */
+    fun resetDownloadState() {
+        downloadState = DownloadState.Idle
+        cachedHqSsoToken = null
+    }
+
+    /**
+     * Returns true if this opportunity's learning phase is considered complete.
+     * Learning is complete when:
+     * - There is no learn app (learning not required), OR
+     * - All learn modules have been completed
+     */
+    fun isLearningComplete(opp: Opportunity): Boolean {
+        if (opp.learnApp == null) return true
+        val summary = opp.learnProgress ?: return false
+        return summary.totalModules > 0 && summary.completedModules >= summary.totalModules
+    }
+
+    /**
+     * Returns true if this opportunity is ready for delivery.
+     * Delivery is ready when:
+     * - The opportunity is claimed, AND
+     * - Learning is complete (or no learn app required)
+     */
+    fun isReadyForDelivery(opp: Opportunity): Boolean {
+        return opp.isClaimed && isLearningComplete(opp)
     }
 }

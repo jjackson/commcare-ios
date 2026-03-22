@@ -18,10 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Assessment
 import org.commcare.app.model.CompletedModule
 import org.commcare.app.model.LearnModuleInfo
+import org.commcare.app.viewmodel.DownloadState
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
@@ -41,18 +43,48 @@ fun LearnProgressScreen(
     val opp = viewModel.selectedOpportunity
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Download Learn App button — shown when a learn app install URL is available
+        // "Start Learning" button — shown when a learn app install URL is available
+        // and learning is not yet complete
         val learnApp = opp?.learnApp
         val learnInstallUrl = learnApp?.installUrl
-        if (onDownloadApp != null && !learnInstallUrl.isNullOrBlank()) {
+        val learningComplete = opp != null && viewModel.isLearningComplete(opp)
+        if (onDownloadApp != null && learnApp != null && !learnInstallUrl.isNullOrBlank() && !learningComplete) {
+            val downloadState = viewModel.downloadState
+            val isDownloading = downloadState is DownloadState.Downloading &&
+                downloadState.appName == learnApp.name
             Button(
-                onClick = { onDownloadApp(learnInstallUrl, learnApp.name) },
+                onClick = {
+                    viewModel.downloadAndInstallApp(learnApp) { success ->
+                        if (success) {
+                            onDownloadApp(learnInstallUrl, learnApp.name)
+                        }
+                    }
+                },
+                enabled = !isDownloading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text("Download Learn App")
+                Text(if (isDownloading) "Downloading..." else "Start Learning")
             }
+            if (downloadState is DownloadState.Error) {
+                Text(
+                    text = downloadState.message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+        // Show completion message when learning is done
+        if (learningComplete && learnApp != null) {
+            Text(
+                text = "Learning complete!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ConnectIndigo,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
         }
 
         if (detail == null) {
