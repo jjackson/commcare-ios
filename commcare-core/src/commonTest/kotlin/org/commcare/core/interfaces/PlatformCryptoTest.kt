@@ -76,6 +76,78 @@ class PlatformCryptoTest {
         val key256 = PlatformCrypto.generateAesKey(256)
         assertEquals(32, key256.size)
     }
+
+    @Test
+    fun testAesEncryptDecryptRoundTrip() {
+        val key = PlatformCrypto.generateAesKey(256)
+        val plaintext = "Hello, CommCare!".encodeToByteArray()
+        val encrypted = PlatformCrypto.aesEncrypt(plaintext, key)
+        val decrypted = PlatformCrypto.aesDecrypt(encrypted, key)
+        assertEquals(plaintext.toList(), decrypted.toList())
+    }
+
+    @Test
+    fun testAesEncryptDecryptEmptyData() {
+        val key = PlatformCrypto.generateAesKey(256)
+        val plaintext = ByteArray(0)
+        val encrypted = PlatformCrypto.aesEncrypt(plaintext, key)
+        val decrypted = PlatformCrypto.aesDecrypt(encrypted, key)
+        assertEquals(plaintext.toList(), decrypted.toList())
+    }
+
+    @Test
+    fun testAesEncryptDecryptLargeData() {
+        val key = PlatformCrypto.generateAesKey(256)
+        val plaintext = ByteArray(1024) { (it % 256).toByte() }
+        val encrypted = PlatformCrypto.aesEncrypt(plaintext, key)
+        val decrypted = PlatformCrypto.aesDecrypt(encrypted, key)
+        assertEquals(plaintext.toList(), decrypted.toList())
+    }
+
+    @Test
+    fun testAesDifferentEncryptionsProduceDifferentOutput() {
+        val key = PlatformCrypto.generateAesKey(256)
+        val plaintext = "same input".encodeToByteArray()
+        val enc1 = PlatformCrypto.aesEncrypt(plaintext, key)
+        val enc2 = PlatformCrypto.aesEncrypt(plaintext, key)
+        // Different IVs produce different ciphertexts
+        assertNotEquals(enc1.toList(), enc2.toList())
+    }
+
+    @Test
+    fun testPbkdf2KnownOutputDeterministic() {
+        val password = "mypassword"
+        val salt = "mysalt".encodeToByteArray()
+        val key1 = PlatformCrypto.pbkdf2(password, salt, 1000, 32)
+        val key2 = PlatformCrypto.pbkdf2(password, salt, 1000, 32)
+        assertEquals(32, key1.size)
+        assertEquals(key1.toList(), key2.toList(), "PBKDF2 should be deterministic")
+    }
+
+    @Test
+    fun testPbkdf2DifferentPasswordsDifferentKeys() {
+        val salt = "mysalt".encodeToByteArray()
+        val key1 = PlatformCrypto.pbkdf2("password1", salt, 1000, 32)
+        val key2 = PlatformCrypto.pbkdf2("password2", salt, 1000, 32)
+        assertNotEquals(key1.toList(), key2.toList())
+    }
+
+    @Test
+    fun testPbkdf2DifferentSaltsDifferentKeys() {
+        val password = "mypassword"
+        val key1 = PlatformCrypto.pbkdf2(password, "salt1".encodeToByteArray(), 1000, 32)
+        val key2 = PlatformCrypto.pbkdf2(password, "salt2".encodeToByteArray(), 1000, 32)
+        assertNotEquals(key1.toList(), key2.toList())
+    }
+
+    @Test
+    fun testPbkdf2VariousKeyLengths() {
+        val password = "test"
+        val salt = "salt".encodeToByteArray()
+        assertEquals(16, PlatformCrypto.pbkdf2(password, salt, 1000, 16).size)
+        assertEquals(32, PlatformCrypto.pbkdf2(password, salt, 1000, 32).size)
+        assertEquals(64, PlatformCrypto.pbkdf2(password, salt, 1000, 64).size)
+    }
 }
 
 private fun ByteArray.toHexString(): String =
