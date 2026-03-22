@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Opportunity
 import org.commcare.app.model.daysUntil
+import org.commcare.app.viewmodel.DownloadState
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 private enum class DetailTab { PROGRESS, PAYMENT }
@@ -375,31 +376,70 @@ private fun ProgressTabContent(
         }
     }
 
-    // Download buttons if applicable
+    // Context-aware action buttons for learning and delivery
+    val learnApp = opportunity.learnApp
     val deliverApp = opportunity.deliverApp
-    if (onDownloadApp != null && deliverApp != null && !deliverApp.installUrl.isNullOrBlank()) {
+    val learningComplete = viewModel.isLearningComplete(opportunity)
+    val downloadState = viewModel.downloadState
+
+    // Show "Start Learning" when learn app exists and learning is not yet complete
+    if (onDownloadApp != null && learnApp != null && !learnApp.installUrl.isNullOrBlank() && !learningComplete) {
+        val isDownloadingLearn = downloadState is DownloadState.Downloading &&
+            downloadState.appName == learnApp.name
         Button(
-            onClick = { onDownloadApp(deliverApp.installUrl, deliverApp.name) },
+            onClick = {
+                viewModel.downloadAndInstallApp(learnApp) { success ->
+                    if (success) {
+                        onDownloadApp(learnApp.installUrl, learnApp.name)
+                    }
+                }
+            },
+            enabled = !isDownloadingLearn,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ConnectIndigo)
         ) {
-            Text("Download Deliver App")
+            Text(
+                text = if (isDownloadingLearn) "Downloading..." else "Start Learning",
+                color = Color.White
+            )
         }
     }
 
-    val learnApp = opportunity.learnApp
-    if (onDownloadApp != null && learnApp != null && !learnApp.installUrl.isNullOrBlank()) {
+    // Show "Start Delivering" when learning is complete (or no learn app) and deliver app exists
+    if (onDownloadApp != null && deliverApp != null && !deliverApp.installUrl.isNullOrBlank() && learningComplete) {
+        val isDownloadingDeliver = downloadState is DownloadState.Downloading &&
+            downloadState.appName == deliverApp.name
         Button(
-            onClick = { onDownloadApp(learnApp.installUrl, learnApp.name) },
+            onClick = {
+                viewModel.downloadAndInstallApp(deliverApp) { success ->
+                    if (success) {
+                        onDownloadApp(deliverApp.installUrl, deliverApp.name)
+                    }
+                }
+            },
+            enabled = !isDownloadingDeliver,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 4.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ConnectIndigo)
+            colors = ButtonDefaults.buttonColors(containerColor = ConnectTeal)
         ) {
-            Text("Download Learn App")
+            Text(
+                text = if (isDownloadingDeliver) "Downloading..." else "Start Delivering",
+                color = Color.White
+            )
         }
+    }
+
+    // Download error message
+    if (downloadState is DownloadState.Error) {
+        Text(
+            text = downloadState.message,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        )
     }
 
     // Per-payment-unit breakdown with approved/remaining counts
