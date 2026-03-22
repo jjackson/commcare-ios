@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.commcare.app.platform.currentEpochSeconds
 import org.commcare.app.storage.CommCareDatabase
 import org.commcare.core.interfaces.HttpRequest
 import org.commcare.core.interfaces.PlatformHttpClient
@@ -185,7 +186,49 @@ class FormQueueViewModel(
     private var nextId = 1
     private fun generateId(): String = "form-${nextId++}"
 
-    private fun currentTimestamp(): String = "now"
+    /**
+     * Returns the current time as an ISO 8601 UTC string (e.g. "2026-03-21T14:30:00Z").
+     * Uses the platform-specific [currentEpochSeconds] expect/actual.
+     */
+    private fun currentTimestamp(): String {
+        val epochSeconds = currentEpochSeconds()
+        // Manual ISO 8601 formatting without kotlinx-datetime dependency
+        val s = epochSeconds % 60
+        val totalMinutes = epochSeconds / 60
+        val m = totalMinutes % 60
+        val totalHours = totalMinutes / 60
+        val h = totalHours % 24
+        var totalDays = totalHours / 24
+
+        // Convert days since epoch (1970-01-01) to year/month/day
+        var year = 1970
+        while (true) {
+            val daysInYear = if (isLeapYear(year)) 366L else 365L
+            if (totalDays < daysInYear) break
+            totalDays -= daysInYear
+            year++
+        }
+        val monthDays = if (isLeapYear(year))
+            intArrayOf(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+        else
+            intArrayOf(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+        var month = 1
+        for (md in monthDays) {
+            if (totalDays < md) break
+            totalDays -= md
+            month++
+        }
+        val day = totalDays + 1
+
+        return "${year.pad4()}-${month.pad2()}-${day.toLong().pad2()}T${h.pad2()}:${m.pad2()}:${s.pad2()}Z"
+    }
+
+    private fun isLeapYear(year: Int): Boolean =
+        (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+
+    private fun Int.pad4(): String = toString().padStart(4, '0')
+    private fun Int.pad2(): String = toString().padStart(2, '0')
+    private fun Long.pad2(): String = toString().padStart(2, '0')
 }
 
 data class QueuedForm(

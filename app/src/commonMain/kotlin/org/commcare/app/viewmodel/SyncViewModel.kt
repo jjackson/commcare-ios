@@ -32,6 +32,8 @@ class SyncViewModel(
         private set
     var lastSyncToken by mutableStateOf<String?>(null)
         private set
+    var isOffline by mutableStateOf(false)
+        private set
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -57,6 +59,14 @@ class SyncViewModel(
 
         scope.launch {
             try {
+                // Pre-check: verify network connectivity with a lightweight HEAD request
+                if (!checkConnectivity()) {
+                    isOffline = true
+                    syncState = SyncState.Error("No network connection. Please check your internet and try again.")
+                    return@launch
+                }
+                isOffline = false
+
                 // Phase 1: Submit queued forms first (send before receive)
                 if (formQueue != null && formQueue.pendingCount > 0) {
                     syncState = SyncState.Syncing(0.1f, "Submitting ${formQueue.pendingCount} forms...")
@@ -133,8 +143,30 @@ class SyncViewModel(
         }
     }
 
+    /**
+     * Lightweight connectivity check: sends a HEAD request to the server.
+     * Returns true if the server is reachable, false otherwise.
+     */
+    private fun checkConnectivity(): Boolean {
+        return try {
+            val pingUrl = "${serverUrl.trimEnd('/')}/serverup.txt"
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = pingUrl,
+                    method = "GET",
+                    headers = mapOf("Authorization" to authHeader)
+                )
+            )
+            // Any response (even 4xx) means the network is up
+            response.code > 0
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     fun resetState() {
         syncState = SyncState.Idle
+        isOffline = false
     }
 }
 

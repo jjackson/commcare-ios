@@ -1,5 +1,6 @@
 package org.commcare.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,20 @@ fun SyncScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Offline banner
+        if (syncViewModel.isOffline) {
+            Text(
+                text = "Offline — No network connection",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         // Sync status
         when (val state = syncViewModel.syncState) {
