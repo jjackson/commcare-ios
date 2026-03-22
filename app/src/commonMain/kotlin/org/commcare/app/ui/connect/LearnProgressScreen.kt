@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Assessment
 import org.commcare.app.model.CompletedModule
+import org.commcare.app.model.LearnModuleInfo
 import org.commcare.app.viewmodel.OpportunitiesViewModel
 
 /**
@@ -94,7 +95,22 @@ fun LearnProgressScreen(
             }
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                // Completed modules section
+                // Learn module list from the learn app (shows all modules with completion status)
+                val learnModules = opp?.learnApp?.learnModules ?: emptyList()
+                if (learnModules.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Learning Modules",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(learnModules) { mod ->
+                        LearnModuleRow(mod)
+                    }
+                }
+
+                // Completed modules section (from learn_progress endpoint)
                 if (detail.completedModules.isNotEmpty()) {
                     item {
                         Text(
@@ -171,6 +187,52 @@ private fun CompletedModuleRow(module: CompletedModule) {
                 module.duration?.let {
                     Text(
                         text = "Duration: $it",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LearnModuleRow(module: LearnModuleInfo) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (module.completed) "[x]" else "[ ]",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (module.completed) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = module.name,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (module.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = module.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (module.timeEstimate > 0) {
+                    Text(
+                        text = "~${module.timeEstimate} min",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

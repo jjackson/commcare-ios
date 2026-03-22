@@ -615,4 +615,377 @@ class ConnectMarketplaceApiJsonTest {
         assertTrue(body.contains("\"id\":99"))
         assertTrue(body.contains("\"confirmed\":\"true\""))
     }
+
+    // =====================================================================
+    // startLearnApp — exercises correct body format
+    // =====================================================================
+
+    @Test
+    fun testStartLearnApp_sendsOpportunityKey() {
+        val client = MockHttpClient(responseCode = 200, responseBody = "{}")
+        val api = ConnectMarketplaceApi(client)
+
+        api.startLearnApp("access-token", "opp-uuid-123")
+        val body = client.lastRequest!!.body!!.decodeToString()
+        assertTrue(body.contains("\"opportunity\""), "Body should use 'opportunity' key, got: $body")
+        assertTrue(body.contains("opp-uuid-123"))
+    }
+
+    // =====================================================================
+    // API version header — all requests should include Accept version header
+    // =====================================================================
+
+    @Test
+    fun testApiVersionHeader_presentOnAllRequests() {
+        val client = MockHttpClient(responseBody = "[]")
+        val api = ConnectMarketplaceApi(client)
+
+        api.getOpportunities("access-token")
+        assertEquals("application/json; version=1.0", client.lastRequest!!.headers["Accept"])
+    }
+
+    // =====================================================================
+    // Inline nested structures on Opportunity detail
+    // =====================================================================
+
+    @Test
+    fun testOpportunityDetail_withInlineDeliveriesAndPayments() {
+        val json = """{
+            "id": 30,
+            "opportunity_id": "opp-inline",
+            "name": "Inline Detail",
+            "description": "Has inline deliveries and payments",
+            "organization": "Org",
+            "is_active": true,
+            "payment_accrued": 250,
+            "daily_start_time": "08:00:00",
+            "daily_finish_time": "17:00:00",
+            "deliveries": [
+                {
+                    "id": 100,
+                    "status": "approved",
+                    "visit_date": "2026-03-15",
+                    "deliver_unit_name": "Home Visit",
+                    "entity_name": "Patient X",
+                    "flags": {}
+                }
+            ],
+            "payments": [
+                {
+                    "id": 200,
+                    "payment_id": "pay-inline",
+                    "amount": "75.00",
+                    "date_paid": "2026-03-16",
+                    "confirmed": false,
+                    "confirmation_date": null
+                }
+            ]
+        }"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunityDetail("access-token", 30)
+        assertTrue(result.isSuccess)
+        val opp = result.getOrThrow()
+
+        // Lifecycle fields
+        assertEquals(250, opp.paymentAccrued)
+        assertEquals("08:00:00", opp.dailyStartTime)
+        assertEquals("17:00:00", opp.dailyFinishTime)
+
+        // Inline deliveries
+        assertEquals(1, opp.deliveries.size)
+        assertEquals(100, opp.deliveries[0].id)
+        assertEquals("approved", opp.deliveries[0].status)
+        assertEquals("Home Visit", opp.deliveries[0].deliverUnitName)
+        assertEquals("Patient X", opp.deliveries[0].entityName)
+
+        // Inline payments
+        assertEquals(1, opp.payments.size)
+        assertEquals(200, opp.payments[0].id)
+        assertEquals("75.00", opp.payments[0].amount)
+        assertFalse(opp.payments[0].confirmed)
+    }
+
+    @Test
+    fun testOpportunityDetail_withInlineAssessmentsAndLearnings() {
+        val json = """{
+            "id": 31,
+            "opportunity_id": "opp-learn-inline",
+            "name": "Learning Inline",
+            "description": "Has inline learnings and assessments",
+            "organization": "Org",
+            "is_active": true,
+            "completed_modules": [
+                {"id": 1, "module": 10, "date": "2026-03-10", "duration": "00:45:00"}
+            ],
+            "assessments": [
+                {"id": 50, "date": "2026-03-11", "score": 90, "passing_score": 70, "passed": true}
+            ]
+        }"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunityDetail("access-token", 31)
+        assertTrue(result.isSuccess)
+        val opp = result.getOrThrow()
+
+        // Inline learnings
+        assertEquals(1, opp.learnings.size)
+        assertEquals(10, opp.learnings[0].module)
+        assertEquals("2026-03-10", opp.learnings[0].date)
+        assertEquals("00:45:00", opp.learnings[0].duration)
+
+        // Inline assessments
+        assertEquals(1, opp.assessments.size)
+        assertEquals(90, opp.assessments[0].score)
+        assertEquals(70, opp.assessments[0].passingScore)
+        assertTrue(opp.assessments[0].passed)
+    }
+
+    @Test
+    fun testOpportunityDetail_withLearnModuleCompletionStatus() {
+        val json = """{
+            "id": 32,
+            "opportunity_id": "opp-modules-status",
+            "name": "Module Status",
+            "description": "D",
+            "organization": "O",
+            "is_active": true,
+            "learn_app": {
+                "id": 8,
+                "cc_domain": "domain",
+                "cc_app_id": "app-mod",
+                "name": "Learn",
+                "description": "D",
+                "organization": "O",
+                "learn_modules": [
+                    {"id": 1, "slug": "m1", "name": "Intro", "description": "Introduction", "time_estimate": 15, "completed": true},
+                    {"id": 2, "slug": "m2", "name": "Advanced", "description": "Deep dive", "time_estimate": 30, "completed": false}
+                ],
+                "passing_score": 80
+            }
+        }"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunityDetail("access-token", 32)
+        assertTrue(result.isSuccess)
+        val modules = result.getOrThrow().learnApp!!.learnModules
+        assertEquals(2, modules.size)
+        assertTrue(modules[0].completed)
+        assertFalse(modules[1].completed)
+        assertEquals("Intro", modules[0].name)
+        assertEquals("Introduction", modules[0].description)
+    }
+
+    @Test
+    fun testOpportunity_dateClaimed_convenienceProperty() {
+        val json = """{
+            "id": 33,
+            "opportunity_id": "opp-claimed-date",
+            "name": "With Claim",
+            "description": "D",
+            "organization": "O",
+            "is_active": true,
+            "claim": {
+                "id": 55,
+                "max_payments": 20,
+                "end_date": "2026-06-30",
+                "date_claimed": "2026-02-15",
+                "payment_units": []
+            }
+        }"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunityDetail("access-token", 33)
+        assertTrue(result.isSuccess)
+        val opp = result.getOrThrow()
+        assertEquals("2026-02-15", opp.dateClaimed)
+        assertTrue(opp.isClaimed)
+    }
+
+    @Test
+    fun testOpportunity_noInlineCollections_defaultsToEmpty() {
+        val json = """{
+            "id": 34,
+            "opportunity_id": "opp-minimal",
+            "name": "Minimal",
+            "description": "No inline collections",
+            "organization": "O",
+            "is_active": true
+        }"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunityDetail("access-token", 34)
+        assertTrue(result.isSuccess)
+        val opp = result.getOrThrow()
+        assertEquals(0, opp.deliveries.size)
+        assertEquals(0, opp.payments.size)
+        assertEquals(0, opp.learnings.size)
+        assertEquals(0, opp.assessments.size)
+        assertEquals(0, opp.paymentAccrued)
+        assertNull(opp.dailyStartTime)
+        assertNull(opp.dailyFinishTime)
+        assertNull(opp.dateClaimed)
+    }
+
+    @Test
+    fun testOpportunityList_withFullNestedStructures() {
+        val json = """[{
+            "id": 40,
+            "opportunity_id": "opp-full",
+            "name": "Full Opportunity",
+            "description": "Complete nested structure",
+            "short_description": "Short desc",
+            "organization": "BigOrg",
+            "is_active": true,
+            "start_date": "2026-01-01",
+            "end_date": "2026-12-31",
+            "max_visits_per_user": 200,
+            "daily_max_visits_per_user": 10,
+            "budget_per_visit": 100,
+            "currency": "KES",
+            "budget_per_user": 5000,
+            "payment_accrued": 1500,
+            "is_user_suspended": false,
+            "daily_start_time": "09:00:00",
+            "daily_finish_time": "18:00:00",
+            "payment_units": [
+                {"id": 1, "payment_unit_id": "pu-a", "name": "Standard Visit", "max_total": 100, "max_daily": 5, "amount": 50, "end_date": "2026-12-31"},
+                {"id": 2, "payment_unit_id": "pu-b", "name": "Bonus Visit", "max_total": null, "max_daily": null, "amount": 100, "end_date": null}
+            ],
+            "learn_app": {
+                "id": 20,
+                "cc_domain": "kenya",
+                "cc_app_id": "app-learn-1",
+                "name": "Learn App",
+                "description": "For learning",
+                "organization": "BigOrg",
+                "learn_modules": [
+                    {"id": 1, "slug": "basics", "name": "Basics", "description": "Start here", "time_estimate": 20, "completed": true},
+                    {"id": 2, "slug": "advanced", "name": "Advanced", "description": "Go deeper", "time_estimate": 40, "completed": false}
+                ],
+                "passing_score": 75,
+                "install_url": "https://example.com/learn.ccz"
+            },
+            "deliver_app": {
+                "id": 21,
+                "cc_domain": "kenya",
+                "cc_app_id": "app-deliver-1",
+                "name": "Deliver App",
+                "description": "For delivering",
+                "organization": "BigOrg",
+                "learn_modules": [],
+                "passing_score": -1,
+                "install_url": "https://example.com/deliver.ccz"
+            },
+            "claim": {
+                "id": 77,
+                "max_payments": 200,
+                "end_date": "2026-12-31",
+                "date_claimed": "2026-02-01",
+                "payment_units": [
+                    {"max_visits": 100, "payment_unit": 1, "payment_unit_id": "pu-a"},
+                    {"max_visits": 100, "payment_unit": 2, "payment_unit_id": "pu-b"}
+                ]
+            },
+            "learn_progress": {"total_modules": 2, "completed_modules": 1},
+            "verification_flags": {
+                "form_submission_start": "09:00:00",
+                "form_submission_end": "17:00:00"
+            },
+            "catchment_areas": [
+                {"id": 1, "name": "Nairobi", "latitude": "-1.286", "longitude": "36.817", "radius": 2000, "active": true}
+            ],
+            "deliveries": [
+                {"id": 301, "status": "approved", "visit_date": "2026-03-01", "deliver_unit_name": "Standard Visit", "deliver_unit_slug_id": "pu-a", "entity_name": "John D", "flags": {"gps": "ok"}},
+                {"id": 302, "status": "pending", "visit_date": "2026-03-02", "deliver_unit_name": "Bonus Visit", "deliver_unit_slug_id": "pu-b", "entity_name": "Jane S", "flags": {}}
+            ],
+            "payments": [
+                {"id": 401, "payment_id": "pay-1", "amount": "50.00", "date_paid": "2026-03-05", "confirmed": true, "confirmation_date": "2026-03-06"}
+            ],
+            "completed_modules": [
+                {"id": 501, "module": 1, "date": "2026-02-15", "duration": "00:25:00"}
+            ],
+            "assessments": [
+                {"id": 601, "date": "2026-02-20", "score": 85, "passing_score": 75, "passed": true}
+            ]
+        }]"""
+        val client = MockHttpClient(responseBody = json)
+        val api = ConnectMarketplaceApi(client)
+
+        val result = api.getOpportunities("access-token")
+        assertTrue(result.isSuccess)
+        val opps = result.getOrThrow()
+        assertEquals(1, opps.size)
+        val opp = opps[0]
+
+        // Core fields
+        assertEquals(40, opp.id)
+        assertEquals("Full Opportunity", opp.name)
+        assertEquals("Short desc", opp.shortDescription)
+        assertEquals("KES", opp.currency)
+        assertEquals(200, opp.maxVisitsPerUser)
+        assertEquals(10, opp.dailyMaxVisitsPerUser)
+        assertEquals(100, opp.budgetPerVisit)
+        assertEquals(5000, opp.budgetPerUser)
+
+        // Lifecycle fields
+        assertEquals(1500, opp.paymentAccrued)
+        assertEquals("09:00:00", opp.dailyStartTime)
+        assertEquals("18:00:00", opp.dailyFinishTime)
+        assertFalse(opp.isUserSuspended)
+
+        // Nested apps
+        assertNotNull(opp.learnApp)
+        assertEquals(2, opp.learnApp!!.learnModules.size)
+        assertTrue(opp.learnApp!!.learnModules[0].completed)
+        assertFalse(opp.learnApp!!.learnModules[1].completed)
+        assertEquals("https://example.com/learn.ccz", opp.learnApp!!.installUrl)
+        assertNotNull(opp.deliverApp)
+        assertEquals("https://example.com/deliver.ccz", opp.deliverApp!!.installUrl)
+
+        // Claim
+        assertNotNull(opp.claim)
+        assertEquals("2026-02-01", opp.dateClaimed)
+        assertEquals(2, opp.claim!!.paymentUnits.size)
+
+        // Learn progress summary
+        assertNotNull(opp.learnProgress)
+        assertEquals(2, opp.learnProgress!!.totalModules)
+        assertEquals(1, opp.learnProgress!!.completedModules)
+
+        // Payment units
+        assertEquals(2, opp.paymentUnits.size)
+        assertEquals("Standard Visit", opp.paymentUnits[0].name)
+        assertNull(opp.paymentUnits[1].maxTotal)
+
+        // Verification flags
+        assertNotNull(opp.verificationFlags)
+
+        // Catchment areas
+        assertEquals(1, opp.catchmentAreas.size)
+        assertEquals("Nairobi", opp.catchmentAreas[0].name)
+
+        // Inline deliveries
+        assertEquals(2, opp.deliveries.size)
+        assertEquals("approved", opp.deliveries[0].status)
+        assertEquals("John D", opp.deliveries[0].entityName)
+        assertEquals("ok", opp.deliveries[0].flags["gps"])
+
+        // Inline payments
+        assertEquals(1, opp.payments.size)
+        assertTrue(opp.payments[0].confirmed)
+
+        // Inline learnings
+        assertEquals(1, opp.learnings.size)
+        assertEquals(1, opp.learnings[0].module)
+
+        // Inline assessments
+        assertEquals(1, opp.assessments.size)
+        assertTrue(opp.assessments[0].passed)
+    }
 }

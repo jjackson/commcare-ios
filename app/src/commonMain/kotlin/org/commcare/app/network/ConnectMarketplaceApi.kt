@@ -133,7 +133,7 @@ class ConnectMarketplaceApi(
         return executeAuthenticatedPost(
             "$baseUrl/users/start_learn_app",
             accessToken,
-            body = """{"opportunity_id":"${escapeJson(opportunityId)}"}"""
+            body = """{"opportunity":"${escapeJson(opportunityId)}"}"""
         )
     }
 
@@ -438,6 +438,53 @@ class ConnectMarketplaceApi(
             )
         }
 
+        // Parse inline learnings (completed_modules) array if present on opportunity detail
+        val learningsJson = extractJsonArrayByKey(json, "completed_modules")
+        val learnings = splitJsonArray(learningsJson).map { obj ->
+            CompletedModule(
+                id = extractJsonInt(obj, "id") ?: 0,
+                module = extractJsonInt(obj, "module") ?: 0,
+                date = extractJsonString(obj, "date") ?: "",
+                duration = extractJsonString(obj, "duration")
+            )
+        }
+
+        // Parse inline assessments array if present on opportunity detail
+        val inlineAssessmentsJson = extractJsonArrayByKey(json, "assessments")
+        val inlineAssessments = splitJsonArray(inlineAssessmentsJson).map { obj ->
+            Assessment(
+                id = extractJsonInt(obj, "id") ?: 0,
+                date = extractJsonString(obj, "date") ?: "",
+                score = extractJsonInt(obj, "score") ?: 0,
+                passingScore = extractJsonInt(obj, "passing_score") ?: 0,
+                passed = extractJsonBoolean(obj, "passed") ?: false
+            )
+        }
+
+        // Parse inline deliveries array if present on opportunity detail
+        val inlineDeliveriesJson = extractJsonArrayByKey(json, "deliveries")
+        val inlineDeliveries = splitJsonArray(inlineDeliveriesJson).map { obj ->
+            DeliveryRecord(
+                id = extractJsonInt(obj, "id") ?: 0,
+                status = extractJsonString(obj, "status") ?: "pending",
+                visitDate = extractJsonString(obj, "visit_date"),
+                deliverUnitName = extractJsonString(obj, "deliver_unit_name"),
+                deliverUnitSlug = extractJsonString(obj, "deliver_unit_slug"),
+                deliverUnitSlugId = extractJsonString(obj, "deliver_unit_slug_id"),
+                entityId = extractJsonString(obj, "entity_id"),
+                entityName = extractJsonString(obj, "entity_name"),
+                reason = extractJsonString(obj, "reason"),
+                flags = parseStringMap(extractJsonObjectByKey(obj, "flags")),
+                lastModified = extractJsonString(obj, "last_modified")
+            )
+        }
+
+        // Parse inline payments array if present on opportunity detail
+        val inlinePaymentsJson = extractJsonArrayByKey(json, "payments")
+        val inlinePayments = splitJsonArray(inlinePaymentsJson).map { obj ->
+            parsePaymentRecord(obj)
+        }
+
         return Opportunity(
             id = extractJsonInt(json, "id") ?: 0,
             opportunityId = extractJsonString(json, "opportunity_id") ?: "",
@@ -462,7 +509,14 @@ class ConnectMarketplaceApi(
             paymentUnits = paymentUnits,
             isUserSuspended = extractJsonBoolean(json, "is_user_suspended") ?: false,
             verificationFlags = verificationFlags,
-            catchmentAreas = catchmentAreas
+            catchmentAreas = catchmentAreas,
+            learnings = learnings,
+            assessments = inlineAssessments,
+            deliveries = inlineDeliveries,
+            payments = inlinePayments,
+            paymentAccrued = extractJsonInt(json, "payment_accrued") ?: 0,
+            dailyStartTime = extractJsonString(json, "daily_start_time"),
+            dailyFinishTime = extractJsonString(json, "daily_finish_time")
         )
     }
 
@@ -474,7 +528,8 @@ class ConnectMarketplaceApi(
                 slug = extractJsonString(obj, "slug") ?: "",
                 name = extractJsonString(obj, "name") ?: "",
                 description = extractJsonString(obj, "description") ?: "",
-                timeEstimate = extractJsonInt(obj, "time_estimate") ?: 0
+                timeEstimate = extractJsonInt(obj, "time_estimate") ?: 0,
+                completed = extractJsonBoolean(obj, "completed") ?: false
             )
         }
 

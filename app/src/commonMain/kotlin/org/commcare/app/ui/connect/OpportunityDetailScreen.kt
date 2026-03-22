@@ -402,7 +402,7 @@ private fun ProgressTabContent(
         }
     }
 
-    // Payment unit breakdown
+    // Per-payment-unit breakdown with approved/remaining counts
     if (opportunity.paymentUnits.isNotEmpty()) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -411,17 +411,31 @@ private fun ProgressTabContent(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
+        val allDeliveries = detail?.deliveries ?: opportunity.deliveries
         opportunity.paymentUnits.forEach { unit ->
+            val unitDeliveries = allDeliveries.filter { it.deliverUnitSlugId == unit.paymentUnitId }
+            val unitApproved = unitDeliveries.count { it.status == "approved" }
+            val maxForUnit = unit.maxTotal
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp)
             ) {
-                Text(
-                    text = unit.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = unit.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = buildString {
+                            append("$unitApproved approved")
+                            if (maxForUnit != null) append(" / $maxForUnit max")
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = "${unit.amount} ${opportunity.currency ?: ""}/visit",
                     style = MaterialTheme.typography.bodySmall,
@@ -644,6 +658,22 @@ private fun JobIntroContent(
                     DeliveryDetailItem(
                         icon = "\u2713",
                         text = "Payment: ${opp.budgetPerVisit} $currency per visit"
+                    )
+                }
+
+                // Working hours if specified
+                if (opp.dailyStartTime != null && opp.dailyFinishTime != null) {
+                    DeliveryDetailItem(
+                        icon = "\u2713",
+                        text = "Working hours: ${opp.dailyStartTime} - ${opp.dailyFinishTime}"
+                    )
+                }
+
+                // Payment accrued
+                if (opp.paymentAccrued > 0) {
+                    DeliveryDetailItem(
+                        icon = "\u2713",
+                        text = "Payment accrued: ${opp.paymentAccrued} $currency"
                     )
                 }
             }
