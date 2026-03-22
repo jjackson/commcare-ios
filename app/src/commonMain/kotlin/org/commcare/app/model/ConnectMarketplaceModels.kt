@@ -50,10 +50,21 @@ data class Opportunity(
     val paymentUnits: List<PaymentUnit>,
     val isUserSuspended: Boolean,
     val verificationFlags: VerificationFlags?,
-    val catchmentAreas: List<CatchmentArea>
+    val catchmentAreas: List<CatchmentArea>,
+    // Inline nested collections — populated when detail endpoint returns them
+    val learnings: List<CompletedModule> = emptyList(),
+    val assessments: List<Assessment> = emptyList(),
+    val deliveries: List<DeliveryRecord> = emptyList(),
+    val payments: List<PaymentRecord> = emptyList(),
+    // Lifecycle fields surfaced from server
+    val paymentAccrued: Int = 0,
+    val dailyStartTime: String? = null,
+    val dailyFinishTime: String? = null
 ) {
     val isClaimed: Boolean get() = claim != null
     val daysRemaining: Int get() = daysUntil(endDate)
+    /** Convenience: date the user claimed this opportunity, from the claim sub-object. */
+    val dateClaimed: String? get() = claim?.dateClaimed
 }
 
 data class CommCareAppInfo(
@@ -73,7 +84,8 @@ data class LearnModuleInfo(
     val slug: String,
     val name: String,
     val description: String,
-    val timeEstimate: Int  // hours
+    val timeEstimate: Int,  // hours
+    val completed: Boolean = false  // true if user completed this module
 )
 
 data class OpportunityClaim(
