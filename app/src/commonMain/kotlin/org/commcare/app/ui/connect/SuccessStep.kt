@@ -18,6 +18,8 @@ import org.commcare.app.viewmodel.ConnectIdViewModel
 
 @Composable
 fun SuccessStep(viewModel: ConnectIdViewModel, onComplete: () -> Unit) {
+    val isRecovery = viewModel.isRecoveryFlow
+
     Column(
         modifier = Modifier.fillMaxWidth().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -33,7 +35,7 @@ fun SuccessStep(viewModel: ConnectIdViewModel, onComplete: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Account created!",
+            text = if (isRecovery) "Account recovered!" else "Account created!",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center
@@ -42,7 +44,11 @@ fun SuccessStep(viewModel: ConnectIdViewModel, onComplete: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "You're all set. Your Personal ID is ready.",
+            text = if (isRecovery) {
+                "Welcome back! Your Personal ID has been restored."
+            } else {
+                "You're all set. Your Personal ID is ready."
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
