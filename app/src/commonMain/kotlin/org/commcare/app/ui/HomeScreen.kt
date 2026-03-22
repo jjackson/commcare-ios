@@ -1,6 +1,7 @@
 package org.commcare.app.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -118,6 +119,11 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) { drawerViewModel.refresh() }
 
+    // Start background periodic update checking
+    LaunchedEffect(updateViewModel) {
+        updateViewModel?.schedulePeriodicCheck()
+    }
+
     // Current form entry state (set when navigating to a form)
     var formEntryViewModel by remember { mutableStateOf<FormEntryViewModel?>(null) }
     var caseListViewModel by remember { mutableStateOf<CaseListViewModel?>(null) }
@@ -196,6 +202,8 @@ fun HomeScreen(
                 },
                 pendingFormCount = formQueueViewModel.pendingCount,
                 lastSyncTime = syncViewModel.lastSyncTime,
+                isOffline = syncViewModel.isOffline,
+                hasNewUpdate = updateViewModel?.hasNewUpdate == true,
                 onOpenDrawer = { scope.launch { drawerState.open() } }
             )
         }
@@ -393,6 +401,8 @@ private fun HomeLanding(
     onDiagnostics: () -> Unit,
     pendingFormCount: Int,
     lastSyncTime: String?,
+    isOffline: Boolean = false,
+    hasNewUpdate: Boolean = false,
     onOpenDrawer: () -> Unit = {}
 ) {
     Column(
@@ -414,6 +424,34 @@ private fun HomeLanding(
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .padding(end = 8.dp)
             )
+        }
+
+        // Offline banner
+        if (isOffline) {
+            Text(
+                text = "Offline — No network connection",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // Update available indicator
+        if (hasNewUpdate) {
+            Text(
+                text = "A new version is available. Go to Settings to update.",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
         Spacer(modifier = Modifier.height(48.dp))

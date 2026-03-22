@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.AppInstaller
 import org.commcare.app.storage.SqlDelightUserSandbox
@@ -33,8 +35,11 @@ class UpdateViewModel(
         private set
     var updateMessage by mutableStateOf<String?>(null)
         private set
+    var hasNewUpdate by mutableStateOf(false)
+        private set
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var periodicCheckJob: Job? = null
 
     fun cancel() { scope.cancel() }
 
@@ -87,6 +92,7 @@ class UpdateViewModel(
 
                 if (serverVersion != null && installedVersion != null && serverVersion > installedVersion) {
                     availableVersion = serverVersion.toString()
+                    hasNewUpdate = true
                     updateState = UpdateState.Available
                     updateMessage = "Version $serverVersion available (installed: $installedVersion)"
                 } else {
@@ -134,8 +140,52 @@ class UpdateViewModel(
         }
     }
 
+    /**
+     * Schedule a daily background check for app updates.
+     * Runs an infinite coroutine loop with a 24-hour delay between checks.
+     * Safe to call multiple times — cancels any existing periodic job first.
+     */
+    fun schedulePeriodicCheck() {
+        periodicCheckJob?.cancel()
+        periodicCheckJob = scope.launch {
+            while (true) {
+                delay(24 * 60 * 60 * 1000L) // 24 hours
+                try {
+                    checkForUpdatesQuietly()
+                } catch (_: Exception) {
+                    // Background check failures are non-fatal; retry next cycle
+                }
+            }
+        }
+    }
+
+    /**
+     * Silent update check that only sets [hasNewUpdate] without changing [updateState].
+     * Used by the periodic background checker so it doesn't interrupt the UI.
+     */
+    private fun checkForUpdatesQuietly() {
+        if (profileUrl.isBlank()) return
+        try {
+            val httpClient = createHttpClient()
+            val response = httpClient.execute(
+                HttpRequest(url = profileUrl, method = "GET")
+            )
+            if (response.code !in 200..299) return
+            val body = response.body?.decodeToString() ?: return
+            val serverVersion = extractVersionFromProfile(body)
+            val installedVersion = currentVersion?.toIntOrNull()
+            if (serverVersion != null && installedVersion != null && serverVersion > installedVersion) {
+                hasNewUpdate = true
+                availableVersion = serverVersion.toString()
+            }
+        } catch (_: Exception) {
+            // Swallow — background check is best-effort
+        }
+    }
+
     fun dismissUpdate() {
         updateState = UpdateState.Idle
+        hasNewUpdate = false
         updateMessage = null
         updateProgress = 0f
     }

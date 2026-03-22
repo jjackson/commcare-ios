@@ -25,11 +25,24 @@ import org.commcare.app.network.ConnectMarketplaceApi
  * - 30-second polling when a thread is open (startPolling/stopPolling)
  * - Unsent message retry: failed sends are queued and retried via retrySending()
  * - Consent flow with loading state and error reporting
+ *
+ * TODO: Add end-to-end message encryption using AES-256-GCM.
+ *   Requires server-side key exchange API (not yet available). When the HQ
+ *   endpoint for per-thread symmetric key negotiation is ready, encrypt
+ *   outgoing message content before sending and decrypt incoming messages
+ *   after receipt. The [isEncryptionEnabled] flag should be flipped to true
+ *   once the implementation is in place.
  */
 class MessagingViewModel(
     private val api: ConnectMarketplaceApi,
     private val tokenManager: ConnectIdTokenManager
 ) {
+    /**
+     * Whether end-to-end encryption is active for messages.
+     * Currently false — encryption is deferred until the server-side
+     * key exchange API is available.
+     */
+    val isEncryptionEnabled: Boolean = false
     var threads by mutableStateOf<List<MessageThread>>(emptyList())
         private set
     var currentThreadMessages by mutableStateOf<List<Message>>(emptyList())
