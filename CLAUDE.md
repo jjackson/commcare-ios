@@ -48,7 +48,9 @@ commcare-ios/
 
 **Phase 6: Field Readiness — COMPLETE.** All 6 waves done. Signature capture working, real update checking, Connect ID recovery, marketplace models reworked, iOS platform tests added, quality polish applied. See `docs/plans/2026-03-21-phase6-field-readiness-plan.md`.
 
-**If you are an agent starting a session:** All planned phases are complete. Check with the user for direction — potential next work includes field testing feedback, App Store submission, upstream commcare-core extraction, or new feature requests.
+**Phase 7: Full Android Parity — IN PROGRESS.** 10 waves covering 15 missing features and 22 test coverage gaps identified via systematic Android comparison. AES encryption, select appearance variants, form chaining, incremental sync, multimedia capture, and comprehensive test coverage. Issues #350-#359. See `docs/plans/2026-03-22-phase7-full-android-parity-plan.md`.
+
+**If you are an agent starting a session:** Phase 7 is the active phase. Read the plan doc and check issue status before starting work. Start with Wave 1 (AES Encryption) unless a later wave is already in progress.
 
 ## Key Docs
 
@@ -59,6 +61,7 @@ commcare-ios/
 - **Phase 5 design spec**: `docs/plans/2026-03-19-phase5-android-ux-parity-spec.md` — Connect ID, marketplace, multi-app, navigation drawer
 - **Connect marketplace rework**: `docs/plans/2026-03-20-connect-marketplace-rework-plan.md` — data model + API fixes for Connect marketplace
 - **Phase 6 plan**: `docs/plans/2026-03-21-phase6-field-readiness-plan.md` — blockers, Connect recovery, marketplace models, platform tests, app download, polish
+- **Phase 7 plan**: `docs/plans/2026-03-22-phase7-full-android-parity-plan.md` — AES encryption, select appearances, form chaining, incremental sync, multimedia, test coverage (Issues #350-#359)
 
 **Completion reports:** All in `docs/plans/*-completion-report.md`. Key report:
 - Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
