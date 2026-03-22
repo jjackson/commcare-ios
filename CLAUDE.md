@@ -28,7 +28,7 @@ commcare-ios/
 │   ├── src/commonMain/      # Shared app code (104 .kt — UI, ViewModels, Connect, storage)
 │   ├── src/jvmMain/         # JVM platform (13 .kt)
 │   ├── src/iosMain/         # iOS platform (14 .kt)
-│   ├── src/jvmTest/         # JVM tests (34 .kt — sandbox, oracle, e2e, Connect)
+│   ├── src/jvmTest/         # JVM tests (37 .kt — sandbox, oracle, e2e, Connect)
 │   └── src/commonMain/sqldelight/  # SQLDelight schema
 ├── docs/
 │   ├── plans/               # Design docs, phase plans, completion reports
