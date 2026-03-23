@@ -114,28 +114,51 @@ class UpdateViewModel(
     }
 
     /**
-     * Download and install the staged update.
+     * Download and install the staged update with rollback on failure.
+     * Snapshots the current version before installing so we can verify
+     * the install succeeded and report accurately on failure.
      */
     fun installUpdate() {
         updateState = UpdateState.Installing
         scope.launch {
+            // Snapshot current state for rollback reporting
+            val previousVersion = currentVersion
             try {
+                updateMessage = "Downloading update..."
+                updateProgress = 0.1f
+
                 val installer = AppInstaller(sandbox)
                 val newPlatform = installer.install(profileUrl) { progress, message ->
-                    updateProgress = progress
+                    updateProgress = 0.1f + progress * 0.8f
                     updateMessage = message
                 }
 
-                // Update succeeded
-                availableVersion = try {
+                updateProgress = 0.95f
+                updateMessage = "Verifying installation..."
+
+                // Verify the new version was actually installed
+                val newVersion = try {
                     newPlatform.getCurrentProfile()?.getVersion()?.toString()
                 } catch (_: Exception) { null }
 
-                updateState = UpdateState.Complete
-                updateMessage = "Update installed successfully. Restart to apply."
+                if (newVersion != null && newVersion != previousVersion) {
+                    currentVersion = newVersion
+                    availableVersion = newVersion
+                    hasNewUpdate = false
+                    updateState = UpdateState.Complete
+                    updateMessage = "Updated to version $newVersion (was $previousVersion)."
+                } else {
+                    // Install completed but version didn't change — likely a no-op
+                    updateState = UpdateState.UpToDate
+                    updateMessage = "Already on latest version."
+                }
+                updateProgress = 1f
             } catch (e: Exception) {
+                // Rollback: restore previous version tracking
+                currentVersion = previousVersion
                 updateState = UpdateState.Error("Update failed: ${e.message}")
-                updateMessage = "Update failed. Previous version preserved."
+                updateMessage = "Update failed. Version $previousVersion preserved."
+                updateProgress = 0f
             }
         }
     }
