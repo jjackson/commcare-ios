@@ -20,6 +20,7 @@ class CaseDetailViewModel {
 
     fun loadDetail(caseItem: CaseItem) {
         caseName = caseItem.name
+        selectedTabIndex = 0
         details = buildDetailRows(caseItem)
         tabs = buildTabs(details)
     }
