@@ -363,8 +363,10 @@ private fun QuestionWidget(
                 }
                 appearance.contains("quick") -> {
                     SelectOneQuick(question, enabled) { choice ->
-                        viewModel.answerQuestionString(index, choice)
-                        viewModel.nextQuestion()
+                        val accepted = viewModel.answerQuestionString(index, choice)
+                        if (accepted) {
+                            viewModel.nextQuestion()
+                        }
                     }
                 }
                 appearance.contains("combobox") -> {
@@ -762,7 +764,7 @@ private fun SelectOneCombobox(
     enabled: Boolean,
     onSelect: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf(question.answer) }
+    var text by remember(question.answer) { mutableStateOf(question.answer) }
     var expanded by remember { mutableStateOf(false) }
     val isFuzzy = appearance.contains("fuzzy")
     val isMultiword = appearance.contains("multiword")

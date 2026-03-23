@@ -104,7 +104,11 @@ class FormEntryViewModel(
         updateQuestions()
     }
 
-    fun answerQuestion(index: Int, answer: IAnswerData?) {
+    /**
+     * Answer a question. Returns true if the answer was accepted (ANSWER_OK),
+     * false if it violated a constraint or was otherwise rejected.
+     */
+    fun answerQuestion(index: Int, answer: IAnswerData?): Boolean {
         try {
             val result = formSession.answerAtIndex(index, answer)
             when (result) {
@@ -113,6 +117,7 @@ class FormEntryViewModel(
                     clearConstraint(index)
                     // Refresh questions — relevancy may have changed (skip logic)
                     updateQuestions()
+                    return true
                 }
                 FormEntryController.ANSWER_CONSTRAINT_VIOLATED -> {
                     val prompts = formSession.getPrompts()
@@ -130,17 +135,22 @@ class FormEntryViewModel(
         } catch (e: Exception) {
             errorMessage = "Error answering question: ${e.message}"
         }
+        return false
     }
 
-    fun answerQuestionString(index: Int, value: String) {
+    /**
+     * Answer a question with a string value. Returns true if accepted.
+     */
+    fun answerQuestionString(index: Int, value: String): Boolean {
         val prompts = formSession.getPrompts()
         if (index < prompts.size) {
             val prompt = prompts[index]
             val data = FormEntrySession.createAnswerData(
                 value, prompt.getControlType(), prompt.getDataType()
             )
-            answerQuestion(index, data)
+            return answerQuestion(index, data)
         }
+        return false
     }
 
     /**
@@ -443,6 +453,7 @@ class FormEntryViewModel(
                     Constants.DATATYPE_DECIMAL -> QuestionType.DECIMAL
                     Constants.DATATYPE_DATE -> QuestionType.DATE
                     Constants.DATATYPE_TIME -> QuestionType.TIME
+                    Constants.DATATYPE_DATE_TIME -> QuestionType.DATETIME
                     Constants.DATATYPE_GEOPOINT -> QuestionType.GEOPOINT
                     else -> QuestionType.TEXT
                 }
