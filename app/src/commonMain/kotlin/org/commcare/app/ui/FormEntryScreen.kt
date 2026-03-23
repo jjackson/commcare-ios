@@ -1,29 +1,43 @@
 package org.commcare.app.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -333,37 +347,102 @@ private fun QuestionWidget(
         }
 
         QuestionType.SELECT_ONE -> {
-            for (choice in question.choices) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = (if (enabled) Modifier.clickable {
+            val appearance = question.appearance ?: ""
+            when {
+                appearance.contains("minimal") -> {
+                    SelectOneMinimal(question, enabled) { choice ->
                         viewModel.answerQuestionString(index, choice)
-                    } else Modifier).defaultMinSize(minHeight = 44.dp)
-                ) {
-                    RadioButton(
-                        selected = question.answer == choice,
-                        onClick = if (enabled) {{ viewModel.answerQuestionString(index, choice) }} else null
-                    )
-                    Text(text = choice)
+                    }
+                }
+                appearance.contains("compact") -> {
+                    val columns = parseCompactColumns(appearance)
+                    SelectCompact(question.choices, question.answer, setOf(), columns, enabled,
+                        singleSelect = true) { choice ->
+                        viewModel.answerQuestionString(index, choice)
+                    }
+                }
+                appearance.contains("quick") -> {
+                    SelectOneQuick(question, enabled) { choice ->
+                        val accepted = viewModel.answerQuestionString(index, choice)
+                        if (accepted) {
+                            viewModel.nextQuestion()
+                        }
+                    }
+                }
+                appearance.contains("combobox") -> {
+                    SelectOneCombobox(question, appearance, enabled) { choice ->
+                        viewModel.answerQuestionString(index, choice)
+                    }
+                }
+                appearance.contains("list-nolabel") -> {
+                    SelectOneNoLabel(question, enabled) { choice ->
+                        viewModel.answerQuestionString(index, choice)
+                    }
+                }
+                appearance.contains("label") -> {
+                    SelectOneLabel(question)
+                }
+                else -> {
+                    // Default radio buttons
+                    for (choice in question.choices) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = (if (enabled) Modifier.clickable {
+                                viewModel.answerQuestionString(index, choice)
+                            } else Modifier).defaultMinSize(minHeight = 44.dp)
+                        ) {
+                            RadioButton(
+                                selected = question.answer == choice,
+                                onClick = if (enabled) {{ viewModel.answerQuestionString(index, choice) }} else null
+                            )
+                            Text(text = choice)
+                        }
+                    }
                 }
             }
         }
 
         QuestionType.SELECT_MULTI -> {
-            for (choice in question.choices) {
-                val isSelected = question.selectedChoices.contains(choice)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = (if (enabled) Modifier.clickable {
+            val appearance = question.appearance ?: ""
+            when {
+                appearance.contains("minimal") -> {
+                    SelectMultiMinimal(question, enabled) { choice ->
                         viewModel.toggleMultiSelectChoice(index, choice)
-                    } else Modifier).defaultMinSize(minHeight = 44.dp)
-                ) {
-                    Checkbox(
-                        checked = isSelected,
-                        onCheckedChange = if (enabled) {{ viewModel.toggleMultiSelectChoice(index, choice) }} else null,
-                        enabled = enabled
-                    )
-                    Text(text = choice)
+                    }
+                }
+                appearance.contains("compact") -> {
+                    val columns = parseCompactColumns(appearance)
+                    SelectCompact(question.choices, question.answer, question.selectedChoices,
+                        columns, enabled, singleSelect = false) { choice ->
+                        viewModel.toggleMultiSelectChoice(index, choice)
+                    }
+                }
+                appearance.contains("list-nolabel") -> {
+                    SelectMultiNoLabel(question, enabled) { choice ->
+                        viewModel.toggleMultiSelectChoice(index, choice)
+                    }
+                }
+                appearance.contains("label") -> {
+                    SelectMultiLabel(question)
+                }
+                else -> {
+                    // Default checkboxes
+                    for (choice in question.choices) {
+                        val isSelected = question.selectedChoices.contains(choice)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = (if (enabled) Modifier.clickable {
+                                viewModel.toggleMultiSelectChoice(index, choice)
+                            } else Modifier).defaultMinSize(minHeight = 44.dp)
+                        ) {
+                            Checkbox(
+                                checked = isSelected,
+                                onCheckedChange = if (enabled) {{ viewModel.toggleMultiSelectChoice(index, choice) }} else null,
+                                enabled = enabled
+                            )
+                            Text(text = choice)
+                        }
+                    }
                 }
             }
         }
@@ -477,6 +556,33 @@ private fun QuestionWidget(
             }
         }
 
+        QuestionType.DATETIME -> {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val parts = question.answer.split("T", limit = 2)
+                val datePart = parts.getOrElse(0) { "" }
+                val timePart = parts.getOrElse(1) { "" }
+                OutlinedTextField(
+                    value = datePart,
+                    onValueChange = { viewModel.answerQuestionString(index, "${it}T${timePart}") },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Date") },
+                    singleLine = true,
+                    enabled = enabled
+                )
+                OutlinedTextField(
+                    value = timePart,
+                    onValueChange = { viewModel.answerQuestionString(index, "${datePart}T${it}") },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Time") },
+                    singleLine = true,
+                    enabled = enabled
+                )
+            }
+        }
+
         else -> {
             Text(
                 text = "Unsupported: ${question.questionType}",
@@ -503,5 +609,300 @@ private fun formatGeoPoint(value: String): String {
         parts.size >= 4 -> "Lat: ${parts[0]}, Lon: ${parts[1]}, Alt: ${parts[2]}m, Acc: ${parts[3]}m"
         parts.size >= 2 -> "Lat: ${parts[0]}, Lon: ${parts[1]}"
         else -> value
+    }
+}
+
+// -- Select Appearance Variants --
+
+/** Extract column count from "compact-N" appearance, defaulting to 2. */
+private fun parseCompactColumns(appearance: String): Int {
+    val match = Regex("""compact-(\d+)""").find(appearance)
+    return match?.groupValues?.get(1)?.toIntOrNull() ?: 2
+}
+
+/** Minimal appearance: dropdown/spinner for SELECT_ONE. */
+@Composable
+private fun SelectOneMinimal(
+    question: QuestionState,
+    enabled: Boolean,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        OutlinedButton(
+            onClick = { if (enabled) expanded = true },
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = question.answer.ifEmpty { "Select..." })
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for (choice in question.choices) {
+                DropdownMenuItem(
+                    text = { Text(choice) },
+                    onClick = {
+                        onSelect(choice)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** Minimal appearance for SELECT_MULTI: dropdown with checkboxes. */
+@Composable
+private fun SelectMultiMinimal(
+    question: QuestionState,
+    enabled: Boolean,
+    onToggle: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val summary = question.selectedChoices.joinToString(", ").ifEmpty { "Select..." }
+    Box {
+        OutlinedButton(
+            onClick = { if (enabled) expanded = true },
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = summary, maxLines = 1)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for (choice in question.choices) {
+                DropdownMenuItem(
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = question.selectedChoices.contains(choice),
+                                onCheckedChange = null
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(choice)
+                        }
+                    },
+                    onClick = { onToggle(choice) }
+                )
+            }
+        }
+    }
+}
+
+/** Compact appearance: grid layout for both SELECT_ONE and SELECT_MULTI. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SelectCompact(
+    choices: List<String>,
+    currentAnswer: String,
+    selectedChoices: Set<String>,
+    columns: Int,
+    enabled: Boolean,
+    singleSelect: Boolean,
+    onSelect: (String) -> Unit
+) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        maxItemsInEachRow = columns
+    ) {
+        for (choice in choices) {
+            val isSelected = if (singleSelect) currentAnswer == choice else selectedChoices.contains(choice)
+            OutlinedCard(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 2.dp)
+                    .clickable(enabled = enabled) { onSelect(choice) },
+                border = BorderStroke(
+                    width = if (isSelected) 2.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.outline
+                ),
+                colors = CardDefaults.outlinedCardColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Text(
+                    text = choice,
+                    modifier = Modifier.padding(8.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+
+/** Quick appearance: radio buttons that auto-advance on selection. */
+@Composable
+private fun SelectOneQuick(
+    question: QuestionState,
+    enabled: Boolean,
+    onSelectAndAdvance: (String) -> Unit
+) {
+    for (choice in question.choices) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = (if (enabled) Modifier.clickable {
+                onSelectAndAdvance(choice)
+            } else Modifier).defaultMinSize(minHeight = 44.dp)
+        ) {
+            RadioButton(
+                selected = question.answer == choice,
+                onClick = if (enabled) {{ onSelectAndAdvance(choice) }} else null
+            )
+            Text(text = choice)
+        }
+    }
+}
+
+/** Combobox appearance: text field with filterable dropdown. */
+@Composable
+private fun SelectOneCombobox(
+    question: QuestionState,
+    appearance: String,
+    enabled: Boolean,
+    onSelect: (String) -> Unit
+) {
+    var text by remember(question.answer) { mutableStateOf(question.answer) }
+    var expanded by remember { mutableStateOf(false) }
+    val isFuzzy = appearance.contains("fuzzy")
+    val isMultiword = appearance.contains("multiword")
+
+    val filtered = question.choices.filter { choice ->
+        if (text.isBlank()) true
+        else if (isFuzzy) {
+            choice.lowercase().contains(text.lowercase())
+        } else if (isMultiword) {
+            text.lowercase().split(" ").all { word ->
+                choice.lowercase().contains(word)
+            }
+        } else {
+            choice.lowercase().startsWith(text.lowercase())
+        }
+    }
+
+    Column {
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+                text = it
+                expanded = true
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Search...") },
+            singleLine = true,
+            enabled = enabled
+        )
+        DropdownMenu(
+            expanded = expanded && filtered.isNotEmpty(),
+            onDismissRequest = { expanded = false }
+        ) {
+            for (choice in filtered.take(20)) {
+                DropdownMenuItem(
+                    text = { Text(choice) },
+                    onClick = {
+                        text = choice
+                        onSelect(choice)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/** Label appearance: show only label text, no selection controls. */
+@Composable
+private fun SelectOneLabel(question: QuestionState) {
+    for (choice in question.choices) {
+        Text(
+            text = choice,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (question.answer == choice) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+    }
+}
+
+/** Label appearance for SELECT_MULTI. */
+@Composable
+private fun SelectMultiLabel(question: QuestionState) {
+    for (choice in question.choices) {
+        Text(
+            text = choice,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (question.selectedChoices.contains(choice)) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+    }
+}
+
+/** List-nolabel appearance: show only radio buttons, no labels. */
+@Composable
+private fun SelectOneNoLabel(
+    question: QuestionState,
+    enabled: Boolean,
+    onSelect: (String) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        for (choice in question.choices) {
+            RadioButton(
+                selected = question.answer == choice,
+                onClick = if (enabled) {{ onSelect(choice) }} else null
+            )
+        }
+    }
+}
+
+/** List-nolabel appearance for SELECT_MULTI: checkboxes only, no labels. */
+@Composable
+private fun SelectMultiNoLabel(
+    question: QuestionState,
+    enabled: Boolean,
+    onToggle: (String) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        for (choice in question.choices) {
+            Checkbox(
+                checked = question.selectedChoices.contains(choice),
+                onCheckedChange = if (enabled) {{ onToggle(choice) }} else null,
+                enabled = enabled
+            )
+        }
+    }
+}
+
+/** Collapsible group section — for group-border, collapse-open, collapse-closed appearances. */
+@Composable
+fun CollapsibleGroupSection(
+    title: String,
+    appearance: String?,
+    content: @Composable () -> Unit
+) {
+    val startExpanded = appearance?.contains("collapse-closed") != true
+    var expanded by remember { mutableStateOf(startExpanded) }
+
+    OutlinedCard(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = title, style = MaterialTheme.typography.titleSmall)
+                Text(text = if (expanded) "v" else ">", style = MaterialTheme.typography.titleSmall)
+            }
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    content()
+                }
+            }
+        }
     }
 }
