@@ -227,7 +227,7 @@ class MessagingViewModel(
     }
 
     /**
-     * POST consent for messaging, then refresh threads on success.
+     * POST global consent for messaging, then refresh threads on success.
      * Sets [isConsentLoading] during the API call so the UI can show a spinner.
      */
     fun updateConsent() {
@@ -256,6 +256,58 @@ class MessagingViewModel(
             } catch (e: Exception) {
                 errorMessage = "Consent error: ${e::class.simpleName}: ${e.message}"
                 isConsentLoading = false
+            }
+        }
+    }
+
+    /**
+     * Toggle consent for a specific channel/thread.
+     * Updates the thread's isConsented flag optimistically, then calls the API.
+     * On failure, reverts the optimistic update.
+     */
+    fun toggleChannelConsent(threadId: String) {
+        val threadIndex = threads.indexOfFirst { it.id == threadId }
+        if (threadIndex < 0) return
+
+        val thread = threads[threadIndex]
+        val newConsent = !thread.isConsented
+
+        // Optimistic update
+        threads = threads.toMutableList().also {
+            it[threadIndex] = thread.copy(isConsented = newConsent)
+        }
+
+        scope.launch {
+            try {
+                val token = tokenManager.getConnectIdToken()
+                if (token == null) {
+                    // Revert optimistic update — no token available
+                    threads = threads.toMutableList().also {
+                        val idx = it.indexOfFirst { t -> t.id == threadId }
+                        if (idx >= 0) it[idx] = thread
+                    }
+                    errorMessage = "Not signed in to ConnectID"
+                    return@launch
+                }
+                val result = api.updateChannelConsent(token, threadId, newConsent)
+                result.fold(
+                    onSuccess = { /* optimistic update already applied */ },
+                    onFailure = {
+                        // Revert optimistic update
+                        threads = threads.toMutableList().also {
+                            val idx = it.indexOfFirst { t -> t.id == threadId }
+                            if (idx >= 0) it[idx] = thread
+                        }
+                        errorMessage = "Failed to update consent: ${it.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                // Revert on exception
+                threads = threads.toMutableList().also {
+                    val idx = it.indexOfFirst { t -> t.id == threadId }
+                    if (idx >= 0) it[idx] = thread
+                }
+                errorMessage = "Consent error: ${e.message}"
             }
         }
     }

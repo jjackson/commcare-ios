@@ -278,6 +278,18 @@ class ConnectMarketplaceApi(
     }
 
     /**
+     * Update consent for a specific messaging channel.
+     * POST /messaging/update_channel_consent/
+     */
+    fun updateChannelConsent(accessToken: String, channelId: String, consented: Boolean): Result<Unit> {
+        return executeAuthenticatedPost(
+            "$messagingBaseUrl/messaging/update_channel_consent/",
+            accessToken,
+            body = """{"channel_id": "${escapeJson(channelId)}", "consented": $consented}"""
+        )
+    }
+
+    /**
      * Get all message threads for this user.
      * GET /messaging/retrieve_messages/
      * Authorization: Bearer <access_token>
