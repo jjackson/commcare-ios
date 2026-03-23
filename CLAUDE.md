@@ -48,9 +48,9 @@ commcare-ios/
 
 **Phase 6: Field Readiness — COMPLETE.** All 6 waves done. Signature capture working, real update checking, Connect ID recovery, marketplace models reworked, iOS platform tests added, quality polish applied. See `docs/plans/2026-03-21-phase6-field-readiness-plan.md`.
 
-**Phase 7: Full Android Parity — IN PROGRESS.** 10 waves covering 15 missing features and 22 test coverage gaps identified via systematic Android comparison. AES encryption, select appearance variants, form chaining, incremental sync, multimedia capture, and comprehensive test coverage. Issues #350-#359. See `docs/plans/2026-03-22-phase7-full-android-parity-plan.md`.
+**Phase 7: Full Android Parity — COMPLETE.** All 10 waves done. AES encryption replacing XOR placeholder, select appearance variants, form chaining, incremental sync, video/document capture, per-channel messaging consent, and 22 new test files (343 total tests). 10 code review issues found and fixed. See `docs/plans/2026-03-23-phase7-completion-report.md`.
 
-**If you are an agent starting a session:** Phase 7 is the active phase. Read the plan doc and check issue status before starting work. Start with Wave 1 (AES Encryption) unless a later wave is already in progress.
+**If you are an agent starting a session:** All planned phases (1-7) are complete. The app has full Android parity, is on TestFlight, and has 343+ tests. Check with the user for direction — potential next work includes field testing feedback, App Store submission, upstream commcare-core extraction, or new feature requests.
 
 ## Key Docs
 
