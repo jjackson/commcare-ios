@@ -36,7 +36,20 @@ class FormQueueViewModel(
     private val queueLock = Any()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
+    var autoSendEnabled by mutableStateOf(true)
+        private set
+
     fun cancel() { scope.cancel() }
+
+    /**
+     * Attempt to auto-send any pending forms.
+     * Called after form completion and when connectivity is restored.
+     * Only submits if there are pending forms and not already submitting.
+     */
+    fun tryAutoSend() {
+        if (!autoSendEnabled || isSubmitting || pendingCount == 0) return
+        submitAll()
+    }
 
     /**
      * Load pending forms from SQLDelight on startup.

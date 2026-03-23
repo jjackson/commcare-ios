@@ -420,7 +420,9 @@ class FormEntryViewModel(
                     choices = prompt.getSelectChoices()?.map {
                         it.labelInnerText ?: it.value ?: ""
                     } ?: emptyList(),
-                    appearance = prompt.getAppearanceHint()
+                    appearance = prompt.getAppearanceHint(),
+                    audioUri = try { prompt.getAudioText() } catch (_: Exception) { null },
+                    imageUri = try { prompt.getImageText() } catch (_: Exception) { null }
                 )
             }
         } catch (e: Exception) {
@@ -485,7 +487,9 @@ data class QuestionState(
     val constraintMessage: String? = null,
     val choices: List<String> = emptyList(),
     val appearance: String? = null,
-    val selectedChoices: Set<String> = emptySet()
+    val selectedChoices: Set<String> = emptySet(),
+    val audioUri: String? = null,
+    val imageUri: String? = null
 )
 
 enum class QuestionType {

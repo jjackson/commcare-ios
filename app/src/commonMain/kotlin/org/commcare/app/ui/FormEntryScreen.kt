@@ -262,7 +262,8 @@ private fun QuestionWidget(
     viewModel: FormEntryViewModel,
     enabled: Boolean = true
 ) {
-    // Question text
+    // Question label with optional inline multimedia
+    MediaLabel(question)
     Text(
         text = question.questionText,
         style = MaterialTheme.typography.bodyLarge
@@ -613,6 +614,31 @@ private fun formatGeoPoint(value: String): String {
 }
 
 // -- Select Appearance Variants --
+
+// -- Inline Multimedia --
+
+/** Render inline multimedia (image/audio) associated with a question label. */
+@Composable
+private fun MediaLabel(question: QuestionState) {
+    // Inline image from itext
+    if (question.imageUri != null) {
+        Text(
+            text = "[Image: ${question.imageUri}]",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+    }
+    // Inline audio play button from itext
+    if (question.audioUri != null) {
+        OutlinedButton(
+            onClick = { /* TODO: platform audio playback */ },
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Text("Play Audio")
+        }
+    }
+}
 
 /** Extract column count from "compact-N" appearance, defaulting to 2. */
 private fun parseCompactColumns(appearance: String): Int {
