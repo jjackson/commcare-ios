@@ -36,4 +36,14 @@ expect object PlatformCrypto {
      * Generate an AES key of the given bit length (128, 192, or 256).
      */
     fun generateAesKey(bits: Int = 256): ByteArray
+
+    /**
+     * Derive a key from a password and salt using PBKDF2-HMAC-SHA256.
+     * @param password the password to derive from
+     * @param salt random salt bytes (should be at least 16 bytes)
+     * @param iterations number of PBKDF2 iterations (recommend ≥ 100,000)
+     * @param keyLengthBytes desired key length in bytes (e.g. 32 for AES-256)
+     * @return derived key bytes
+     */
+    fun pbkdf2(password: String, salt: ByteArray, iterations: Int, keyLengthBytes: Int): ByteArray
 }

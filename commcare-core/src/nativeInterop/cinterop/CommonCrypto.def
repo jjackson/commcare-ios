@@ -2,6 +2,10 @@ package = CommCareCrypto
 ---
 #include <CommonCrypto/CommonDigest.h>
 #include <CommonCrypto/CommonRandom.h>
+#include <CommonCrypto/CommonCryptor.h>
+#include <CommonCrypto/CommonHMAC.h>
+#include <CommonCrypto/CommonKeyDerivation.h>
+#include <string.h>
 
 static inline int cc_sha256(const void *data, unsigned int len, void *md) {
     CC_SHA256(data, len, md);
@@ -15,4 +19,81 @@ static inline int cc_md5(const void *data, unsigned int len, void *md) {
 
 static inline int cc_random_generate(void *bytes, unsigned long count) {
     return (int)CCRandomGenerateBytes(bytes, (size_t)count);
+}
+
+/**
+ * AES-CBC encrypt with PKCS7 padding.
+ * Returns 0 on success, non-zero on failure.
+ * outLen is set to the actual number of bytes written.
+ */
+static inline int cc_aes_cbc_encrypt(
+    const void *key, unsigned int keyLen,
+    const void *iv,
+    const void *dataIn, unsigned int dataInLen,
+    void *dataOut, unsigned int dataOutCapacity,
+    unsigned int *outLen
+) {
+    size_t moved = 0;
+    CCCryptorStatus status = CCCrypt(
+        kCCEncrypt, kCCAlgorithmAES, kCCOptionPKCS7Padding,
+        key, (size_t)keyLen, iv,
+        dataIn, (size_t)dataInLen,
+        dataOut, (size_t)dataOutCapacity, &moved
+    );
+    *outLen = (unsigned int)moved;
+    return (int)status;
+}
+
+/**
+ * AES-CBC decrypt with PKCS7 padding.
+ * Returns 0 on success, non-zero on failure.
+ * outLen is set to the actual number of bytes written.
+ */
+static inline int cc_aes_cbc_decrypt(
+    const void *key, unsigned int keyLen,
+    const void *iv,
+    const void *dataIn, unsigned int dataInLen,
+    void *dataOut, unsigned int dataOutCapacity,
+    unsigned int *outLen
+) {
+    size_t moved = 0;
+    CCCryptorStatus status = CCCrypt(
+        kCCDecrypt, kCCAlgorithmAES, kCCOptionPKCS7Padding,
+        key, (size_t)keyLen, iv,
+        dataIn, (size_t)dataInLen,
+        dataOut, (size_t)dataOutCapacity, &moved
+    );
+    *outLen = (unsigned int)moved;
+    return (int)status;
+}
+
+/**
+ * HMAC-SHA256.
+ * macOut must be at least 32 bytes.
+ */
+static inline void cc_hmac_sha256(
+    const void *key, unsigned int keyLen,
+    const void *data, unsigned int dataLen,
+    void *macOut
+) {
+    CCHmac(kCCHmacAlgSHA256, key, (size_t)keyLen, data, (size_t)dataLen, macOut);
+}
+
+/**
+ * PBKDF2 with HMAC-SHA256.
+ * Returns 0 on success, non-zero on failure.
+ */
+static inline int cc_pbkdf2_sha256(
+    const char *password, unsigned int passwordLen,
+    const void *salt, unsigned int saltLen,
+    unsigned int rounds,
+    void *derivedKey, unsigned int derivedKeyLen
+) {
+    return (int)CCKeyDerivationPBKDF(
+        kCCPBKDF2,
+        password, (size_t)passwordLen,
+        (const uint8_t *)salt, (size_t)saltLen,
+        kCCPRFHmacAlgSHA256, rounds,
+        (uint8_t *)derivedKey, (size_t)derivedKeyLen
+    );
 }
