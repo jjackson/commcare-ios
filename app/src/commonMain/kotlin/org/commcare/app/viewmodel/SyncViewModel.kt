@@ -35,7 +35,13 @@ class SyncViewModel(
         private set
     var isOffline by mutableStateOf(false)
         private set
-    /** SHA-256 hash of the last restore response body, for incremental sync. */
+    /**
+     * SHA-256 hash of the last restore response body, for incremental sync.
+     * Session-scoped: resets on app restart (first sync after restart always does full parse).
+     * This is a performance optimization — the sync token already prevents unnecessary
+     * server responses (412 No New Data), but the hash catches cases where the server
+     * returns 200 with identical data.
+     */
     private var lastRestoreHash: String? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
