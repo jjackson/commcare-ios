@@ -10,6 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.commcare.app.storage.SqlDelightUserSandbox
 import org.commcare.core.interfaces.HttpRequest
+import org.commcare.core.interfaces.PlatformCrypto
 import org.commcare.core.interfaces.PlatformHttpClient
 import org.commcare.core.parse.ParseUtils
 import org.javarosa.core.io.createByteArrayInputStream
@@ -34,6 +35,8 @@ class SyncViewModel(
         private set
     var isOffline by mutableStateOf(false)
         private set
+    /** SHA-256 hash of the last restore response body, for incremental sync. */
+    private var lastRestoreHash: String? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -97,18 +100,28 @@ class SyncViewModel(
                         syncState = SyncState.Syncing(0.8f, "No new data from server")
                     }
                     response.code in 200..299 -> {
-                        syncState = SyncState.Syncing(0.5f, "Processing restore data...")
                         val body = response.body
                         if (body != null && body.isNotEmpty()) {
-                            // Parse restore XML into sandbox using real engine parsers
-                            val stream = createByteArrayInputStream(body)
-                            ParseUtils.parseIntoSandbox(stream, sandbox, false)
+                            // Incremental sync: hash the response to detect unchanged data
+                            val responseHash = PlatformCrypto.sha256(body)
+                                .joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
 
-                            // Update sync token from sandbox (set by CommCareTransactionParserFactory)
-                            lastSyncToken = sandbox.syncToken
-                            // Persist sync token to database for next app launch
-                            if (userId.isNotEmpty() && lastSyncToken != null) {
-                                sandbox.persistSyncToken(userId)
+                            if (responseHash == lastRestoreHash) {
+                                // Response body unchanged — skip full re-parse
+                                syncState = SyncState.Syncing(0.8f, "Data unchanged, skipping parse")
+                            } else {
+                                syncState = SyncState.Syncing(0.5f, "Processing restore data...")
+                                // Parse restore XML into sandbox using real engine parsers
+                                val stream = createByteArrayInputStream(body)
+                                ParseUtils.parseIntoSandbox(stream, sandbox, false)
+
+                                // Update sync token from sandbox (set by CommCareTransactionParserFactory)
+                                lastSyncToken = sandbox.syncToken
+                                // Persist sync token to database for next app launch
+                                if (userId.isNotEmpty() && lastSyncToken != null) {
+                                    sandbox.persistSyncToken(userId)
+                                }
+                                lastRestoreHash = responseHash
                             }
                         }
                     }
