@@ -18,6 +18,11 @@ actual class PlatformVideoCapture actual constructor() {
     private var retainedDelegate: VideoPickerDelegate? = null
 
     actual fun captureVideo(onResult: (String?) -> Unit) {
+        if (!UIImagePickerController.isSourceTypeAvailable(
+                UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera)) {
+            onResult(null)
+            return
+        }
         val picker = UIImagePickerController()
         picker.sourceType = UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera
         picker.mediaTypes = listOf("public.movie")

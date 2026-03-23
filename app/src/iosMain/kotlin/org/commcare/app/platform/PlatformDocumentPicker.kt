@@ -11,6 +11,9 @@ import platform.UIKit.UISceneActivationStateForegroundActive
 import platform.UniformTypeIdentifiers.UTTypeItem
 import platform.UniformTypeIdentifiers.UTTypePDF
 import platform.UniformTypeIdentifiers.UTTypePlainText
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSUUID
 import platform.Foundation.NSURL
 import platform.darwin.NSObject
 
@@ -51,9 +54,26 @@ private class DocumentPickerDelegate(
         didPickDocumentsAtURLs: List<*>
     ) {
         val url = didPickDocumentsAtURLs.firstOrNull() as? NSURL
-        val path = url?.path
-        onResult(path)
-        onDismiss()
+        if (url == null) {
+            onResult(null)
+            onDismiss()
+            return
+        }
+        // Acquire security-scoped resource access for documents from external providers
+        val accessed = url.startAccessingSecurityScopedResource()
+        try {
+            // Copy to a local temp path so the file remains accessible after the picker scope ends
+            val ext = url.pathExtension ?: "dat"
+            val tempPath = NSTemporaryDirectory() + NSUUID().UUIDString + "." + ext
+            val tempUrl = NSURL.fileURLWithPath(tempPath)
+            NSFileManager.defaultManager.copyItemAtURL(url, tempUrl, null)
+            onResult(tempPath)
+        } catch (_: Exception) {
+            onResult(url.path)
+        } finally {
+            if (accessed) url.stopAccessingSecurityScopedResource()
+            onDismiss()
+        }
     }
 
     override fun documentPickerWasCancelled(controller: UIDocumentPickerViewController) {
