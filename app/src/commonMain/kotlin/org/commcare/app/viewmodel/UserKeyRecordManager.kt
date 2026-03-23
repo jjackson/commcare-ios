@@ -129,14 +129,20 @@ class UserKeyRecordManager(
      * The key is stored as a hex-encoded 32-byte (256-bit) random value.
      *
      * Migration: if an old-format key exists (32-char lowercase ASCII from
-     * the XOR cipher era), it is replaced with a proper AES key on first access.
+     * the XOR cipher era), we save the old key under a legacy alias before
+     * generating a proper AES key, so tryLegacyXorDecrypt can still use it.
      */
     private fun getOrCreateDeviceKey(): ByteArray {
         val existing = keychainStore.retrieve(DEVICE_KEY_ALIAS)
         if (existing != null) {
-            val bytes = hexToBytes(existing)
-            if (bytes.size == 32) return bytes
-            // Old-format key (32-char ASCII string) -- migrate to proper AES key
+            try {
+                val bytes = hexToBytes(existing)
+                if (bytes.size == 32) return bytes
+            } catch (_: Exception) {
+                // Not valid hex — old-format ASCII key
+            }
+            // Old-format key: save it under legacy alias before overwriting
+            keychainStore.store(LEGACY_KEY_ALIAS, existing)
         }
         val key = PlatformCrypto.generateAesKey(256)
         keychainStore.store(DEVICE_KEY_ALIAS, bytesToHex(key))
@@ -166,22 +172,18 @@ class UserKeyRecordManager(
     }
 
     /**
-     * Attempt to decrypt legacy XOR-encrypted data and re-encrypt with AES.
-     * Returns null if XOR decryption also fails.
+     * Attempt to decrypt legacy XOR-encrypted data.
+     * Reads the old XOR key from the legacy alias (saved during key migration).
+     * Returns null if no legacy key exists or XOR decryption fails.
      */
     private fun tryLegacyXorDecrypt(hex: String, aesKey: ByteArray): String? {
         return try {
-            // Legacy XOR used a string key stored in keychain
-            val legacyKey = keychainStore.retrieve(DEVICE_KEY_ALIAS) ?: return null
+            val legacyKey = keychainStore.retrieve(LEGACY_KEY_ALIAS) ?: return null
             val bytes = hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
             val xored = bytes.decodeToString()
-            val decrypted = xored.mapIndexed { i, c ->
+            xored.mapIndexed { i, c ->
                 (c.code xor legacyKey[i % legacyKey.length].code).toChar()
             }.joinToString("")
-            // Re-encrypt with AES for next time (migration on access)
-            // Note: we can't update DB here without username/domain context,
-            // so the migration happens at the call site if needed
-            decrypted
         } catch (_: Exception) {
             null
         }
@@ -199,6 +201,7 @@ class UserKeyRecordManager(
 
     companion object {
         private const val DEVICE_KEY_ALIAS = "device_encryption_key"
+        private const val LEGACY_KEY_ALIAS = "device_encryption_key_legacy"
         private const val PBKDF2_ITERATIONS = 100_000
 
         private fun bytesToHex(bytes: ByteArray): String =
