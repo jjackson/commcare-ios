@@ -315,18 +315,35 @@ fun HomeScreen(
                         if (xml != null) {
                             formQueueViewModel.enqueueForm(xml, fevm.formTitle, fevm.getFormXmlns())
                         }
+                        // Auto-send queued forms if possible
+                        formQueueViewModel.tryAutoSend()
                         // Check for chained forms via session stack
                         val hasNext = navigator.finishAndPop()
                         if (hasNext) {
-                            // Chained form: load the next form in the workflow
-                            val nextFevm = loadFormEntry(navigator, state, languageViewModel)
-                            if (nextFevm != null) {
-                                formEntryViewModel = nextFevm
-                                // nav stays InFormEntry
-                            } else {
-                                navigator.clearSession()
-                                formEntryViewModel = null
-                                nav = HomeNav.Landing
+                            // Chained form or stack operation: check what's next
+                            val nextStep = navigator.getNextStep()
+                            formEntryViewModel = null
+                            when (nextStep) {
+                                is NavigationStep.StartForm -> {
+                                    val nextFevm = loadFormEntry(navigator, state, languageViewModel)
+                                    if (nextFevm != null) {
+                                        formEntryViewModel = nextFevm
+                                        // nav stays InFormEntry
+                                    } else {
+                                        navigator.clearSession()
+                                        nav = HomeNav.Landing
+                                    }
+                                }
+                                is NavigationStep.ShowMenu -> {
+                                    nav = HomeNav.InMenu
+                                }
+                                is NavigationStep.ShowCaseList -> {
+                                    nav = HomeNav.InCaseList
+                                }
+                                else -> {
+                                    navigator.clearSession()
+                                    nav = HomeNav.Landing
+                                }
                             }
                         } else {
                             navigator.clearSession()
