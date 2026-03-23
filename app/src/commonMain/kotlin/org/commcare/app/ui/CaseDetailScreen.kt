@@ -12,18 +12,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.commcare.app.viewmodel.CaseDetailViewModel
 import org.commcare.app.viewmodel.CaseItem
 
 @Composable
 fun CaseDetailScreen(
     caseItem: CaseItem,
     onConfirm: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: CaseDetailViewModel? = null
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
@@ -47,31 +51,54 @@ fun CaseDetailScreen(
 
         HorizontalDivider()
 
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            // Case type
-            DetailRow(label = "Type", value = caseItem.caseType)
-            DetailRow(label = "Case ID", value = caseItem.caseId)
-            if (caseItem.dateOpened.isNotBlank()) {
-                DetailRow(label = "Date Opened", value = caseItem.dateOpened)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Properties
-            for ((key, value) in caseItem.properties) {
-                if (key !in setOf("status", "case-id", "case-type", "case-status", "date-opened")) {
-                    DetailRow(label = formatLabel(key), value = value)
+        // Tabbed detail view (when viewModel with tabs is provided)
+        if (viewModel != null && viewModel.tabs.size > 1) {
+            ScrollableTabRow(
+                selectedTabIndex = viewModel.selectedTabIndex,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                viewModel.tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = viewModel.selectedTabIndex == index,
+                        onClick = { viewModel.selectTab(index) },
+                        text = { Text(tab.name) }
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = onConfirm,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Select This Case")
+            Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+                val currentTab = viewModel.tabs.getOrNull(viewModel.selectedTabIndex)
+                if (currentTab != null) {
+                    for (row in currentTab.rows) {
+                        DetailRow(label = row.label, value = row.value)
+                    }
+                }
             }
+        } else {
+            // Flat detail view (backward compatible)
+            Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+                DetailRow(label = "Type", value = caseItem.caseType)
+                DetailRow(label = "Case ID", value = caseItem.caseId)
+                if (caseItem.dateOpened.isNotBlank()) {
+                    DetailRow(label = "Date Opened", value = caseItem.dateOpened)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                for ((key, value) in caseItem.properties) {
+                    if (key !in setOf("status", "case-id", "case-type", "case-status", "date-opened")) {
+                        DetailRow(label = formatLabel(key), value = value)
+                    }
+                }
+            }
+        }
+
+        // Action button
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Text("Select This Case")
         }
     }
 }

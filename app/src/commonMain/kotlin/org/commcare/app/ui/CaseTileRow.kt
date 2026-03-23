@@ -111,13 +111,18 @@ fun CaseTileRow(
                     contentAlignment = hAlign
                 ) {
                     if (field.isImage) {
-                        // Image fields show a placeholder — actual image loading requires
-                        // platform-specific implementation
-                        Text(
-                            text = "[img]",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        // Image field: display filename or placeholder
+                        // Full image loading requires platform-specific implementation
+                        val displayName = field.value.substringAfterLast("/").ifBlank { "image" }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "[${displayName}]",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     } else {
                         Text(
                             text = field.value,
