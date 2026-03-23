@@ -285,7 +285,7 @@ class ConnectMarketplaceApi(
         return executeAuthenticatedPost(
             "$messagingBaseUrl/messaging/update_channel_consent/",
             accessToken,
-            body = """{"channel_id": "$channelId", "consented": $consented}"""
+            body = """{"channel_id": "${escapeJson(channelId)}", "consented": $consented}"""
         )
     }
 

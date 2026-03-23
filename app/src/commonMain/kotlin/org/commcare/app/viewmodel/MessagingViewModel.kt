@@ -279,7 +279,16 @@ class MessagingViewModel(
 
         scope.launch {
             try {
-                val token = tokenManager.getConnectIdToken() ?: return@launch
+                val token = tokenManager.getConnectIdToken()
+                if (token == null) {
+                    // Revert optimistic update — no token available
+                    threads = threads.toMutableList().also {
+                        val idx = it.indexOfFirst { t -> t.id == threadId }
+                        if (idx >= 0) it[idx] = thread
+                    }
+                    errorMessage = "Not signed in to ConnectID"
+                    return@launch
+                }
                 val result = api.updateChannelConsent(token, threadId, newConsent)
                 result.fold(
                     onSuccess = { /* optimistic update already applied */ },
@@ -298,6 +307,7 @@ class MessagingViewModel(
                     val idx = it.indexOfFirst { t -> t.id == threadId }
                     if (idx >= 0) it[idx] = thread
                 }
+                errorMessage = "Consent error: ${e.message}"
             }
         }
     }
