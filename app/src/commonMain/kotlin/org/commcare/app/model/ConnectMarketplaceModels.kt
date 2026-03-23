@@ -191,7 +191,8 @@ data class MessageThread(
     val participantName: String,
     val lastMessage: String,
     val lastMessageDate: String,
-    val unreadCount: Int
+    val unreadCount: Int,
+    val isConsented: Boolean = true
 )
 
 data class Message(
