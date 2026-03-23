@@ -50,9 +50,11 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import org.commcare.app.platform.PlatformAudioCapture
 import org.commcare.app.platform.PlatformBarcodeScanner
+import org.commcare.app.platform.PlatformDocumentPicker
 import org.commcare.app.platform.PlatformImageCapture
 import org.commcare.app.platform.PlatformLocationProvider
 import org.commcare.app.platform.PlatformSignatureCapture
+import org.commcare.app.platform.PlatformVideoCapture
 import org.commcare.app.viewmodel.FormEntryViewModel
 import org.commcare.app.viewmodel.LanguageViewModel
 import org.commcare.app.viewmodel.QuestionState
@@ -518,6 +520,46 @@ private fun QuestionWidget(
             if (question.answer.isNotBlank()) {
                 Text(
                     text = "Audio: ${question.answer}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        QuestionType.VIDEO -> {
+            if (enabled) {
+                val videoCapture = remember { PlatformVideoCapture() }
+                Button(onClick = {
+                    videoCapture.captureVideo { path ->
+                        if (path != null) viewModel.answerQuestionString(index, path)
+                    }
+                }) {
+                    Text("Record Video")
+                }
+            }
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = "Video: ${question.answer}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        QuestionType.UPLOAD -> {
+            if (enabled) {
+                val documentPicker = remember { PlatformDocumentPicker() }
+                Button(onClick = {
+                    documentPicker.pickDocument { path ->
+                        if (path != null) viewModel.answerQuestionString(index, path)
+                    }
+                }) {
+                    Text("Choose File")
+                }
+            }
+            if (question.answer.isNotBlank()) {
+                Text(
+                    text = "File: ${question.answer.substringAfterLast("/")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
