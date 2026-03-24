@@ -1,0 +1,1 @@
+commcare,data collection,case management,mobile health,mhealth,frontline,community health,survey,forms,dimagi,offline,field work
