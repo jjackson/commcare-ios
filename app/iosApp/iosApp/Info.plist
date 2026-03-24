@@ -43,7 +43,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>CommCare needs location access to capture GPS coordinates for forms</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
-	<true/>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UISupportedInterfaceOrientations</key>
