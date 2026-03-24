@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import org.commcare.app.model.Message
 import org.commcare.app.model.MessageThread
 import org.commcare.app.network.ConnectMarketplaceApi
+import org.javarosa.core.util.platformSynchronized
 
 /**
  * ViewModel for the Connect messaging hub.
@@ -63,6 +64,7 @@ class MessagingViewModel(
     var unsentCount by mutableStateOf(0)
         private set
 
+    private val threadsLock = Any()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun cancel() { scope.cancel() }
@@ -92,7 +94,9 @@ class MessagingViewModel(
                 val result = api.getMessages(token)
                 result.fold(
                     onSuccess = { list ->
-                        threads = list
+                        platformSynchronized(threadsLock) {
+                            threads = list
+                        }
                         unreadCount = list.sumOf { it.unreadCount }
                     },
                     onFailure = { errorMessage = "Failed to load messages: ${it.message}" }
@@ -266,15 +270,18 @@ class MessagingViewModel(
      * On failure, reverts the optimistic update.
      */
     fun toggleChannelConsent(threadId: String) {
-        val threadIndex = threads.indexOfFirst { it.id == threadId }
-        if (threadIndex < 0) return
+        // Optimistic update — synchronized to prevent concurrent read-modify-write races
+        val (thread, newConsent) = platformSynchronized(threadsLock) {
+            val threadIndex = threads.indexOfFirst { it.id == threadId }
+            if (threadIndex < 0) return
 
-        val thread = threads[threadIndex]
-        val newConsent = !thread.isConsented
+            val t = threads[threadIndex]
+            val nc = !t.isConsented
 
-        // Optimistic update
-        threads = threads.toMutableList().also {
-            it[threadIndex] = thread.copy(isConsented = newConsent)
+            threads = threads.toMutableList().also {
+                it[threadIndex] = t.copy(isConsented = nc)
+            }
+            Pair(t, nc)
         }
 
         scope.launch {
@@ -282,9 +289,11 @@ class MessagingViewModel(
                 val token = tokenManager.getConnectIdToken()
                 if (token == null) {
                     // Revert optimistic update — no token available
-                    threads = threads.toMutableList().also {
-                        val idx = it.indexOfFirst { t -> t.id == threadId }
-                        if (idx >= 0) it[idx] = thread
+                    platformSynchronized(threadsLock) {
+                        threads = threads.toMutableList().also {
+                            val idx = it.indexOfFirst { t -> t.id == threadId }
+                            if (idx >= 0) it[idx] = thread
+                        }
                     }
                     errorMessage = "Not signed in to ConnectID"
                     return@launch
@@ -294,18 +303,22 @@ class MessagingViewModel(
                     onSuccess = { /* optimistic update already applied */ },
                     onFailure = {
                         // Revert optimistic update
-                        threads = threads.toMutableList().also {
-                            val idx = it.indexOfFirst { t -> t.id == threadId }
-                            if (idx >= 0) it[idx] = thread
+                        platformSynchronized(threadsLock) {
+                            threads = threads.toMutableList().also {
+                                val idx = it.indexOfFirst { t -> t.id == threadId }
+                                if (idx >= 0) it[idx] = thread
+                            }
                         }
                         errorMessage = "Failed to update consent: ${it.message}"
                     }
                 )
             } catch (e: Exception) {
                 // Revert on exception
-                threads = threads.toMutableList().also {
-                    val idx = it.indexOfFirst { t -> t.id == threadId }
-                    if (idx >= 0) it[idx] = thread
+                platformSynchronized(threadsLock) {
+                    threads = threads.toMutableList().also {
+                        val idx = it.indexOfFirst { t -> t.id == threadId }
+                        if (idx >= 0) it[idx] = thread
+                    }
                 }
                 errorMessage = "Consent error: ${e.message}"
             }
