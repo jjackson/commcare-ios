@@ -50,7 +50,9 @@ commcare-ios/
 
 **Phase 7: Full Android Parity — COMPLETE.** All 10 waves done. AES encryption replacing XOR placeholder, select appearance variants, form chaining, incremental sync, video/document capture, per-channel messaging consent, and 22 new test files (343 total tests). 10 code review issues found and fixed. See `docs/plans/2026-03-23-phase7-completion-report.md`.
 
-**If you are an agent starting a session:** All planned phases (1-7) are complete. The app has full Android parity, is on TestFlight, and has 343+ tests. Check with the user for direction — potential next work includes field testing feedback, App Store submission, upstream commcare-core extraction, or new feature requests.
+**Phase 8: Production Readiness — IN PROGRESS.** Four streams: (1) expanded integration tests especially Connect APIs, (2) App Store submission prep, (3) performance profiling, (4) hardening (thread safety, crash upload, edge cases). See `docs/plans/2026-03-24-phase8-production-readiness-plan.md`.
+
+**If you are an agent starting a session:** Phase 8 is the active phase. Read the plan doc and check issue status before starting work. Tasks 1-4 are integration tests, 5-6 are App Store, 7-8 are performance, 9-11 are hardening.
 
 ## Key Docs
 
@@ -62,6 +64,7 @@ commcare-ios/
 - **Connect marketplace rework**: `docs/plans/2026-03-20-connect-marketplace-rework-plan.md` — data model + API fixes for Connect marketplace
 - **Phase 6 plan**: `docs/plans/2026-03-21-phase6-field-readiness-plan.md` — blockers, Connect recovery, marketplace models, platform tests, app download, polish
 - **Phase 7 plan**: `docs/plans/2026-03-22-phase7-full-android-parity-plan.md` — AES encryption, select appearances, form chaining, incremental sync, multimedia, test coverage (Issues #350-#359)
+- **Phase 8 plan**: `docs/plans/2026-03-24-phase8-production-readiness-plan.md` — integration tests (Connect APIs), App Store prep, performance, hardening
 
 **Completion reports:** All in `docs/plans/*-completion-report.md`. Key report:
 - Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
