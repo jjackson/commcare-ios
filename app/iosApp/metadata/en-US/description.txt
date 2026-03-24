@@ -1,0 +1,21 @@
+CommCare is a mobile data collection and case management platform used by frontline workers in global health, agriculture, and social services.
+
+Built by Dimagi, CommCare enables organizations to create custom mobile applications without coding. Frontline workers use CommCare to:
+
+- Collect data using customizable forms with validation, skip logic, and multimedia support
+- Manage cases over time — track patients, households, or any entity across multiple visits
+- Work offline and sync automatically when connectivity is available
+- Access decision support and checklists during field visits
+- View reports and dashboards on collected data
+
+CommCare is used by over 500 organizations in 80+ countries, supporting millions of frontline workers. Applications are built in CommCare HQ (www.commcarehq.org) and deployed to mobile devices.
+
+This app requires a CommCare HQ account to function. Contact your organization administrator or visit www.dimagi.com to learn more.
+
+Key features:
+- Offline-first: collect data without internet, sync when connected
+- Multimedia: capture photos, audio, video, signatures, GPS coordinates, and barcodes
+- Case management: track and follow up on cases over time
+- Multiple languages: forms support any language including RTL scripts
+- Secure: AES-256 encryption for data at rest, PIN and biometric login
+- Connect marketplace: access opportunities and earn through Connect ID
