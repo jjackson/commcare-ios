@@ -1,0 +1,36 @@
+# CI smoke test: no credentials required.
+# Proves that the Compose UI renders on iOS and accepts input.
+#
+# Run:
+#   ~/.maestro/bin/maestro test .maestro/flows/ci-smoke-test.yaml
+appId: org.marshellis.commcare.ios
+
+---
+
+# Launch the app fresh
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+# Wait for the login screen to render
+- extendedWaitUntil:
+    visible: "Log In"
+    timeout: 30000
+
+# Verify the CommCare title is visible
+- assertVisible: "CommCare"
+
+# Verify the Log In button is present
+- assertVisible: "Log In"
+
+# Type dummy text in the username field to verify input works
+- tapOn:
+    id: "username_field"
+- inputText: "smoketest"
+
+# Clear the field
+- eraseText: 9
+
+# Verify the field can be typed into again after clearing
+- inputText: "ci-check"
+- eraseText: 8

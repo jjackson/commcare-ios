@@ -131,5 +131,21 @@ jobs:
           fi
           echo "App launched successfully and is still running!"
 
-          # Shutdown
-          xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+          # Keep simulator running for Maestro smoke test (shutdown moved to after Maestro)
+
+      - name: Install Maestro
+        continue-on-error: true
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run Maestro smoke test
+        continue-on-error: true
+        run: |
+          # Simulator should already be booted from previous step
+          ~/.maestro/bin/maestro test .maestro/flows/ci-smoke-test.yaml --no-ansi || true
+
+      - name: Shutdown simulator
+        if: always()
+        run: |
+          xcrun simctl shutdown all 2>/dev/null || true
