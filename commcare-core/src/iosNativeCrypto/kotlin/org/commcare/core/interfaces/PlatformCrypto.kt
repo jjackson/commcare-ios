@@ -176,20 +176,18 @@ actual object PlatformCrypto {
 
     actual fun pbkdf2(password: String, salt: ByteArray, iterations: Int, keyLengthBytes: Int): ByteArray {
         val derivedKey = ByteArray(keyLengthBytes)
-        val passwordBytes = password.encodeToByteArray()
+        val passwordLen = password.encodeToByteArray().size.toUInt()
 
-        passwordBytes.usePinned { pinnedPassword ->
-            salt.usePinned { pinnedSalt ->
-                derivedKey.usePinned { pinnedKey ->
-                    val status = cc_pbkdf2_sha256(
-                        pinnedPassword.addressOf(0).reinterpret(),
-                        passwordBytes.size.toUInt(),
-                        pinnedSalt.addressOf(0), salt.size.toUInt(),
-                        iterations.toUInt(),
-                        pinnedKey.addressOf(0), keyLengthBytes.toUInt()
-                    )
-                    check(status == 0) { "PBKDF2 failed with status $status" }
-                }
+        salt.usePinned { pinnedSalt ->
+            derivedKey.usePinned { pinnedKey ->
+                val status = cc_pbkdf2_sha256(
+                    password,
+                    passwordLen,
+                    pinnedSalt.addressOf(0), salt.size.toUInt(),
+                    iterations.toUInt(),
+                    pinnedKey.addressOf(0), keyLengthBytes.toUInt()
+                )
+                check(status == 0) { "PBKDF2 failed with status $status" }
             }
         }
 
