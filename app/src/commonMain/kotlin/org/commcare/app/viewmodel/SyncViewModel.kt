@@ -14,6 +14,7 @@ import org.commcare.core.interfaces.PlatformCrypto
 import org.commcare.core.interfaces.PlatformHttpClient
 import org.commcare.core.parse.ParseUtils
 import org.javarosa.core.io.createByteArrayInputStream
+import org.javarosa.core.util.platformSynchronized
 
 /**
  * Manages data sync with CommCare HQ — restore (pull) and form submission (push).
@@ -44,6 +45,7 @@ class SyncViewModel(
      */
     private var lastRestoreHash: String? = null
 
+    private val syncLock = Any()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun cancel() { scope.cancel() }
@@ -54,11 +56,13 @@ class SyncViewModel(
 
     init {
         // Restore last sync token from sandbox or database
-        lastSyncToken = sandbox.syncToken
-        if (lastSyncToken == null && userId.isNotEmpty()) {
-            lastSyncToken = sandbox.loadSyncToken(userId)
-            if (lastSyncToken != null) {
-                sandbox.syncToken = lastSyncToken
+        platformSynchronized(syncLock) {
+            lastSyncToken = sandbox.syncToken
+            if (lastSyncToken == null && userId.isNotEmpty()) {
+                lastSyncToken = sandbox.loadSyncToken(userId)
+                if (lastSyncToken != null) {
+                    sandbox.syncToken = lastSyncToken
+                }
             }
         }
     }
@@ -88,8 +92,10 @@ class SyncViewModel(
                 val headers = mutableMapOf(
                     "Authorization" to authHeader
                 )
-                if (lastSyncToken != null) {
-                    headers["X-CommCareHQ-LastSyncToken"] = lastSyncToken!!
+                platformSynchronized(syncLock) {
+                    if (lastSyncToken != null) {
+                        headers["X-CommCareHQ-LastSyncToken"] = lastSyncToken!!
+                    }
                 }
 
                 val response = httpClient.execute(
@@ -112,7 +118,10 @@ class SyncViewModel(
                             val responseHash = PlatformCrypto.sha256(body)
                                 .joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
 
-                            if (responseHash == lastRestoreHash) {
+                            val hashUnchanged = platformSynchronized(syncLock) {
+                                responseHash == lastRestoreHash
+                            }
+                            if (hashUnchanged) {
                                 // Response body unchanged — skip full re-parse
                                 syncState = SyncState.Syncing(0.8f, "Data unchanged, skipping parse")
                             } else {
@@ -122,12 +131,18 @@ class SyncViewModel(
                                 ParseUtils.parseIntoSandbox(stream, sandbox, false)
 
                                 // Update sync token from sandbox (set by CommCareTransactionParserFactory)
-                                lastSyncToken = sandbox.syncToken
-                                // Persist sync token to database for next app launch
-                                if (userId.isNotEmpty() && lastSyncToken != null) {
-                                    sandbox.persistSyncToken(userId)
+                                platformSynchronized(syncLock) {
+                                    lastSyncToken = sandbox.syncToken
+                                    lastRestoreHash = responseHash
                                 }
-                                lastRestoreHash = responseHash
+                                // Persist sync token to database for next app launch
+                                if (userId.isNotEmpty()) {
+                                    platformSynchronized(syncLock) {
+                                        if (lastSyncToken != null) {
+                                            sandbox.persistSyncToken(userId)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
