@@ -68,6 +68,7 @@ commcare-ios/
 - **Phase 7 plan**: `docs/plans/2026-03-22-phase7-full-android-parity-plan.md` — AES encryption, select appearances, form chaining, incremental sync, multimedia, test coverage (Issues #350-#359)
 - **Phase 8 plan**: `docs/plans/2026-03-24-phase8-production-readiness-plan.md` — integration tests (Connect APIs), App Store prep, performance, hardening
 - **Phase 9 design spec**: `docs/superpowers/specs/2026-04-08-phase9-e2e-ui-testing-design.md` — E2E UI testing initiative: `+7426` infrastructure, single fixture user, 11-wave plan (W0 infra, W1 recovery, W2-W11 breadth-first product coverage + reliability)
+- **Phase 9 implementation plan (W0 + W1)**: `docs/superpowers/plans/2026-04-08-phase9-e2e-ui-testing.md` — task-by-task plan for Wave 0 (infra + relocated Phase 8 live Connect tests) and Wave 1 (Connect ID recovery flow). Waves 2-11 get their own per-wave plan docs written before each wave starts.
 
 **Completion reports:** All in `docs/plans/*-completion-report.md`. Key reports:
 - Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
