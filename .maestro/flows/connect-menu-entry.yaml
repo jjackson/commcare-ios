@@ -1,0 +1,36 @@
+# Phase 9 Wave 2: Connect menu entry — documents state inconsistency bug.
+#
+# Runs AFTER post-recovery SetupScreen is visible (orchestrator handles
+# the recovery + done_button tap). Taps the Connect button to open the
+# Connect menu, waits for the screen to settle, and captures a screenshot.
+#
+# Today this asserts the BUGGY state: "Not signed in to ConnectID" is
+# visible after the SetupScreen said the user IS signed in. See
+# docs/phase9/wave2-state-inconsistency.md for the full writeup.
+#
+# When the bug is fixed, this flow will fail on the assertVisible
+# line. The fixer should update the assertion to match the corrected
+# behavior (e.g., assertVisible on a content container for the
+# opportunities list).
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "connect_button"
+    timeout: 15000
+
+- tapOn:
+    id: "connect_button"
+
+# Give the Connect menu a moment to load and fail
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- takeScreenshot: /tmp/phase9-connect-menu-entry
+
+# Document the current bug. This assertion is deliberately on the
+# BROKEN behavior — it will fail loudly when the bug is fixed.
+- assertVisible: "Not signed in to ConnectID"
