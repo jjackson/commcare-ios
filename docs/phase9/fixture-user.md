@@ -7,7 +7,7 @@ tests use. The user was created manually once and is reused across runs.
 
 - **Phone number:** `+74260000NNN` (see `CONNECTID_E2E_PHONE` in CI secrets / `.env.e2e.local`)
 - **Display name:** `QA Test User`
-- **Test opportunity:** `<opportunity-id-from-dimagi>` on Connect Worker
+- **Test opportunity:** `<opportunity-id-from-dimagi>` on Connect Worker — *TBD: filled in once Dimagi completes the pre-invite ask documented below*
 
 ## Why this user exists
 

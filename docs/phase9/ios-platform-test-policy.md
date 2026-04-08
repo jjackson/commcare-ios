@@ -20,7 +20,7 @@ not debug the implementations.
 ## What counts as "platform code"
 
 Anything implementing an `expect`/`actual` declaration on the iOS side.
-Examples:
+Examples (illustrative — not all may exist in the current codebase):
 - `PlatformKeychainStore` (iosMain implementation)
 - `PlatformBiometricAuth` (iosMain implementation)
 - `PlatformBarcodeScanner` (iosMain implementation)
