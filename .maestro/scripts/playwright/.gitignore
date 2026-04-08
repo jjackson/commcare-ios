@@ -1,0 +1,3 @@
+# Playwright persistent browser session — contains Dimagi SSO cookies
+userdata/
+node_modules/

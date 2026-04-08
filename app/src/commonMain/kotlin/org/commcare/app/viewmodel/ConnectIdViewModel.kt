@@ -56,6 +56,16 @@ class ConnectIdViewModel(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
+    // 1x1 transparent PNG, data-URI encoded. Used as a placeholder when
+    // the user skips the photo step during Connect ID registration —
+    // see createAccount() comment for context. The connect-id server's
+    // upload_photo_to_s3 function calls split_base64_string() which
+    // expects the "data:image/<type>;base64,..." data-URI format, not
+    // raw base64. Without the prefix, upload_photo_to_s3 returns a
+    // 500 FAILED_TO_UPLOAD error.
+    private val PLACEHOLDER_PHOTO_BASE64 =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII="
+
     fun cancel() { scope.cancel() }
 
     fun clearError() { errorMessage = null }
@@ -171,13 +181,17 @@ class ConnectIdViewModel(
                         onFailure = { errorMessage = "Invalid backup code: ${it.message}" }
                     )
                 } else {
-                    // New registration: set backup code, then proceed to photo capture
-                    val result = api.confirmBackupCode(token, backupCode)
+                    // New registration: the backup code is stored in the
+                    // `backupCode` state here and passed to complete_profile
+                    // (see createAccount() below) which is where it actually
+                    // gets saved on the server. We do NOT call
+                    // confirm_backup_code here — that endpoint is recovery-
+                    // only and requires the user to already exist in the DB.
+                    // Calling it during new registration hits
+                    // ConnectUser.DoesNotExist on the server and returns 500.
+                    // Caught by Phase 9 E2E testing — see issue #385.
                     isLoading = false
-                    result.fold(
-                        onSuccess = { currentStep = RegistrationStep.PHOTO_CAPTURE },
-                        onFailure = { errorMessage = "Failed: ${it.message}" }
-                    )
+                    currentStep = RegistrationStep.PHOTO_CAPTURE
                 }
             } catch (e: Exception) {
                 isLoading = false
@@ -196,7 +210,14 @@ class ConnectIdViewModel(
     // Step 6: Create account (automatic)
     private fun createAccount() {
         val token = session?.sessionToken ?: return
-        val photo = photoBase64 ?: ""
+        // The connect-id complete_profile endpoint rejects missing/empty
+        // photo with a 400 MISSING_DATA. When the user skips the photo
+        // step (PhotoCaptureStep's skip button passes ""), substitute a
+        // 1x1 transparent PNG placeholder so the request succeeds. The
+        // placeholder is uploaded to S3 and displayed as the user's
+        // profile photo — it's a legitimate (if blank) image.
+        // Caught by Phase 9 E2E testing — see issue #385.
+        val photo = photoBase64?.takeIf { it.isNotBlank() } ?: PLACEHOLDER_PHOTO_BASE64
         isLoading = true; errorMessage = null
         scope.launch {
             try {
@@ -244,7 +265,15 @@ class ConnectIdViewModel(
         securityMethod = method
         if (pin != null) devicePin = pin
         if (pin != null) {
-            keychainStore.store("connect_pin", pin)
+            // Keychain writes can fail on certain platform edge cases (see
+            // PlatformKeychainStore comment + issue #385). Catching here
+            // surfaces the error to the user instead of crashing the app.
+            try {
+                keychainStore.store("connect_pin", pin)
+            } catch (e: Throwable) {
+                errorMessage = "Failed to store PIN: ${e::class.simpleName}: ${e.message}"
+                return
+            }
         }
         // After biometric setup, go to OTP verification
         currentStep = RegistrationStep.OTP_VERIFICATION
