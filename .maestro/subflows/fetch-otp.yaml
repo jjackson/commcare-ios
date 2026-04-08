@@ -1,0 +1,21 @@
+# Phase 9 E2E shared subflow: fetch a one-time OTP for the fixture user.
+#
+# Wraps .maestro/scripts/fetch-otp.sh and exposes the result as ${output.otp}
+# to the calling flow.
+#
+# Usage from a parent flow:
+#   - runFlow:
+#       file: ../subflows/fetch-otp.yaml
+#   - inputText: ${output.otp}
+#
+# Required env vars (set by the parent flow or the CI workflow):
+#   CONNECTID_E2E_CLIENT_ID
+#   CONNECTID_E2E_CLIENT_SECRET
+#   CONNECTID_E2E_PHONE
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- runScript:
+    file: ../scripts/fetch-otp.sh
