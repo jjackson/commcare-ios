@@ -93,7 +93,9 @@ jobs:
         run: |
           ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml --no-ansi
 
-      # Wave 1 will add the connect-id-recovery.yaml flow here in Task 1.4.
+      - name: Run Connect ID recovery flow
+        run: |
+          ~/.maestro/bin/maestro test .maestro/flows/connect-id-recovery.yaml --no-ansi
 
       - name: Upload Maestro artifacts on failure
         if: failure()
