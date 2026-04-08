@@ -21,6 +21,7 @@ jobs:
       CONNECTID_E2E_PHONE_LOCAL: ${{ secrets.CONNECTID_E2E_PHONE_LOCAL }}
       CONNECTID_E2E_BACKUP_CODE: ${{ secrets.CONNECTID_E2E_BACKUP_CODE }}
       CONNECTID_E2E_PIN: ${{ secrets.CONNECTID_E2E_PIN }}
+      CONNECTID_E2E_COUNTRY_CODE: ${{ secrets.CONNECTID_E2E_COUNTRY_CODE }}
     steps:
       - uses: actions/checkout@v4
 
@@ -105,6 +106,8 @@ jobs:
           name: maestro-artifacts-${{ github.run_id }}
           path: |
             ~/.maestro/tests/**/*
+            /tmp/maestro-*
+            ~/.maestro/logs/**/*
           retention-days: 14
 
       - name: Shutdown simulator

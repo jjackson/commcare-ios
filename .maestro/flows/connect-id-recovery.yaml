@@ -57,3 +57,7 @@ appId: org.marshellis.commcare.ios
 - extendedWaitUntil:
     visible: "Start"
     timeout: 15000
+
+# Capture a visual baseline on success. Later waves can compare against this
+# artifact to catch unexpected UI regressions on the home screen.
+- takeScreenshot: wave1-recovery-success

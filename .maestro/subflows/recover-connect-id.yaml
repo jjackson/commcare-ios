@@ -4,6 +4,8 @@
 #
 # Requires:
 #   CONNECTID_E2E_PHONE        (fixture phone, +7426...)
+#   CONNECTID_E2E_PHONE_LOCAL  (digits after the country code, no +)
+#   CONNECTID_E2E_COUNTRY_CODE (country code with leading +, e.g. +7)
 #   CONNECTID_E2E_BACKUP_CODE  (fixture backup code from manual registration)
 #   CONNECTID_E2E_CLIENT_ID    (consumed by fetch-otp.sh)
 #   CONNECTID_E2E_CLIENT_SECRET
@@ -31,7 +33,7 @@ appId: org.marshellis.commcare.ios
 - tapOn:
     id: "country_code_field"
 - eraseText: 10
-- inputText: "+7"
+- inputText: ${CONNECTID_E2E_COUNTRY_CODE}
 
 - tapOn:
     id: "phone_number_field"
