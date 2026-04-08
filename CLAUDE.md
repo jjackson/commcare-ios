@@ -52,7 +52,9 @@ commcare-ios/
 
 **Phase 8: Production Readiness — IN PROGRESS.** Four streams: (1) expanded integration tests especially Connect APIs, (2) App Store submission prep, (3) performance profiling, (4) hardening (thread safety, crash upload, edge cases). See `docs/plans/2026-03-24-phase8-production-readiness-plan.md`.
 
-**If you are an agent starting a session:** Phase 8 is the active phase. Read the plan doc and check issue status before starting work. Tasks 1-4 are integration tests, 5-6 are App Store, 7-8 are performance, 9-11 are hardening.
+**Phase 9: End-to-End UI Testing — DESIGN.** Distinct successor to Phase 8 that closes the UI-level E2E gap now that the `+7426` Connect ID test prefix unblocks test flows against prod. 11-wave plan: Wave 0 infrastructure (OTP fetch helper, fixture user, nightly CI workflow), Wave 1 Connect ID recovery flow (single idempotent fixture user, no registration yet), Waves 2-10 breadth-first coverage across login variants, app install, case list/forms, multi-app, marketplace, sync, settings, edge cases, Wave 11 reliability layer. See `docs/superpowers/specs/2026-04-08-phase9-e2e-ui-testing-design.md`.
+
+**If you are an agent starting a session:** Phase 8 is the active phase. Read the plan doc and check issue status before starting work. Tasks 1-4 are integration tests, 5-6 are App Store, 7-8 are performance, 9-11 are hardening. Phase 9 is in design — the spec exists but the plan doc and GitHub issues do not yet.
 
 ## Key Docs
 
@@ -65,6 +67,7 @@ commcare-ios/
 - **Phase 6 plan**: `docs/plans/2026-03-21-phase6-field-readiness-plan.md` — blockers, Connect recovery, marketplace models, platform tests, app download, polish
 - **Phase 7 plan**: `docs/plans/2026-03-22-phase7-full-android-parity-plan.md` — AES encryption, select appearances, form chaining, incremental sync, multimedia, test coverage (Issues #350-#359)
 - **Phase 8 plan**: `docs/plans/2026-03-24-phase8-production-readiness-plan.md` — integration tests (Connect APIs), App Store prep, performance, hardening
+- **Phase 9 design spec**: `docs/superpowers/specs/2026-04-08-phase9-e2e-ui-testing-design.md` — E2E UI testing initiative: `+7426` infrastructure, single fixture user, 11-wave plan (W0 infra, W1 recovery, W2-W11 breadth-first product coverage + reliability)
 
 **Completion reports:** All in `docs/plans/*-completion-report.md`. Key report:
 - Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
