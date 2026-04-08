@@ -1,0 +1,94 @@
+# Phase 9 shared subflow: log in the fixture user via the Connect ID recovery
+# branch from a fresh simulator state. Used by Wave 1 directly and inherited
+# by every later wave that needs an authenticated Connect session.
+#
+# Requires:
+#   CONNECTID_E2E_PHONE        (fixture phone, +7426...)
+#   CONNECTID_E2E_BACKUP_CODE  (fixture backup code from manual registration)
+#   CONNECTID_E2E_CLIENT_ID    (consumed by fetch-otp.sh)
+#   CONNECTID_E2E_CLIENT_SECRET
+#
+# Caller is responsible for the launchApp + clearState. This subflow assumes
+# the app is launched and at the SetupScreen.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# Tap "LOGIN WITH PERSONALID" on the setup screen.
+- tapOn:
+    id: "signup_link"
+
+# Wait for the phone entry screen.
+- extendedWaitUntil:
+    visible:
+      id: "phone_number_field"
+    timeout: 10000
+
+# Enter the fixture phone number. The country code field defaults to
+# the user's locale; we tap the country code field and clear it just in
+# case the simulator's locale doesn't match +7426.
+- tapOn:
+    id: "country_code_field"
+- eraseText: 10
+- inputText: "+7"
+
+- tapOn:
+    id: "phone_number_field"
+# Strip the +7 prefix from the env var since we already typed +7 above.
+# This evaluates at flow time; if your fixture phone is "+74260000001",
+# pass "4260000001" as the phone field input.
+- inputText: ${CONNECTID_E2E_PHONE_LOCAL}
+
+# Dismiss keyboard before tapping Continue.
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# The server should detect the existing account and route to the recovery
+# branch. Wait for the OTP field to appear.
+- extendedWaitUntil:
+    visible:
+      id: "otp_field"
+    timeout: 15000
+
+# Fetch the OTP via the helper script. After this step, ${output.otp}
+# holds the 6-digit OTP value.
+- runFlow:
+    file: ../subflows/fetch-otp.yaml
+
+- tapOn:
+    id: "otp_field"
+- inputText: ${output.otp}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "verify_button"
+
+# Recovery requires the backup code. Wait for the backup code field.
+- extendedWaitUntil:
+    visible:
+      id: "backup_code_field"
+    timeout: 15000
+
+- tapOn:
+    id: "backup_code_field"
+- inputText: ${CONNECTID_E2E_BACKUP_CODE}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# At this point recovery should complete and the app should land on either
+# the SuccessStep done button or the home screen (depending on the build).
+# Wave 1 asserts on the post-recovery state in connect-id-recovery.yaml.

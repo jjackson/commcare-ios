@@ -32,6 +32,7 @@ The actual phone number, backup code, PIN, and OAuth credentials are
   - `CONNECTID_E2E_CLIENT_ID`
   - `CONNECTID_E2E_CLIENT_SECRET`
   - `CONNECTID_E2E_PHONE`
+  - `CONNECTID_E2E_PHONE_LOCAL`
   - `CONNECTID_E2E_BACKUP_CODE`
   - `CONNECTID_E2E_PIN`
 - **Local dev:** `.env.e2e.local` (gitignored). See `.env.e2e.local.example`.
