@@ -1,0 +1,27 @@
+# Phase 9 Wave 2: Connect ID session persistence across app restart.
+#
+# Runs AFTER the app has been killed + relaunched (orchestrator handles
+# the simctl calls). Same assertion as post-recovery-state.yaml: the
+# SetupScreen shows the signed-in variant. The point of this flow is
+# to prove the state survives a process restart.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# Generous timeout because simctl launch doesn't block until interactable.
+- extendedWaitUntil:
+    visible:
+      id: "connect_button"
+    timeout: 20000
+
+- assertVisible:
+    id: "connect_button"
+
+- assertVisible:
+    id: "signup_link"
+
+- assertVisible:
+    id: "scan_barcode_button"
+
+- takeScreenshot: /tmp/phase9-session-persistence
