@@ -23,7 +23,8 @@ appId: org.marshellis.commcare.ios
 
 # Wait for any visible UI to confirm the app launched.
 - extendedWaitUntil:
-    visible: "Log In"
+    visible:
+      id: "signup_link"
     timeout: 30000
 
 # Fetch an OTP. If the script fails (auth error, missing fixture, etc.)

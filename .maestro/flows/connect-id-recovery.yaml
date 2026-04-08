@@ -24,9 +24,10 @@ appId: org.marshellis.commcare.ios
     appId: "org.marshellis.commcare.ios"
     clearState: true
 
-# Wait for SetupScreen.
+# Wait for SetupScreen by waiting for the PersonalID signup button.
 - extendedWaitUntil:
-    visible: "Log In"
+    visible:
+      id: "signup_link"
     timeout: 30000
 
 # Walk the recovery flow.

@@ -35,16 +35,22 @@ appId: org.marshellis.commcare.ios
 
 - tapOn:
     id: "phone_number_field"
-# Strip the +7 prefix from the env var since we already typed +7 above.
-# This evaluates at flow time; if your fixture phone is "+74260000001",
-# pass "4260000001" as the phone field input.
+# CONNECTID_E2E_PHONE_LOCAL is the digits-only portion of the fixture phone
+# number (without the + and country code). Maestro reads it from the parent
+# shell environment via the workflow env block.
 - inputText: ${CONNECTID_E2E_PHONE_LOCAL}
 
-# Dismiss keyboard before tapping Continue.
+# Dismiss keyboard before tapping the consent checkbox.
 - tapOn:
     point: "50%,10%"
 - waitForAnimationToEnd:
     timeout: 1000
+
+# PhoneEntryStep's Continue button is disabled until the consent checkbox
+# is checked. The checkbox must be tapped after entering the phone number
+# but before the Continue tap.
+- tapOn:
+    id: "consent_checkbox"
 
 - tapOn:
     id: "continue_button"
