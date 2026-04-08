@@ -1,0 +1,58 @@
+# Phase 9 Wave 1: Connect ID recovery flow (the first real E2E test).
+#
+# Walks the fixture user through "existing user, new device" recovery on a
+# fresh simulator. This flow is idempotent: it can run on every nightly
+# without polluting connect-id with new users, because it never registers a
+# new account — it always recovers the same fixture user.
+#
+# Run:
+#   ~/.maestro/bin/maestro test .maestro/flows/connect-id-recovery.yaml
+#
+# Required env (from .env.e2e.local locally or GitHub secrets in CI):
+#   CONNECTID_E2E_CLIENT_ID
+#   CONNECTID_E2E_CLIENT_SECRET
+#   CONNECTID_E2E_PHONE
+#   CONNECTID_E2E_PHONE_LOCAL
+#   CONNECTID_E2E_BACKUP_CODE
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# Start from a guaranteed-fresh app state.
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+# Wait for SetupScreen.
+- extendedWaitUntil:
+    visible: "Log In"
+    timeout: 30000
+
+# Walk the recovery flow.
+- runFlow:
+    file: ../subflows/recover-connect-id.yaml
+
+# After recovery, the app routes to either the SuccessStep done button or
+# directly to the home screen. Either is acceptable as proof of success.
+# Assert on whichever element the build actually shows.
+- extendedWaitUntil:
+    visible:
+      id: "done_button"
+    optional: true
+    timeout: 10000
+
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+
+# Final assertion: home screen "Start" button is visible. This is the same
+# selector login-and-home.yaml uses, so we know it identifies the home
+# screen unambiguously.
+- extendedWaitUntil:
+    visible: "Start"
+    timeout: 15000
