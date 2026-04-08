@@ -1,0 +1,106 @@
+# Phase 9 ONE-TIME registration — continuation from OTP_VERIFICATION onwards.
+#
+# Run this AFTER the OTP has been fetched from Playwright (or manually)
+# and the app is sitting on the OTP screen. Types the OTP, verifies,
+# types the name, backup code, skips photo, and captures the Success
+# screen.
+#
+# Run (after fetching OTP via Playwright):
+#   OTP=$(node .maestro/scripts/playwright/fetch-otp.js +74260000042)
+#   set -a; source .env.e2e.local; set +a
+#   JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+#   ~/.maestro/bin/maestro test \
+#     -e "CONNECTID_E2E_OTP=$OTP" \
+#     -e "CONNECTID_E2E_BACKUP_CODE=$CONNECTID_E2E_BACKUP_CODE" \
+#     .maestro/flows/one-time-registration-from-otp.yaml
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# OTP_VERIFICATION (starts here)
+
+- extendedWaitUntil:
+    visible:
+      id: "otp_field"
+    timeout: 10000
+
+- tapOn:
+    id: "otp_field"
+- inputText: ${CONNECTID_E2E_OTP}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "verify_button"
+
+# NAME_ENTRY
+
+- extendedWaitUntil:
+    visible:
+      id: "full_name_field"
+    timeout: 15000
+
+- tapOn:
+    id: "full_name_field"
+- inputText: "Hal Test"
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# BACKUP_CODE (user chooses)
+
+- extendedWaitUntil:
+    visible:
+      id: "backup_code_field"
+    timeout: 15000
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "backup_code_field"
+- inputText: ${CONNECTID_E2E_BACKUP_CODE}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# PHOTO_CAPTURE — skip
+
+- extendedWaitUntil:
+    visible:
+      id: "skip_photo_button"
+    timeout: 15000
+
+- tapOn:
+    id: "skip_photo_button"
+
+# ACCOUNT_CREATION spinner (brief, optional)
+
+- extendedWaitUntil:
+    visible:
+      id: "account_creation_spinner"
+    optional: true
+    timeout: 3000
+
+# SUCCESS
+
+- extendedWaitUntil:
+    visible:
+      id: "done_button"
+    timeout: 30000
+
+- takeScreenshot: /tmp/phase9-registration-success

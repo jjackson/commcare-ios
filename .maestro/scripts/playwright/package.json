@@ -1,0 +1,12 @@
+{
+  "name": "phase9-otp-fetch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright script that fetches OTPs from connect.dimagi.com/users/connect_user_otp/ using a persistent browser session signed into Dimagi SSO.",
+  "scripts": {
+    "fetch": "node fetch-otp.js"
+  },
+  "dependencies": {
+    "playwright": "^1.59.1"
+  }
+}

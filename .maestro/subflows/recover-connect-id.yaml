@@ -7,7 +7,7 @@
 #   CONNECTID_E2E_PHONE_LOCAL  (digits after the country code, no +)
 #   CONNECTID_E2E_COUNTRY_CODE (country code with leading +, e.g. +7)
 #   CONNECTID_E2E_BACKUP_CODE  (fixture backup code from manual registration)
-#   CONNECTID_E2E_CLIENT_ID    (consumed by fetch-otp.sh)
+#   CONNECTID_E2E_OTP          (fetched externally via Playwright before invoking this subflow)
 #   CONNECTID_E2E_CLIENT_SECRET
 #
 # Caller is responsible for the launchApp + clearState. This subflow assumes
@@ -64,14 +64,14 @@ appId: org.marshellis.commcare.ios
       id: "otp_field"
     timeout: 15000
 
-# Fetch the OTP via the helper script. After this step, ${output.otp}
-# holds the 6-digit OTP value.
-- runFlow:
-    file: ../subflows/fetch-otp.yaml
-
+# OTP is injected by the orchestrator via -e CONNECTID_E2E_OTP=VALUE.
+# The orchestrator runs .maestro/scripts/playwright/fetch-otp.js against
+# the Dimagi connect_user_otp URL (with cached Dimagi SSO cookies) and
+# passes the fetched value to Maestro. See .maestro/scripts/run-registration.sh
+# for the registration equivalent.
 - tapOn:
     id: "otp_field"
-- inputText: ${output.otp}
+- inputText: ${CONNECTID_E2E_OTP}
 - tapOn:
     point: "50%,10%"
 - waitForAnimationToEnd:

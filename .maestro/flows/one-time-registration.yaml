@@ -116,40 +116,45 @@ appId: org.marshellis.commcare.ios
 - tapOn:
     id: "set_pin_button"
 
-# ===== Step 4: OTP_VERIFICATION =====
+# ===== Step 4: OTP_VERIFICATION (manual human step) =====
+#
+# Maestro pauses here and waits for the NAME_ENTRY screen to appear.
+# The OTP screen (otp_field + verify_button) requires an OTP from the
+# Dimagi connect_user_otp URL which only a Dimagi-SSO-authenticated
+# user can fetch — Maestro can't automate this without OAuth2 client
+# credentials from Dimagi (deferred — see docs/phase9/fixture-user.md).
+#
+# What the operator does here manually (~30-60 seconds):
+#   1. Open https://connect.dimagi.com/users/connect_user_otp/ in a
+#      browser signed into Dimagi SSO
+#   2. Look up the OTP for +74260000042
+#   3. Copy the 6-digit code
+#   4. Tap the otp_field in the simulator and paste/type the code
+#   5. Tap the Verify button in the simulator
+#
+# Once Verify succeeds the app advances to NameEntryStep and Maestro's
+# extendedWaitUntil for full_name_field unblocks. Timeout is 180s to
+# give the operator plenty of time.
 
 - extendedWaitUntil:
     visible:
       id: "otp_field"
     timeout: 15000
 
-# Interactive OTP fetch: fetch-otp.sh pops up a native macOS dialog
-# asking the operator to paste the OTP from the Dimagi SSO URL.
-- runFlow:
-    file: ../subflows/fetch-otp.yaml
+# Take a screenshot of the OTP screen so the operator has confirmation
+# Maestro is paused at the right place.
+- takeScreenshot: /tmp/phase9-awaiting-otp
 
-- tapOn:
-    id: "otp_field"
-- inputText: ${output.otp}
-
-- tapOn:
-    point: "50%,10%"
-- waitForAnimationToEnd:
-    timeout: 1000
-
-- tapOn:
-    id: "verify_button"
-
-# ===== Step 5: NAME_ENTRY =====
-
+# Wait for the operator to fetch+type the OTP and tap Verify.
+# When NameEntryStep is showing (full_name_field visible), proceed.
 - extendedWaitUntil:
     visible:
       id: "full_name_field"
-    timeout: 15000
+    timeout: 180000
 
 - tapOn:
     id: "full_name_field"
-- inputText: "QA Test User"
+- inputText: "Hal Test"
 
 - tapOn:
     point: "50%,10%"
@@ -170,10 +175,21 @@ appId: org.marshellis.commcare.ios
 - waitForAnimationToEnd:
     timeout: 2000
 
-# Capture the backup code screen so the operator can extract the code
-# from the PNG afterward.
-- runScript:
-    file: ../scripts/capture-backup-code.sh
+# Capture a screenshot of the backup code screen via Maestro's built-in.
+# Note: in new-registration mode the user CHOOSES the backup code
+# (this field is an input, not a display), so this screenshot is just
+# a sanity-check that we reached the right screen with the right input.
+- takeScreenshot: /tmp/phase9-backup-code-screen
+
+# Type the chosen backup code
+- tapOn:
+    id: "backup_code_field"
+- inputText: ${CONNECTID_E2E_BACKUP_CODE}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
 
 - tapOn:
     id: "continue_button"

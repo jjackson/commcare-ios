@@ -1,0 +1,78 @@
+# Phase 9 Wave 1: Connect ID recovery — part B (OTP → name → backup code → Success).
+#
+# Takes the OTP fetched by Playwright and drives the rest of the
+# recovery flow. For an EXISTING user (check_name returns
+# account_exists=true), the iOS app routes to the recovery branch:
+# after name entry, the app proceeds to BACKUP_CODE in input mode
+# (not display mode), the user types the backup code from their
+# password manager, the server validates it, and recovery succeeds
+# directly to the Success screen (skipping photo).
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# OTP_VERIFICATION
+- extendedWaitUntil:
+    visible:
+      id: "otp_field"
+    timeout: 10000
+
+- tapOn:
+    id: "otp_field"
+- inputText: ${CONNECTID_E2E_OTP}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "verify_button"
+
+# NAME_ENTRY
+- extendedWaitUntil:
+    visible:
+      id: "full_name_field"
+    timeout: 15000
+
+- tapOn:
+    id: "full_name_field"
+- inputText: "Hal Test"
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# BACKUP_CODE (recovery mode — input to verify, not display)
+- extendedWaitUntil:
+    visible:
+      id: "backup_code_field"
+    timeout: 15000
+
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "backup_code_field"
+- inputText: ${CONNECTID_E2E_BACKUP_CODE}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# SUCCESS (recovery skips photo + biometric — straight to done)
+- extendedWaitUntil:
+    visible:
+      id: "done_button"
+    timeout: 30000
+
+- takeScreenshot: /tmp/phase9-recovery-success

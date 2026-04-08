@@ -1,0 +1,87 @@
+# Phase 9 ONE-TIME registration — part A: launch → phone → PIN → OTP screen.
+#
+# Walks the deterministic front half of registration and stops as soon
+# as the OTP_VERIFICATION screen is visible. Designed to be followed by
+# a Playwright OTP fetch + one-time-registration-from-otp.yaml.
+#
+# Orchestrator: .maestro/scripts/run-registration.sh
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# SetupScreen
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      id: "signup_link"
+    timeout: 30000
+
+- tapOn:
+    id: "signup_link"
+
+# PhoneEntryStep
+- extendedWaitUntil:
+    visible:
+      id: "phone_number_field"
+    timeout: 10000
+
+- tapOn:
+    id: "country_code_field"
+- eraseText: 10
+- inputText: ${CONNECTID_E2E_COUNTRY_CODE}
+
+- tapOn:
+    id: "phone_number_field"
+- inputText: ${CONNECTID_E2E_PHONE_LOCAL}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "consent_checkbox"
+
+- tapOn:
+    id: "continue_button"
+
+# BiometricSetupStep — PIN path
+- extendedWaitUntil:
+    visible:
+      id: "pin_field"
+    optional: true
+    timeout: 5000
+
+- runFlow:
+    when:
+      visible:
+        id: "use_pin_button"
+    commands:
+      - tapOn:
+          id: "use_pin_button"
+      - extendedWaitUntil:
+          visible:
+            id: "pin_field"
+          timeout: 5000
+
+- tapOn:
+    id: "pin_field"
+- inputText: ${CONNECTID_E2E_PIN}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "set_pin_button"
+
+# OtpVerificationStep — stop here, let orchestrator fetch the OTP
+- extendedWaitUntil:
+    visible:
+      id: "otp_field"
+    timeout: 15000
