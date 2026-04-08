@@ -3,7 +3,6 @@
 package org.commcare.app.platform
 
 import cnames.structs.__CFDictionary
-import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
@@ -41,112 +40,135 @@ private const val SERVICE_NAME = "org.commcare.ios"
 
 /**
  * iOS implementation of PlatformKeychainStore.
- * Uses the iOS Security framework Keychain for secure credential storage.
  *
- * Stores items as kSecClassGenericPassword with a fixed service name
- * and per-key account names. Items are accessible only when the device
- * is unlocked and are not included in backups (ThisDeviceOnly).
+ * ## Bridging dance (see issue #385)
  *
- * Implementation notes (see issue #385):
+ * K/N interop between `Map<Any?, Any?>` and `CFDictionaryRef` behaves
+ * differently across runtime contexts:
  *
- * 1. Queries are built with NSMutableDictionary rather than Kotlin
- *    mapOf + "as CFDictionaryRef" cast. The implicit Map-to-CFDictionary
- *    bridging in Kotlin/Native crashes with an NSMapGet NULL assertion
- *    on iOS simulator in certain type-cache edge cases.
+ * - **Standalone test context** (`xcrun simctl spawn --standalone`):
+ *   `mapOf(...) as CFDictionaryRef` works via implicit bridging.
+ * - **App context** (Compose onClick handler): the same cast throws
+ *   `ClassCastException: HashMap cannot be cast to CPointer`.
  *
- * 2. Bridging NSMutableDictionary to CFDictionaryRef goes through
- *    CFBridgingRetain + pointer reinterpret, not a direct Kotlin
- *    "as" cast. Kotlin's type system sees NSMutableDictionary as an
- *    Obj-C object, not a CPointer, so a direct cast raises
- *    ClassCastException. CFBridgingRetain returns a +1 retained
- *    CFTypeRef which we then reinterpret as CFDictionaryRef and
- *    release after the SecItem call.
+ * And the `NSMutableDictionary + CFBridgingRetain + reinterpret` path
+ * works in the app context but causes `SecItemAdd` to return
+ * `errSecParam (-50)` in the standalone test context.
  *
- * 3. CFStringRef constants (kSecClass, kSecAttrService, etc.) are
- *    cast to NSCopyingProtocol when passed as setObject:forKey: keys.
- *    CFStringRef is toll-free bridged with NSString, which implements
- *    NSCopying, so the cast succeeds at runtime.
+ * Dual-path solution: try `mapOf` first; if `ClassCastException` is
+ * thrown, fall back to `NSMutableDictionary`. Each runtime context
+ * takes the path that works there.
  */
 actual class PlatformKeychainStore actual constructor() {
 
     actual fun store(key: String, value: String) {
-        // Delete any existing item first to avoid errSecDuplicateItem
         delete(key)
 
         val valueData = NSString.create(string = value)
             .dataUsingEncoding(NSUTF8StringEncoding) ?: return
 
-        val query = buildQuery {
-            setObject(kSecClassGenericPassword, forKey = kSecClass.asNSCopying())
-            setObject(SERVICE_NAME, forKey = kSecAttrService.asNSCopying())
-            setObject(key, forKey = kSecAttrAccount.asNSCopying())
-            setObject(valueData, forKey = kSecValueData.asNSCopying())
-            setObject(
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                forKey = kSecAttrAccessible.asNSCopying(),
+        try {
+            val query = mapOf<Any?, Any?>(
+                kSecClass to kSecClassGenericPassword,
+                kSecAttrService to SERVICE_NAME,
+                kSecAttrAccount to key,
+                kSecValueData to valueData,
+                kSecAttrAccessible to kSecAttrAccessibleWhenUnlockedThisDeviceOnly
             )
-        }
 
-        withCFDictionary(query) { cfQuery ->
-            SecItemAdd(cfQuery, null)
+            @Suppress("UNCHECKED_CAST")
+            SecItemAdd(query as CFDictionaryRef, null)
+        } catch (_: ClassCastException) {
+            val dict = buildNSMutableDictionary {
+                setObj(kSecClassGenericPassword, kSecClass)
+                setObj(SERVICE_NAME, kSecAttrService)
+                setObj(key, kSecAttrAccount)
+                setObj(valueData, kSecValueData)
+                setObj(kSecAttrAccessibleWhenUnlockedThisDeviceOnly, kSecAttrAccessible)
+            }
+            withCFDictionary(dict) { cfDict -> SecItemAdd(cfDict, null) }
         }
     }
 
     actual fun retrieve(key: String): String? {
-        val query = buildQuery {
-            setObject(kSecClassGenericPassword, forKey = kSecClass.asNSCopying())
-            setObject(SERVICE_NAME, forKey = kSecAttrService.asNSCopying())
-            setObject(key, forKey = kSecAttrAccount.asNSCopying())
-            setObject(NSNumber(bool = true), forKey = kSecReturnData.asNSCopying())
-            setObject(kSecMatchLimitOne, forKey = kSecMatchLimit.asNSCopying())
-        }
-
         return memScoped {
             val result = alloc<CFTypeRefVar>()
+            val status = try {
+                val query = mapOf<Any?, Any?>(
+                    kSecClass to kSecClassGenericPassword,
+                    kSecAttrService to SERVICE_NAME,
+                    kSecAttrAccount to key,
+                    kSecReturnData to true,
+                    kSecMatchLimit to kSecMatchLimitOne
+                )
 
-            val status = withCFDictionary(query) { cfQuery ->
-                SecItemCopyMatching(cfQuery, result.ptr)
+                @Suppress("UNCHECKED_CAST")
+                SecItemCopyMatching(query as CFDictionaryRef, result.ptr)
+            } catch (_: ClassCastException) {
+                val dict = buildNSMutableDictionary {
+                    setObj(kSecClassGenericPassword, kSecClass)
+                    setObj(SERVICE_NAME, kSecAttrService)
+                    setObj(key, kSecAttrAccount)
+                    setObj(NSNumber(bool = true), kSecReturnData)
+                    setObj(kSecMatchLimitOne, kSecMatchLimit)
+                }
+                withCFDictionary(dict) { cfDict ->
+                    SecItemCopyMatching(cfDict, result.ptr)
+                }
             }
 
             if (status != errSecSuccess) {
-                return null
+                return@memScoped null
             }
 
-            val data = CFBridgingRelease(result.value) as? NSData ?: return null
+            val data = CFBridgingRelease(result.value) as? NSData ?: return@memScoped null
             NSString.create(data = data, encoding = NSUTF8StringEncoding) as? String
         }
     }
 
     actual fun delete(key: String) {
-        val query = buildQuery {
-            setObject(kSecClassGenericPassword, forKey = kSecClass.asNSCopying())
-            setObject(SERVICE_NAME, forKey = kSecAttrService.asNSCopying())
-            setObject(key, forKey = kSecAttrAccount.asNSCopying())
-        }
+        try {
+            val query = mapOf<Any?, Any?>(
+                kSecClass to kSecClassGenericPassword,
+                kSecAttrService to SERVICE_NAME,
+                kSecAttrAccount to key
+            )
 
-        withCFDictionary(query) { cfQuery ->
-            SecItemDelete(cfQuery)
+            @Suppress("UNCHECKED_CAST")
+            SecItemDelete(query as CFDictionaryRef)
+        } catch (_: ClassCastException) {
+            val dict = buildNSMutableDictionary {
+                setObj(kSecClassGenericPassword, kSecClass)
+                setObj(SERVICE_NAME, kSecAttrService)
+                setObj(key, kSecAttrAccount)
+            }
+            withCFDictionary(dict) { cfDict -> SecItemDelete(cfDict) }
         }
     }
 
     // ----- helpers -----
 
-    private inline fun buildQuery(block: NSMutableDictionary.() -> Unit): NSMutableDictionary {
-        return NSMutableDictionary().apply(block)
+    private inline fun buildNSMutableDictionary(
+        block: NSMutableDictionary.() -> Unit,
+    ): NSMutableDictionary = NSMutableDictionary().apply(block)
+
+    @Suppress("UNCHECKED_CAST")
+    private fun NSMutableDictionary.setObj(value: Any?, key: Any?) {
+        if (value == null || key == null) return
+        setObject(value, forKey = key as NSCopyingProtocol)
     }
 
     /**
-     * Bridge an NSMutableDictionary to a CFDictionaryRef for passing to
-     * Security framework APIs. Uses CFBridgingRetain to get a +1 retained
-     * CFTypeRef, reinterprets it as CFDictionaryRef, runs the block, then
-     * releases the retain.
+     * Bridge an NSMutableDictionary to a CFDictionaryRef via
+     * CFBridgingRetain + pointer reinterpret, run the block, then
+     * release the retain in finally.
      */
     private inline fun <R> withCFDictionary(
         dict: NSMutableDictionary,
         block: (CFDictionaryRef) -> R,
     ): R {
         val retained = CFBridgingRetain(dict)
-            ?: throw IllegalStateException("CFBridgingRetain returned null for NSMutableDictionary")
+            ?: throw IllegalStateException("CFBridgingRetain returned null")
         try {
             val cfDict: CFDictionaryRef = retained.reinterpret<__CFDictionary>()
             return block(cfDict)
@@ -154,7 +176,4 @@ actual class PlatformKeychainStore actual constructor() {
             CFRelease(retained)
         }
     }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun Any?.asNSCopying(): NSCopyingProtocol = this as NSCopyingProtocol
 }
