@@ -17,6 +17,9 @@ source .env.e2e.local
 set +a
 
 export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home}"
+# Maestro's XCTest driver sometimes takes >30s to spin up under load;
+# bump to 3 minutes so back-to-back runs don't flake on infrastructure.
+export MAESTRO_DRIVER_STARTUP_TIMEOUT="${MAESTRO_DRIVER_STARTUP_TIMEOUT:-180000}"
 MAESTRO="${MAESTRO:-$HOME/.maestro/bin/maestro}"
 PLAYWRIGHT_SCRIPT="$ROOT/.maestro/scripts/playwright/fetch-otp.js"
 APP_PATH="$ROOT/app/iosApp/build/Build/Products/Debug-iphonesimulator/CommCare.app"
