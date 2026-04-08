@@ -1,5 +1,6 @@
 # Bug: Connect ID state inconsistency between SetupScreen and Connect menu
 
+**Tracking issue:** #389
 **Found by:** Phase 9 Wave 2 E2E scouting, 2026-04-08
 **Severity:** Medium — user-visible, reproducible, not crashing
 **Affects:** iOS, CommCare.app post-recovery flow
