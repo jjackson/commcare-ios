@@ -1,0 +1,35 @@
+# Phase 9 E2E plumbing test: prove OTP fetch works from a Maestro flow.
+#
+# This flow does NOT exercise the Connect ID UI — it just launches the
+# app, calls fetch-otp.sh, and asserts the script returned an OTP. It is
+# the minimal proof that Wave 0 infrastructure works before Wave 1 adds
+# real UI interaction.
+#
+# Run:
+#   ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml
+#
+# Required env (from .env.e2e.local locally or GitHub secrets in CI):
+#   CONNECTID_E2E_CLIENT_ID
+#   CONNECTID_E2E_CLIENT_SECRET
+#   CONNECTID_E2E_PHONE
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+# Wait for any visible UI to confirm the app launched.
+- extendedWaitUntil:
+    visible: "Log In"
+    timeout: 30000
+
+# Fetch an OTP. If the script fails (auth error, missing fixture, etc.)
+# Maestro will fail the flow and surface the script error.
+- runFlow:
+    file: ../subflows/fetch-otp.yaml
+
+# At this point ${output.otp} should be a 6-digit string. We assert
+# nothing further — Wave 1 will type it into the OTP field for real.
