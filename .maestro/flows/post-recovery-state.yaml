@@ -1,0 +1,29 @@
+# Phase 9 Wave 2: Post-recovery SetupScreen state.
+#
+# Runs AFTER recovery has completed AND the user has tapped done_button.
+# Asserts the SetupScreen shows the signed-in variant: both the
+# "GO TO CONNECT MENU" button (connect_button) and the "Signed in to
+# Personal ID" indicator (signup_link, same testTag as the login button).
+#
+# The connect_button testTag is the unambiguous signal — it only renders
+# in the isConnectIdRegistered branch of SetupScreen.kt.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "connect_button"
+    timeout: 15000
+
+- assertVisible:
+    id: "connect_button"
+
+- assertVisible:
+    id: "signup_link"
+
+- assertVisible:
+    id: "scan_barcode_button"
+
+- takeScreenshot: /tmp/phase9-post-recovery-state

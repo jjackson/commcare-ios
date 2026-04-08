@@ -1,0 +1,15 @@
+# Phase 9 Wave 2 helper: taps the done_button on the Success screen
+# to return to SetupScreen. Used as a chained step between recovery
+# and post-recovery assertions.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "done_button"
+    timeout: 10000
+
+- tapOn:
+    id: "done_button"
