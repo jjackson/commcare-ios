@@ -70,31 +70,17 @@
 
 ## Wave 0 — Infrastructure
 
-### Task 0.1: Open Dimagi asks (external dependency, no code)
+### Task 0.1: Pick the fixture phone number and pre-invite it to a test opportunity
 
-This task has no commit. It's a hard prerequisite for everything downstream and must be opened before any other Wave 0 work.
+This task has no commit. Superseded scope — see note below.
 
-- [ ] **Step 1: Pick the fixture phone number**
+- [x] **Step 1: Pick the fixture phone number** — chosen: `+74260000042` (2026-04-08, JJ).
 
-Choose one number of the form `+74260000NNN` (e.g., `+74260000001`). Document the choice locally; do not commit it to the repo yet — it will live in `.env.e2e.local` and `docs/phase9/fixture-user.md` (with a placeholder).
+- [x] **Step 2: Pre-invite the number to a test opportunity** — done (JJ, 2026-04-08).
 
-- [ ] **Step 2: File a request to Dimagi connect-id ops**
+- [ ] ~~**Step 3: File OAuth2 client credentials ask to Dimagi**~~ — **SUPERSEDED.**
 
-Send the following to the Dimagi connect-id team (Slack, email, or Jira ticket — whichever is conventional):
-
-> Subject: Connect ID test infrastructure request — iOS E2E testing
->
-> We are building iOS E2E tests against `connectid.dimagi.com` production. We need three things:
->
-> 1. **OAuth2 client credentials** (client_id + client_secret) for `connectid.dimagi.com` with scope sufficient to call `GET /users/generate_manual_otp`. Please confirm whether any scope works or a specific scope name is required. The endpoint is at `users/views.py:1022` and is protected by `ClientProtectedResourceAuth`.
->
-> 2. **Pre-invite one phone number to a test opportunity on Connect Worker.** The number is `+74260000NNN` (replace with the chosen number). It needs `check_number_for_existing_invites` to return `True` so that `send_session_otp` and `confirm_session_otp` return 200 instead of 403 NOT_ALLOWED (see `users/views.py:955,968`).
->
-> 3. **Confirmation that creating one fixture user under this number is acceptable** and does not need periodic cleanup. We will manually register the user once and reuse it across all E2E tests.
-
-- [ ] **Step 3: Block on the response**
-
-Wait for Dimagi to respond with credentials and confirmation. Until they do, no further Wave 0 task can complete. Document the block in the corresponding GitHub issue with status `blocked: external dependency`.
+**Why superseded:** The original plan assumed an unattended CI execution of Wave 1, which required Dimagi-provisioned OAuth2 client credentials so `fetch-otp.sh` could call `generate_manual_otp` without a human. We pivoted Wave 1 to **local-only execution** via an interactive OTP fetch against `https://connect.dimagi.com/users/connect_user_otp/` using the developer's existing Dimagi SSO session. The OAuth2 ask becomes future work when (if) we want unattended nightly Wave 1 runs. `fetch-otp.sh` already supports both modes — it picks the automated path when `CONNECTID_E2E_CLIENT_ID` / `CONNECTID_E2E_CLIENT_SECRET` are set in the environment, and falls back to the interactive path otherwise. No code changes needed to flip later; just provisioning + secrets.
 
 ---
 
@@ -1397,99 +1383,79 @@ git commit -m "feat(phase9): Wave 1 — Connect ID recovery E2E flow"
 
 ---
 
-### Task 1.3: Wire Wave 1 into the nightly CI workflow
+### Task 1.3: ~~Wire Wave 1 into the nightly CI workflow~~ — SUPERSEDED
 
-**Files:**
-- Modify: `.github/workflows/e2e-ui.yml`
+Wave 1 is **local-only** for now. The recovery flow is not wired into `e2e-ui.yml` because its interactive OTP fetch step requires a human at a terminal. `e2e-ui.yml` only runs the hello-world plumbing flow.
 
-- [ ] **Step 1: Add the recovery flow to the workflow**
-
-In `.github/workflows/e2e-ui.yml`, find the comment `# Wave 1 will add the connect-id-recovery.yaml flow here in Task 1.4.` and replace it with:
-
-```yaml
-      - name: Run Connect ID recovery flow
-        run: |
-          ~/.maestro/bin/maestro test .maestro/flows/connect-id-recovery.yaml --no-ansi
-```
-
-- [ ] **Step 2: Validate YAML**
-
-```bash
-python3 -c "import yaml; yaml.safe_load(open('.github/workflows/e2e-ui.yml'))" && echo "YAML valid"
-```
-
-- [ ] **Step 3: Trigger the workflow manually**
-
-```bash
-git push origin emdash/e2e-ios-test-1ai
-gh workflow run e2e-ui.yml --ref emdash/e2e-ios-test-1ai
-gh run watch
-```
-
-Expected: workflow finishes green. Both flows pass.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add .github/workflows/e2e-ui.yml
-git commit -m "ci(phase9): run Wave 1 recovery flow in nightly E2E workflow"
-```
+When Dimagi provisions OAuth2 client credentials for `generate_manual_otp` (see Task 0.1 supersedure note), wiring Wave 1 into nightly CI becomes a 5-line change: uncomment the placeholder in `e2e-ui.yml` and set the secrets. No other code changes needed. Tracked as future work, not a Wave 1 blocker.
 
 ---
 
-### Task 1.4: Stabilize Wave 1 — 10 consecutive green runs
+### Task 1.4: Run Wave 1 locally and verify it works
 
-This task has no commit unless flakiness is found. It is a wait-and-observe gate.
+This task has no commit. It is a local execution gate — no CI involvement.
 
-- [ ] **Step 1: Trigger the workflow nightly for 10 days**
+- [ ] **Step 1: Populate `.env.e2e.local`**
 
-The cron schedule will run automatically. Track results with:
+Copy from `.env.e2e.local.example` and fill in the fixture values:
 
 ```bash
-gh run list --workflow=e2e-ui.yml --limit 10 --json conclusion,createdAt
+CONNECTID_E2E_PHONE=+74260000042
+CONNECTID_E2E_PHONE_LOCAL=4260000042
+CONNECTID_E2E_COUNTRY_CODE=+7
+CONNECTID_E2E_BACKUP_CODE=<from-password-manager>
 ```
 
-Expected: all 10 most-recent runs `conclusion: success`.
+The OAuth2 and BASE_URL vars can stay empty — the interactive fetch mode kicks in automatically.
 
-- [ ] **Step 2: For any failed run, classify the failure**
+- [ ] **Step 2: Run the flow locally**
 
-Categories:
-- **Infrastructure** (sim boot, build, network, GH Actions outage): not Wave 1's fault. Re-run.
-- **Flake** (passed on retry without code change): a real Maestro reliability issue. Add a retry step or stabilize the relevant assertion.
-- **Product bug** (real change in behavior): file an issue. The whole point of Wave 1 is to catch these.
-- **Test bug** (Wave 1 flow has a wrong assumption): fix the flow.
+```bash
+set -a; source .env.e2e.local; set +a
+xcrun simctl erase all
+# (re-install + re-launch the app on a fresh sim — see Task 0.2 for the exact commands if needed)
+~/.maestro/bin/maestro test .maestro/flows/connect-id-recovery.yaml
+```
 
-Document each failure in the Wave 1 GitHub issue.
+Expected: the flow walks SetupScreen → PhoneEntry → consent → continue → OTP field. At that point, `fetch-otp.sh` runs in interactive mode, opens the Dimagi connect_user_otp URL in your browser, prompts for paste. You copy the OTP from the browser (where you're already logged in via Dimagi SSO), paste it into the terminal, press Enter. Maestro resumes, types the OTP, walks through backup code entry, lands on the home screen.
 
-- [ ] **Step 3: Mark Wave 1 stable**
+Total time: 60-120 seconds plus however long you take to copy-paste the OTP.
 
-Once 10 consecutive runs pass, close the Wave 1 GitHub issue per the project's Issue Closure Rules:
+- [ ] **Step 3: If it fails, debug with the Maestro artifacts**
+
+Maestro writes screenshots and logs to `~/.maestro/tests/`. Inspect the last failed run to see which step broke.
+
+- [ ] **Step 4: Mark Wave 1 done**
+
+Close the Wave 1 GitHub issue once you've successfully run the flow locally at least once:
 
 > ## What was done
-> Wave 1 of Phase 9: Connect ID recovery E2E flow.
+> Wave 1 of Phase 9: Connect ID recovery E2E flow, local-only execution.
 >
 > ## Acceptance criteria verification
-> - [x] connect-id-recovery.yaml passes locally
-> - [x] connect-id-recovery.yaml runs in e2e-ui.yml nightly
-> - [x] 10 consecutive green nightly runs (Apr DD - Apr DD)
+> - [x] connect-id-recovery.yaml passes locally on a fresh simulator
+> - [x] Interactive OTP fetch via Dimagi SSO works (human-in-the-loop)
 > - [x] No app code changes (test infrastructure only)
+> - [x] No iOS platform code touched
 >
 > ## Notable technical decisions
-> - [Document any decisions made during stabilization]
+> - Wave 1 is local-only because unattended CI execution requires OAuth2 client credentials from Dimagi, which are deferred future work. `fetch-otp.sh` already supports both modes; flipping to CI when creds land is a 5-line change.
 >
 > ## PR link
-> [Link to merged Wave 1 PR]
+> #382
 
 ---
 
 ## Wave 1 exit gate
 
-- [ ] `connect-id-recovery.yaml` passes locally on a fresh simulator.
-- [ ] `connect-id-recovery.yaml` passes in CI nightly.
-- [ ] 10 consecutive green nightly runs achieved.
-- [ ] No commits modified files outside `.maestro/`, `docs/phase9/`, `.github/workflows/`, or test directories. (Wave 1 should not require any app code changes; if it did, audit those changes.)
+- [ ] `.maestro/flows/connect-id-recovery.yaml` passes locally on a fresh simulator at least once (human-in-the-loop OTP paste OK).
+- [ ] `.maestro/flows/e2e-hello-world.yaml` passes in CI nightly (no OTP needed; pure plumbing smoke).
+- [ ] No commits modified files outside `.maestro/`, `docs/phase9/`, `docs/superpowers/`, `.github/workflows/`, `.env.e2e.local.example`, `.gitignore`, or test directories.
 - [ ] Wave 1 GitHub issue closed with the closure note above.
 - [ ] Any iOS platform code touched during debugging has a paired `iosTest/` unit test (per `docs/phase9/ios-platform-test-policy.md`).
+
+**Deferred to when Dimagi provisions OAuth2 client credentials:**
+- 10 consecutive green nightly CI runs of `connect-id-recovery.yaml` in `e2e-ui.yml`.
 
 ---
 

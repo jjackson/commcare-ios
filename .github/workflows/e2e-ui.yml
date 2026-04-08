@@ -1,4 +1,13 @@
-name: Phase 9 E2E UI Tests
+name: Phase 9 E2E Build Smoke
+
+# Nightly build-and-launch smoke test for Phase 9. Builds the iOS framework
+# and app, boots a fresh simulator, installs CommCare, and runs the Maestro
+# hello-world flow which verifies the app launches to SetupScreen.
+#
+# This workflow deliberately does NOT run Wave 1 (connect-id-recovery.yaml)
+# because Wave 1 requires interactive OTP fetch via Dimagi SSO — see
+# docs/phase9/fixture-user.md. Wave 1 is local-only until Dimagi provisions
+# dedicated OAuth2 client credentials for the generate_manual_otp endpoint.
 
 on:
   workflow_dispatch:
@@ -13,15 +22,7 @@ concurrency:
 jobs:
   e2e:
     runs-on: macos-15
-    timeout-minutes: 60
-    env:
-      CONNECTID_E2E_CLIENT_ID: ${{ secrets.CONNECTID_E2E_CLIENT_ID }}
-      CONNECTID_E2E_CLIENT_SECRET: ${{ secrets.CONNECTID_E2E_CLIENT_SECRET }}
-      CONNECTID_E2E_PHONE: ${{ secrets.CONNECTID_E2E_PHONE }}
-      CONNECTID_E2E_PHONE_LOCAL: ${{ secrets.CONNECTID_E2E_PHONE_LOCAL }}
-      CONNECTID_E2E_BACKUP_CODE: ${{ secrets.CONNECTID_E2E_BACKUP_CODE }}
-      CONNECTID_E2E_PIN: ${{ secrets.CONNECTID_E2E_PIN }}
-      CONNECTID_E2E_COUNTRY_CODE: ${{ secrets.CONNECTID_E2E_COUNTRY_CODE }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -44,7 +45,7 @@ jobs:
         run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
 
       - name: Install xcodegen
-        run: brew install xcodegen jq
+        run: brew install xcodegen
 
       - name: Generate Xcode project
         working-directory: app/iosApp
@@ -95,9 +96,12 @@ jobs:
         run: |
           ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml --no-ansi
 
-      - name: Run Connect ID recovery flow
-        run: |
-          ~/.maestro/bin/maestro test .maestro/flows/connect-id-recovery.yaml --no-ansi
+      # NOTE: The Connect ID recovery flow (.maestro/flows/connect-id-recovery.yaml)
+      # is intentionally NOT run here. It requires an interactive OTP fetch via
+      # Dimagi SSO (see docs/phase9/fixture-user.md) and is local-only for now.
+      # When Dimagi provisions dedicated OAuth2 client credentials for the
+      # generate_manual_otp endpoint, the recovery flow can be added back here
+      # and fetch-otp.sh will pick them up automatically from job env vars.
 
       - name: Upload Maestro artifacts on failure
         if: failure()

@@ -1,17 +1,20 @@
-# Phase 9 E2E plumbing test: prove OTP fetch works from a Maestro flow.
+# Phase 9 E2E plumbing smoke test.
 #
-# This flow does NOT exercise the Connect ID UI — it just launches the
-# app, calls fetch-otp.sh, and asserts the script returned an OTP. It is
-# the minimal proof that Wave 0 infrastructure works before Wave 1 adds
-# real UI interaction.
+# The smallest possible flow that proves the Phase 9 build + Maestro
+# infrastructure works: launch the app on a fresh simulator, wait for
+# the Connect ID signup_link testTag to be visible, done.
+#
+# This flow is intentionally fast, unattended, and credential-free. It
+# does NOT exercise the Connect ID UI or fetch an OTP — that's Wave 1's
+# job, which is local-only (see .maestro/flows/connect-id-recovery.yaml)
+# because it requires an interactive OTP fetch via Dimagi SSO.
+#
+# This flow IS suitable for unattended nightly CI (it has no external
+# dependencies beyond the bundled simulator), and is the only Maestro
+# flow currently run by .github/workflows/e2e-ui.yml.
 #
 # Run:
 #   ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml
-#
-# Required env (from .env.e2e.local locally or GitHub secrets in CI):
-#   CONNECTID_E2E_CLIENT_ID
-#   CONNECTID_E2E_CLIENT_SECRET
-#   CONNECTID_E2E_PHONE
 
 appId: org.marshellis.commcare.ios
 
@@ -21,16 +24,10 @@ appId: org.marshellis.commcare.ios
     appId: "org.marshellis.commcare.ios"
     clearState: true
 
-# Wait for any visible UI to confirm the app launched.
+# Wait for the SetupScreen to appear by looking for the "LOGIN WITH
+# PERSONALID" button's testTag. If this tag ever moves, update both
+# this flow and .maestro/subflows/recover-connect-id.yaml together.
 - extendedWaitUntil:
     visible:
       id: "signup_link"
     timeout: 30000
-
-# Fetch an OTP. If the script fails (auth error, missing fixture, etc.)
-# Maestro will fail the flow and surface the script error.
-- runFlow:
-    file: ../subflows/fetch-otp.yaml
-
-# At this point ${output.otp} should be a 6-digit string. We assert
-# nothing further — Wave 1 will type it into the OTP field for real.

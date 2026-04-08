@@ -152,27 +152,22 @@ The fixture user is the same one the UI flows use; the OAuth2 access token is ob
 
 ### 5.2 Dimagi dependencies
 
-Wave 0 has two hard external dependencies. The plan doc for W0 must open these as external asks before any code is written.
+Wave 0 originally specified two external asks. As of 2026-04-08, the scope has been reduced:
 
-1. **OAuth2 client credentials** for `connectid.dimagi.com`. Scope: whatever `ClientProtectedResourceAuth` requires for the `generate_manual_otp` endpoint. Stored as GitHub Actions secrets.
-2. **Pre-invite the fixture number to a test opportunity.** The number we will use is chosen during Wave 0 (a single `+7426xxxxxxx`). It must be added to an existing or new test opportunity on Connect Worker so `check_number_for_existing_invites` returns `True`. This is required because `send_session_otp` and `confirm_session_otp` both return 403 NOT_ALLOWED if `invited_user=False` (see `users/views.py:955,968` in connect-id).
+1. ~~**OAuth2 client credentials** for `connectid.dimagi.com`~~ — **deferred**. The original plan was to provision a dedicated OAuth2 application so `fetch-otp.sh` could call `generate_manual_otp` unattended from CI. Instead, Wave 1 uses an interactive OTP fetch via the developer's existing Dimagi SSO session against `https://connect.dimagi.com/users/connect_user_otp/`, which is the URL `@dimagi.com` staff already have access to. This makes Wave 1 local-only (run by a human at their terminal) but removes the dependency on Dimagi provisioning. When unattended CI automation is desired later, the Dimagi ask re-opens; `fetch-otp.sh` already supports the automated code path and will pick up `CONNECTID_E2E_CLIENT_ID` / `CONNECTID_E2E_CLIENT_SECRET` from the environment if they're set.
 
-The instructions-to-Dimagi document is a Wave 0 deliverable. Draft text:
+2. **Pre-invite the fixture number to a test opportunity.** ✅ **Done** (JJ, 2026-04-08). Phone number `+74260000042` is pre-invited, so `check_number_for_existing_invites` returns `True` and `send_session_otp`/`confirm_session_otp` return 200 (see `users/views.py:955,968` in connect-id).
 
-> We are building iOS E2E tests against connectid.dimagi.com prod. We need:
-> 1. OAuth2 client credentials with scope sufficient to call `GET /users/generate_manual_otp`. Please confirm the scope name.
-> 2. One `+7426` phone number (we'll pick one and share it) pre-invited to a test opportunity on Connect Worker. This is required so `send_session_otp`/`confirm_session_otp` return 200 for our test runs.
-> 3. Confirmation that creating one fixture user under this number is acceptable and does not need to be cleaned up regularly.
+The Dimagi ask for new phone numbers (if ever needed) is still documented in `docs/phase9/fixture-user.md` — but for Phase 9's one-fixture-user model, no further external asks are required.
 
 ### 5.3 Wave 0 exit criteria
 
-1. `bash .maestro/scripts/fetch-otp.sh` returns a valid OTP string for the fixture number from a local dev machine with secrets in `.env.e2e.local`.
-2. The same script runs from the nightly CI workflow with GitHub Actions secrets wired in.
-3. The fixture user exists in connect-id prod, is pre-invited, and has documented backup code + test opportunity association.
-4. `.maestro/flows/` has at least one hello-world flow that invokes `fetch-otp.sh` via `runScript`, receives the OTP, and echoes it — proving the plumbing works end-to-end before any real test is written.
-5. `e2e-ui.yml` runs that hello-world flow green on a nightly schedule.
-6. `./gradlew :app:jvmTest --tests "*ConnectIdIntegrationTest*" --tests "*ConnectMarketplaceIntegrationTest*" --tests "*ConnectMessagingIntegrationTest*"` passes (with credentials) or skips cleanly (without). This closes the Phase 8 Tasks 2-4 acceptance criteria.
-7. `.github/workflows/hq-integration.yml` runs the three integration test classes when `CONNECT_ACCESS_TOKEN` is set in CI secrets, and passes.
+1. `bash .maestro/scripts/fetch-otp.sh` (with `.env.e2e.local` populated with at minimum `CONNECTID_E2E_PHONE`) opens the Dimagi manual OTP page in the default browser, prompts for paste, and emits `output=otp:NNNNNN` to stdout.
+2. The fixture user exists in connect-id prod, is pre-invited to a test opportunity, and has documented backup code + PIN captured in the team password manager (and in `.env.e2e.local` locally, never committed).
+3. `.maestro/flows/e2e-hello-world.yaml` launches the app on a fresh simulator and verifies SetupScreen is visible. No OTP fetch — it's a pure plumbing smoke test.
+4. `e2e-ui.yml` runs the hello-world flow green on a nightly schedule and on `workflow_dispatch`. This proves the build + simulator + Maestro infrastructure works.
+5. `./gradlew :app:jvmTest --tests "*ConnectIdIntegrationTest*" --tests "*ConnectMarketplaceIntegrationTest*" --tests "*ConnectMessagingIntegrationTest*"` compiles and skips cleanly (without credentials). When `CONNECT_ACCESS_TOKEN` is provided, it passes against the real backend. This closes the Phase 8 Tasks 2-4 acceptance criteria.
+6. `.github/workflows/hq-integration.yml` runs the three integration test classes when `CONNECT_ACCESS_TOKEN` is set in CI secrets, and passes.
 
 ## 6. Wave 1 — Connect ID recovery flow
 
@@ -207,11 +202,16 @@ On a fresh simulator (clean keychain, no installed apps), the fixture user walks
 
 ### 6.4 Wave 1 exit criteria
 
-1. `connect-id-recovery.yaml` passes 10 consecutive nightly runs in CI.
-2. Same flow passes from a developer's local machine via `maestro test .maestro/flows/connect-id-recovery.yaml`.
-3. Failure diagnostics (screenshots, logs) are captured as GitHub artifacts on any failed run.
-4. No test-only code lives in `app/src/commonMain` or `app/src/iosMain`.
-5. Any iOS platform code touched during debugging is paired with an `iosTest/` unit test before merge (per §5.1 policy).
+Wave 1 is **local-only** in its initial incarnation. The interactive OTP fetch via Dimagi SSO (see §5.1 "OTP fetch helper" and `docs/phase9/fixture-user.md`) requires a human at a terminal to paste the OTP, so unattended CI execution is deferred until Dimagi provisions dedicated OAuth2 client credentials.
+
+1. `maestro test .maestro/flows/connect-id-recovery.yaml` passes from a developer's local machine on a fresh simulator (`xcrun simctl erase all` then install + launch). The developer pastes the OTP once when the interactive script prompts.
+2. The flow walks the full recovery path: phone entry → consent → continue → OTP fetch (interactive) → verify → backup code → continue → home screen Start button visible.
+3. Failure diagnostics (Maestro screenshots at `~/.maestro/tests/`) are reviewed manually on any local failure.
+4. No test-only code lives in `app/src/commonMain`, `app/src/iosMain`, or `app/src/jvmMain`. Verified by `git diff main...HEAD --name-only | grep -E "(commonMain|iosMain|jvmMain)"` returning nothing.
+5. Any iOS platform code touched during debugging is paired with an `iosTest/` unit test before merge (per `docs/phase9/ios-platform-test-policy.md`).
+
+**Deferred (Wave 1 can close without these):**
+- 10 consecutive nightly runs in CI. Requires the `CONNECTID_E2E_CLIENT_ID` / `CONNECTID_E2E_CLIENT_SECRET` automated path to be wired. Re-opens when Dimagi provisions the OAuth2 application.
 
 ## 7. Waves 2-11 summaries
 
@@ -297,10 +297,11 @@ Copied from §5.1 because it bears repeating: any iOS platform code touched in p
 
 ### 8.6 CI cost and cadence
 
-- Phase 9 E2E runs on macos-15 minutes (expensive). The nightly schedule is the default because it balances signal freshness against cost.
-- `workflow_dispatch` allows on-demand runs from a branch for anyone debugging.
-- The existing `ios-build.yml` smoke test continues to run on every PR unchanged — Phase 9 does not add per-PR cost.
-- Cost ceiling: if nightly runs consume more than 90 minutes of macos time, split flows across multiple jobs running in parallel.
+- **`e2e-ui.yml` is a build-and-launch smoke test only** (as of 2026-04-08). It runs the Maestro `e2e-hello-world.yaml` flow which verifies the app launches to SetupScreen. No Connect ID interaction, no OTP, no Connect backend dependencies. Runs on macos-15, nightly at 06:00 UTC + `workflow_dispatch`.
+- **Wave 1 and beyond are local-only.** `connect-id-recovery.yaml` and any subsequent wave flow that requires authentication is invoked manually by a developer via `maestro test` on their laptop, with interactive OTP fetch. These are deliberately NOT in CI until Dimagi provisions automated OTP credentials (see §5.2).
+- The existing `ios-build.yml` smoke test continues to run on every PR unchanged — Phase 9 adds no per-PR cost.
+- E2E flows are slow (several minutes per run) and have external dependencies on Connect Worker state. Running them per-PR would create unacceptable noise. Nightly local runs by a single engineer are sufficient for the scale of the project today.
+- When unattended CI is desired later, the threshold is a Dimagi OAuth2 provisioning ask. No architecture changes needed — `fetch-otp.sh` and the rest of the infrastructure already support the automated path.
 
 ## 9. Open questions
 
