@@ -50,9 +50,11 @@ commcare-ios/
 
 **Phase 7: Full Android Parity — COMPLETE.** All 10 waves done. AES encryption replacing XOR placeholder, select appearance variants, form chaining, incremental sync, video/document capture, per-channel messaging consent, and 22 new test files (343 total tests). 10 code review issues found and fixed. See `docs/plans/2026-03-23-phase7-completion-report.md`.
 
-**Phase 8: Production Readiness — IN PROGRESS.** Four streams: (1) expanded integration tests especially Connect APIs, (2) App Store submission prep, (3) performance profiling, (4) hardening (thread safety, crash upload, edge cases). See `docs/plans/2026-03-24-phase8-production-readiness-plan.md`.
+**Phase 8: Production Readiness — COMPLETE.** 8 of 11 code tasks shipped across four streams: Connect API mock tests (Task 1), App Store submission prep (Tasks 5, 5b, 6), performance benchmarks (Tasks 7, 8), hardening (Tasks 9, 10, 11). Tasks 2-4 (Connect LIVE integration tests + CI workflow) were blocked on creating real test users in prod — that blocker was resolved by the `+7426` magic prefix discovery, so they relocated to Phase 9 Wave 0 where they share the same credential/fixture infrastructure. Remaining App Store work (privacy labels, iPad screenshot, submit) is manual operational work outside the code plan. See `docs/plans/2026-04-08-phase8-completion-report.md`.
 
-**If you are an agent starting a session:** Phase 8 is the active phase. Read the plan doc and check issue status before starting work. Tasks 1-4 are integration tests, 5-6 are App Store, 7-8 are performance, 9-11 are hardening.
+**Phase 9: End-to-End UI Testing — DESIGN.** Distinct successor to Phase 8 that closes the UI-level E2E gap AND picks up the relocated Phase 8 live-Connect test tail. The `+7426` Connect ID test prefix (plus `/users/generate_manual_otp` endpoint with OAuth2 client credentials) unblocks real-backend testing from brand-new simulator state. 11-wave plan: Wave 0 infrastructure (OTP fetch helper, single fixture user, nightly CI workflow, **API-level live Connect tests relocated from Phase 8 Tasks 2-4**), Wave 1 Connect ID recovery flow (idempotent with fixture user, no registration yet), Waves 2-10 breadth-first UI coverage across login variants, app install, case list/forms, multi-app, marketplace, sync, settings, edge cases, Wave 11 reliability layer. See `docs/superpowers/specs/2026-04-08-phase9-e2e-ui-testing-design.md`.
+
+**If you are an agent starting a session:** Phase 9 is the active phase. Phase 8 is complete. Phase 9 Wave 0 is the entry point — start with the spec doc, then the forthcoming plan doc at `docs/superpowers/plans/2026-04-08-phase9-e2e-ui-testing.md`. Wave 0 is blocked on two external asks from Dimagi (OAuth2 client credentials + fixture-number pre-invite to a test opportunity); open those asks before writing any code.
 
 ## Key Docs
 
@@ -65,9 +67,12 @@ commcare-ios/
 - **Phase 6 plan**: `docs/plans/2026-03-21-phase6-field-readiness-plan.md` — blockers, Connect recovery, marketplace models, platform tests, app download, polish
 - **Phase 7 plan**: `docs/plans/2026-03-22-phase7-full-android-parity-plan.md` — AES encryption, select appearances, form chaining, incremental sync, multimedia, test coverage (Issues #350-#359)
 - **Phase 8 plan**: `docs/plans/2026-03-24-phase8-production-readiness-plan.md` — integration tests (Connect APIs), App Store prep, performance, hardening
+- **Phase 9 design spec**: `docs/superpowers/specs/2026-04-08-phase9-e2e-ui-testing-design.md` — E2E UI testing initiative: `+7426` infrastructure, single fixture user, 11-wave plan (W0 infra, W1 recovery, W2-W11 breadth-first product coverage + reliability)
+- **Phase 9 implementation plan (W0 + W1)**: `docs/superpowers/plans/2026-04-08-phase9-e2e-ui-testing.md` — task-by-task plan for Wave 0 (infra + relocated Phase 8 live Connect tests) and Wave 1 (Connect ID recovery flow). Waves 2-11 get their own per-wave plan docs written before each wave starts.
 
-**Completion reports:** All in `docs/plans/*-completion-report.md`. Key report:
+**Completion reports:** All in `docs/plans/*-completion-report.md`. Key reports:
 - Phase 4 (TestFlight + code review): `docs/plans/2026-03-21-phase4-completion-report.md`
+- Phase 8 (Production Readiness, 8/11 tasks + 3 relocated to Phase 9): `docs/plans/2026-04-08-phase8-completion-report.md`
 
 **Learnings (by category):**
 - **Kotlin conversion**: `kotlin-conversion-pitfalls`, `wave3-xpath-conversion-learnings`, `wave4-xform-parser-learnings`, `wave5-case-management-learnings`, `wave6-suite-session-learnings`, `wave8-core-services-learnings`, `wave1-collection-replacement-learnings`
@@ -75,7 +80,7 @@ commcare-ios/
 - **Serialization**: `wave4-serialization-framework-learnings`, `phase5-serialization-migration-learnings`, `phase5-wave8-serialization-commonmain-learnings`, `wave7-serialization-migration-learnings`, `ios-xml-serializer-namespace-learnings`
 - **Foundation hardening**: `foundation-hardening-learnings` — test migration, serialization bugs, property conversion
 - **Cross-platform validation**: `xformparser-port-learnings` — XFormParser port, golden file testing, classpath collision traps
-- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `tier1-process-skip-learnings`, `autonomous-pipeline-stall`
+- **Process**: `pr-discipline`, `issue-closure-discipline`, `claude-md-importance`, `monorepo-for-agentic-development`, `tier1-process-skip-learnings`, `autonomous-pipeline-stall`, `phase-split-vs-extend-decision` (2026-04-08)
 - **Architecture**: `abstract-tree-element-degenerify`, `j2k-converter-vs-ai-conversion`, `gavaghan-replacement-learnings`
 - **iOS app**: `phase8-ios-app-learnings`, `phase8-wave1-cinterop-learnings`, `ios-platform-test-gap-learnings`
 - **AI agent pitfalls**: `ai-agent-dependency-version-staleness`, `integration-testing-timing-learnings`

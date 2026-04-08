@@ -1,0 +1,33 @@
+# Phase 9 E2E plumbing smoke test.
+#
+# The smallest possible flow that proves the Phase 9 build + Maestro
+# infrastructure works: launch the app on a fresh simulator, wait for
+# the Connect ID signup_link testTag to be visible, done.
+#
+# This flow is intentionally fast, unattended, and credential-free. It
+# does NOT exercise the Connect ID UI or fetch an OTP — that's Wave 1's
+# job, which is local-only (see .maestro/flows/connect-id-recovery.yaml)
+# because it requires an interactive OTP fetch via Dimagi SSO.
+#
+# This flow IS suitable for unattended nightly CI (it has no external
+# dependencies beyond the bundled simulator), and is the only Maestro
+# flow currently run by .github/workflows/e2e-ui.yml.
+#
+# Run:
+#   ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+# Wait for the SetupScreen to appear by looking for the "LOGIN WITH
+# PERSONALID" button's testTag. If this tag ever moves, update both
+# this flow and .maestro/subflows/recover-connect-id.yaml together.
+- extendedWaitUntil:
+    visible:
+      id: "signup_link"
+    timeout: 30000

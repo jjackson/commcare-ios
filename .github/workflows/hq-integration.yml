@@ -58,6 +58,33 @@ jobs:
           ./gradlew jvmTest --tests "*HqIntegrationTest*" --no-daemon --stacktrace
         timeout-minutes: 10
 
+      - name: Check Connect credentials
+        id: check_connect_creds
+        env:
+          CONNECT_ACCESS_TOKEN: ${{ secrets.CONNECT_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$CONNECT_ACCESS_TOKEN" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⚠️ Connect credentials not configured — skipping Connect integration tests"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Connect Integration Tests
+        if: steps.check_connect_creds.outputs.skip != 'true'
+        env:
+          CONNECT_ACCESS_TOKEN: ${{ secrets.CONNECT_ACCESS_TOKEN }}
+          CONNECT_USERNAME: ${{ secrets.CONNECT_USERNAME }}
+          CONNECT_PASSWORD: ${{ secrets.CONNECT_PASSWORD }}
+        working-directory: app
+        run: |
+          ./gradlew jvmTest \
+            --tests "*ConnectIdIntegrationTest*" \
+            --tests "*ConnectMarketplaceIntegrationTest*" \
+            --tests "*ConnectMessagingIntegrationTest*" \
+            --no-daemon --stacktrace
+        timeout-minutes: 5
+
       - name: Report results
         if: always()
         run: |

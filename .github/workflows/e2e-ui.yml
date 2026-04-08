@@ -1,0 +1,119 @@
+name: Phase 9 E2E Build Smoke
+
+# Nightly build-and-launch smoke test for Phase 9. Builds the iOS framework
+# and app, boots a fresh simulator, installs CommCare, and runs the Maestro
+# hello-world flow which verifies the app launches to SetupScreen.
+#
+# This workflow deliberately does NOT run Wave 1 (connect-id-recovery.yaml)
+# because Wave 1 requires interactive OTP fetch via Dimagi SSO — see
+# docs/phase9/fixture-user.md. Wave 1 is local-only until Dimagi provisions
+# dedicated OAuth2 client credentials for the generate_manual_otp endpoint.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 06:00 UTC
+    - cron: '0 6 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x commcare-core/gradlew app/gradlew
+
+      - name: Build commcare-core iOS framework
+        working-directory: commcare-core
+        run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      - name: Build app iOS framework
+        working-directory: app
+        run: ./gradlew linkDebugFrameworkIosSimulatorArm64 --no-daemon --stacktrace
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: app/iosApp
+        run: xcodegen generate
+
+      - name: Build iOS app
+        working-directory: app/iosApp
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CommCare.xcodeproj \
+            -scheme CommCare \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tail -80
+
+      - name: Erase and boot a clean simulator
+        run: |
+          xcrun simctl erase all
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in sorted(data['devices'].items(), reverse=True):
+            if 'iOS' in runtime:
+              for d in devices:
+                if 'iPhone' in d['name'] and d['isAvailable']:
+                  print(d['udid']); sys.exit(0)
+          sys.exit(1)
+          ")
+          echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl install "$DEVICE_ID" \
+            "app/iosApp/build/Build/Products/Debug-iphonesimulator/CommCare.app"
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run hello-world plumbing flow
+        run: |
+          ~/.maestro/bin/maestro test .maestro/flows/e2e-hello-world.yaml --no-ansi
+
+      # NOTE: The Connect ID recovery flow (.maestro/flows/connect-id-recovery.yaml)
+      # is intentionally NOT run here. It requires an interactive OTP fetch via
+      # Dimagi SSO (see docs/phase9/fixture-user.md) and is local-only for now.
+      # When Dimagi provisions dedicated OAuth2 client credentials for the
+      # generate_manual_otp endpoint, the recovery flow can be added back here
+      # and fetch-otp.sh will pick them up automatically from job env vars.
+
+      - name: Upload Maestro artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-artifacts-${{ github.run_id }}
+          path: |
+            ~/.maestro/tests/**/*
+            /tmp/maestro-*
+            ~/.maestro/logs/**/*
+          retention-days: 14
+
+      - name: Shutdown simulator
+        if: always()
+        run: xcrun simctl shutdown all 2>/dev/null || true

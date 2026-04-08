@@ -17,3 +17,6 @@ app/.gradle/
 .superpowers/
 docs/android-screenshots/
 docs/branding/
+
+# Phase 9 E2E test secrets — never committed
+.env.e2e.local
