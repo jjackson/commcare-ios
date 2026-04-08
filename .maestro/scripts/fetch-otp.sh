@@ -106,46 +106,62 @@ fi
 # Interactive mode (default for local dev with Dimagi SSO)
 # ----------------------------------------------------------------------
 
-if [ ! -t 0 ]; then
-  echo "ERROR: interactive mode requires a TTY (stdin is not a terminal)." >&2
-  echo "This script cannot run unattended in CI without CONNECTID_E2E_CLIENT_ID and CONNECTID_E2E_CLIENT_SECRET set." >&2
-  exit 4
-fi
-
 MANUAL_URL="${CONNECT_MANUAL_OTP_URL:-https://connect.dimagi.com/users/connect_user_otp/}"
 
-# Print guidance to stderr so it doesn't pollute the Maestro output= line on stdout.
 {
   echo ""
   echo "=================================================================="
   echo "  Phase 9 E2E — Manual OTP fetch (interactive mode)"
   echo "=================================================================="
-  echo ""
-  echo "  Opening Dimagi manual OTP lookup page in your default browser."
-  echo "  You must be signed in to connect.dimagi.com via Dimagi SSO."
-  echo ""
-  echo "  Phone number: ${CONNECTID_E2E_PHONE}"
-  echo "  URL:          ${MANUAL_URL}"
-  echo ""
-  echo "  1. Find the OTP for ${CONNECTID_E2E_PHONE} in the browser."
-  echo "  2. Copy the 6-digit code."
-  echo "  3. Paste it below and press Enter."
+  echo "  Phone: ${CONNECTID_E2E_PHONE}"
+  echo "  URL:   ${MANUAL_URL}"
   echo ""
 } >&2
 
-# Open the browser (macOS `open`; fall back gracefully on other platforms).
+# Open the Dimagi manual OTP lookup page in the default browser. macOS
+# only; fall back gracefully on other platforms.
 if command -v open >/dev/null 2>&1; then
   open "$MANUAL_URL" >/dev/null 2>&1 || true
 elif command -v xdg-open >/dev/null 2>&1; then
   xdg-open "$MANUAL_URL" >/dev/null 2>&1 || true
-else
-  echo "  (Could not auto-open browser; navigate manually.)" >&2
 fi
 
-# Read the OTP from the user. Trim whitespace.
-printf "  OTP: " >&2
-read -r OTP_RAW
-OTP=$(printf '%s' "$OTP_RAW" | tr -d '[:space:]')
+OTP=""
+
+# Preferred: macOS GUI dialog via osascript. Works regardless of whether
+# stdin is a TTY, so it's safe when the script is invoked by Maestro
+# (which has no TTY). The dialog pops up natively on the user's desktop.
+if command -v osascript >/dev/null 2>&1; then
+  # escape any double-quotes in the phone number for AppleScript
+  PHONE_ESCAPED=$(printf '%s' "$CONNECTID_E2E_PHONE" | sed 's/"/\\"/g')
+  PROMPT_TEXT="Look up the OTP for ${PHONE_ESCAPED} at:
+
+${MANUAL_URL}
+
+Paste the 6-digit code below."
+
+  # display dialog returns e.g. "button returned:OK, text returned:123456"
+  DIALOG_OUTPUT=$(osascript -e "display dialog \"$PROMPT_TEXT\" default answer \"\" with title \"Phase 9 E2E OTP\" buttons {\"Cancel\", \"OK\"} default button \"OK\"" 2>/dev/null) || {
+    echo "" >&2
+    echo "ERROR: OTP dialog cancelled or failed." >&2
+    exit 5
+  }
+  OTP=$(printf '%s' "$DIALOG_OUTPUT" | sed -n 's/.*text returned:\(.*\)/\1/p' | tr -d '[:space:]')
+fi
+
+# Fallback: if osascript isn't available AND stdin is a TTY, prompt via read.
+if [ -z "$OTP" ] && [ -t 0 ]; then
+  printf "  OTP: " >&2
+  read -r OTP_RAW
+  OTP=$(printf '%s' "$OTP_RAW" | tr -d '[:space:]')
+fi
+
+if [ -z "$OTP" ]; then
+  echo "" >&2
+  echo "ERROR: no OTP entered." >&2
+  echo "Interactive mode requires either macOS (for osascript dialog) or a TTY shell (for read)." >&2
+  exit 5
+fi
 
 if [ -z "$OTP" ]; then
   echo "" >&2

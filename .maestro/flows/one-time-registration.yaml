@@ -1,0 +1,206 @@
+# Phase 9 ONE-TIME fixture user registration flow.
+#
+# Walks the iOS Connect ID registration flow for the fixture phone number
+# to create the single fixture user used by all subsequent Phase 9 tests.
+# This flow is NOT idempotent — running it a second time hits "account
+# exists" and routes to recovery. Use connect-id-recovery.yaml for
+# idempotent repeat test runs.
+#
+# Actual iOS registration step order (per ConnectIdViewModel.kt:258):
+#   PHONE_ENTRY → BIOMETRIC_SETUP → OTP_VERIFICATION → NAME_ENTRY →
+#   BACKUP_CODE → PHOTO_CAPTURE → ACCOUNT_CREATION → SUCCESS
+#
+# Note: PIN setup comes BEFORE OTP, not after. This differs from what a
+# reader might assume from the Android flow ordering.
+#
+# Required env (pass via --env KEY=VALUE on the maestro CLI):
+#   CONNECTID_E2E_PHONE         full E.164, e.g. +74260000042
+#   CONNECTID_E2E_PHONE_LOCAL   digits-only, e.g. 4260000042
+#   CONNECTID_E2E_COUNTRY_CODE  e.g. +7
+#   CONNECTID_E2E_PIN           6 digits, e.g. 142857
+#
+# Run:
+#   set -a; source .env.e2e.local; set +a
+#   JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+#   ~/.maestro/bin/maestro test \
+#     -e "CONNECTID_E2E_PHONE=$CONNECTID_E2E_PHONE" \
+#     -e "CONNECTID_E2E_PHONE_LOCAL=$CONNECTID_E2E_PHONE_LOCAL" \
+#     -e "CONNECTID_E2E_COUNTRY_CODE=$CONNECTID_E2E_COUNTRY_CODE" \
+#     -e "CONNECTID_E2E_PIN=$CONNECTID_E2E_PIN" \
+#     .maestro/flows/one-time-registration.yaml
+#
+# After the flow completes, the backup code screenshot is at
+# /tmp/phase9-backup-code.png. Read it to extract the generated code
+# and add it to .env.e2e.local as CONNECTID_E2E_BACKUP_CODE.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# ===== Step 1: SetupScreen =====
+
+- launchApp:
+    appId: "org.marshellis.commcare.ios"
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      id: "signup_link"
+    timeout: 30000
+
+- tapOn:
+    id: "signup_link"
+
+# ===== Step 2: PHONE_ENTRY =====
+
+- extendedWaitUntil:
+    visible:
+      id: "phone_number_field"
+    timeout: 10000
+
+- tapOn:
+    id: "country_code_field"
+- eraseText: 10
+- inputText: ${CONNECTID_E2E_COUNTRY_CODE}
+
+- tapOn:
+    id: "phone_number_field"
+- inputText: ${CONNECTID_E2E_PHONE_LOCAL}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "consent_checkbox"
+
+- tapOn:
+    id: "continue_button"
+
+# ===== Step 3: BIOMETRIC_SETUP (PIN entry on simulator) =====
+#
+# On iOS simulator without Face ID enrolled, BiometricSetupStep shows
+# the PIN entry UI directly (showPinEntry defaults to !biometricAvailable).
+# If biometric IS available, the user first sees use_biometric_button and
+# use_pin_button as choices. We tap use_pin_button if it shows up, then
+# type the PIN in either case.
+
+- extendedWaitUntil:
+    visible:
+      id: "pin_field"
+    optional: true
+    timeout: 5000
+
+- runFlow:
+    when:
+      visible:
+        id: "use_pin_button"
+    commands:
+      - tapOn:
+          id: "use_pin_button"
+      - extendedWaitUntil:
+          visible:
+            id: "pin_field"
+          timeout: 5000
+
+- tapOn:
+    id: "pin_field"
+- inputText: ${CONNECTID_E2E_PIN}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "set_pin_button"
+
+# ===== Step 4: OTP_VERIFICATION =====
+
+- extendedWaitUntil:
+    visible:
+      id: "otp_field"
+    timeout: 15000
+
+# Interactive OTP fetch: fetch-otp.sh pops up a native macOS dialog
+# asking the operator to paste the OTP from the Dimagi SSO URL.
+- runFlow:
+    file: ../subflows/fetch-otp.yaml
+
+- tapOn:
+    id: "otp_field"
+- inputText: ${output.otp}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "verify_button"
+
+# ===== Step 5: NAME_ENTRY =====
+
+- extendedWaitUntil:
+    visible:
+      id: "full_name_field"
+    timeout: 15000
+
+- tapOn:
+    id: "full_name_field"
+- inputText: "QA Test User"
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "continue_button"
+
+# ===== Step 6: BACKUP_CODE (capture screenshot!) =====
+
+- extendedWaitUntil:
+    visible:
+      id: "continue_button"
+    timeout: 15000
+
+# Let the screen finish rendering before the screenshot.
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Capture the backup code screen so the operator can extract the code
+# from the PNG afterward.
+- runScript:
+    file: ../scripts/capture-backup-code.sh
+
+- tapOn:
+    id: "continue_button"
+
+# ===== Step 7: PHOTO_CAPTURE =====
+
+- extendedWaitUntil:
+    visible:
+      id: "skip_photo_button"
+    timeout: 15000
+
+- tapOn:
+    id: "skip_photo_button"
+
+# ===== Step 8: ACCOUNT_CREATION (spinner, optional brief state) =====
+
+- extendedWaitUntil:
+    visible:
+      id: "account_creation_spinner"
+    optional: true
+    timeout: 3000
+
+# ===== Step 9: SUCCESS =====
+
+- extendedWaitUntil:
+    visible:
+      id: "done_button"
+    timeout: 30000
+
+- takeScreenshot: /tmp/phase9-registration-success
