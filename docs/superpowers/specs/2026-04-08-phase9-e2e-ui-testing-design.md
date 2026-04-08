@@ -137,6 +137,19 @@ Wave 0 is the unglamorous foundation that determines whether the rest of Phase 9
 **iOS platform test discipline**
 - Policy document `docs/phase9/ios-platform-test-policy.md`: any new iOS platform code (iosMain/) touched during Phase 9 gets a unit test in `iosTest/` before the E2E flow depending on it can land. This codifies the lesson from `docs/learnings/2026-03-18-ios-platform-test-gap-learnings.md`.
 
+**API-level live Connect tests (relocated from Phase 8 Tasks 2-4)**
+
+During Phase 8 execution, three tasks were deferred because they required real test users in connect-id prod — exactly the blocker Phase 9 Wave 0 removes. Rather than duplicate the credential plumbing and fixture-user setup inside Phase 8, these tests land as part of Wave 0 alongside the UI-level infrastructure. They share the same `CONNECTID_E2E_*` secrets and use the same fixture user. See `docs/plans/2026-04-08-phase8-completion-report.md` for the split decision.
+
+- Create: `app/src/jvmTest/kotlin/org/commcare/app/integration/ConnectIdIntegrationTest.kt` — live tests for `fetchDbKey`, OAuth token exchange, expired-token handling. Uses `ConnectTestConfig` (which already exists from Phase 8 Task 1). Skips if credentials are not configured.
+- Create: `app/src/jvmTest/kotlin/org/commcare/app/integration/ConnectMarketplaceIntegrationTest.kt` — live tests for `getOpportunities`, error-path validation. Skips if no credentials.
+- Create: `app/src/jvmTest/kotlin/org/commcare/app/integration/ConnectMessagingIntegrationTest.kt` — live tests for `getMessages`, `updateConsent`, invalid-token path. Skips if no credentials.
+- Modify: `.github/workflows/hq-integration.yml` — add a conditional step that runs the three integration tests with `CONNECT_ACCESS_TOKEN` / `CONNECT_USERNAME` / `CONNECT_PASSWORD` from secrets. Tests skip cleanly if secrets are absent.
+
+These are not the same tests as the Maestro UI flows in later waves. They are lower-layer: they call `ConnectIdApi` / `ConnectMarketplaceApi` directly from JVM tests and assert on JSON shapes and HTTP codes, without going through the UI. They run faster, produce clearer failures, and catch regressions earlier than the UI-level tests ever could. Both layers are valuable.
+
+The fixture user is the same one the UI flows use; the OAuth2 access token is obtained from the fixture user's stored credentials via `getOAuthToken(username, password)` once Wave 0's Dimagi asks are resolved.
+
 ### 5.2 Dimagi dependencies
 
 Wave 0 has two hard external dependencies. The plan doc for W0 must open these as external asks before any code is written.
@@ -158,6 +171,8 @@ The instructions-to-Dimagi document is a Wave 0 deliverable. Draft text:
 3. The fixture user exists in connect-id prod, is pre-invited, and has documented backup code + test opportunity association.
 4. `.maestro/flows/` has at least one hello-world flow that invokes `fetch-otp.sh` via `runScript`, receives the OTP, and echoes it — proving the plumbing works end-to-end before any real test is written.
 5. `e2e-ui.yml` runs that hello-world flow green on a nightly schedule.
+6. `./gradlew :app:jvmTest --tests "*ConnectIdIntegrationTest*" --tests "*ConnectMarketplaceIntegrationTest*" --tests "*ConnectMessagingIntegrationTest*"` passes (with credentials) or skips cleanly (without). This closes the Phase 8 Tasks 2-4 acceptance criteria.
+7. `.github/workflows/hq-integration.yml` runs the three integration test classes when `CONNECT_ACCESS_TOKEN` is set in CI secrets, and passes.
 
 ## 6. Wave 1 — Connect ID recovery flow
 
