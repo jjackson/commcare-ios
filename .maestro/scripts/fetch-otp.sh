@@ -22,6 +22,11 @@
 
 set -euo pipefail
 
+command -v jq >/dev/null 2>&1 || {
+  echo "ERROR: jq is required but not found in PATH. Install via 'brew install jq'." >&2
+  exit 1
+}
+
 BASE_URL="${CONNECTID_E2E_BASE_URL:-https://connectid.dimagi.com}"
 
 if [ -z "${CONNECTID_E2E_CLIENT_ID:-}" ] || [ -z "${CONNECTID_E2E_CLIENT_SECRET:-}" ]; then
@@ -36,10 +41,9 @@ fi
 
 # 1. Exchange client credentials for an access token.
 TOKEN_RESPONSE=$(curl -sS -X POST "$BASE_URL/o/token/" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials" \
-  -d "client_id=$CONNECTID_E2E_CLIENT_ID" \
-  -d "client_secret=$CONNECTID_E2E_CLIENT_SECRET")
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "client_id=${CONNECTID_E2E_CLIENT_ID}" \
+  --data-urlencode "client_secret=${CONNECTID_E2E_CLIENT_SECRET}")
 
 ACCESS_TOKEN=$(printf '%s' "$TOKEN_RESPONSE" | jq -r '.access_token // empty')
 
@@ -50,10 +54,8 @@ if [ -z "$ACCESS_TOKEN" ]; then
 fi
 
 # 2. Fetch the OTP for the fixture phone number.
-# URL-encode the leading + so curl does not interpret it as a space.
-ENCODED_PHONE=$(printf '%s' "$CONNECTID_E2E_PHONE" | sed 's/^+/%2B/')
-
-OTP_RESPONSE=$(curl -sS "$BASE_URL/users/generate_manual_otp?phone_number=$ENCODED_PHONE" \
+OTP_RESPONSE=$(curl -sS -G "$BASE_URL/users/generate_manual_otp" \
+  --data-urlencode "phone_number=${CONNECTID_E2E_PHONE}" \
   -H "Authorization: Bearer $ACCESS_TOKEN")
 
 OTP=$(printf '%s' "$OTP_RESPONSE" | jq -r '.otp // empty')
