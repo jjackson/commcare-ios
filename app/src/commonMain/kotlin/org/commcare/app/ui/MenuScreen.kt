@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.MenuItem
 import org.commcare.app.viewmodel.MenuViewModel
@@ -52,12 +53,14 @@ private fun ListMenuScreen(viewModel: MenuViewModel, onBack: (() -> Unit)? = nul
                     modifier = Modifier.clickable { onBack() }
                         .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
                         .padding(end = 8.dp)
+                        .testTag("menu_back")
                 )
             }
             Text(
                 text = viewModel.title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("menu_title")
             )
         }
 
@@ -79,7 +82,7 @@ private fun ListMenuScreen(viewModel: MenuViewModel, onBack: (() -> Unit)? = nul
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxSize().testTag("menu_list")) {
                 items(viewModel.menuItems) { item ->
                     MenuItemRow(item = item, onClick = { viewModel.selectItem(item) })
                 }

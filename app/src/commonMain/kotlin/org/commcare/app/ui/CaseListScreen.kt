@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.ActionItem
 import org.commcare.app.viewmodel.CaseItem
@@ -59,11 +60,13 @@ fun CaseListScreen(
                 modifier = Modifier.clickable { onBack() }
                     .defaultMinSize(minHeight = 44.dp, minWidth = 44.dp)
                     .padding(end = 8.dp)
+                    .testTag("case_list_back")
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("case_list_title")
             )
         }
 
@@ -85,7 +88,7 @@ fun CaseListScreen(
             value = viewModel.searchQuery,
             onValueChange = { viewModel.updateSearch(it) },
             label = { Text("Search") },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("case_list_search"),
             singleLine = true
         )
 
@@ -130,7 +133,7 @@ fun CaseListScreen(
         } else if (viewModel.cases.isEmpty()) {
             Text(
                 text = "No cases found",
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp).testTag("no_cases_label"),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
