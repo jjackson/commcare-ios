@@ -1,0 +1,67 @@
+# Phase 9 Wave 3: install Bonsaaso app via direct URL entry.
+#
+# Starting state: fresh SetupScreen (post simctl install + launch).
+# Ending state: login screen visible (username_field + login_button).
+#
+# Orchestrator passes the profile URL via -e COMMCARE_APP_PROFILE_URL.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# Wait for SetupScreen to be interactable
+- extendedWaitUntil:
+    visible:
+      id: "enter_code_button"
+    timeout: 30000
+
+# Navigate to Enter Code screen
+- tapOn:
+    id: "enter_code_button"
+
+# Type the profile URL
+- extendedWaitUntil:
+    visible:
+      id: "profile_url_field"
+    timeout: 10000
+
+- tapOn:
+    id: "profile_url_field"
+- inputText: ${COMMCARE_APP_PROFILE_URL}
+
+# Dismiss keyboard (consistent with Wave 1/2 pattern)
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Submit — navigates back to SetupScreen with profileUrl populated
+- tapOn:
+    id: "submit_button"
+
+# Wait for SetupScreen's install_button (only visible when profileUrl is set)
+- extendedWaitUntil:
+    visible:
+      id: "install_button"
+    timeout: 15000
+
+- tapOn:
+    id: "install_button"
+
+# InstallProgressScreen — wait for the app to finish downloading + initializing.
+# Budget 180s because the first install downloads dozens of resources + suite XML.
+# The terminal signal is the transition to the login screen, which only renders
+# once InstallState.Completed flips hasApps=true in the parent composable.
+#
+# We wait on username_field because login_button is disabled (greyed out) until
+# the user fills in both username and password, and Maestro's visibility check
+# may skip disabled elements on iOS.
+- extendedWaitUntil:
+    visible:
+      id: "username_field"
+    timeout: 180000
+
+- assertVisible:
+    id: "password_field"
+
+- takeScreenshot: /tmp/phase9-wave3-post-install
