@@ -47,6 +47,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
 import org.commcare.app.platform.PlatformAudioCapture
 import org.commcare.app.platform.PlatformBarcodeScanner
@@ -172,10 +173,14 @@ fun FormEntryScreen(
             ) {
                 Text(
                     text = "Form Complete",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.testTag("form_complete_label")
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { onComplete() }) {
+                Button(
+                    onClick = { onComplete() },
+                    modifier = Modifier.testTag("form_submit_button")
+                ) {
                     Text("Submit")
                 }
             }
@@ -236,16 +241,24 @@ fun FormEntryScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        OutlinedButton(onClick = { viewModel.previousQuestion() }) {
+                        OutlinedButton(
+                            onClick = { viewModel.previousQuestion() },
+                            modifier = Modifier.testTag("form_back_button")
+                        ) {
                             Text("Back")
                         }
                         if (onSaveDraft != null && !viewModel.isReadOnly) {
-                            OutlinedButton(onClick = { onSaveDraft() }) {
+                            OutlinedButton(
+                                onClick = { onSaveDraft() },
+                                modifier = Modifier.testTag("form_save_draft_button")
+                            ) {
                                 Text("Save Draft")
                             }
                         }
-                        Button(onClick = { viewModel.nextQuestion() },
-                            enabled = !viewModel.isReadOnly
+                        Button(
+                            onClick = { viewModel.nextQuestion() },
+                            enabled = !viewModel.isReadOnly,
+                            modifier = Modifier.testTag("form_next_button")
                         ) {
                             Text(if (viewModel.isReadOnly) "Review" else "Next")
                         }
@@ -292,7 +305,7 @@ private fun QuestionWidget(
             OutlinedTextField(
                 value = question.answer,
                 onValueChange = { viewModel.answerQuestionString(index, it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("form_answer_text"),
                 label = { Text("Answer") },
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 singleLine = !isMultiline,
@@ -305,7 +318,7 @@ private fun QuestionWidget(
             OutlinedTextField(
                 value = question.answer,
                 onValueChange = { viewModel.answerQuestionString(index, it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("form_answer_integer"),
                 label = { Text("Integer") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
@@ -317,7 +330,7 @@ private fun QuestionWidget(
             OutlinedTextField(
                 value = question.answer,
                 onValueChange = { viewModel.answerQuestionString(index, it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("form_answer_decimal"),
                 label = { Text("Decimal") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
@@ -329,7 +342,7 @@ private fun QuestionWidget(
             OutlinedTextField(
                 value = question.answer,
                 onValueChange = { viewModel.answerQuestionString(index, it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("form_answer_date"),
                 label = { Text("Date (YYYY-MM-DD)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
