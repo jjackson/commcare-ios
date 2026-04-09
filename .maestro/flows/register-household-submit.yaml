@@ -1,0 +1,153 @@
+# Phase 9 Wave 4c: fill Register Household form + submit to HQ.
+#
+# Starts at the home screen (post-install + login). Walks the full
+# Register Household happy path, fills all required fields, submits,
+# and verifies the form reached HQ via the Sync screen.
+#
+# Form path (14 visible pages):
+#   p1: sub-district → tontokrom
+#   p2: Health Facility Tontokrom → aboaboso
+#   p3: Townships Under Aboaboso → britcherkrom
+#   p4: location (optional — skip)
+#   p5: Health ID (constraint length=4or5) → "12345"
+#   p6: First name → ${E2E_FIRST_NAME} (unique per run)
+#   p7: Middle name (optional — skip)
+#   p8: Surname → "Tester"
+#   p9: Gender → gender-male (Bonsaaso renders values, not labels)
+#   p10: DOB known? → "no" (skips DOB, uses Age)
+#   p11: Age → "30"
+#   p12: Mobile phone (optional — skip)
+#   p13: Health insurance (optional — skip)
+#   Form Complete → Submit → back at home
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Registration.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Register Household.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+# p1: sub-district
+- tapOn: "tontokrom"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p2: health facility
+- tapOn: "aboaboso"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p3: township
+- tapOn: "britcherkrom"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p4: location (optional — skip)
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p5: Health ID
+- tapOn:
+    id: "form_answer_text"
+- inputText: "12345"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p6: First name (unique marker per run for HQ verification)
+- tapOn:
+    id: "form_answer_text"
+- inputText: ${E2E_FIRST_NAME}
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p7: Middle name (optional — skip)
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p8: Surname
+- tapOn:
+    id: "form_answer_text"
+- inputText: "Tester"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p9: Gender (Bonsaaso renders radio values, not labels)
+- tapOn: "gender-male"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p10: DOB known?
+- tapOn: "no"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p11: Age
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "30"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p12: Mobile phone (optional — skip)
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# p13: Health insurance (optional — skip)
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# Form Complete → Submit
+- extendedWaitUntil:
+    visible:
+      id: "form_complete_label"
+    timeout: 10000
+
+- takeScreenshot: /tmp/phase9-wave4c-form-complete
+
+- tapOn:
+    id: "form_submit_button"
+
+# Back at home — submission succeeded (auto-send triggered on completion)
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 60000
+
+- takeScreenshot: /tmp/phase9-wave4c-back-at-home
+
+# Visit the Sync screen — should show "No unsent forms" if the submit
+# reached HQ. If we see "Failed" or "Submit All", something went wrong.
+- tapOn:
+    id: "sync_button"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave4c-sync-screen
+
+- assertVisible: "No unsent forms"
