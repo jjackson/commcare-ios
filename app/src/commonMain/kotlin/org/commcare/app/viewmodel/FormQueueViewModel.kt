@@ -154,9 +154,11 @@ class FormQueueViewModel(
                     } else {
                         updateFormStatus(form.formId, FormStatus.FAILED, form.retryCount + 1)
                         db?.commCareQueries?.updateFormStatus("failed", null, form.formId)
+                        lastError = "Submission failed (HTTP ${response.code})"
                     }
                 } catch (e: Exception) {
                     updateFormStatus(form.formId, FormStatus.FAILED, form.retryCount + 1)
+                    lastError = "${e::class.simpleName}: ${e.message}"
                 }
             }
         } finally {
