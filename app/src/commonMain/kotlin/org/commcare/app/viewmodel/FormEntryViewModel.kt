@@ -54,6 +54,20 @@ class FormEntryViewModel(
     private var questionIndex = 0
     private val totalQuestions: Int get() = formSession.getQuestionCount().coerceAtLeast(1)
 
+    /**
+     * Per-question-index draft text for the currently-visible page. Typed-but-
+     * not-yet-committed values live here so the UI can reflect what the user
+     * has entered even when the XForm engine rejects partial values under a
+     * `constraint` check (see issue #394).
+     *
+     * The draft for index N is the source of truth for what the text field
+     * displays. `updateQuestions()` copies drafts into `QuestionState.answer`.
+     * On successful commit, the draft is cleared for that index. On navigation
+     * (next/prev), all drafts are cleared so stale text doesn't bleed onto
+     * the new page.
+     */
+    private var draftTexts by mutableStateOf<Map<Int, String>>(emptyMap())
+
     fun loadForm() {
         try {
             formSession.initialize()
@@ -115,6 +129,11 @@ class FormEntryViewModel(
                 FormEntryController.ANSWER_OK -> {
                     // Clear constraint message for this question
                     clearConstraint(index)
+                    // Commit succeeded — drop any draft for this index since
+                    // the engine now owns the value.
+                    if (draftTexts.containsKey(index)) {
+                        draftTexts = draftTexts - index
+                    }
                     // Refresh questions — relevancy may have changed (skip logic)
                     updateQuestions()
                     return true
@@ -127,6 +146,9 @@ class FormEntryViewModel(
                         "Constraint violated"
                     }
                     setConstraint(index, msg)
+                    // Keep whatever draft text is on this index so the user
+                    // sees their input. Refresh so the field re-renders.
+                    updateQuestions()
                 }
                 FormEntryController.ANSWER_REQUIRED_BUT_EMPTY -> {
                     setConstraint(index, "This field is required")
@@ -140,8 +162,15 @@ class FormEntryViewModel(
 
     /**
      * Answer a question with a string value. Returns true if accepted.
+     *
+     * Always records the typed value as a draft for the given index (see
+     * `draftTexts`) so the UI reflects the user's input even when the engine
+     * rejects the partial value under a constraint check. See #394.
      */
     fun answerQuestionString(index: Int, value: String): Boolean {
+        // Record the draft first — this is what the field displays next recomp.
+        draftTexts = draftTexts + (index to value)
+
         val prompts = formSession.getPrompts()
         if (index < prompts.size) {
             val prompt = prompts[index]
@@ -150,6 +179,9 @@ class FormEntryViewModel(
             )
             return answerQuestion(index, data)
         }
+        // Even if the engine doesn't have this index, refresh so the draft
+        // shows in the field.
+        updateQuestions()
         return false
     }
 
@@ -258,7 +290,11 @@ class FormEntryViewModel(
 
     fun nextQuestion() {
         try {
-            // Validate all visible required questions before stepping
+            // Validate all visible required questions before stepping.
+            // Drafts that haven't been committed are NOT treated as "has value"
+            // here — the user must have typed a value that the engine accepted
+            // before they can advance. For single-answer fields this works
+            // because every successful keystroke commits the value.
             val prompts = formSession.getPrompts()
             for ((i, prompt) in prompts.withIndex()) {
                 if (prompt.isRequired() && prompt.getAnswerValue() == null) {
@@ -266,6 +302,9 @@ class FormEntryViewModel(
                     return
                 }
             }
+
+            // Clear draft map for a fresh slate on the next page.
+            draftTexts = emptyMap()
 
             val event = formSession.stepNext()
             if (event == FormEntryController.EVENT_END_OF_FORM) {
@@ -285,6 +324,8 @@ class FormEntryViewModel(
 
     fun previousQuestion() {
         try {
+            // Discard any drafts on this page — user is navigating away.
+            draftTexts = emptyMap()
             isRepeatPrompt = false
             formSession.stepPrev()
             // Skip back past non-question events
@@ -407,16 +448,30 @@ class FormEntryViewModel(
     }
 
     private fun updateQuestions() {
+        // Preserve existing constraint messages across refreshes. The engine
+        // doesn't track constraint messages — they live only in our UI state
+        // (set via setConstraint / cleared via clearConstraint). If we rebuilt
+        // the list with `constraintMessage = null` on every refresh, calling
+        // updateQuestions() from the CONSTRAINT_VIOLATED path would wipe the
+        // message we just set. Keying on questionId so the preservation still
+        // works when the form advances to a different set of questions.
+        val priorConstraints = questions.associate { it.questionId to it.constraintMessage }
         questions = try {
-            formSession.getPrompts().map { prompt ->
+            formSession.getPrompts().mapIndexed { index, prompt ->
+                val questionId = prompt.getIndex().toString()
+                val engineValue = prompt.getAnswerValue()?.getDisplayText() ?: ""
+                // Draft always wins over engine value — that's the whole point
+                // of the draft layer (#394). Drafts are cleared on successful
+                // commit and on navigation.
+                val displayValue = draftTexts[index] ?: engineValue
                 QuestionState(
-                    questionId = prompt.getIndex().toString(),
+                    questionId = questionId,
                     questionText = prompt.getQuestionText() ?: prompt.getLongText() ?: "",
                     questionType = mapControlType(prompt.getControlType(), prompt.getDataType()),
                     dataType = prompt.getDataType(),
-                    answer = prompt.getAnswerValue()?.getDisplayText() ?: "",
+                    answer = displayValue,
                     isRequired = prompt.isRequired(),
-                    constraintMessage = null,
+                    constraintMessage = priorConstraints[questionId],
                     choices = prompt.getSelectChoices()?.map {
                         it.labelInnerText ?: it.value ?: ""
                     } ?: emptyList(),
