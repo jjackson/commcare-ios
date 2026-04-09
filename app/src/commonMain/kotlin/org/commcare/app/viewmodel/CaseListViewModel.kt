@@ -62,7 +62,6 @@ class CaseListViewModel(
         try {
             val storage = sandbox.getCaseStorage()
             val datum = navigator.session.getNeededDatum()
-            val caseType = datum?.getDataId()
 
             // Load detail configuration if available
             if (datum is EntityDatum) {
@@ -71,12 +70,32 @@ class CaseListViewModel(
                 loadDetailConfig(datum)
             }
 
+            // Extract the case type from the nodeset xpath predicates. The
+            // nodeset for an EntityDatum looks like
+            //   instance('casedb')/casedb/case[@case_type='household'][@status='open']
+            // We regex-extract the @case_type='...' literal. Previously this
+            // code used datum.getDataId() which returns the variable name
+            // ("case_id"), not the case type — causing the filter to match
+            // nothing and leaving real case lists empty.
+            val caseType = (datum as? EntityDatum)
+                ?.getNodeset()
+                ?.toString(true)
+                ?.let { nodesetStr ->
+                    CASE_TYPE_PREDICATE_REGEX.find(nodesetStr)?.groupValues?.get(1)
+                }
+
             loadCasesFromStorage(storage, caseType)
         } catch (e: Exception) {
             errorMessage = "Failed to load cases: ${e.message}"
         } finally {
             isLoading = false
         }
+    }
+
+    companion object {
+        /** Matches `@case_type = 'household'` / `@case_type='household'` predicates. */
+        private val CASE_TYPE_PREDICATE_REGEX =
+            Regex("@case_type\\s*=\\s*'([^']*)'")
     }
 
     /**
@@ -236,7 +255,7 @@ class CaseListViewModel(
                     caseId = c.getCaseId() ?: "",
                     name = c.getName() ?: "Unnamed",
                     caseType = c.getTypeId() ?: "",
-                    dateOpened = c.getMetaData("date-opened")?.toString() ?: "",
+                    dateOpened = c.getDateOpened()?.toString() ?: "",
                     properties = buildPropertyMap(c)
                 ))
             }
