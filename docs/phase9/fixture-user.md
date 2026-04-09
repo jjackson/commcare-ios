@@ -130,7 +130,7 @@ Phase 9 Wave 3 onward needs an actual CommCare app to install, log in to, and ev
 
 **Why Bonsaaso:** it was already referenced in the WIP `hq-round-trip.yaml` and the modules/forms exercise cases lists, registration, and follow-up forms. The profile.ccpr is anonymous-accessible — no auth required on the iOS install path.
 
-**Mobile worker login form:** until [#391](https://github.com/jjackson/commcare-ios/issues/391) is fixed, always use the full `username@<domain>.commcarehq.org` form. The iOS `LoginViewModel.resolveDomain()` falls back to hardcoded `"demo"` when the username has no `@`, which routes the login to the wrong domain.
+**Mobile worker login form:** since [#391](https://github.com/jjackson/commcare-ios/issues/391) was fixed, either the short form (`haltest`) or the full form (`haltest@jonstest.commcarehq.org`) works. The iOS app resolves the short form against the installed app's domain and expands it to the full form before sending Basic auth.
 
 **Secrets location:** `.env.e2e.local` (gitignored), under the `COMMCARE_*` keys. See `.env.e2e.local.example` for the schema. Both the web admin (`hal@dimagi-ai.com`, used for API discovery only) and the mobile worker (`haltest@jonstest.commcarehq.org`, used by the iOS app) are stored separately.
 
