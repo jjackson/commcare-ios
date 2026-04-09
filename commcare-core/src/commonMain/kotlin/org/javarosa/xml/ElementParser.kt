@@ -238,8 +238,19 @@ abstract class ElementParser<T>(@JvmField protected val parser: PlatformXmlParse
 
     @Throws(PlatformXmlParserException::class, PlatformIOException::class)
     protected fun nextNonWhitespace(): Int {
+        // Loop past ALL consecutive whitespace TEXT events, not just one.
+        // Different XML parsers coalesce whitespace differently:
+        // - kxml2 (JVM) coalesces whitespace around comments into a single
+        //   TEXT event, so the previous single-advance was enough.
+        // - IosXmlParser (iosMain) produces separate TEXT events for
+        //   whitespace before and after a comment, so a single advance
+        //   leaves the second whitespace event live. That later causes
+        //   TreeElementParser.setValue() to be called on an empty trimmed
+        //   text, which breaks subsequent addChild() calls.
+        // Looping here is defensive against any parser that doesn't
+        // coalesce — see Wave 5a bug chain, commcare-ios issue.
         var ret = parser.next()
-        if (ret == PlatformXmlParser.TEXT && parser.isWhitespace()) {
+        while (ret == PlatformXmlParser.TEXT && parser.isWhitespace()) {
             ret = parser.next()
         }
         return ret
