@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +47,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.LayoutDirection
@@ -70,8 +72,12 @@ fun FormEntryScreen(
     languageViewModel: LanguageViewModel? = null
 ) {
     val layoutDirection = if (languageViewModel?.isRtl == true) LayoutDirection.Rtl else LayoutDirection.Ltr
+    val focusManager = LocalFocusManager.current
     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    // imePadding() makes the form Column shrink when the keyboard is visible
+    // so the Next/Back/Save Draft buttons stay above the IME — otherwise the
+    // buttons are covered by the keyboard and taps fall through to it. See #394.
+    Column(modifier = Modifier.fillMaxSize().imePadding()) {
         // Header
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -242,21 +248,32 @@ fun FormEntryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         OutlinedButton(
-                            onClick = { viewModel.previousQuestion() },
+                            onClick = {
+                                focusManager.clearFocus()
+                                viewModel.previousQuestion()
+                            },
                             modifier = Modifier.testTag("form_back_button")
                         ) {
                             Text("Back")
                         }
                         if (onSaveDraft != null && !viewModel.isReadOnly) {
                             OutlinedButton(
-                                onClick = { onSaveDraft() },
+                                onClick = {
+                                    focusManager.clearFocus()
+                                    onSaveDraft()
+                                },
                                 modifier = Modifier.testTag("form_save_draft_button")
                             ) {
                                 Text("Save Draft")
                             }
                         }
                         Button(
-                            onClick = { viewModel.nextQuestion() },
+                            onClick = {
+                                // Clear focus before advancing so the text
+                                // field doesn't hold the IME up past navigation.
+                                focusManager.clearFocus()
+                                viewModel.nextQuestion()
+                            },
                             enabled = !viewModel.isReadOnly,
                             modifier = Modifier.testTag("form_next_button")
                         ) {
