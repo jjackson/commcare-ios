@@ -225,7 +225,7 @@ fun LoginScreen(
         } else {
             Button(
                 onClick = { viewModel.login() },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("login_button"),
                 enabled = viewModel.username.isNotBlank() && viewModel.password.isNotBlank()
             ) {
                 Text("Log In")

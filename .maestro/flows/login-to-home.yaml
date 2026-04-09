@@ -1,0 +1,53 @@
+# Phase 9 Wave 3: log in as mobile worker and land on home screen.
+#
+# Starting state: login screen visible after install-via-url.yaml.
+# Ending state: home screen with Start button visible.
+#
+# Orchestrator passes COMMCARE_MOBILE_USERNAME and COMMCARE_MOBILE_PASSWORD.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "username_field"
+    timeout: 15000
+
+- tapOn:
+    id: "username_field"
+- inputText: ${COMMCARE_MOBILE_USERNAME}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "password_field"
+- inputText: ${COMMCARE_MOBILE_PASSWORD}
+
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd:
+    timeout: 1000
+
+- tapOn:
+    id: "login_button"
+
+# Home screen Start button — 180s timeout to cover initial OTA restore.
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 180000
+
+- assertVisible:
+    id: "start_button"
+
+- assertVisible:
+    id: "sync_button"
+
+- assertVisible:
+    id: "home_app_name"
+
+- takeScreenshot: /tmp/phase9-wave3-home-landing

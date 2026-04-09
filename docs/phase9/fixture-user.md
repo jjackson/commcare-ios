@@ -115,6 +115,47 @@ Each script:
 
 Runtime: about 60–90 seconds end-to-end.
 
+## CommCare HQ test app (Wave 3+)
+
+Phase 9 Wave 3 onward needs an actual CommCare app to install, log in to, and eventually drive forms through. The chosen fixture:
+
+| Field | Value |
+|---|---|
+| HQ | `https://www.commcarehq.org` |
+| Domain | `jonstest` |
+| App | `Bonsaaso Application` (version 9, built 2012-12-14) |
+| App ID | `1399c28e016a1ede7228056de4ebb1f5` |
+| Profile URL | `https://www.commcarehq.org/a/jonstest/apps/download/1399c28e016a1ede7228056de4ebb1f5/profile.ccpr` |
+| Mobile worker | `haltest@jonstest.commcarehq.org` (full form required, see below) |
+
+**Why Bonsaaso:** it was already referenced in the WIP `hq-round-trip.yaml` and the modules/forms exercise cases lists, registration, and follow-up forms. The profile.ccpr is anonymous-accessible — no auth required on the iOS install path.
+
+**Mobile worker login form:** until [#391](https://github.com/jjackson/commcare-ios/issues/391) is fixed, always use the full `username@<domain>.commcarehq.org` form. The iOS `LoginViewModel.resolveDomain()` falls back to hardcoded `"demo"` when the username has no `@`, which routes the login to the wrong domain.
+
+**Secrets location:** `.env.e2e.local` (gitignored), under the `COMMCARE_*` keys. See `.env.e2e.local.example` for the schema. Both the web admin (`hal@dimagi-ai.com`, used for API discovery only) and the mobile worker (`haltest@jonstest.commcarehq.org`, used by the iOS app) are stored separately.
+
+**Verification checklist (one-time when adding a new HQ test app):**
+
+```bash
+# 1. Profile URL is anonymous-accessible
+curl -s -o /dev/null -w "%{http_code}\n" "$COMMCARE_APP_PROFILE_URL"
+# Expected: 200
+
+# 2. Mobile worker OTA restore succeeds
+curl -s -o /dev/null -w "%{http_code}\n" \
+  -u "$COMMCARE_MOBILE_USERNAME:$COMMCARE_MOBILE_PASSWORD" \
+  "$COMMCARE_HQ_URL/a/$COMMCARE_DOMAIN/phone/restore/?version=2.0&device_id=verify-probe"
+# Expected: 200
+```
+
+**Running the Wave 3 orchestrator:**
+
+```bash
+.maestro/scripts/run-wave3.sh
+```
+
+Each run: fresh install → install-via-URL → log in → home screen with Start button. ~90-120s end-to-end.
+
 ## Adding new test phone numbers
 
 Phase 9 deliberately uses one fixture user. Adding a second number
