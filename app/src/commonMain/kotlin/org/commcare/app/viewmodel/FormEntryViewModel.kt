@@ -448,21 +448,30 @@ class FormEntryViewModel(
     }
 
     private fun updateQuestions() {
+        // Preserve existing constraint messages across refreshes. The engine
+        // doesn't track constraint messages — they live only in our UI state
+        // (set via setConstraint / cleared via clearConstraint). If we rebuilt
+        // the list with `constraintMessage = null` on every refresh, calling
+        // updateQuestions() from the CONSTRAINT_VIOLATED path would wipe the
+        // message we just set. Keying on questionId so the preservation still
+        // works when the form advances to a different set of questions.
+        val priorConstraints = questions.associate { it.questionId to it.constraintMessage }
         questions = try {
             formSession.getPrompts().mapIndexed { index, prompt ->
+                val questionId = prompt.getIndex().toString()
                 val engineValue = prompt.getAnswerValue()?.getDisplayText() ?: ""
                 // Draft always wins over engine value — that's the whole point
                 // of the draft layer (#394). Drafts are cleared on successful
                 // commit and on navigation.
                 val displayValue = draftTexts[index] ?: engineValue
                 QuestionState(
-                    questionId = prompt.getIndex().toString(),
+                    questionId = questionId,
                     questionText = prompt.getQuestionText() ?: prompt.getLongText() ?: "",
                     questionType = mapControlType(prompt.getControlType(), prompt.getDataType()),
                     dataType = prompt.getDataType(),
                     answer = displayValue,
                     isRequired = prompt.isRequired(),
-                    constraintMessage = null,
+                    constraintMessage = priorConstraints[questionId],
                     choices = prompt.getSelectChoices()?.map {
                         it.labelInnerText ?: it.value ?: ""
                     } ?: emptyList(),
