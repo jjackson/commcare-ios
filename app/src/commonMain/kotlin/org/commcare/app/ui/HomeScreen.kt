@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.commcare.app.engine.FormEntrySession
@@ -440,6 +441,7 @@ private fun HomeLanding(
                     .clickable { onOpenDrawer() }
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .padding(end = 8.dp)
+                    .testTag("drawer_menu")
             )
         }
 
@@ -484,7 +486,8 @@ private fun HomeLanding(
         Text(
             text = appName,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.testTag("home_app_name")
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -499,7 +502,7 @@ private fun HomeLanding(
 
         Button(
             onClick = onStart,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("start_button")
         ) {
             Text("Start")
         }
@@ -508,7 +511,7 @@ private fun HomeLanding(
 
         OutlinedButton(
             onClick = onSync,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("sync_button")
         ) {
             Text("Sync")
         }
@@ -521,13 +524,13 @@ private fun HomeLanding(
         ) {
             OutlinedButton(
                 onClick = onSettings,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).testTag("settings_button")
             ) {
                 Text("Settings")
             }
             OutlinedButton(
                 onClick = onDiagnostics,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).testTag("diagnostics_button")
             ) {
                 Text("Diagnostics")
             }

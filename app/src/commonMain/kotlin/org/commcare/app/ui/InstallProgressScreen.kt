@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.commcare.app.viewmodel.AppInstallViewModel
 import org.commcare.app.viewmodel.InstallState
@@ -105,7 +106,8 @@ private fun InstallProgressContent(
 
         Text(
             text = appName,
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.testTag("install_progress_app_name")
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -132,7 +134,7 @@ private fun InstallProgressContent(
 
         OutlinedButton(
             onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("install_cancel_button")
         ) {
             Text("Cancel")
         }
@@ -207,7 +209,8 @@ private fun InstallDoneContent(appName: String) {
 
         Text(
             text = "$appName installed",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.testTag("install_done_label")
         )
     }
 }
@@ -228,7 +231,8 @@ private fun InstallFailedContent(
         Text(
             text = "Installation Failed",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag("install_failed_label")
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -243,7 +247,7 @@ private fun InstallFailedContent(
 
         Button(
             onClick = onRetry,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("install_retry_button")
         ) {
             Text("Retry")
         }
@@ -252,7 +256,7 @@ private fun InstallFailedContent(
 
         OutlinedButton(
             onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("install_cancel_button")
         ) {
             Text("Cancel")
         }
