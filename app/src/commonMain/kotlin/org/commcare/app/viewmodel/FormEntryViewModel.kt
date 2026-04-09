@@ -459,11 +459,24 @@ class FormEntryViewModel(
         questions = try {
             formSession.getPrompts().mapIndexed { index, prompt ->
                 val questionId = prompt.getIndex().toString()
-                val engineValue = prompt.getAnswerValue()?.getDisplayText() ?: ""
+                val answerValue = prompt.getAnswerValue()
+                val engineValue = answerValue?.getDisplayText() ?: ""
                 // Draft always wins over engine value — that's the whole point
                 // of the draft layer (#394). Drafts are cleared on successful
                 // commit and on navigation.
                 val displayValue = draftTexts[index] ?: engineValue
+                // For select-multi, extract the selected values from the
+                // engine's SelectMultiData so the checkbox UI can reflect the
+                // current selection. Without this, every refresh (triggered
+                // by toggleMultiSelectChoice → answerQuestion → updateQuestions)
+                // would reset selectedChoices to empty and the UI would never
+                // show a checked box even though the engine has accepted the
+                // answer.
+                val selectedChoices: Set<String> = if (answerValue is SelectMultiData) {
+                    answerValue.getValue().map { it.getValue() }.toSet()
+                } else {
+                    emptySet()
+                }
                 QuestionState(
                     questionId = questionId,
                     questionText = prompt.getQuestionText() ?: prompt.getLongText() ?: "",
@@ -476,6 +489,7 @@ class FormEntryViewModel(
                         it.labelInnerText ?: it.value ?: ""
                     } ?: emptyList(),
                     appearance = prompt.getAppearanceHint(),
+                    selectedChoices = selectedChoices,
                     audioUri = try { prompt.getAudioText() } catch (_: Exception) { null },
                     imageUri = try { prompt.getImageText() } catch (_: Exception) { null }
                 )
