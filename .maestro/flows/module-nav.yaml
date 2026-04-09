@@ -1,0 +1,98 @@
+# Phase 9 Wave 4a: module navigation baseline.
+#
+# Starting state: home screen with start_button visible (post-login).
+# Walks: home → Start → Household List → Visit → case list → back → module list → back → home.
+# Asserts: every transition lands on the expected screen.
+#
+# Why Household List → Visit:
+# - Visit is a case-list entry point (not a registration form)
+# - With zero cases (fresh mobile worker), we can assert on the static
+#   "No cases found" label — deterministic regardless of HQ state
+#
+# NOTE: back from the case list goes DIRECTLY to the module list,
+# skipping the Household List sub-menu. CommCare menu-entry-into-caselist
+# treats the case list as the primary view for that entry point. Two
+# back taps total, not three.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Enter the module list
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- extendedWaitUntil:
+    visible:
+      id: "menu_title"
+    timeout: 10000
+
+- assertVisible: ".*Pregnancy List.*"
+- assertVisible: ".*Household List.*"
+
+# Drill into Household List sub-menu
+- tapOn:
+    text: ".*Household List.*"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible:
+    id: "menu_title"
+- assertVisible: ".*Visit.*"
+- assertVisible: ".*Close.*"
+
+# Drill into Visit → case list
+- tapOn:
+    text: ".*Visit.*"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- extendedWaitUntil:
+    visible:
+      id: "case_list_title"
+    timeout: 10000
+
+- assertVisible:
+    id: "case_list_search"
+
+- assertVisible:
+    id: "no_cases_label"
+
+- takeScreenshot: /tmp/phase9-wave4-case-list
+
+# Back from case list → module list (skips Household List sub-menu by design)
+- tapOn:
+    id: "case_list_back"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- extendedWaitUntil:
+    visible:
+      id: "menu_title"
+    timeout: 5000
+
+- assertVisible: ".*Pregnancy List.*"
+- assertVisible: ".*Household List.*"
+
+# Back from module list → home
+- tapOn:
+    id: "menu_back"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 10000
+
+- assertVisible:
+    id: "start_button"
+
+- takeScreenshot: /tmp/phase9-wave4-back-at-home
