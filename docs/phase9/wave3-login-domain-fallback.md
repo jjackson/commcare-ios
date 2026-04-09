@@ -1,6 +1,8 @@
 # Bug: iOS LoginViewModel.resolveDomain() falls back to hardcoded "demo"
 
 **Tracking issue:** #391
+**Status:** FIXED on main (PR opens from `fix/391-login-domain-fallback` branch, 2026-04-09). This doc stays as a historical record of the bug — see the "Resolution" section at the bottom for the fix details.
+
 **Found by:** Phase 9 Wave 3 E2E scouting, 2026-04-08
 **Severity:** Medium — silently routes login requests to the wrong domain
 **Affects:** iOS LoginScreen, any user who types a short-form username
@@ -64,3 +66,13 @@ This makes the short-form username work for any installed app, and keeps the two
 - `app/src/commonMain/kotlin/org/commcare/app/viewmodel/LoginViewModel.kt:327-333` — the bug
 - `app/src/commonMain/kotlin/org/commcare/app/model/ApplicationRecord.kt:3-9` — `domain` field exists
 - `app/src/commonMain/kotlin/org/commcare/app/viewmodel/LoginViewModel.kt:70-76` — `configureApp` stores `currentApp`
+
+## Resolution (2026-04-09)
+
+Fixed in two parts:
+
+1. `resolveDomain()` now reads `currentApp?.domain` before falling back to `"demo"`. The priority order is: explicit `@domain.commcarehq.org` suffix in the username > installed app's domain > hardcoded `"demo"`.
+
+2. `login()` now expands the short-form username into the fully qualified `user@domain.commcarehq.org` form BEFORE encoding the Basic auth header. This was also needed because HQ's receiver requires the full form in Basic auth regardless of the `/a/<domain>/phone/restore/` path — just fixing resolveDomain wasn't enough on its own. Discovered during E2E verification: curl with `haltest:password` against `/a/jonstest/phone/restore/` returns 401, but `haltest@jonstest.commcarehq.org:password` returns 200.
+
+Unit tests in `LoginViewModelResolveDomainTest` cover resolveDomain's branch logic. End-to-end verification via `.maestro/scripts/run-wave3.sh` and `run-wave4c.sh` running against the short-form `haltest` username.
