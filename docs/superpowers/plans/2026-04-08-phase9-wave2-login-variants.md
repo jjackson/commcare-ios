@@ -12,6 +12,26 @@
 
 ---
 
+## Mid-plan refactor: consolidate into one orchestrator
+
+The plan as originally drafted had three separate orchestrators, each doing a full fresh-install + recovery + single assertion. Stability = 5× each = 15 full recoveries = ~22 minutes.
+
+During implementation it became obvious this is wasteful. Recovery takes ~70s; the three assertions take ~5s each. And the three assertions all share the same precondition (a signed-in user post-recovery), so there's no reason to pay for recovery three times.
+
+**Actual shipped shape:** a single `run-wave2.sh` that does recovery once and runs all three assertions in sequence:
+
+1. Fresh install + recovery + tap done_button → SetupScreen signed in
+2. **Assertion A** — `post-recovery-state.yaml` against SetupScreen
+3. `simctl terminate` + `simctl launch`
+4. **Assertion B** — `session-persistence.yaml` re-checks the same SetupScreen state after restart
+5. **Assertion C** — `connect-menu-entry.yaml` taps Connect button and asserts the bug
+
+One run = ~77 seconds. Stability = 3 back-to-back runs = ~4 minutes instead of 22+. The three assertion YAMLs are still independent files (debuggable in isolation if you put the simulator in the right state manually), but the individual orchestrators were deleted as duplicate ceremony.
+
+The task breakdown below is kept as-is (task-by-task notes reflect the drafting process, including the fix for the missing `CONNECTID_E2E_PIN` env var). The File Map and Acceptance Criteria sections reflect the shipped shape after the refactor.
+
+---
+
 ## Scope change from the spec
 
 The spec's Wave 2 was titled "Login variants" and listed PIN login, biometric login, and saved-session restore as three independent flows. Empirical scouting on 2026-04-08 (iOS simulator, booted CommCare.app after successful recovery) invalidated most of those assumptions:
@@ -38,33 +58,32 @@ When iOS grows a lockscreen, a follow-up wave will cover those variants. For now
 
 ---
 
-## File Map
+## File Map (as shipped)
 
 | File | Action | Purpose |
 |---|---|---|
-| `.maestro/flows/post-recovery-state.yaml` | Create | Part C flow: assert SetupScreen shows signed-in state + Connect button after recovery |
-| `.maestro/flows/session-persistence.yaml` | Create | Part D flow: assert the signed-in state survives kill + relaunch |
-| `.maestro/flows/connect-menu-entry.yaml` | Create | Part E flow: tap Connect button, document current inconsistent state, screenshot for bug report |
-| `.maestro/scripts/run-post-recovery.sh` | Create | Orchestrator: run-recovery.sh → tap done_button → part C |
-| `.maestro/scripts/run-session-persistence.sh` | Create | Orchestrator: run-recovery.sh → tap done_button → simctl terminate → simctl launch → part D |
-| `.maestro/scripts/run-connect-menu-entry.sh` | Create | Orchestrator: run-recovery.sh → tap done_button → part E |
-| `docs/phase9/wave2-state-inconsistency.md` | Create | Technical writeup of the bug, used as the GitHub issue body |
+| `.maestro/flows/post-recovery-state.yaml` | Create | Assertion A: SetupScreen signed-in variant visible (connect_button + signup_link) |
+| `.maestro/flows/session-persistence.yaml` | Create | Assertion B: same SetupScreen signed-in variant visible after kill + relaunch |
+| `.maestro/flows/connect-menu-entry.yaml` | Create | Assertion C: tap Connect button, document current inconsistent state (bug #389) |
+| `.maestro/flows/tap-done-button.yaml` | Create | Shared helper: taps done_button on the Success screen |
+| `.maestro/scripts/run-wave2.sh` | Create | Single consolidated orchestrator: recovery → done_button → A → kill+launch → B → C |
+| `docs/phase9/wave2-state-inconsistency.md` | Create | Technical writeup of bug #389, used as the GitHub issue body |
 | `CLAUDE.md` | Modify | Mark Phase 9 Wave 2 complete, reference plan + bug issue |
-| (GitHub issue) | Create | `Connect ID state inconsistency: SetupScreen says signed in, Connect menu says not signed in` |
+| (GitHub issue) | Create | #389 — `Connect ID state inconsistency: SetupScreen vs Connect menu disagree after recovery` |
 
 Nothing in this wave modifies production code. The bug fix itself is NOT in Wave 2 scope — we're cataloging, not repairing. A separate issue owns the fix.
 
 ---
 
-## Acceptance Criteria
+## Acceptance Criteria (as shipped)
 
-| Task | Verification | Pass condition |
+| Check | Verification | Pass condition |
 |---|---|---|
-| W2.1 | `.maestro/scripts/run-post-recovery.sh` | Exits 0. Recovery completes, done_button tapped, `post-recovery-state.yaml` asserts `connect_button` and `signup_link` both visible |
-| W2.2 | `.maestro/scripts/run-session-persistence.sh` | Exits 0. Recovery runs, done_button tapped, app killed, relaunched, same SetupScreen re-verified |
-| W2.3 | `.maestro/scripts/run-connect-menu-entry.sh` | Exits 0. Flow navigates to Connect menu, captures screenshot, exits cleanly regardless of which error string is shown |
-| W2.4 | GitHub issue filed, referenced in CLAUDE.md, linked from the bug doc | Issue is open with `bug` + `connect-id` labels, body matches `docs/phase9/wave2-state-inconsistency.md` |
-| W2 (stability) | Each of W2.1–W2.3 run 5 times back-to-back locally | All 15 runs green, zero flakes |
+| A | `.maestro/scripts/run-wave2.sh` Assertion A step | `post-recovery-state.yaml` asserts `connect_button` + `signup_link` + `scan_barcode_button` visible |
+| B | `.maestro/scripts/run-wave2.sh` Assertion B step | After simctl terminate + launch, `session-persistence.yaml` re-asserts same signed-in state |
+| C | `.maestro/scripts/run-wave2.sh` Assertion C step | `connect-menu-entry.yaml` taps connect_button, captures screenshot, asserts "Not signed in to ConnectID" (buggy state, deliberately) |
+| Bug | GitHub issue #389 filed, referenced in CLAUDE.md, linked from the bug doc | Issue open with `bug` label, body matches `docs/phase9/wave2-state-inconsistency.md` |
+| Stability | `run-wave2.sh` executed 3 times back-to-back locally | All 3 runs green, zero flakes, ~77s each |
 
 ---
 
