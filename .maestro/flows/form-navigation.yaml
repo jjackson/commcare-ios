@@ -1,0 +1,107 @@
+# Phase 9 Wave 4b: form navigation (in + back out).
+#
+# Walks into the Register Household form, answers the first 4 pages
+# (three cascading radio choices + skip-optional-location), asserts
+# the fifth page is the Household Head Health ID text field, then
+# taps Back repeatedly to exit the form back to the home screen.
+#
+# Full fill-and-submit is blocked on #394 (can't type into
+# constraint-validated text fields). Wave 4b proves that form navigation
+# works; Wave 4c will do the full submission once #394 is fixed.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Enter the module list → Registration sub-menu → Register Household
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- extendedWaitUntil:
+    visible:
+      id: "menu_title"
+    timeout: 10000
+
+- tapOn:
+    text: ".*Registration.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Register Household.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+# Form loaded — first page is the sub-district radio
+- extendedWaitUntil:
+    visible:
+      id: "form_next_button"
+    timeout: 10000
+
+- assertVisible: ".*What is the sub-district.*"
+- takeScreenshot: /tmp/phase9-wave4b-form-page-1
+
+# P1: sub-district → tontokrom
+- tapOn: "tontokrom"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# P2: health facility → aboaboso
+- assertVisible: ".*Health Facility.*"
+- tapOn: "aboaboso"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# P3: township → britcherkrom
+- assertVisible: ".*Townships Under.*"
+- tapOn: "britcherkrom"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# P4: location (optional) — skip
+- assertVisible: ".*Collect the location.*"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+# P5: household head health ID — text field. We assert it exists but
+# we do NOT try to fill it (see #394). This proves form navigation
+# reached the text-input phase.
+- assertVisible: ".*Household Head Health ID.*"
+- assertVisible:
+    id: "form_answer_text"
+- takeScreenshot: /tmp/phase9-wave4b-form-page-5
+
+# Back out of the form — multiple back taps to retrace
+- tapOn:
+    id: "form_back_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+- assertVisible: ".*Collect the location.*"
+
+- tapOn:
+    id: "form_back_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+- assertVisible: ".*Townships Under.*"
+
+- tapOn:
+    id: "form_back_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+- assertVisible: ".*Health Facility.*"
+
+- tapOn:
+    id: "form_back_button"
+- waitForAnimationToEnd: {timeout: 2000}
+
+- assertVisible: ".*What is the sub-district.*"
+
+- takeScreenshot: /tmp/phase9-wave4b-back-at-page-1
