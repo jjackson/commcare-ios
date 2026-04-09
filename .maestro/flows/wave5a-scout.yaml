@@ -1,0 +1,311 @@
+# Wave 5a scout: walk into the Visit form on an existing household case
+# and screenshot each page to map the question types. Precondition: app
+# is installed, logged in, and sits on the home screen with case data
+# synced down.
+#
+# Scouted so far:
+#   p01: "Any household member available?" — yes/no radio (required)
+#   p02: "Collect the location" — GPS (optional)
+#   p03: "Number of women aged 15-49 seen" — integer (required)
+#   p04: "Number of these women currently using modern family planning" — integer (required)
+#   p05: "family planning type" — MSelect cd/iud/ij/ip/pl/st (required, 1st instance)
+#   p06: "family planning type" — MSelect cd/iud/ij/ip/pl/st (required, 2nd instance,
+#        likely a repeat iteration or a sibling question with the same label)
+#   p07: "Are there any 'other' sick household members?" — yes/no radio (required)
+#   p08: "RDT used?" — yes/no radio (optional)
+#   p09: "Any medication given to 'other' members?" — yes/no radio (optional)
+#   p10: "Enter Health Insurance Number Household Head" — text (optional)
+#   p11: "We recommend that you assess the household's malaria prevention
+#        situation. Do you want to do this now?" — yes/no radio (required)
+#   p12: "Number of sleeping sites" — integer (required)
+#   p13: "Number of functioning (hanging, usable) bednets seen" — integer (required)
+#   p14: "Number of sleeping sites without bednets" — integer (required)
+#   p15: "Number of observed bednets that are damaged and need replacement" — integer (required)
+#   p16: "How many children under 5 years slept in this household last night?" — integer (required)
+#   p17: "How many children under 5 years slept under a bednet in this HH last night?" — integer (required)
+#   p18: "How many pregnant women slept in this household last night?" — integer (required)
+#   p19: "How many pregnant women slept under a bednet in this HH last night?" — integer (required)
+#   p20: "We recommend that you assess the household's water and sanitation
+#        situation. Do you want to do this now?" — yes/no radio (required)
+#   p21: "What kind of toilets are used by the household?" — MSelect (required,
+#        options: ventilated_improved_pit_latrine/flush/pit_latrine_with_slab/
+#        pit_latrine_without_slab/composting_toilet/hanging_toiilet/no_facility/other)
+#   p22: "Do you share this facility with other households?" — yes/no radio (required)
+#   p23: "What is the main source of drinking-water for members of your
+#        household?" — SELECT_ONE radio with 9 options (piped_water/public_tap/
+#        tubewell_or_borehole/protected_dug_well/unprotected_dug_well/
+#        protected_spring/unprotected_spring/rainwater/surface_water)
+#   p24+: unknown — water/sanitation branch continues
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Household List.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Visit.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- tapOn:
+    text: "E2E-.*Tester"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+# p01: "Any household member available?" — yes/no radio (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p01
+- tapOn:
+    text: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p02: "Collect the location" — GPS (optional) — skip
+- takeScreenshot: /tmp/phase9-wave5a-visit-p02
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p03: "Number of women aged 15-49 seen" — integer (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p03
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "5"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p04: "Number of these women currently using modern family planning" — integer (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p04
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "2"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p05: "family planning type" — MSelect (required). Tap two options.
+- takeScreenshot: /tmp/phase9-wave5a-visit-p05
+- tapOn:
+    text: "^cd$"
+- tapOn:
+    text: "^iud$"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p06: "family planning type" — another MSelect. Tap two different options.
+- takeScreenshot: /tmp/phase9-wave5a-visit-p06
+- tapOn:
+    text: "^ij$"
+- tapOn:
+    text: "^ip$"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p07: "Are there any 'other' sick household members?" — yes/no radio (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p07
+- tapOn:
+    text: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p08: unknown
+- takeScreenshot: /tmp/phase9-wave5a-visit-p08
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p09: unknown
+- takeScreenshot: /tmp/phase9-wave5a-visit-p09
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p10: unknown
+- takeScreenshot: /tmp/phase9-wave5a-visit-p10
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p11: "We recommend that you assess the household's malaria prevention
+#       situation. Do you want to do this now?" — yes/no radio (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p11
+- tapOn:
+    text: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p12: "Number of sleeping sites" — integer (required, malaria branch)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p12
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "3"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p13: "Number of functioning (hanging, usable) bednets seen" — integer (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p13
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "3"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p14-p20: unknown — tap integer if present, then next
+- takeScreenshot: /tmp/phase9-wave5a-visit-p14
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p15
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p16
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p17
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p18
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p19
+- tapOn:
+    id: "form_answer_integer"
+    optional: true
+- inputText:
+    text: "2"
+    optional: true
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave5a-visit-p20
+- tapOn:
+    text: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p21: "What kind of toilets are used?" — MSelect (required)
+- takeScreenshot: /tmp/phase9-wave5a-visit-p21
+- tapOn:
+    text: "^flush$"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p22-p40: blast forward, opportunistically handling yes/no radios and integer fields
+- runFlow:
+    commands:
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p22
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      # p23: drinking water source — SELECT_ONE radio
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p23
+      - tapOn: {text: "^piped_water$"}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p24
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p25
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p26
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p27
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p28
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p29
+      - tapOn: {text: "^yes$", optional: true}
+      - tapOn: {id: "form_answer_integer", optional: true}
+      - inputText: {text: "2", optional: true}
+      - tapOn: {id: "form_next_button"}
+      - waitForAnimationToEnd: {timeout: 3000}
+
+      - takeScreenshot: /tmp/phase9-wave5a-visit-p30
