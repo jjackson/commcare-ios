@@ -85,7 +85,16 @@ class LoginViewModel(private val db: CommCareDatabase) {
             try {
                 val resolvedDomain = resolveDomain()
                 val loginUrl = "${serverUrl.trimEnd('/')}/a/$resolvedDomain/phone/restore/"
-                val credentials = encodeBasicAuth(username, password)
+                // HQ Basic auth requires the fully qualified mobile worker
+                // username (`user@domain.commcarehq.org`). Users can type just
+                // the short form in the login field and we expand it here
+                // using the resolved domain (see #391).
+                val authUsername = if (username.contains("@")) {
+                    username
+                } else {
+                    "$username@$resolvedDomain.commcarehq.org"
+                }
+                val credentials = encodeBasicAuth(authUsername, password)
                 authHeader = "Basic $credentials"
 
                 val response = httpClient.execute(
@@ -324,12 +333,30 @@ class LoginViewModel(private val db: CommCareDatabase) {
         appState = state
     }
 
-    private fun resolveDomain(): String {
-        return if (username.contains("@")) {
-            username.substringAfter("@").removeSuffix(".commcarehq.org")
-        } else {
-            "demo"
+    /**
+     * Resolve the HQ domain to use for login / restore / submit URLs.
+     *
+     * Priority order:
+     *   1. If the username is fully qualified (`user@domain.commcarehq.org`),
+     *      extract the domain from the suffix. Real mobile workers typing
+     *      the full form should always work regardless of configuration.
+     *   2. If an app is installed, use its domain. This lets users type
+     *      just their short username (e.g. "haltest") and have the app
+     *      route to the correct HQ project.
+     *   3. Last-resort fallback is the hardcoded "demo" domain — useful
+     *      only for demo-mode bootstrap when no app is installed yet.
+     *
+     * See #391 — prior to this fix, short-form usernames always went to
+     * "demo" regardless of what app was installed, leading to silent 401
+     * failures for any user who didn't type the `@domain.commcarehq.org`
+     * suffix.
+     */
+    internal fun resolveDomain(): String {
+        if (username.contains("@")) {
+            return username.substringAfter("@").removeSuffix(".commcarehq.org")
         }
+        currentApp?.domain?.let { if (it.isNotBlank()) return it }
+        return "demo"
     }
 
     private fun encodeBasicAuth(user: String, pass: String): String {
