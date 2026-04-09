@@ -53,7 +53,18 @@ class TreeElementParser(
                 }
                 PlatformXmlParser.END_TAG -> return element
                 PlatformXmlParser.TEXT -> {
-                    element.setValue(UncastData(parser.getText()?.trim() ?: ""))
+                    // Skip empty-after-trim text. Setting an empty value
+                    // marks the element as non-childable (isChildable checks
+                    // `value == null`), which breaks the very next addChild
+                    // call with "Can't add children to node that has data
+                    // value!". This happens when parsers produce a stray
+                    // whitespace TEXT event between child elements that
+                    // `nextNonWhitespace` didn't coalesce — see Wave 5a
+                    // bug chain, commcare-ios issue.
+                    val text = parser.getText()?.trim() ?: ""
+                    if (text.isNotEmpty()) {
+                        element.setValue(UncastData(text))
+                    }
                 }
                 else -> throw InvalidStructureException(
                     "Exception while trying to parse an XML Tree, got something other than tags and text",
