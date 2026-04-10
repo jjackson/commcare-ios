@@ -270,10 +270,15 @@ class ConnectMarketplaceApi(
      * Authorization: Bearer <access_token>
      */
     fun updateConsent(accessToken: String): Result<Unit> {
+        // TODO(#389): The update_consent endpoint requires "channel" and
+        // "consent" fields, but the channel comes from an assigned
+        // opportunity. Without opportunities, there's no channel to
+        // consent to. The empty body triggers a 400 from the server.
+        // Android CommCare may use a different consent flow or endpoint.
         return executeAuthenticatedPost(
             "$messagingBaseUrl/messaging/update_consent/",
             accessToken,
-            body = "{}"
+            body = """{"consent": true}"""
         )
     }
 
