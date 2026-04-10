@@ -1,0 +1,58 @@
+# Wave 6: switch from Small App back to Bonsaaso via the login dropdown.
+# Precondition: at the NeedsLogin screen with Small App seated.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: ".*Small App.*"
+    timeout: 10000
+
+# Tap the app switcher dropdown ("Small App ▼")
+- tapOn:
+    text: ".*Small App.*▼"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave6-app-switcher-dropdown
+
+# Tap Bonsaaso in the dropdown
+- tapOn:
+    text: ".*Bonsaaso.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave6-switched-to-bonsaaso
+
+# Login with Bonsaaso — should land on Bonsaaso home
+- tapOn:
+    id: "username_field"
+- inputText: ${COMMCARE_MOBILE_USERNAME}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn:
+    id: "password_field"
+- inputText: ${COMMCARE_MOBILE_PASSWORD}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn:
+    id: "login_button"
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 30000
+
+- takeScreenshot: /tmp/phase9-wave6-home-bonsaaso-after-switch
+
+# Verify Bonsaaso modules are visible (not Small App's)
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- assertVisible:
+    text: ".*Household List.*"
+
+- takeScreenshot: /tmp/phase9-wave6-bonsaaso-modules
