@@ -1,0 +1,19 @@
+# Wave 7: opportunity detail + claim flow.
+# Precondition: at the Opportunities list with items visible.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "Demo Opp"
+    timeout: 15000
+
+# Tap View Info on the first opportunity
+- tapOn:
+    text: "View Info"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave7-opportunity-detail

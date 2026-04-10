@@ -1,0 +1,16 @@
+# Wave 7: tap Start Learning on an opportunity.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "Start Learning"
+    timeout: 10000
+
+- tapOn:
+    text: "Start Learning"
+- waitForAnimationToEnd: {timeout: 15000}
+
+- takeScreenshot: /tmp/phase9-wave7-learning
