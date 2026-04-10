@@ -6,7 +6,7 @@ import org.commcare.app.model.ConnectIdUser
  * Repository for persisting Connect ID user data and HQ links.
  * Maps between SQLDelight-generated types and ConnectIdUser domain model.
  */
-class ConnectIdRepository(private val db: CommCareDatabase) {
+class ConnectIdRepository(internal val db: CommCareDatabase) {
 
     fun getUser(): ConnectIdUser? =
         db.commCareQueries.getConnectIdUser().executeAsOneOrNull()?.let { row ->

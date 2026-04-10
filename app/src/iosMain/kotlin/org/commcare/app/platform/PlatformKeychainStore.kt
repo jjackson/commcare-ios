@@ -67,7 +67,7 @@ actual class PlatformKeychainStore actual constructor() {
         val valueData = NSString.create(string = value)
             .dataUsingEncoding(NSUTF8StringEncoding) ?: return
 
-        try {
+        val status = try {
             val query = mapOf<Any?, Any?>(
                 kSecClass to kSecClassGenericPassword,
                 kSecAttrService to SERVICE_NAME,
@@ -87,6 +87,9 @@ actual class PlatformKeychainStore actual constructor() {
                 setObj(kSecAttrAccessibleWhenUnlockedThisDeviceOnly, kSecAttrAccessible)
             }
             withCFDictionary(dict) { cfDict -> SecItemAdd(cfDict, null) }
+        }
+        if (status != errSecSuccess) {
+            println("[Keychain] store($key) failed with OSStatus=$status")
         }
     }
 

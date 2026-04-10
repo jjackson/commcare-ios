@@ -80,7 +80,8 @@ class OpportunitiesViewModel(
             try {
                 val token = tokenManager.getConnectIdToken()
                 if (token == null) {
-                    errorMessage = "Not signed in to ConnectID"
+                    val detail = tokenManager.lastTokenError ?: "no cached token and refresh failed"
+                    errorMessage = "Not signed in to ConnectID ($detail)"
                     isLoading = false
                     return@launch
                 }

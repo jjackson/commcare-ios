@@ -19,7 +19,8 @@ import org.commcare.core.interfaces.createHttpClient
 class ConnectIdTokenManager(
     private val api: ConnectIdApi,
     private val repository: ConnectIdRepository,
-    private val keychainStore: PlatformKeychainStore
+    private val keychainStore: PlatformKeychainStore,
+    private val db: org.commcare.app.storage.CommCareDatabase? = null
 ) {
     companion object {
         /** OAuth2 client_id registered on CommCare HQ for ConnectID SSO. */
@@ -47,8 +48,8 @@ class ConnectIdTokenManager(
      * @return The access token string, or null if the user is not registered or refresh fails.
      */
     fun getConnectIdToken(): String? {
-        val cached = keychainStore.retrieve(KEY_CONNECT_TOKEN)
-        val expiry = keychainStore.retrieve(KEY_CONNECT_TOKEN_EXPIRY)?.toLongOrNull() ?: 0L
+        val cached = retrieveCredential(KEY_CONNECT_TOKEN)
+        val expiry = retrieveCredential(KEY_CONNECT_TOKEN_EXPIRY)?.toLongOrNull() ?: 0L
         if (cached != null && currentEpochSeconds() < expiry) {
             return cached
         }
@@ -63,16 +64,47 @@ class ConnectIdTokenManager(
      * @return The new access token string, or null if credentials are missing or the
      *         token exchange fails.
      */
+    /** Last error from token refresh — surfaced in UI for debugging. */
+    var lastTokenError: String? = null
+        private set
+
+    /** Read a value from keychain, falling back to the DB preferences table. */
+    private fun retrieveCredential(key: String): String? {
+        return keychainStore.retrieve(key)
+            ?: try { db?.commCareQueries?.getPreference(key)?.executeAsOneOrNull() } catch (_: Exception) { null }
+    }
+
+    /** Store a value in BOTH keychain and DB (belt-and-suspenders). */
+    private fun storeCredential(key: String, value: String) {
+        keychainStore.store(key, value)
+        try { db?.commCareQueries?.setPreference(key, value) } catch (_: Exception) { }
+    }
+
     fun refreshConnectIdToken(): String? {
-        val username = keychainStore.retrieve(KEY_CONNECT_USERNAME) ?: return null
-        val password = keychainStore.retrieve(KEY_CONNECT_PASSWORD) ?: return null
-        val result = api.getOAuthToken(username, password)
-        return result.getOrNull()?.let { tokens ->
-            val expiryAt = currentEpochSeconds() + tokens.expiresIn - EXPIRY_BUFFER_SECONDS
-            keychainStore.store(KEY_CONNECT_TOKEN, tokens.accessToken)
-            keychainStore.store(KEY_CONNECT_TOKEN_EXPIRY, expiryAt.toString())
-            tokens.accessToken
+        val username = retrieveCredential(KEY_CONNECT_USERNAME)
+        if (username == null) {
+            lastTokenError = "No stored connect_username in keychain or DB"
+            return null
         }
+        val password = retrieveCredential(KEY_CONNECT_PASSWORD)
+        if (password == null) {
+            lastTokenError = "No stored connect_password in keychain or DB"
+            return null
+        }
+        val result = api.getOAuthToken(username, password)
+        return result.fold(
+            onSuccess = { tokens ->
+                lastTokenError = null
+                val expiryAt = currentEpochSeconds() + tokens.expiresIn - EXPIRY_BUFFER_SECONDS
+                storeCredential(KEY_CONNECT_TOKEN, tokens.accessToken)
+                storeCredential(KEY_CONNECT_TOKEN_EXPIRY, expiryAt.toString())
+                tokens.accessToken
+            },
+            onFailure = { e ->
+                lastTokenError = "Token refresh failed: ${e.message}"
+                null
+            }
+        )
     }
 
     // -------------------------------------------------------------------------

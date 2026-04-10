@@ -81,7 +81,11 @@ class MenuViewModel(
                         val entry = suite.getEntry(cmdId)
                         if (entry != null) {
                             val displayText = try {
-                                entry.getText()?.evaluate() ?: cmdId
+                                val raw = entry.getText()?.evaluate() ?: cmdId
+                                // Strip unresolved ${N} badge placeholders that
+                                // appear when the locale string has parameters
+                                // but no evaluation context to resolve them.
+                                raw.replace(Regex("\\$\\{\\d+}\\s*"), "")
                             } catch (_: Exception) {
                                 cmdId
                             }
@@ -101,7 +105,8 @@ class MenuViewModel(
                 if (!isMenuRelevant(subMenu)) continue
 
                 val displayText = try {
-                    subMenu.getName()?.evaluate() ?: (subMenu.getId() ?: "Menu")
+                    val raw = subMenu.getName()?.evaluate() ?: (subMenu.getId() ?: "Menu")
+                    raw.replace(Regex("\\$\\{\\d+}\\s*"), "")
                 } catch (_: Exception) {
                     subMenu.getId() ?: "Menu"
                 }

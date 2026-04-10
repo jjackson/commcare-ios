@@ -31,7 +31,7 @@ class AppDependencies(db: CommCareDatabase) {
     // -- Managers --
     val keyRecordManager = UserKeyRecordManager(db, keychainStore)
     val demoModeManager = DemoModeManager(db)
-    val connectIdTokenManager = ConnectIdTokenManager(connectIdApi, connectIdRepository, keychainStore)
+    val connectIdTokenManager = ConnectIdTokenManager(connectIdApi, connectIdRepository, keychainStore, db)
 
     // -- ViewModels --
     val connectIdViewModel = ConnectIdViewModel(connectIdApi, connectIdRepository, keychainStore)
