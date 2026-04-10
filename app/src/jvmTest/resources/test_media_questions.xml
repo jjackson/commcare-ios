@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Media Question Types</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+              xmlns="http://openrosa.org/formdesigner/test-media-questions">
+          <photo/>
+          <signature/>
+          <audio_recording/>
+          <video_clip/>
+          <document/>
+        </data>
+      </instance>
+      <bind nodeset="/data/photo" type="xsd:string"/>
+      <bind nodeset="/data/signature" type="xsd:string"/>
+      <bind nodeset="/data/audio_recording" type="xsd:string"/>
+      <bind nodeset="/data/video_clip" type="xsd:string"/>
+      <bind nodeset="/data/document" type="xsd:string"/>
+    </model>
+  </h:head>
+  <h:body>
+    <upload ref="/data/photo" mediatype="image/*">
+      <label>Take a photo</label>
+    </upload>
+    <upload ref="/data/signature" mediatype="image/*" appearance="signature">
+      <label>Capture signature</label>
+    </upload>
+    <upload ref="/data/audio_recording" mediatype="audio/*">
+      <label>Record audio</label>
+    </upload>
+    <upload ref="/data/video_clip" mediatype="video/*">
+      <label>Record video</label>
+    </upload>
+    <upload ref="/data/document" mediatype="application/*">
+      <label>Upload document</label>
+    </upload>
+  </h:body>
+</h:html>

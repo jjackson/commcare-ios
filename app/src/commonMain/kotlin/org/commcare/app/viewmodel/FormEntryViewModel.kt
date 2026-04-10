@@ -480,7 +480,7 @@ class FormEntryViewModel(
                 QuestionState(
                     questionId = questionId,
                     questionText = prompt.getQuestionText() ?: prompt.getLongText() ?: "",
-                    questionType = mapControlType(prompt.getControlType(), prompt.getDataType()),
+                    questionType = mapControlType(prompt.getControlType(), prompt.getDataType(), prompt.getAppearanceHint()),
                     dataType = prompt.getDataType(),
                     answer = displayValue,
                     isRequired = prompt.isRequired(),
@@ -516,7 +516,11 @@ class FormEntryViewModel(
         }
     }
 
-    private fun mapControlType(controlType: Int, dataType: Int = 0): QuestionType {
+    private fun mapControlType(
+        controlType: Int,
+        dataType: Int = 0,
+        appearance: String? = null
+    ): QuestionType {
         return when (controlType) {
             Constants.CONTROL_INPUT -> {
                 when (dataType) {
@@ -534,13 +538,20 @@ class FormEntryViewModel(
             Constants.CONTROL_TRIGGER -> QuestionType.TRIGGER
             Constants.CONTROL_LABEL -> QuestionType.LABEL
             Constants.CONTROL_UPLOAD -> {
+                // The engine maps all <upload> elements to CONTROL_UPLOAD
+                // regardless of mediatype. Differentiate by appearance
+                // (signature) or by the prompt's data type hint.
                 when {
-                    dataType == Constants.DATATYPE_BINARY -> QuestionType.IMAGE
+                    appearance?.contains("signature") == true -> QuestionType.SIGNATURE
                     else -> QuestionType.IMAGE
                 }
             }
-            Constants.CONTROL_IMAGE_CHOOSE -> QuestionType.IMAGE
+            Constants.CONTROL_IMAGE_CHOOSE -> {
+                if (appearance?.contains("signature") == true) QuestionType.SIGNATURE
+                else QuestionType.IMAGE
+            }
             Constants.CONTROL_AUDIO_CAPTURE -> QuestionType.AUDIO
+            Constants.CONTROL_VIDEO_CAPTURE -> QuestionType.VIDEO
             else -> QuestionType.TEXT
         }
     }

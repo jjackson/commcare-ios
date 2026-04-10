@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa">
+  <h:head>
+    <h:title>Select Appearance Variants</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+              xmlns="http://openrosa.org/formdesigner/test-select-appearances">
+          <select_one_default/>
+          <select_one_minimal/>
+          <select_one_compact/>
+          <select_one_quick/>
+          <select_one_combobox/>
+          <select_one_list_nolabel/>
+          <select_multi_default/>
+          <select_multi_minimal/>
+          <select_multi_compact/>
+          <select_multi_list_nolabel/>
+        </data>
+      </instance>
+      <bind nodeset="/data/select_one_default" type="xsd:string"/>
+      <bind nodeset="/data/select_one_minimal" type="xsd:string"/>
+      <bind nodeset="/data/select_one_compact" type="xsd:string"/>
+      <bind nodeset="/data/select_one_quick" type="xsd:string"/>
+      <bind nodeset="/data/select_one_combobox" type="xsd:string"/>
+      <bind nodeset="/data/select_one_list_nolabel" type="xsd:string"/>
+      <bind nodeset="/data/select_multi_default" type="xsd:string"/>
+      <bind nodeset="/data/select_multi_minimal" type="xsd:string"/>
+      <bind nodeset="/data/select_multi_compact" type="xsd:string"/>
+      <bind nodeset="/data/select_multi_list_nolabel" type="xsd:string"/>
+    </model>
+  </h:head>
+  <h:body>
+    <!-- SELECT_ONE variants -->
+    <select1 ref="/data/select_one_default">
+      <label>Default select-one</label>
+      <item><label>Apple</label><value>apple</value></item>
+      <item><label>Banana</label><value>banana</value></item>
+      <item><label>Cherry</label><value>cherry</value></item>
+    </select1>
+
+    <select1 ref="/data/select_one_minimal" appearance="minimal">
+      <label>Minimal select-one (dropdown)</label>
+      <item><label>Red</label><value>red</value></item>
+      <item><label>Green</label><value>green</value></item>
+      <item><label>Blue</label><value>blue</value></item>
+    </select1>
+
+    <select1 ref="/data/select_one_compact" appearance="compact-3">
+      <label>Compact-3 select-one (grid, 3 cols)</label>
+      <item><label>A</label><value>a</value></item>
+      <item><label>B</label><value>b</value></item>
+      <item><label>C</label><value>c</value></item>
+      <item><label>D</label><value>d</value></item>
+      <item><label>E</label><value>e</value></item>
+      <item><label>F</label><value>f</value></item>
+    </select1>
+
+    <select1 ref="/data/select_one_quick" appearance="quick">
+      <label>Quick select-one (auto-advance)</label>
+      <item><label>Yes</label><value>yes</value></item>
+      <item><label>No</label><value>no</value></item>
+      <item><label>Maybe</label><value>maybe</value></item>
+    </select1>
+
+    <select1 ref="/data/select_one_combobox" appearance="combobox">
+      <label>Combobox select-one (filterable)</label>
+      <item><label>Accra</label><value>accra</value></item>
+      <item><label>Kumasi</label><value>kumasi</value></item>
+      <item><label>Tamale</label><value>tamale</value></item>
+      <item><label>Takoradi</label><value>takoradi</value></item>
+    </select1>
+
+    <select1 ref="/data/select_one_list_nolabel" appearance="list-nolabel">
+      <label>List-nolabel select-one (no labels)</label>
+      <item><label>X</label><value>x</value></item>
+      <item><label>Y</label><value>y</value></item>
+      <item><label>Z</label><value>z</value></item>
+    </select1>
+
+    <!-- SELECT_MULTI variants -->
+    <select ref="/data/select_multi_default">
+      <label>Default select-multi</label>
+      <item><label>Cat</label><value>cat</value></item>
+      <item><label>Dog</label><value>dog</value></item>
+      <item><label>Fish</label><value>fish</value></item>
+    </select>
+
+    <select ref="/data/select_multi_minimal" appearance="minimal">
+      <label>Minimal select-multi (dropdown checkboxes)</label>
+      <item><label>Fever</label><value>fever</value></item>
+      <item><label>Cough</label><value>cough</value></item>
+      <item><label>Headache</label><value>headache</value></item>
+    </select>
+
+    <select ref="/data/select_multi_compact" appearance="compact-2">
+      <label>Compact-2 select-multi (grid, 2 cols)</label>
+      <item><label>Mon</label><value>mon</value></item>
+      <item><label>Tue</label><value>tue</value></item>
+      <item><label>Wed</label><value>wed</value></item>
+      <item><label>Thu</label><value>thu</value></item>
+    </select>
+
+    <select ref="/data/select_multi_list_nolabel" appearance="list-nolabel">
+      <label>List-nolabel select-multi (no labels)</label>
+      <item><label>1</label><value>1</value></item>
+      <item><label>2</label><value>2</value></item>
+      <item><label>3</label><value>3</value></item>
+    </select>
+  </h:body>
+</h:html>
