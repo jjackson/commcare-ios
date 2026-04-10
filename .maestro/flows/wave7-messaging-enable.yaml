@@ -1,0 +1,17 @@
+# Wave 7: enable messaging + verify thread list.
+# Precondition: at the messaging consent screen.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "Enable"
+    timeout: 10000
+
+- tapOn:
+    text: "Enable"
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave7-messaging-enabled

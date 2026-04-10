@@ -1,0 +1,23 @@
+# Wave 7: test Connect messaging screen.
+# Precondition: app installed, logged in, Connect ID signed in.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Open nav drawer
+- tapOn:
+    id: "drawer_menu"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# Tap Messaging
+- tapOn:
+    text: "Messaging"
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave7-messaging
