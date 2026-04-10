@@ -1,0 +1,38 @@
+# Phase 9 Wave 9: diagnostics screen.
+#
+# Precondition: app installed, logged in, at home screen.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Tap Diagnostics
+- tapOn:
+    text: "Diagnostics"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave9-diagnostics-before
+
+# Run diagnostics
+- tapOn:
+    text: "Run Diagnostics"
+- waitForAnimationToEnd: {timeout: 15000}
+
+- takeScreenshot: /tmp/phase9-wave9-diagnostics-after
+
+# Go back
+- tapOn:
+    text: "<"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# Now test Settings
+- tapOn:
+    text: "Settings"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave9-settings
