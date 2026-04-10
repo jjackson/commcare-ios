@@ -123,10 +123,20 @@ fun App(db: CommCareDatabase) {
 
             // If apps exist in DB but LoginViewModel is still LoggedOut, bridge the gap:
             // load the seated app and transition to NeedsLogin so the app switcher gets data.
+            // Crucially, call configureApp BEFORE the state transition so the login
+            // VM has the app's domain populated by the time the login screen renders.
+            // Without this, a fast tap on Log In races against the LaunchedEffect in
+            // the NeedsLogin branch, and resolveDomain() falls back to "demo" because
+            // currentApp is still null. See #410.
             if (hasApps.value && appState is AppState.LoggedOut) {
                 val seatedApp = appRepository.getSeatedApp()
                 if (seatedApp != null) {
                     val allApps = appRepository.getAllApps()
+                    loginViewModel.configureApp(
+                        serverUrl = "https://www.commcarehq.org",
+                        appId = seatedApp.id,
+                        app = seatedApp
+                    )
                     loginViewModel.setReadyState(AppState.NeedsLogin(seatedApp, allApps))
                 }
             }
