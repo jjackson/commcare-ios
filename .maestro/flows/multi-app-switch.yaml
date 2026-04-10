@@ -1,0 +1,104 @@
+# Phase 9 Wave 6: install a second app + switch between apps.
+#
+# Precondition: Bonsaaso installed + logged in at home screen.
+#
+# Flow:
+#   1. Kill-relaunch to get to login screen (with App Manager visible)
+#   2. Tap App Manager
+#   3. Tap "Install New App"
+#   4. Enter Small App profile URL
+#   5. Install Small App
+#   6. Return to login — Small App should now be active
+#   7. Login → verify Small App's modules are visible
+#   8. Kill-relaunch → login → switch back to Bonsaaso
+#   9. Login → verify Bonsaaso's modules are visible
+
+appId: org.marshellis.commcare.ios
+
+---
+
+# Wait for the login screen to render in NeedsLogin mode (with app header +
+# App Manager). The state bridges from LoggedOut → NeedsLogin during first
+# composition, so the App Manager button may not be immediately visible.
+- extendedWaitUntil:
+    visible:
+      text: ".*App Manager.*"
+    timeout: 15000
+
+- takeScreenshot: /tmp/phase9-wave6-login-with-app-manager
+
+- tapOn:
+    text: ".*App Manager.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave6-app-manager-bonsaaso
+
+# Verify Bonsaaso is listed
+- assertVisible:
+    text: ".*Bonsaaso.*"
+
+# Tap "Install New App" to go to SetupFlow
+- tapOn:
+    text: ".*Install New App.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave6-setup-for-second-app
+
+# Enter Small App profile URL
+- tapOn:
+    id: "enter_code_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    id: "profile_url_field"
+- inputText: ${SECOND_APP_PROFILE_URL}
+
+# Dismiss keyboard
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd: {timeout: 1000}
+
+- tapOn:
+    id: "submit_button"
+- waitForAnimationToEnd: {timeout: 10000}
+
+# Install button should appear
+- extendedWaitUntil:
+    visible:
+      id: "install_button"
+    timeout: 30000
+
+- tapOn:
+    id: "install_button"
+
+# Wait for install to complete — should land on login screen
+- extendedWaitUntil:
+    visible:
+      id: "username_field"
+    timeout: 60000
+
+- takeScreenshot: /tmp/phase9-wave6-post-second-install
+
+# Login with same credentials
+- tapOn:
+    id: "username_field"
+- inputText: ${COMMCARE_MOBILE_USERNAME}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn:
+    id: "password_field"
+- inputText: ${COMMCARE_MOBILE_PASSWORD}
+- tapOn:
+    point: "50%,10%"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn:
+    id: "login_button"
+
+# Should land on home screen with the SECOND app's content
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 30000
+
+- takeScreenshot: /tmp/phase9-wave6-home-second-app
