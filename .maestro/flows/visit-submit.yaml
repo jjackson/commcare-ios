@@ -60,19 +60,27 @@ appId: org.marshellis.commcare.ios
 - waitForAnimationToEnd: {timeout: 3000}
 
 # p05: "family planning type" (MSelect) → cd + iud
+# MSelect taps trigger Compose recomposition which can make the Next
+# button briefly invisible on CMP iOS. Generous waits required.
 - tapOn: "^cd$"
-- waitForAnimationToEnd: {timeout: 1000}
+- waitForAnimationToEnd: {timeout: 2000}
 - tapOn: "^iud$"
+- waitForAnimationToEnd: {timeout: 2000}
+- extendedWaitUntil:
+    visible:
+      id: "form_next_button"
+    timeout: 5000
 - tapOn:
     id: "form_next_button"
-- waitForAnimationToEnd: {timeout: 3000}
+- waitForAnimationToEnd: {timeout: 5000}
 
 # p06: "family planning type" (MSelect, 2nd) → ij
 - extendedWaitUntil:
     visible:
       text: "^ij$"
-    timeout: 5000
+    timeout: 10000
 - tapOn: "^ij$"
+- waitForAnimationToEnd: {timeout: 2000}
 - tapOn:
     id: "form_next_button"
 - waitForAnimationToEnd: {timeout: 3000}
