@@ -372,3 +372,18 @@ DELETE FROM user_key_record WHERE username = ? AND domain = ?;
 
 getAllUserKeyRecords:
 SELECT * FROM user_key_record ORDER BY last_login DESC;
+
+-- Key-value preferences for Connect credentials (keychain fallback).
+-- The iOS keychain SecItemAdd silently fails in some Compose contexts,
+-- so we store credentials here as a fallback. Less secure than keychain
+-- but ensures marketplace access works. See #389.
+CREATE TABLE IF NOT EXISTS app_preferences (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+);
+
+getPreference:
+SELECT value FROM app_preferences WHERE key = ?;
+
+setPreference:
+INSERT OR REPLACE INTO app_preferences(key, value) VALUES (?, ?);

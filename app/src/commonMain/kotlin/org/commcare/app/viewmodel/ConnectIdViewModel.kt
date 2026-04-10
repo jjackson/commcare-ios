@@ -152,14 +152,37 @@ class ConnectIdViewModel(
                             createdUsername = response.username
                             createdPassword = response.password
                             dbKey = response.dbKey
-                            // Store recovered credentials securely — failure blocks registration
+                            // Store recovered credentials — keychain + DB fallback.
+                            // The iOS keychain SecItemAdd silently fails in some
+                            // Compose contexts, so we also persist to the DB.
                             try {
                                 keychainStore.store("connect_username", response.username)
                                 keychainStore.store("connect_password", response.password)
                                 keychainStore.store("connect_db_key", response.dbKey)
+                            } catch (_: Exception) { /* keychain may silently fail */ }
+                            try {
+                                repository.db.commCareQueries.setPreference("connect_username", response.username)
+                                repository.db.commCareQueries.setPreference("connect_password", response.password)
+                                repository.db.commCareQueries.setPreference("connect_db_key", response.dbKey)
                             } catch (e: Exception) {
-                                errorMessage = "Failed to store credentials securely: ${e.message}"
+                                errorMessage = "Failed to store credentials: ${e.message}"
                                 return@launch
+                            }
+                            // Immediately fetch and cache an OAuth token using
+                            // the credentials we just received. This ensures the
+                            // token is available for marketplace API calls without
+                            // relying on a later keychain round-trip (which may
+                            // fail due to iOS keychain timing/access issues on
+                            // simulator). See #389.
+                            try {
+                                val tokenResult = api.getOAuthToken(response.username, response.password)
+                                tokenResult.getOrNull()?.let { tokens ->
+                                    val expiryAt = org.commcare.app.platform.currentEpochSeconds() + tokens.expiresIn - 60L
+                                    keychainStore.store("connect_access_token", tokens.accessToken)
+                                    keychainStore.store("connect_token_expiry", expiryAt.toString())
+                                }
+                            } catch (_: Exception) {
+                                // Non-fatal: token will be refreshed on demand
                             }
                             // Save recovered user record
                             try {
