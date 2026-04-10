@@ -1,0 +1,18 @@
+# Scout the navigation drawer from the home screen.
+# Precondition: app installed, logged in, at home screen.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Tap the hamburger menu
+- tapOn:
+    id: "drawer_menu"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- takeScreenshot: /tmp/phase9-wave7-nav-drawer
