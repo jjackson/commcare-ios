@@ -1,0 +1,48 @@
+# Phase 9 Wave 8: sync from home screen.
+#
+# Precondition: app installed, logged in, at home screen.
+# Tests incremental sync (no new changes should be fast).
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Navigate to Sync screen
+- tapOn:
+    id: "sync_button"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave8-sync-before
+
+# Tap Sync Now
+- tapOn:
+    text: "Sync Now"
+
+# Wait for sync to complete
+- extendedWaitUntil:
+    visible:
+      text: ".*Sync complete.*"
+    timeout: 60000
+
+- takeScreenshot: /tmp/phase9-wave8-sync-after
+
+# Verify sync completed successfully
+- assertVisible: "Sync complete"
+
+# Verify no unsent forms
+- assertVisible: "No unsent forms"
+
+# Go back
+- tapOn:
+    text: "Back"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- assertVisible:
+    id: "start_button"
+
+- takeScreenshot: /tmp/phase9-wave8-home-after-sync
