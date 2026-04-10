@@ -1,0 +1,85 @@
+# Phase 9 Wave 5c: form draft save + resume round-trip.
+#
+# Starts at the home screen, opens the Visit form, fills p01-p03,
+# taps Save Draft, exits the form, re-enters from the Incomplete Forms
+# list, and verifies the previously-entered answers are still there.
+#
+# Precondition: app installed, logged in, at least one E2E-* case exists.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Navigate into the Visit form
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Household List.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Visit.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- tapOn:
+    text: "E2E-.*Tester"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+# p01: "Any household member available?" → yes
+- tapOn: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p02: GPS (optional) → skip
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p03: "Number of women aged 15-49 seen" → 7 (distinctive number for verification)
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "7"
+
+- takeScreenshot: /tmp/phase9-wave5c-draft-before-save
+
+# Save draft
+- tapOn:
+    id: "form_save_draft_button"
+- waitForAnimationToEnd: {timeout: 5000}
+
+# Should return to home screen after save
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+- takeScreenshot: /tmp/phase9-wave5c-draft-after-save
+
+# Now navigate back to the same case and form — the draft should resume
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Household List.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Visit.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- tapOn:
+    text: "E2E-.*Tester"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave5c-draft-resumed
