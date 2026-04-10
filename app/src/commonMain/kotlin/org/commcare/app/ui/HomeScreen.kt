@@ -39,6 +39,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed
 import org.commcare.app.state.AppState
 import org.commcare.app.storage.AppRecordRepository
 import org.commcare.app.storage.CommCareDatabase
+import org.commcare.app.storage.ConnectIdRepository
 import org.commcare.app.viewmodel.CaseItem
 import org.commcare.app.viewmodel.CaseListViewModel
 import org.commcare.app.viewmodel.CaseSearchViewModel
@@ -116,7 +117,8 @@ fun HomeScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val appRepository = remember { AppRecordRepository(db) }
-    val drawerViewModel = remember { DrawerViewModel(appRepository) }
+    val connectIdRepo = remember { ConnectIdRepository(db) }
+    val drawerViewModel = remember { DrawerViewModel(appRepository, connectIdRepo) }
 
     LaunchedEffect(Unit) { drawerViewModel.refresh() }
 

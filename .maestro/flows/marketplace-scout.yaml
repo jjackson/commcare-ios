@@ -1,0 +1,25 @@
+# Wave 7: scout the Connect marketplace from the nav drawer.
+# Precondition: app installed, logged in, Connect ID signed in.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+# Open nav drawer
+- tapOn:
+    id: "drawer_menu"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# Tap Opportunities
+- tapOn:
+    text: "Opportunities"
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave7-opportunities-list
+
+# Tap Messaging (back first, then nav drawer again)

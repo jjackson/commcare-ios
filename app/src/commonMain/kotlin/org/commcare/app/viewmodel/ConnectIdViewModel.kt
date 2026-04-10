@@ -168,7 +168,7 @@ class ConnectIdViewModel(
                                     name = fullName,
                                     phone = "${countryCode}${phoneNumber}",
                                     photoPath = null,
-                                    hasConnectAccess = false,
+                                    hasConnectAccess = true,
                                     securityMethod = securityMethod
                                 )
                                 repository.saveUser(user)
