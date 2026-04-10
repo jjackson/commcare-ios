@@ -11,12 +11,6 @@ import kotlin.test.assertTrue
 class MessagingPollingTest {
 
     @Test
-    fun testPollingIntervalIs30Seconds() {
-        val pollingIntervalMs = 30_000L
-        assertEquals(30_000L, pollingIntervalMs)
-    }
-
-    @Test
     fun testMessageThreadModel() {
         val thread = MessageThread(
             id = "thread-1",
@@ -43,14 +37,4 @@ class MessagingPollingTest {
         assertEquals(false, thread.isConsented)
     }
 
-    @Test
-    fun testUnreadCountTracking() {
-        val threads = listOf(
-            MessageThread("t1", "A", "msg1", "date", 2),
-            MessageThread("t2", "B", "msg2", "date", 0),
-            MessageThread("t3", "C", "msg3", "date", 5)
-        )
-        val totalUnread = threads.sumOf { it.unreadCount }
-        assertEquals(7, totalUnread)
-    }
 }
