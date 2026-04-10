@@ -1,0 +1,142 @@
+# Phase 9 Wave 5b: fill Visit form (short path) + submit to HQ.
+#
+# Starts at the home screen (post-install + login). Takes the SHORT path
+# through the Visit form by declining optional branches, fills all required
+# fields, submits, and verifies via Sync screen.
+#
+# Precondition: at least one household case "E2E-* Tester" must exist.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 15000
+
+- tapOn:
+    id: "start_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Household List.*"
+- waitForAnimationToEnd: {timeout: 3000}
+
+- tapOn:
+    text: ".*Visit.*"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- tapOn:
+    text: "E2E-.*Tester"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+# p01: "Any household member available?" → yes
+- tapOn: "yes"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p02: GPS (optional) → skip
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p03: "Number of women aged 15-49 seen" → 3
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "3"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p04: "Number of these women currently using modern family planning" → 2
+- tapOn:
+    id: "form_answer_integer"
+- inputText: "2"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p05: "family planning type" (MSelect) → cd + iud
+- tapOn: "^cd$"
+- waitForAnimationToEnd: {timeout: 1000}
+- tapOn: "^iud$"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p06: "family planning type" (MSelect, 2nd) → ij
+- extendedWaitUntil:
+    visible:
+      text: "^ij$"
+    timeout: 5000
+- tapOn: "^ij$"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p07: "Are there any 'other' sick household members?" → no
+# (with no=decline, this skips RDT + medication pages)
+- tapOn: "no"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p08: "Enter Health Insurance Number" (optional) → skip
+- takeScreenshot: /tmp/phase9-wave5b-p08
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p09: "We recommend that you assess the household's malaria prevention
+#       situation. Do you want to do this now?" → no
+- takeScreenshot: /tmp/phase9-wave5b-p09
+- tapOn: "no"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p10: "We recommend that you assess the household's water and sanitation
+#       situation. Do you want to do this now?" → no
+# (OR the form might skip this if malaria=no collapses the whole branch)
+- takeScreenshot: /tmp/phase9-wave5b-p10
+- tapOn: "no"
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# p11: "Which counseling topics do you want to cover?" — MSelect (appears optional)
+- takeScreenshot: /tmp/phase9-wave5b-p11
+- tapOn:
+    id: "form_next_button"
+- waitForAnimationToEnd: {timeout: 3000}
+
+# Form Complete — submit
+- extendedWaitUntil:
+    visible:
+      id: "form_complete_label"
+    timeout: 10000
+
+- takeScreenshot: /tmp/phase9-wave5b-form-complete
+
+- tapOn:
+    id: "form_submit_button"
+
+# Back at home — submission succeeded
+- extendedWaitUntil:
+    visible:
+      id: "start_button"
+    timeout: 60000
+
+- takeScreenshot: /tmp/phase9-wave5b-back-at-home
+
+# Visit Sync screen to verify no unsent forms
+- tapOn:
+    id: "sync_button"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave5b-sync-screen
+
+- assertVisible: "No unsent forms"
