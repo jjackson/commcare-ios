@@ -26,7 +26,7 @@ import platform.Security.SecItemCopyMatching
 import platform.Security.SecItemDelete
 import platform.Security.errSecSuccess
 import platform.Security.kSecAttrAccessible
-import platform.Security.kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+import platform.Security.kSecAttrAccessibleAfterFirstUnlock
 import platform.Security.kSecAttrAccount
 import platform.Security.kSecAttrService
 import platform.Security.kSecClass
@@ -41,23 +41,17 @@ private const val SERVICE_NAME = "org.commcare.ios"
 /**
  * iOS implementation of PlatformKeychainStore.
  *
- * ## Bridging dance (see issue #385)
+ * Uses NSMutableDictionary + CFBridgingRetain for all Security framework
+ * calls. The previous dual-path approach (mapOf-cast vs NSMutableDictionary)
+ * caused silent failures: store() would take one path while retrieve() took
+ * another, and the K/N bridge differences between the two paths meant items
+ * stored via one path were invisible to the other.
  *
- * K/N interop between `Map<Any?, Any?>` and `CFDictionaryRef` behaves
- * differently across runtime contexts:
+ * This version uses a single consistent path (NSMutableDictionary) and
+ * kSecAttrAccessibleAfterFirstUnlock (less restrictive than
+ * WhenUnlockedThisDeviceOnly, works reliably on simulator).
  *
- * - **Standalone test context** (`xcrun simctl spawn --standalone`):
- *   `mapOf(...) as CFDictionaryRef` works via implicit bridging.
- * - **App context** (Compose onClick handler): the same cast throws
- *   `ClassCastException: HashMap cannot be cast to CPointer`.
- *
- * And the `NSMutableDictionary + CFBridgingRetain + reinterpret` path
- * works in the app context but causes `SecItemAdd` to return
- * `errSecParam (-50)` in the standalone test context.
- *
- * Dual-path solution: try `mapOf` first; if `ClassCastException` is
- * thrown, fall back to `NSMutableDictionary`. Each runtime context
- * takes the path that works there.
+ * See #389 for the original failure investigation.
  */
 actual class PlatformKeychainStore actual constructor() {
 
@@ -67,57 +61,33 @@ actual class PlatformKeychainStore actual constructor() {
         val valueData = NSString.create(string = value)
             .dataUsingEncoding(NSUTF8StringEncoding) ?: return
 
-        val status = try {
-            val query = mapOf<Any?, Any?>(
-                kSecClass to kSecClassGenericPassword,
-                kSecAttrService to SERVICE_NAME,
-                kSecAttrAccount to key,
-                kSecValueData to valueData,
-                kSecAttrAccessible to kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-            )
-
-            @Suppress("UNCHECKED_CAST")
-            SecItemAdd(query as CFDictionaryRef, null)
-        } catch (_: ClassCastException) {
-            val dict = buildNSMutableDictionary {
-                setObj(kSecClassGenericPassword, kSecClass)
-                setObj(SERVICE_NAME, kSecAttrService)
-                setObj(key, kSecAttrAccount)
-                setObj(valueData, kSecValueData)
-                setObj(kSecAttrAccessibleWhenUnlockedThisDeviceOnly, kSecAttrAccessible)
-            }
-            withCFDictionary(dict) { cfDict -> SecItemAdd(cfDict, null) }
+        val dict = NSMutableDictionary().apply {
+            setObj(kSecClassGenericPassword, kSecClass)
+            setObj(SERVICE_NAME, kSecAttrService)
+            setObj(key, kSecAttrAccount)
+            setObj(valueData, kSecValueData)
+            setObj(kSecAttrAccessibleAfterFirstUnlock, kSecAttrAccessible)
         }
+        val status = withCFDictionary(dict) { cfDict -> SecItemAdd(cfDict, null) }
         if (status != errSecSuccess) {
-            println("[Keychain] store($key) failed with OSStatus=$status")
+            // Log for debugging — println goes to Xcode console on real device
+            println("[Keychain] store($key) failed: OSStatus=$status")
         }
     }
 
     actual fun retrieve(key: String): String? {
         return memScoped {
             val result = alloc<CFTypeRefVar>()
-            val status = try {
-                val query = mapOf<Any?, Any?>(
-                    kSecClass to kSecClassGenericPassword,
-                    kSecAttrService to SERVICE_NAME,
-                    kSecAttrAccount to key,
-                    kSecReturnData to true,
-                    kSecMatchLimit to kSecMatchLimitOne
-                )
 
-                @Suppress("UNCHECKED_CAST")
-                SecItemCopyMatching(query as CFDictionaryRef, result.ptr)
-            } catch (_: ClassCastException) {
-                val dict = buildNSMutableDictionary {
-                    setObj(kSecClassGenericPassword, kSecClass)
-                    setObj(SERVICE_NAME, kSecAttrService)
-                    setObj(key, kSecAttrAccount)
-                    setObj(NSNumber(bool = true), kSecReturnData)
-                    setObj(kSecMatchLimitOne, kSecMatchLimit)
-                }
-                withCFDictionary(dict) { cfDict ->
-                    SecItemCopyMatching(cfDict, result.ptr)
-                }
+            val dict = NSMutableDictionary().apply {
+                setObj(kSecClassGenericPassword, kSecClass)
+                setObj(SERVICE_NAME, kSecAttrService)
+                setObj(key, kSecAttrAccount)
+                setObj(NSNumber(bool = true), kSecReturnData)
+                setObj(kSecMatchLimitOne, kSecMatchLimit)
+            }
+            val status = withCFDictionary(dict) { cfDict ->
+                SecItemCopyMatching(cfDict, result.ptr)
             }
 
             if (status != errSecSuccess) {
@@ -130,30 +100,15 @@ actual class PlatformKeychainStore actual constructor() {
     }
 
     actual fun delete(key: String) {
-        try {
-            val query = mapOf<Any?, Any?>(
-                kSecClass to kSecClassGenericPassword,
-                kSecAttrService to SERVICE_NAME,
-                kSecAttrAccount to key
-            )
-
-            @Suppress("UNCHECKED_CAST")
-            SecItemDelete(query as CFDictionaryRef)
-        } catch (_: ClassCastException) {
-            val dict = buildNSMutableDictionary {
-                setObj(kSecClassGenericPassword, kSecClass)
-                setObj(SERVICE_NAME, kSecAttrService)
-                setObj(key, kSecAttrAccount)
-            }
-            withCFDictionary(dict) { cfDict -> SecItemDelete(cfDict) }
+        val dict = NSMutableDictionary().apply {
+            setObj(kSecClassGenericPassword, kSecClass)
+            setObj(SERVICE_NAME, kSecAttrService)
+            setObj(key, kSecAttrAccount)
         }
+        withCFDictionary(dict) { cfDict -> SecItemDelete(cfDict) }
     }
 
     // ----- helpers -----
-
-    private inline fun buildNSMutableDictionary(
-        block: NSMutableDictionary.() -> Unit,
-    ): NSMutableDictionary = NSMutableDictionary().apply(block)
 
     @Suppress("UNCHECKED_CAST")
     private fun NSMutableDictionary.setObj(value: Any?, key: Any?) {
