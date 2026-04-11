@@ -85,6 +85,8 @@ fun HomeScreen(
     db: CommCareDatabase,
     onConnectOpportunities: (() -> Unit)? = null,
     onConnectMessaging: (() -> Unit)? = null,
+    onConnectIdSignIn: (() -> Unit)? = null,
+    onConnectIdSignOut: (() -> Unit)? = null,
     keyRecordManager: UserKeyRecordManager? = null
 ) {
     var nav by remember { mutableStateOf<HomeNav>(HomeNav.Landing) }
@@ -180,7 +182,15 @@ fun HomeScreen(
                         onConnectMessaging?.invoke()
                     },
                     onAbout = { /* placeholder */ },
-                    onConnectIdAction = { /* placeholder */ },
+                    onConnectIdAction = {
+                        scope.launch { drawerState.close() }
+                        if (drawerViewModel.hasConnectAccess) {
+                            onConnectIdSignOut?.invoke()
+                            drawerViewModel.refresh()
+                        } else {
+                            onConnectIdSignIn?.invoke()
+                        }
+                    },
                     onClose = { scope.launch { drawerState.close() } }
                 )
             }
