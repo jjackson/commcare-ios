@@ -58,6 +58,9 @@ class MessagingViewModel(
         private set
     var hasConsented by mutableStateOf(false)
         private set
+    /** Available messaging channels from the server (empty before consent). */
+    var availableChannels by mutableStateOf<List<ConnectMarketplaceApi.MessagingChannel>>(emptyList())
+        private set
     var messageText by mutableStateOf("")
     var unreadCount by mutableStateOf(0)
         private set
@@ -93,11 +96,16 @@ class MessagingViewModel(
                 }
                 val result = api.getMessages(token)
                 result.fold(
-                    onSuccess = { list ->
+                    onSuccess = { response ->
                         platformSynchronized(threadsLock) {
-                            threads = list
+                            threads = response.threads
                         }
-                        unreadCount = list.sumOf { it.unreadCount }
+                        availableChannels = response.channels
+                        unreadCount = response.threads.sumOf { it.unreadCount }
+                        // If threads exist, user has already consented
+                        if (response.threads.isNotEmpty()) {
+                            hasConsented = true
+                        }
                     },
                     onFailure = { errorMessage = "Failed to load messages: ${it.message}" }
                 )
@@ -245,18 +253,29 @@ class MessagingViewModel(
                     isConsentLoading = false
                     return@launch
                 }
-                val result = api.updateConsent(token)
-                result.fold(
-                    onSuccess = {
-                        hasConsented = true
-                        isConsentLoading = false
-                        loadThreads()
-                    },
-                    onFailure = {
-                        errorMessage = "Failed to enable messaging: ${it.message}"
-                        isConsentLoading = false
+                // Consent to each available channel. If no channels are
+                // available, the server hasn't configured messaging for
+                // the user's opportunities yet.
+                if (availableChannels.isEmpty()) {
+                    errorMessage = "No messaging channels available. Your opportunities may not have messaging enabled."
+                    isConsentLoading = false
+                    return@launch
+                }
+                var allSucceeded = true
+                for (channel in availableChannels) {
+                    val result = api.updateConsent(token, channel.id)
+                    result.onFailure {
+                        allSucceeded = false
+                        errorMessage = "Failed to enable messaging for ${channel.name}: ${it.message}"
                     }
-                )
+                }
+                if (allSucceeded) {
+                    hasConsented = true
+                    isConsentLoading = false
+                    loadThreads()
+                } else {
+                    isConsentLoading = false
+                }
             } catch (e: Exception) {
                 errorMessage = "Consent error: ${e::class.simpleName}: ${e.message}"
                 isConsentLoading = false

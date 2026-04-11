@@ -269,16 +269,11 @@ class ConnectMarketplaceApi(
      * POST /messaging/update_consent/
      * Authorization: Bearer <access_token>
      */
-    fun updateConsent(accessToken: String): Result<Unit> {
-        // TODO(#389): The update_consent endpoint requires "channel" and
-        // "consent" fields, but the channel comes from an assigned
-        // opportunity. Without opportunities, there's no channel to
-        // consent to. The empty body triggers a 400 from the server.
-        // Android CommCare may use a different consent flow or endpoint.
+    fun updateConsent(accessToken: String, channelId: String): Result<Unit> {
         return executeAuthenticatedPost(
             "$messagingBaseUrl/messaging/update_consent/",
             accessToken,
-            body = """{"consent": true}"""
+            body = """{"channel": "${escapeJson(channelId)}", "consent": true}"""
         )
     }
 
@@ -299,7 +294,21 @@ class ConnectMarketplaceApi(
      * GET /messaging/retrieve_messages/
      * Authorization: Bearer <access_token>
      */
-    fun getMessages(accessToken: String): Result<List<MessageThread>> {
+    /**
+     * Response from /messaging/retrieve_messages/ containing available
+     * channels and message threads.
+     */
+    data class MessagingResponse(
+        val channels: List<MessagingChannel>,
+        val threads: List<MessageThread>
+    )
+
+    data class MessagingChannel(
+        val id: String,
+        val name: String
+    )
+
+    fun getMessages(accessToken: String): Result<MessagingResponse> {
         return try {
             val response = httpClient.execute(
                 HttpRequest(
@@ -319,17 +328,32 @@ class ConnectMarketplaceApi(
             val json = response.body?.decodeToString()
                 ?: return Result.failure(ConnectMarketplaceException("Empty response"))
 
-            val objects = splitJsonArray(json)
-            val threads = objects.map { obj ->
-                MessageThread(
-                    id = extractJsonString(obj, "id") ?: "",
-                    participantName = extractJsonString(obj, "participant_name") ?: "",
-                    lastMessage = extractJsonString(obj, "last_message") ?: "",
-                    lastMessageDate = extractJsonString(obj, "last_message_date") ?: "",
-                    unreadCount = extractJsonInt(obj, "unread_count") ?: 0
-                )
-            }
-            Result.success(threads)
+            // Response is {"channels": [...], "messages": [...]}
+            val channelsRaw = extractJsonArrayRaw(json, "channels")
+            val messagesRaw = extractJsonArrayRaw(json, "messages")
+
+            val channels = if (channelsRaw != null) {
+                splitJsonArray(channelsRaw).map { obj ->
+                    MessagingChannel(
+                        id = extractJsonString(obj, "id") ?: "",
+                        name = extractJsonString(obj, "name") ?: ""
+                    )
+                }
+            } else emptyList()
+
+            val threads = if (messagesRaw != null) {
+                splitJsonArray(messagesRaw).map { obj ->
+                    MessageThread(
+                        id = extractJsonString(obj, "id") ?: "",
+                        participantName = extractJsonString(obj, "participant_name") ?: "",
+                        lastMessage = extractJsonString(obj, "last_message") ?: "",
+                        lastMessageDate = extractJsonString(obj, "last_message_date") ?: "",
+                        unreadCount = extractJsonInt(obj, "unread_count") ?: 0
+                    )
+                }
+            } else emptyList()
+
+            Result.success(MessagingResponse(channels, threads))
         } catch (e: Exception) {
             Result.failure(ConnectMarketplaceException("Get messages request failed: ${e.message}", e))
         }
@@ -941,6 +965,29 @@ class ConnectMarketplaceApi(
             if (closeQuote >= json.length) return null
 
             return json.substring(openQuote + 1, closeQuote)
+        }
+        return null
+    }
+
+    /**
+     * Extract a raw JSON array (as a String) for a given key.
+     * Returns the "[...]" substring including brackets, or null if not found.
+     */
+    private fun extractJsonArrayRaw(json: String, key: String): String? {
+        val searchKey = "\"$key\""
+        val keyIdx = json.indexOf(searchKey)
+        if (keyIdx == -1) return null
+        val colonIdx = json.indexOf(':', keyIdx + searchKey.length)
+        if (colonIdx == -1) return null
+        var start = colonIdx + 1
+        while (start < json.length && json[start].isWhitespace()) start++
+        if (start >= json.length || json[start] != '[') return null
+        var depth = 0
+        for (i in start until json.length) {
+            when (json[i]) {
+                '[' -> depth++
+                ']' -> { depth--; if (depth == 0) return json.substring(start, i + 1) }
+            }
         }
         return null
     }
