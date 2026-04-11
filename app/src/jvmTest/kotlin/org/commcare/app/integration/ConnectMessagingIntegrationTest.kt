@@ -42,7 +42,7 @@ class ConnectMessagingIntegrationTest {
     @Test
     fun testUpdateConsentSucceeds() {
         val token = ConnectTestConfig.connectAccessToken
-        val result = api.updateConsent(token)
+        val result = api.updateConsent(token, "test-channel")
         assertTrue(
             result.isSuccess,
             "updateConsent should succeed: ${result.exceptionOrNull()}"

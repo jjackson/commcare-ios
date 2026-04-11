@@ -174,7 +174,7 @@ class ConnectApiRequestTest {
         val client = RecordingHttpClient()
         val api = ConnectMarketplaceApi(client)
 
-        api.updateConsent("consent-tok")
+        api.updateConsent("consent-tok", "channel-xyz")
 
         val req = client.lastRequest
         assertNotNull(req)
@@ -287,29 +287,39 @@ class ConnectApiRequestTest {
 
     @Test
     fun testMessageThreadParsing() {
-        val json = """[
-            {
-                "id": "thread-001",
-                "participant_name": "Alice",
-                "last_message": "See you tomorrow",
-                "last_message_date": "2026-03-24T10:30:00Z",
-                "unread_count": 3
-            },
-            {
-                "id": "thread-002",
-                "participant_name": "Bob",
-                "last_message": "Thanks!",
-                "last_message_date": "2026-03-23T08:15:00Z",
-                "unread_count": 0
-            }
-        ]"""
+        val json = """{
+            "channels": [
+                {"id": "chan-1", "name": "General"}
+            ],
+            "messages": [
+                {
+                    "id": "thread-001",
+                    "participant_name": "Alice",
+                    "last_message": "See you tomorrow",
+                    "last_message_date": "2026-03-24T10:30:00Z",
+                    "unread_count": 3
+                },
+                {
+                    "id": "thread-002",
+                    "participant_name": "Bob",
+                    "last_message": "Thanks!",
+                    "last_message_date": "2026-03-23T08:15:00Z",
+                    "unread_count": 0
+                }
+            ]
+        }"""
 
         val client = RecordingHttpClient(defaultBody = json)
         val api = ConnectMarketplaceApi(client)
 
         val result = api.getMessages("tok")
         assertTrue(result.isSuccess)
-        val threads = result.getOrThrow()
+        val response = result.getOrThrow()
+        assertEquals(1, response.channels.size)
+        assertEquals("chan-1", response.channels[0].id)
+        assertEquals("General", response.channels[0].name)
+
+        val threads = response.threads
         assertEquals(2, threads.size)
 
         assertEquals("thread-001", threads[0].id)

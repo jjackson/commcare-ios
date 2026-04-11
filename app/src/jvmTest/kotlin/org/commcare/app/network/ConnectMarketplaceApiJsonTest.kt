@@ -403,33 +403,38 @@ class ConnectMarketplaceApiJsonTest {
     // =====================================================================
 
     @Test
-    fun testGetMessages_parsesThreads() {
-        val json = """[
+    fun testGetMessages_parsesThreadsAndChannels() {
+        val json = """{"channels": [
+            {"id": "ch1", "name": "Demo Channel"}
+        ], "messages": [
             {"id": "t1", "participant_name": "Alice", "last_message": "Hello", "last_message_date": "2026-03-10", "unread_count": 2},
             {"id": "t2", "participant_name": "Bob", "last_message": "Hi there", "last_message_date": "2026-03-09", "unread_count": 0}
-        ]"""
+        ]}"""
         val client = MockHttpClient(responseBody = json)
         val api = ConnectMarketplaceApi(client)
 
         val result = api.getMessages("access-token")
         assertTrue(result.isSuccess)
-        val threads = result.getOrThrow()
-        assertEquals(2, threads.size)
-        assertEquals("t1", threads[0].id)
-        assertEquals("Alice", threads[0].participantName)
-        assertEquals(2, threads[0].unreadCount)
-        assertEquals("Bob", threads[1].participantName)
-        assertEquals(0, threads[1].unreadCount)
+        val response = result.getOrThrow()
+        assertEquals(1, response.channels.size)
+        assertEquals("ch1", response.channels[0].id)
+        assertEquals(2, response.threads.size)
+        assertEquals("t1", response.threads[0].id)
+        assertEquals("Alice", response.threads[0].participantName)
+        assertEquals(2, response.threads[0].unreadCount)
+        assertEquals("Bob", response.threads[1].participantName)
+        assertEquals(0, response.threads[1].unreadCount)
     }
 
     @Test
-    fun testGetMessages_emptyList() {
-        val client = MockHttpClient(responseBody = "[]")
+    fun testGetMessages_emptyResponse() {
+        val client = MockHttpClient(responseBody = """{"channels": [], "messages": []}""")
         val api = ConnectMarketplaceApi(client)
 
         val result = api.getMessages("access-token")
         assertTrue(result.isSuccess)
-        assertEquals(0, result.getOrThrow().size)
+        assertEquals(0, result.getOrThrow().threads.size)
+        assertEquals(0, result.getOrThrow().channels.size)
     }
 
     // =====================================================================
