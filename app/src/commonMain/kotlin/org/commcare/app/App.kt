@@ -263,6 +263,18 @@ fun App(db: CommCareDatabase) {
                             connectInitialTab = "messaging"
                             showOpportunities = true
                         },
+                        onConnectIdSignIn = {
+                            showPersonalIdRegistration = true
+                        },
+                        onConnectIdSignOut = {
+                            deps.connectIdRepository.deleteUser()
+                            deps.keychainStore.delete("connect_username")
+                            deps.keychainStore.delete("connect_password")
+                            deps.keychainStore.delete("connect_access_token")
+                            deps.keychainStore.delete("connect_token_expiry")
+                            deps.keychainStore.delete("connect_db_key")
+                            connectIdRegistered = false
+                        },
                         keyRecordManager = deps.keyRecordManager
                     )
                     is AppState.AppCorrupted -> InstallErrorScreen(
