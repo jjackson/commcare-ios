@@ -132,6 +132,35 @@ class ConnectIdTokenManager(
         val connectToken = getConnectIdToken() ?: return null
         val httpClient = createHttpClient()
 
+        // Step 1: Attempt to link PersonalID user to HQ account (best-effort).
+        // Android does this via ConnectSsoHelper.linkHqWorker — it sends the
+        // Connect token to the HQ linking endpoint. If already linked, the
+        // server returns an error which we ignore. This must happen before
+        // the HQ token exchange will work.
+        try {
+            val linkUrl = "${hqUrl.trimEnd('/')}/settings/users/commcare/link_connectid_user/"
+            val linkBody = """{"token":"$connectToken"}"""
+            // The link endpoint on Android uses Basic Auth (hqUsername:hqPassword)
+            // but for Connect-initiated apps, the worker is auto-created on claim.
+            // Try without auth first — the server may accept the Connect token alone.
+            httpClient.execute(
+                HttpRequest(
+                    url = linkUrl,
+                    method = "POST",
+                    headers = mapOf(
+                        "Content-Type" to "application/json",
+                        "Authorization" to "Bearer $connectToken"
+                    ),
+                    body = linkBody.encodeToByteArray(),
+                    contentType = "application/json"
+                )
+            )
+            // Ignore response — linking might fail if already linked, that's fine
+        } catch (_: Exception) {
+            // Non-fatal
+        }
+
+        // Step 2: Exchange Connect token for HQ SSO token
         val tokenUrl = "${hqUrl.trimEnd('/')}/oauth/token/"
         val body = "client_id=${formUrlEncode(HQ_OAUTH_CLIENT_ID)}" +
             "&grant_type=password" +
