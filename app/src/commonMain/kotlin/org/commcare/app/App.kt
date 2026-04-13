@@ -213,9 +213,32 @@ fun App(db: CommCareDatabase) {
                                     errorMessage = loginViewModel.pinError,
                                     isLoading = loginViewModel.appState is AppState.LoggingIn
                                 )
-                                // Trigger biometric on first composition only
+                                // Trigger system biometric prompt on first composition.
+                                // On success, auto-login with the stored encrypted password.
+                                // On failure/cancel, the PIN screen is already showing as fallback.
+                                val biometricAuth = remember { org.commcare.app.platform.PlatformBiometricAuth() }
                                 LaunchedEffect(Unit) {
-                                    loginViewModel.loginWithBiometric()
+                                    if (biometricAuth.canAuthenticate()) {
+                                        biometricAuth.authenticate("Unlock CommCare") { result ->
+                                            when (result) {
+                                                org.commcare.app.platform.BiometricResult.Success -> {
+                                                    loginViewModel.loginWithBiometric()
+                                                }
+                                                org.commcare.app.platform.BiometricResult.Cancelled -> {
+                                                    // User cancelled — PIN screen already visible
+                                                }
+                                                is org.commcare.app.platform.BiometricResult.Failure -> {
+                                                    loginViewModel.pinError = "Biometric failed: ${result.message}"
+                                                }
+                                                org.commcare.app.platform.BiometricResult.Unavailable -> {
+                                                    loginViewModel.forgotPin() // fall back to password
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // Biometric not available — use stored password directly
+                                        loginViewModel.loginWithBiometric()
+                                    }
                                 }
                             }
                             UserKeyRecordManager.LoginMode.PASSWORD -> {
@@ -252,7 +275,40 @@ fun App(db: CommCareDatabase) {
                     is AppState.InstallError -> InstallErrorScreen(appState) {
                         loginViewModel.resetError()
                     }
-                    is AppState.Ready -> HomeScreen(
+                    is AppState.Ready -> {
+                        // Biometric enrollment offer after first password login
+                        if (loginViewModel.showBiometricEnrollment) {
+                            androidx.compose.material3.AlertDialog(
+                                onDismissRequest = { loginViewModel.showBiometricEnrollment = false },
+                                title = { androidx.compose.material3.Text("Enable Face ID?") },
+                                text = {
+                                    androidx.compose.material3.Text(
+                                        "Would you like to use Face ID to log in faster next time?"
+                                    )
+                                },
+                                confirmButton = {
+                                    androidx.compose.material3.TextButton(
+                                        onClick = {
+                                            // Biometric is already primed by primeQuickLogin —
+                                            // the encrypted password is stored. Just dismiss.
+                                            loginViewModel.showBiometricEnrollment = false
+                                        }
+                                    ) {
+                                        androidx.compose.material3.Text("Enable")
+                                    }
+                                },
+                                dismissButton = {
+                                    androidx.compose.material3.TextButton(
+                                        onClick = {
+                                            loginViewModel.showBiometricEnrollment = false
+                                        }
+                                    ) {
+                                        androidx.compose.material3.Text("Not Now")
+                                    }
+                                }
+                            )
+                        }
+                        HomeScreen(
                         state = appState,
                         db = db,
                         onConnectOpportunities = {
@@ -277,6 +333,7 @@ fun App(db: CommCareDatabase) {
                         },
                         keyRecordManager = deps.keyRecordManager
                     )
+                    }
                     is AppState.AppCorrupted -> InstallErrorScreen(
                         AppState.InstallError("App corrupted: ${appState.message}")
                     ) { loginViewModel.resetError() }

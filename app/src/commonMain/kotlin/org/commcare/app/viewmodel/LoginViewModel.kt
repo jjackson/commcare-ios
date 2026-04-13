@@ -41,7 +41,10 @@ class LoginViewModel(private val db: CommCareDatabase) {
 
     /** Error message for PIN entry */
     var pinError by mutableStateOf<String?>(null)
-        private set
+
+    /** Set to true after first successful password login if biometric is available
+     *  but not yet enrolled — triggers the enrollment offer dialog. */
+    var showBiometricEnrollment by mutableStateOf(false)
 
     /** Key record manager -- set via [setKeyRecordManager] from App.kt */
     private var keyRecordManager: UserKeyRecordManager? = null
@@ -244,6 +247,20 @@ class LoginViewModel(private val db: CommCareDatabase) {
         try {
             keyRecordManager?.primeForQuickLogin(username, domain, password)
             keyRecordManager?.updateLastLogin(username, domain)
+            // After first successful password login, check if biometric is
+            // available and offer enrollment. Only offer if:
+            // 1. Currently in PASSWORD mode (not already using PIN/biometric)
+            // 2. No PIN is set yet (first-time login on this device)
+            // 3. Biometric hardware is available
+            if (loginMode == LoginMode.PASSWORD) {
+                val manager = keyRecordManager
+                if (manager != null && !manager.hasPinSet(username, domain)) {
+                    val biometric = org.commcare.app.platform.PlatformBiometricAuth()
+                    if (biometric.canAuthenticate()) {
+                        showBiometricEnrollment = true
+                    }
+                }
+            }
         } catch (_: Exception) {
             // Non-fatal — quick login features just won't be available
         }
