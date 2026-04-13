@@ -1,0 +1,16 @@
+# Wave 7: check Payment tab on claimed opportunity.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "Payment"
+    timeout: 10000
+
+- tapOn:
+    text: "Payment"
+- waitForAnimationToEnd: {timeout: 5000}
+
+- takeScreenshot: /tmp/phase9-wave7-payment-tab
