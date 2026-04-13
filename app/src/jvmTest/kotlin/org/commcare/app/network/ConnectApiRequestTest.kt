@@ -100,12 +100,12 @@ class ConnectApiRequestTest {
         val client = RecordingHttpClient()
         val api = ConnectMarketplaceApi(client)
 
-        api.claimOpportunity("my-token", 42)
+        api.claimOpportunity("my-token", "opp-uuid-42")
 
         val req = client.lastRequest
         assertNotNull(req)
-        assertTrue(req.url.contains("/api/opportunity/42/claim"),
-            "URL should contain /api/opportunity/42/claim, got: ${req.url}")
+        assertTrue(req.url.contains("/api/opportunity/opp-uuid-42/claim"),
+            "URL should contain /api/opportunity/opp-uuid-42/claim, got: ${req.url}")
         assertEquals("POST", req.method, "claimOpportunity should use POST")
         assertEquals("Bearer my-token", req.headers["Authorization"])
     }
@@ -366,7 +366,7 @@ class ConnectApiRequestTest {
         )
         val api = ConnectMarketplaceApi(client)
 
-        val result = api.claimOpportunity("tok", 1)
+        val result = api.claimOpportunity("tok", "opp-uuid-1")
         assertTrue(result.isFailure, "500 on claim should result in failure")
     }
 

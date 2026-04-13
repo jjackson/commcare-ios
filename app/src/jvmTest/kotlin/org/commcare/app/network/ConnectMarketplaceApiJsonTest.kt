@@ -603,9 +603,9 @@ class ConnectMarketplaceApiJsonTest {
         val client = MockHttpClient(responseCode = 201, responseBody = "{}")
         val api = ConnectMarketplaceApi(client)
 
-        val result = api.claimOpportunity("access-token", 42)
+        val result = api.claimOpportunity("access-token", "opp-uuid-42")
         assertTrue(result.isSuccess)
-        assertTrue(client.lastRequest!!.url.endsWith("/api/opportunity/42/claim"))
+        assertTrue(client.lastRequest!!.url.endsWith("/api/opportunity/opp-uuid-42/claim"))
         assertEquals("Bearer access-token", client.lastRequest!!.headers["Authorization"])
     }
 
@@ -632,7 +632,8 @@ class ConnectMarketplaceApiJsonTest {
 
         api.startLearnApp("access-token", "opp-uuid-123")
         val body = client.lastRequest!!.body!!.decodeToString()
-        assertTrue(body.contains("\"opportunity\""), "Body should use 'opportunity' key, got: $body")
+        // Body is now form-encoded per Android server expectation
+        assertTrue(body.contains("opportunity="), "Body should contain 'opportunity=' form key, got: $body")
         assertTrue(body.contains("opp-uuid-123"))
     }
 
