@@ -53,6 +53,12 @@ class ConnectIdTokenManager(
         if (cached != null && currentEpochSeconds() < expiry) {
             return cached
         }
+        // The ROPC password from recovery is single-use — the server invalidates
+        // it after the first token exchange. Trying to refresh with stored
+        // credentials will always fail with "invalid_grant". If the cached token
+        // has expired, return null (user needs to re-authenticate).
+        // Still try the refresh in case the password IS valid (e.g., from
+        // registration which may issue a persistent password).
         return refreshConnectIdToken()
     }
 
