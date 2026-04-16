@@ -38,6 +38,13 @@ class MenuViewModel(
         try {
             navigationState = NavigationState.Menu
             errorMessage = null
+            // Reset title when returning to root so stale submenu titles
+            // don't persist and confuse navigation (e.g., root showing
+            // "Surveys" instead of "CommCare" after form submission).
+            if (menuId == null) {
+                title = "CommCare"
+                breadcrumbs = listOf(BreadcrumbSegment("Home"))
+            }
             loadMenuItems(menuId)
         } catch (e: Exception) {
             errorMessage = "Failed to load menus: ${e.message}"

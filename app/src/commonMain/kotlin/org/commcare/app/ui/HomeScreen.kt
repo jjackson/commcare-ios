@@ -324,41 +324,49 @@ fun HomeScreen(
                 FormEntryScreen(
                     viewModel = fevm,
                     onComplete = {
-                        val xml = fevm.submitForm(state.sandbox)
-                        if (xml != null) {
-                            formQueueViewModel.enqueueForm(xml, fevm.formTitle, fevm.getFormXmlns())
-                        }
-                        // Auto-send queued forms if possible
-                        formQueueViewModel.tryAutoSend()
-                        // Check for chained forms via session stack
-                        val hasNext = navigator.finishAndPop()
-                        if (hasNext) {
-                            // Chained form or stack operation: check what's next
-                            val nextStep = navigator.getNextStep()
-                            formEntryViewModel = null
-                            when (nextStep) {
-                                is NavigationStep.StartForm -> {
-                                    val nextFevm = loadFormEntry(navigator, state, languageViewModel)
-                                    if (nextFevm != null) {
-                                        formEntryViewModel = nextFevm
-                                        // nav stays InFormEntry
-                                    } else {
+                        try {
+                            val xml = fevm.submitForm(state.sandbox)
+                            if (xml != null) {
+                                formQueueViewModel.enqueueForm(xml, fevm.formTitle, fevm.getFormXmlns())
+                            }
+                            // Auto-send queued forms if possible
+                            formQueueViewModel.tryAutoSend()
+                            // Check for chained forms via session stack
+                            val hasNext = navigator.finishAndPop()
+                            if (hasNext) {
+                                // Chained form or stack operation: check what's next
+                                val nextStep = navigator.getNextStep()
+                                formEntryViewModel = null
+                                when (nextStep) {
+                                    is NavigationStep.StartForm -> {
+                                        val nextFevm = loadFormEntry(navigator, state, languageViewModel)
+                                        if (nextFevm != null) {
+                                            formEntryViewModel = nextFevm
+                                        } else {
+                                            navigator.clearSession()
+                                            nav = HomeNav.Landing
+                                        }
+                                    }
+                                    is NavigationStep.ShowMenu -> {
+                                        menuViewModel.loadMenus()
+                                        nav = HomeNav.InMenu
+                                    }
+                                    is NavigationStep.ShowCaseList -> {
+                                        nav = HomeNav.InCaseList
+                                    }
+                                    else -> {
                                         navigator.clearSession()
                                         nav = HomeNav.Landing
                                     }
                                 }
-                                is NavigationStep.ShowMenu -> {
-                                    nav = HomeNav.InMenu
-                                }
-                                is NavigationStep.ShowCaseList -> {
-                                    nav = HomeNav.InCaseList
-                                }
-                                else -> {
-                                    navigator.clearSession()
-                                    nav = HomeNav.Landing
-                                }
+                            } else {
+                                navigator.clearSession()
+                                formEntryViewModel = null
+                                nav = HomeNav.Landing
                             }
-                        } else {
+                        } catch (e: Exception) {
+                            // Prevent unhandled exceptions from crashing via CMP's
+                            // pointer event system (SIGABRT on iOS).
                             navigator.clearSession()
                             formEntryViewModel = null
                             nav = HomeNav.Landing
