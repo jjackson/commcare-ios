@@ -252,7 +252,11 @@ class ConnectIdApi(
      */
     fun getOAuthToken(username: String, password: String): Result<ConnectIdTokens> {
         return try {
+            // scope=openid is required per the PersonalID OAuth spec.
+            // Without it, the server may reject ROPC token refresh.
+            // See dimagi/commcare-android ApiPersonalId.retrievePersonalIdToken().
             val body = "grant_type=password&client_id=${formUrlEncode(OAUTH_CLIENT_ID)}" +
+                "&scope=openid" +
                 "&username=${formUrlEncode(username)}&password=${formUrlEncode(password)}"
 
             val response = httpClient.execute(

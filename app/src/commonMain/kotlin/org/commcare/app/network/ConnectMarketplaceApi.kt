@@ -116,11 +116,11 @@ class ConnectMarketplaceApi(
      * Authorization: Bearer <access_token>
      * Expects 201 Created on success.
      */
-    fun claimOpportunity(accessToken: String, id: Int): Result<Unit> {
+    fun claimOpportunity(accessToken: String, opportunityUuid: String): Result<Unit> {
         return executeAuthenticatedPost(
-            "$baseUrl/api/opportunity/$id/claim",
+            "$baseUrl/api/opportunity/$opportunityUuid/claim",
             accessToken,
-            body = "{}"
+            body = null
         )
     }
 
@@ -128,13 +128,38 @@ class ConnectMarketplaceApi(
      * Start the learn app for an opportunity.
      * POST /users/start_learn_app
      * Authorization: Bearer <access_token>
+     *
+     * Returns the raw HTTP status + response body on both success and failure so
+     * the UI can surface whether Connect actually provisioned the HQ worker.
      */
-    fun startLearnApp(accessToken: String, opportunityId: String): Result<Unit> {
-        return executeAuthenticatedPost(
-            "$baseUrl/users/start_learn_app",
-            accessToken,
-            body = """{"opportunity":"${escapeJson(opportunityId)}"}"""
-        )
+    fun startLearnApp(accessToken: String, opportunityId: String): Result<String> {
+        // Android sends form-encoded with trailing slash — server rejects JSON.
+        return try {
+            val url = "$baseUrl/users/start_learn_app/"
+            val formBody = "opportunity=${formUrlEncode(opportunityId)}"
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = url,
+                    method = "POST",
+                    headers = apiHeaders(accessToken),
+                    body = formBody.encodeToByteArray(),
+                    contentType = "application/x-www-form-urlencoded"
+                )
+            )
+            val body = response.body?.decodeToString()
+                ?: response.errorBody?.decodeToString()
+                ?: ""
+            val trace = "POST $url -> HTTP ${response.code}\n" +
+                "req: opportunity=$opportunityId\n" +
+                "resp: ${if (body.length > 800) body.take(800) + "…" else body}"
+            if (response.code in 200..299) {
+                Result.success(trace)
+            } else {
+                Result.failure(ConnectMarketplaceException(trace))
+            }
+        } catch (e: Exception) {
+            Result.failure(ConnectMarketplaceException("startLearnApp threw: ${e::class.simpleName}: ${e.message}", e))
+        }
     }
 
     /**
@@ -637,6 +662,40 @@ class ConnectMarketplaceApi(
      * Execute an authenticated POST using a Bearer token in the Authorization header.
      * Expects a 2xx response with no meaningful body.
      */
+    /**
+     * POST with form-encoded body — matches Android's ConnectNetworkHelper.buildPostFormHeaders
+     * with useFormEncoding=true. Some Connect endpoints reject JSON.
+     */
+    private fun executeAuthenticatedFormPost(
+        url: String,
+        accessToken: String,
+        params: Map<String, String>
+    ): Result<Unit> {
+        return try {
+            val formBody = params.entries.joinToString("&") {
+                "${formUrlEncode(it.key)}=${formUrlEncode(it.value)}"
+            }
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = url,
+                    method = "POST",
+                    headers = apiHeaders(accessToken),
+                    body = formBody.encodeToByteArray(),
+                    contentType = "application/x-www-form-urlencoded"
+                )
+            )
+            if (response.code !in 200..299) {
+                val errorBody = response.errorBody?.decodeToString()
+                    ?: response.body?.decodeToString()
+                    ?: "HTTP ${response.code}"
+                return Result.failure(ConnectMarketplaceException(errorBody))
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(ConnectMarketplaceException("Request failed: ${e.message}", e))
+        }
+    }
+
     private fun executeAuthenticatedPost(url: String, accessToken: String, body: String?): Result<Unit> {
         return try {
             val response = httpClient.execute(

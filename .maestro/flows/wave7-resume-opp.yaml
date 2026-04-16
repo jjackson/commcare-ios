@@ -1,0 +1,17 @@
+# Wave 7: resume a claimed opportunity and check learn progress.
+
+appId: org.marshellis.commcare.ios
+
+---
+
+- extendedWaitUntil:
+    visible:
+      text: "Resume"
+    timeout: 10000
+
+- tapOn:
+    text: "Resume"
+    index: 0
+- waitForAnimationToEnd: {timeout: 10000}
+
+- takeScreenshot: /tmp/phase9-wave7-resumed-opp
