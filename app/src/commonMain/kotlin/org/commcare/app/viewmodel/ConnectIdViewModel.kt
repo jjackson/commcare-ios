@@ -174,15 +174,23 @@ class ConnectIdViewModel(
                             // relying on a later keychain round-trip (which may
                             // fail due to iOS keychain timing/access issues on
                             // simulator). See #389.
+                            // The ROPC password from recovery is single-use: it
+                            // works for ONE token exchange then the server invalidates
+                            // it. Fetch the token NOW and store in both keychain AND
+                            // DB so it's available for marketplace API calls.
                             try {
                                 val tokenResult = api.getOAuthToken(response.username, response.password)
                                 tokenResult.getOrNull()?.let { tokens ->
                                     val expiryAt = org.commcare.app.platform.currentEpochSeconds() + tokens.expiresIn - 60L
                                     keychainStore.store("connect_access_token", tokens.accessToken)
                                     keychainStore.store("connect_token_expiry", expiryAt.toString())
+                                    // Also store in DB as belt-and-suspenders
+                                    repository.db.commCareQueries.setPreference("connect_access_token", tokens.accessToken)
+                                    repository.db.commCareQueries.setPreference("connect_token_expiry", expiryAt.toString())
                                 }
                             } catch (_: Exception) {
-                                // Non-fatal: token will be refreshed on demand
+                                // Non-fatal but means marketplace won't work until
+                                // user signs in again (password is now invalidated)
                             }
                             // Save recovered user record
                             try {

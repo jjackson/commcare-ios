@@ -57,6 +57,7 @@ class OpportunitiesViewModel(
     var downloadState by mutableStateOf<DownloadState>(DownloadState.Idle)
         private set
 
+
     /**
      * Cached HQ SSO token obtained after a Connect app install completes.
      * The caller (e.g. LoginViewModel) can use this for auto-login.
@@ -122,7 +123,7 @@ class OpportunitiesViewModel(
     /**
      * POST to claim the opportunity, then refresh the list so claimed status updates.
      */
-    fun claimOpportunity(id: Int) {
+    fun claimOpportunity(opportunityUuid: String) {
         isLoading = true
         errorMessage = null
         scope.launch {
@@ -133,7 +134,7 @@ class OpportunitiesViewModel(
                     isLoading = false
                     return@launch
                 }
-                val result = api.claimOpportunity(token, id)
+                val result = api.claimOpportunity(token, opportunityUuid)
                 result.fold(
                     onSuccess = {
                         // Refresh list to reflect new claimed status
@@ -141,8 +142,7 @@ class OpportunitiesViewModel(
                         refreshResult.fold(
                             onSuccess = { list ->
                                 opportunities = list
-                                // Update selectedOpportunity with fresh data
-                                selectedOpportunity = list.find { it.id == id }
+                                selectedOpportunity = list.find { it.opportunityId == opportunityUuid }
                                     ?: selectedOpportunity
                             },
                             onFailure = { /* list stale but claim succeeded */ }
@@ -217,7 +217,6 @@ class OpportunitiesViewModel(
                         refreshResult.fold(
                             onSuccess = { list ->
                                 opportunities = list
-                                // Update selectedOpportunity with fresh data
                                 selectedOpportunity = list.find { it.opportunityId == opportunityId }
                                     ?: selectedOpportunity
                             },

@@ -71,11 +71,27 @@ fun App(db: CommCareDatabase) {
             // screen, then return to Connect opportunities when done.
             if (pendingConnectInstall != null) {
                 val (installUrl, _) = pendingConnectInstall!!
-                // Kick off the install if not already running
-                if (appInstallViewModel.installState is InstallState.Idle) {
-                    appInstallViewModel.install(installUrl)
+
+                // Kick off the install via LaunchedEffect (not inline during
+                // composition) to avoid CMP iOS recomposition issues (#416, #433).
+                LaunchedEffect(installUrl) {
+                    if (appInstallViewModel.installState is InstallState.Idle) {
+                        appInstallViewModel.install(installUrl)
+                    }
                 }
-                when (val installState = appInstallViewModel.installState) {
+
+                // Handle completion via LaunchedEffect to avoid inline state
+                // mutation during composition (CMP iOS doesn't reliably
+                // trigger recomposition for inline mutations).
+                LaunchedEffect(appInstallViewModel.installState) {
+                    if (appInstallViewModel.installState is InstallState.Completed) {
+                        appInstallViewModel.reset()
+                        pendingConnectInstall = null
+                        showOpportunities = true
+                    }
+                }
+
+                when (appInstallViewModel.installState) {
                     is InstallState.Installing, is InstallState.Failed -> {
                         InstallProgressScreen(
                             viewModel = appInstallViewModel,
@@ -90,13 +106,16 @@ fun App(db: CommCareDatabase) {
                             }
                         )
                     }
-                    is InstallState.Completed -> {
-                        // Install succeeded — return to Connect screen
-                        appInstallViewModel.reset()
-                        pendingConnectInstall = null
-                        showOpportunities = true
+                    else -> {
+                        // Idle or Completed — show a loading indicator while waiting
+                        // for install to start or completion to be processed
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator()
+                        }
                     }
-                    is InstallState.Idle -> { /* waiting for install to start */ }
                 }
                 return@Surface
             }

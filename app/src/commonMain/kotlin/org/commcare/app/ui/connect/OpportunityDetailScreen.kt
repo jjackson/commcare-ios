@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.commcare.app.model.Opportunity
 import org.commcare.app.model.daysUntil
@@ -376,18 +377,80 @@ private fun ProgressTabContent(
         }
     }
 
-    // Context-aware action buttons for learning and delivery
+    // Learn module list — shows each module with completion status
     val learnApp = opportunity.learnApp
     val deliverApp = opportunity.deliverApp
     val learningComplete = viewModel.isLearningComplete(opportunity)
     val downloadState = viewModel.downloadState
 
+    if (learnApp != null && learnApp.learnModules.isNotEmpty() && !learningComplete) {
+        Text(
+            text = "Learn Modules",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        val completedModules = opportunity.learnProgress?.completedModules ?: 0
+        learnApp.learnModules.forEachIndexed { index, module ->
+            val isCompleted = index < completedModules
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isCompleted) Color(0xFFE8F5E9) else Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Completion indicator
+                    Text(
+                        text = if (isCompleted) "\u2705" else "\u25CB",
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = module.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (module.description.isNotBlank()) {
+                            Text(
+                                text = module.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    Text(
+                        text = "~${module.timeEstimate}h",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    // Context-aware action buttons for learning and delivery
     // Show "Start Learning" when learn app exists and learning is not yet complete
     if (onDownloadApp != null && learnApp != null && !learnApp.installUrl.isNullOrBlank() && !learningComplete) {
         val isDownloadingLearn = downloadState is DownloadState.Downloading &&
             downloadState.appName == learnApp.name
         Button(
             onClick = {
+                // Call start_learn_app first so Connect provisions the HQ worker
+                // on the opp's domain, then download the CCZ app. Trace surfaces
+                // below regardless of which step fails.
+                viewModel.startLearning(opportunity.opportunityId)
                 viewModel.downloadAndInstallApp(learnApp) { success ->
                     if (success) {
                         onDownloadApp(learnApp.installUrl, learnApp.name)
@@ -441,6 +504,7 @@ private fun ProgressTabContent(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )
     }
+
 
     // Per-payment-unit breakdown with approved/remaining counts
     if (opportunity.paymentUnits.isNotEmpty()) {
