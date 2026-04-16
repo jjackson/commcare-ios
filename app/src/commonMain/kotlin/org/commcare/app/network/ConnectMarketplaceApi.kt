@@ -128,14 +128,38 @@ class ConnectMarketplaceApi(
      * Start the learn app for an opportunity.
      * POST /users/start_learn_app
      * Authorization: Bearer <access_token>
+     *
+     * Returns the raw HTTP status + response body on both success and failure so
+     * the UI can surface whether Connect actually provisioned the HQ worker.
      */
-    fun startLearnApp(accessToken: String, opportunityId: String): Result<Unit> {
+    fun startLearnApp(accessToken: String, opportunityId: String): Result<String> {
         // Android sends form-encoded with trailing slash — server rejects JSON.
-        return executeAuthenticatedFormPost(
-            "$baseUrl/users/start_learn_app/",
-            accessToken,
-            params = mapOf("opportunity" to opportunityId)
-        )
+        return try {
+            val url = "$baseUrl/users/start_learn_app/"
+            val formBody = "opportunity=${formUrlEncode(opportunityId)}"
+            val response = httpClient.execute(
+                HttpRequest(
+                    url = url,
+                    method = "POST",
+                    headers = apiHeaders(accessToken),
+                    body = formBody.encodeToByteArray(),
+                    contentType = "application/x-www-form-urlencoded"
+                )
+            )
+            val body = response.body?.decodeToString()
+                ?: response.errorBody?.decodeToString()
+                ?: ""
+            val trace = "POST $url -> HTTP ${response.code}\n" +
+                "req: opportunity=$opportunityId\n" +
+                "resp: ${if (body.length > 800) body.take(800) + "…" else body}"
+            if (response.code in 200..299) {
+                Result.success(trace)
+            } else {
+                Result.failure(ConnectMarketplaceException(trace))
+            }
+        } catch (e: Exception) {
+            Result.failure(ConnectMarketplaceException("startLearnApp threw: ${e::class.simpleName}: ${e.message}", e))
+        }
     }
 
     /**

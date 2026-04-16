@@ -57,6 +57,7 @@ class OpportunitiesViewModel(
     var downloadState by mutableStateOf<DownloadState>(DownloadState.Idle)
         private set
 
+
     /**
      * Cached HQ SSO token obtained after a Connect app install completes.
      * The caller (e.g. LoginViewModel) can use this for auto-login.
@@ -216,7 +217,6 @@ class OpportunitiesViewModel(
                         refreshResult.fold(
                             onSuccess = { list ->
                                 opportunities = list
-                                // Update selectedOpportunity with fresh data
                                 selectedOpportunity = list.find { it.opportunityId == opportunityId }
                                     ?: selectedOpportunity
                             },

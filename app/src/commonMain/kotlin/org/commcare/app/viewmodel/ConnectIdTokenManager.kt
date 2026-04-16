@@ -74,6 +74,10 @@ class ConnectIdTokenManager(
     var lastTokenError: String? = null
         private set
 
+    /** Last trace from HQ SSO token exchange — surfaced in UI for debugging. */
+    var lastHqSsoTrace: String? = null
+        private set
+
     /** Read a value from keychain, falling back to the DB preferences table. */
     private fun retrieveCredential(key: String): String? {
         return keychainStore.retrieve(key)
@@ -129,43 +133,54 @@ class ConnectIdTokenManager(
      * @return HQ access token string, or null on any failure.
      */
     fun getHqSsoToken(hqUrl: String, domain: String, hqUsername: String): String? {
-        val connectToken = getConnectIdToken() ?: return null
+        val connectToken = getConnectIdToken()
+        if (connectToken == null) {
+            lastHqSsoTrace = "FAIL: no Connect token available"
+            return null
+        }
         val httpClient = createHttpClient()
+        val traceBuf = StringBuilder()
 
-        // Step 1: Attempt to link PersonalID user to HQ account (best-effort).
-        // Android does this via ConnectSsoHelper.linkHqWorker — it sends the
-        // Connect token to the HQ linking endpoint. If already linked, the
-        // server returns an error which we ignore. This must happen before
-        // the HQ token exchange will work.
+        // Step 1: Link PersonalID user to HQ domain. Android sends form-encoded
+        // body `token=<connectToken>`, not JSON. This is best-effort — the
+        // server typically creates the ConnectIDUserLink during worker
+        // provisioning so this call usually 401s (wrong Basic Auth password).
+        val generatedPassword = generateAppPassword()
+        val linkUrl = "${hqUrl.trimEnd('/')}/a/$domain/settings/users/commcare/link_connectid_user/"
+        val fullHqUsername = "${hqUsername}@${domain}.commcarehq.org"
         try {
-            val linkUrl = "${hqUrl.trimEnd('/')}/settings/users/commcare/link_connectid_user/"
-            val linkBody = """{"token":"$connectToken"}"""
-            // The link endpoint on Android uses Basic Auth (hqUsername:hqPassword)
-            // but for Connect-initiated apps, the worker is auto-created on claim.
-            // Try without auth first — the server may accept the Connect token alone.
-            httpClient.execute(
+            val linkBody = "token=${formUrlEncode(connectToken)}"
+            val basicAuth = base64Encode("$fullHqUsername:$generatedPassword".encodeToByteArray())
+            val linkResp = httpClient.execute(
                 HttpRequest(
                     url = linkUrl,
                     method = "POST",
                     headers = mapOf(
-                        "Content-Type" to "application/json",
-                        "Authorization" to "Bearer $connectToken"
+                        "Content-Type" to "application/x-www-form-urlencoded",
+                        "Authorization" to "Basic $basicAuth"
                     ),
                     body = linkBody.encodeToByteArray(),
-                    contentType = "application/json"
+                    contentType = "application/x-www-form-urlencoded"
                 )
             )
-            // Ignore response — linking might fail if already linked, that's fine
-        } catch (_: Exception) {
-            // Non-fatal
+            val linkBodyResp = (linkResp.body?.decodeToString() ?: linkResp.errorBody?.decodeToString() ?: "").take(300)
+            traceBuf.appendLine("STEP 1 link_connectid_user")
+            traceBuf.appendLine("  URL: $linkUrl")
+            traceBuf.appendLine("  auth: Basic $fullHqUsername:<genPass>")
+            traceBuf.appendLine("  HTTP ${linkResp.code}")
+            traceBuf.appendLine("  resp: $linkBodyResp")
+        } catch (e: Exception) {
+            traceBuf.appendLine("STEP 1 link_connectid_user THREW: ${e.message}")
         }
 
-        // Step 2: Exchange Connect token for HQ SSO token
+        // Step 2: Exchange Connect token for HQ SSO token. The username must
+        // include the `.commcarehq.org` suffix so CouchUser.get_by_username
+        // finds the mobile worker.
         val tokenUrl = "${hqUrl.trimEnd('/')}/oauth/token/"
         val body = "client_id=${formUrlEncode(HQ_OAUTH_CLIENT_ID)}" +
             "&grant_type=password" +
             "&scope=mobile_access+sync" +
-            "&username=${formUrlEncode("${hqUsername}@${domain}")}" +
+            "&username=${formUrlEncode(fullHqUsername)}" +
             "&password=${formUrlEncode(connectToken)}"
 
         val request = HttpRequest(
@@ -176,11 +191,25 @@ class ConnectIdTokenManager(
             contentType = "application/x-www-form-urlencoded"
         )
 
-        val response = httpClient.execute(request)
-        if (response.code !in 200..299) return null
-
-        val responseBody = response.body?.decodeToString() ?: return null
-        return extractJsonValue(responseBody, "access_token")
+        try {
+            val response = httpClient.execute(request)
+            val responseBody = response.body?.decodeToString() ?: response.errorBody?.decodeToString() ?: ""
+            traceBuf.appendLine("STEP 2 /oauth/token/")
+            traceBuf.appendLine("  URL: $tokenUrl")
+            traceBuf.appendLine("  username: $fullHqUsername")
+            traceBuf.appendLine("  password: <connect_token len=${connectToken.length}>")
+            traceBuf.appendLine("  client_id: $HQ_OAUTH_CLIENT_ID")
+            traceBuf.appendLine("  scope: mobile_access+sync")
+            traceBuf.appendLine("  HTTP ${response.code}")
+            traceBuf.appendLine("  resp: ${responseBody.take(400)}")
+            lastHqSsoTrace = traceBuf.toString()
+            if (response.code !in 200..299) return null
+            return extractJsonValue(responseBody, "access_token")
+        } catch (e: Exception) {
+            traceBuf.appendLine("STEP 2 /oauth/token/ THREW: ${e.message}")
+            lastHqSsoTrace = traceBuf.toString()
+            return null
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -226,7 +255,7 @@ class ConnectIdTokenManager(
 
         val response = httpClient.execute(request)
         if (response.code in 200..299) {
-            val connectUsername = keychainStore.retrieve(KEY_CONNECT_USERNAME) ?: ""
+            val connectUsername = retrieveCredential(KEY_CONNECT_USERNAME) ?: ""
             repository.saveHqLink(hqUsername, domain, connectUsername)
             return true
         }
@@ -241,7 +270,7 @@ class ConnectIdTokenManager(
     fun isRegistered(): Boolean = repository.isRegistered()
 
     /** Returns the stored ConnectID username, or null if not registered. */
-    fun getStoredUsername(): String? = keychainStore.retrieve(KEY_CONNECT_USERNAME)
+    fun getStoredUsername(): String? = retrieveCredential(KEY_CONNECT_USERNAME)
 
     // -------------------------------------------------------------------------
     // Private helpers
@@ -259,6 +288,15 @@ class ConnectIdTokenManager(
     /**
      * RFC 4648 Base64 encoder (no external dependencies).
      */
+    /**
+     * Generate a random 20-char password for Connect-linked HQ apps.
+     * Matches Android's ConnectAppUtils.generateAppPassword().
+     */
+    private fun generateAppPassword(): String {
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
+        return (1..20).map { chars[kotlin.random.Random.nextInt(chars.length)] }.joinToString("")
+    }
+
     private fun base64Encode(data: ByteArray): String {
         val alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
         val sb = StringBuilder()

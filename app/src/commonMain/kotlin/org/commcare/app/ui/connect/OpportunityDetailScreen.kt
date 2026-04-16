@@ -447,6 +447,10 @@ private fun ProgressTabContent(
             downloadState.appName == learnApp.name
         Button(
             onClick = {
+                // Call start_learn_app first so Connect provisions the HQ worker
+                // on the opp's domain, then download the CCZ app. Trace surfaces
+                // below regardless of which step fails.
+                viewModel.startLearning(opportunity.opportunityId)
                 viewModel.downloadAndInstallApp(learnApp) { success ->
                     if (success) {
                         onDownloadApp(learnApp.installUrl, learnApp.name)
@@ -500,6 +504,7 @@ private fun ProgressTabContent(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
         )
     }
+
 
     // Per-payment-unit breakdown with approved/remaining counts
     if (opportunity.paymentUnits.isNotEmpty()) {
