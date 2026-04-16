@@ -34,7 +34,7 @@ fun ConnectScreen(
     tokenManager: ConnectIdTokenManager,
     onBack: () -> Unit,
     initialTab: String = "opportunities",
-    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
+    onDownloadApp: ((installUrl: String, appName: String, domain: String) -> Unit)? = null
 ) {
     val opportunitiesViewModel = remember { OpportunitiesViewModel(api, tokenManager) }
     val messagingViewModel = remember { MessagingViewModel(api, tokenManager) }

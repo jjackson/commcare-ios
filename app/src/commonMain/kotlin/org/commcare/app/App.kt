@@ -48,7 +48,8 @@ fun App(db: CommCareDatabase) {
     var connectInitialTab by remember { mutableStateOf("opportunities") }
     var connectIdRegistered by remember { mutableStateOf(deps.connectIdRepository.isRegistered()) }
     // When non-null, an in-progress Connect app download is pending install
-    var pendingConnectInstall by remember { mutableStateOf<Pair<String, String>?>(null) }
+    // Triple: (installUrl, appName, ccDomain)
+    var pendingConnectInstall by remember { mutableStateOf<Triple<String, String, String>?>(null) }
 
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -70,7 +71,7 @@ fun App(db: CommCareDatabase) {
             // Handle a Connect-initiated app install: run the standard install-progress
             // screen, then return to Connect opportunities when done.
             if (pendingConnectInstall != null) {
-                val (installUrl, _) = pendingConnectInstall!!
+                val (installUrl, _, connectDomain) = pendingConnectInstall!!
 
                 // Kick off the install via LaunchedEffect (not inline during
                 // composition) to avoid CMP iOS recomposition issues (#416, #433).
@@ -86,8 +87,36 @@ fun App(db: CommCareDatabase) {
                 LaunchedEffect(appInstallViewModel.installState) {
                     if (appInstallViewModel.installState is InstallState.Completed) {
                         appInstallViewModel.reset()
-                        pendingConnectInstall = null
-                        showOpportunities = true
+
+                        // Attempt SSO auto-login: get HQ token and restore
+                        val ssoUsername = deps.connectIdTokenManager.getStoredUsername() ?: ""
+                        val ssoToken = if (ssoUsername.isNotBlank()) {
+                            try {
+                                deps.connectIdTokenManager.getHqSsoToken(
+                                    hqUrl = "https://www.commcarehq.org",
+                                    domain = connectDomain,
+                                    hqUsername = ssoUsername
+                                )
+                            } catch (_: Exception) { null }
+                        } else null
+
+                        if (ssoToken != null) {
+                            // Seat the newly installed app and auto-login
+                            val seatedApp = appRepository.getSeatedApp()
+                            if (seatedApp != null) {
+                                loginViewModel.configureApp(
+                                    serverUrl = "https://www.commcarehq.org",
+                                    appId = seatedApp.id,
+                                    app = seatedApp
+                                )
+                            }
+                            pendingConnectInstall = null
+                            loginViewModel.loginWithSsoToken(ssoToken, connectDomain)
+                        } else {
+                            // Fallback: return to opportunities list
+                            pendingConnectInstall = null
+                            showOpportunities = true
+                        }
                     }
                 }
 
@@ -127,9 +156,9 @@ fun App(db: CommCareDatabase) {
                     tokenManager = deps.connectIdTokenManager,
                     onBack = { showOpportunities = false },
                     initialTab = connectInitialTab,
-                    onDownloadApp = { installUrl, appName ->
+                    onDownloadApp = { installUrl, appName, domain ->
                         showOpportunities = false
-                        pendingConnectInstall = Pair(installUrl, appName)
+                        pendingConnectInstall = Triple(installUrl, appName, domain)
                     }
                 )
                 return@Surface

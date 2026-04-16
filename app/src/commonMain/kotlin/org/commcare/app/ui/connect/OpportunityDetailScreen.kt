@@ -66,7 +66,7 @@ private fun determineJobStep(opp: Opportunity): Int {
 fun OpportunityDetailScreen(
     viewModel: OpportunitiesViewModel,
     onBack: () -> Unit,
-    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
+    onDownloadApp: ((installUrl: String, appName: String, domain: String) -> Unit)? = null
 ) {
     val opp = viewModel.selectedOpportunity ?: return
 
@@ -288,7 +288,7 @@ private fun TabBar(selectedTab: DetailTab, onTabSelected: (DetailTab) -> Unit) {
 private fun ProgressTabContent(
     viewModel: OpportunitiesViewModel,
     opportunity: Opportunity,
-    onDownloadApp: ((installUrl: String, appName: String) -> Unit)? = null
+    onDownloadApp: ((installUrl: String, appName: String, domain: String) -> Unit)? = null
 ) {
     val detail = viewModel.deliveryProgress
 
@@ -453,7 +453,7 @@ private fun ProgressTabContent(
                 viewModel.startLearning(opportunity.opportunityId)
                 viewModel.downloadAndInstallApp(learnApp) { success ->
                     if (success) {
-                        onDownloadApp(learnApp.installUrl, learnApp.name)
+                        onDownloadApp(learnApp.installUrl, learnApp.name, learnApp.ccDomain)
                     }
                 }
             },
@@ -478,7 +478,7 @@ private fun ProgressTabContent(
             onClick = {
                 viewModel.downloadAndInstallApp(deliverApp) { success ->
                     if (success) {
-                        onDownloadApp(deliverApp.installUrl, deliverApp.name)
+                        onDownloadApp(deliverApp.installUrl, deliverApp.name, deliverApp.ccDomain)
                     }
                 }
             },

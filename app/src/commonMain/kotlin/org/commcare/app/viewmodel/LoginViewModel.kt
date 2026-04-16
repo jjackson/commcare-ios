@@ -344,6 +344,51 @@ class LoginViewModel(private val db: CommCareDatabase) {
     }
 
     /**
+     * Log in using an HQ OAuth Bearer token (from Connect SSO exchange).
+     * Calls the same restore endpoint as [login] but with Bearer auth
+     * instead of Basic, then parses restore data and installs the app.
+     *
+     * @param token  HQ access token from /oauth/token/ exchange.
+     * @param domain HQ project domain (e.g. "andreaconnect").
+     */
+    fun loginWithSsoToken(token: String, domain: String) {
+        appState = AppState.LoggingIn(serverUrl, "ConnectID")
+
+        scope.launch {
+            try {
+                val loginUrl = "${serverUrl.trimEnd('/')}/a/$domain/phone/restore/"
+                authHeader = "Bearer $token"
+
+                val response = httpClient.execute(
+                    HttpRequest(
+                        url = loginUrl,
+                        method = "GET",
+                        headers = mapOf(
+                            "Authorization" to authHeader!!,
+                            "X-CommCareHQ-LastSyncToken" to ""
+                        )
+                    )
+                )
+
+                when {
+                    response.code in 200..299 -> {
+                        appState = AppState.Installing(0.1f, "Parsing restore data...")
+                        parseRestoreResponse(response.body, domain)
+                    }
+                    response.code == 401 -> {
+                        appState = AppState.LoginError("SSO token rejected (401)")
+                    }
+                    else -> {
+                        appState = AppState.LoginError("Server error (${response.code})")
+                    }
+                }
+            } catch (e: Exception) {
+                appState = AppState.LoginError("SSO login failed: ${e.message}")
+            }
+        }
+    }
+
+    /**
      * Set app state directly — used by demo mode to bypass login.
      */
     fun setReadyState(state: AppState) {
